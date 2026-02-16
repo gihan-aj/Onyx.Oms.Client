@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Onyx.Oms.Client.Desktop (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Onyx.Oms.Client.Desktop (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

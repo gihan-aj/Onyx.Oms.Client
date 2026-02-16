@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="Onyx.Oms.Client.Desktop.Shared.Shell.LoginView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid>
+        <!-- Background is Transparent to let Window's MicaBackdrop show through -->
+        <Grid.Background>
+            <SolidColorBrush Color="Transparent" />
+        </Grid.Background>
+
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="24">
+            <!-- Logo area -->
+            <Image Source="/Assets/StoreLogo.png" Width="120" Height="120" />
+            
+            <TextBlock Text="Welcome to Onyx OMS" 
+                       Style="{StaticResource TitleTextBlockStyle}" 
+                       HorizontalAlignment="Center"
+                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+
+            <TextBlock Text="Please sign in to continue" 
+                       Style="{StaticResource BodyTextBlockStyle}" 
+                       HorizontalAlignment="Center" 
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+
+            <Button x:Name="LoginButton" 
+                    Content="Sign In with OpenID" 
+                    Style="{StaticResource AccentButtonStyle}"
+                    HorizontalAlignment="Center" 
+                    Width="200" 
+                    Height="40"
+                    CornerRadius="20"
+                    Click="LoginButton_Click"/>
+        </StackPanel>
+    </Grid>
+</UserControl>
