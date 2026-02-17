@@ -1,4 +1,4 @@
-﻿ using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -11,6 +11,7 @@ using Onyx.Oms.Client.Desktop.Features.Couriers;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using Onyx.Oms.Client.Desktop.Shared.Services.Http;
 using Refit;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -38,13 +39,40 @@ namespace Onyx.Oms.Client.Desktop
         public App()
         {
             InitializeComponent();
+            
+            ConfigureLogging();
 
             Services = ConfigureServices();
+        }
+
+        private void ConfigureLogging()
+        {
+            var logFolder = System.IO.Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path, "Logs");
+            
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+                .MinimumLevel.Override("System.Net.Http", Serilog.Events.LogEventLevel.Warning)
+                .MinimumLevel.Override("Refit", Serilog.Events.LogEventLevel.Warning)
+                .WriteTo.Debug()
+                .WriteTo.File(System.IO.Path.Combine(logFolder, "log-.txt"), 
+                    rollingInterval: RollingInterval.Day, 
+                    retainedFileCountLimit: 7)
+                .CreateLogger();
+
+            Log.Information("Application Starting Up");
         }
 
         private static IServiceProvider ConfigureServices()
         {
             var services = new ServiceCollection();
+
+            // Logging
+            services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
+
+            // Core Infrastructure
+            services.AddSingleton<ISettingsService, SettingsService>();
+            services.AddSingleton<IFileService, FileService>();
 
             // Core Services
             services.AddSingleton<IActivationService, ActivationService>();
@@ -60,15 +88,13 @@ namespace Onyx.Oms.Client.Desktop
             services.AddTransient<AuthHeaderHandler>();
             services.AddTransient<ProblemDetailsHandler>();
 
-            services.AddTransient<ProblemDetailsHandler>();
-
             // API Clients
             // We use a base URL placeholder for now. In a real app, this comes from AppConfig.
             services.AddRefitClient<ICourierApi>()
                     .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://localhost:7157")) // Replace with actual API URL
                     .AddHttpMessageHandler<AuthHeaderHandler>()
                     .AddHttpMessageHandler<ProblemDetailsHandler>();
-
+            
             // Activation Handlers
             // Register specific activation handlers here
             // services.AddTransient<IActivationHandler, SomeSpecificHandler>();

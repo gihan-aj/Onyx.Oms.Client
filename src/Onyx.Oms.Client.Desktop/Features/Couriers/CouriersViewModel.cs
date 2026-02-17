@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ public partial class CouriersViewModel : ObservableObject, INavigationAware
     private readonly ICourierApi _courierApi;
     private readonly IToastService _toastService;
     private readonly IDialogService _dialogService;
+    private readonly ILogger<CouriersViewModel> _logger;
 
     private ObservableCollection<CourierDto> _couriers = new();
     public ObservableCollection<CourierDto> Couriers
@@ -132,11 +134,16 @@ public partial class CouriersViewModel : ObservableObject, INavigationAware
     public IAsyncRelayCommand<CourierDto> ActivateCommand { get; }
     public IAsyncRelayCommand<CourierDto> DeactivateCommand { get; }
 
-    public CouriersViewModel(ICourierApi courierApi, IToastService toastService, IDialogService dialogService)
+    public CouriersViewModel(
+        ICourierApi courierApi, 
+        IToastService toastService, 
+        IDialogService dialogService,
+        ILogger<CouriersViewModel> logger)
     {
         _courierApi = courierApi;
         _toastService = toastService;
         _dialogService = dialogService;
+        _logger = logger;
 
         LoadDataCommand = new AsyncRelayCommand(LoadDataAsync);
         NextPageCommand = new AsyncRelayCommand(OnNextPage);

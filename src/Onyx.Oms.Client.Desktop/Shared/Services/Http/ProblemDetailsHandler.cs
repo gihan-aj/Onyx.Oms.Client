@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Onyx.Oms.Client.Desktop.Shared.Models;
 
 namespace Onyx.Oms.Client.Desktop.Shared.Services.Http;
@@ -13,11 +14,16 @@ public class ProblemDetailsHandler : DelegatingHandler
 {
     private readonly IToastService _toastService;
     private readonly IDialogService _dialogService;
+    private readonly ILogger<ProblemDetailsHandler> _logger;
 
-    public ProblemDetailsHandler(IToastService toastService, IDialogService dialogService)
+    public ProblemDetailsHandler(
+        IToastService toastService, 
+        IDialogService dialogService,
+        ILogger<ProblemDetailsHandler> logger)
     {
         _toastService = toastService;
         _dialogService = dialogService;
+        _logger = logger;
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
@@ -32,17 +38,22 @@ public class ProblemDetailsHandler : DelegatingHandler
             }
 
             // Handle Error Responses
+            _logger.LogWarning("API Error: {StatusCode} {ReasonPhrase} for {Method} {Uri}", 
+                response.StatusCode, response.ReasonPhrase, request.Method, request.RequestUri);
+            
             await HandleErrorResponse(response);
             
             return response;
         }
         catch (HttpRequestException ex)
         {
+            _logger.LogError(ex, "Network Error for {Method} {Uri}", request.Method, request.RequestUri);
             _toastService.ShowError("Network Error", "Unable to connect to the server. Please check your internet connection.");
             throw;
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Unexpected Error for {Method} {Uri}", request.Method, request.RequestUri);
             _toastService.ShowError("Unexpected Error", ex.Message);
             throw;
         }
@@ -53,6 +64,9 @@ public class ProblemDetailsHandler : DelegatingHandler
         try
         {
             var content = await response.Content.ReadAsStringAsync();
+            
+            // Log raw content for debugging
+            _logger.LogWarning("Error Content: {Content}", content);
 
             if (response.StatusCode == HttpStatusCode.Unauthorized || response.StatusCode == HttpStatusCode.Forbidden)
             {
@@ -74,7 +88,10 @@ public class ProblemDetailsHandler : DelegatingHandler
                 if (problemDetails != null)
                 {
                     var title = problemDetails.Title ?? "Error";
+                    var detail = problemDetails.Detail ?? "An error occurred."; // Capture detail for logging
                     var errors = problemDetails.Extensions?.Errors;
+
+                    _logger.LogWarning("ProblemDetails: {Title} - {Detail}", title, detail);
 
                     if (errors != null && errors.Count > 1)
                     {
@@ -91,7 +108,7 @@ public class ProblemDetailsHandler : DelegatingHandler
                     else
                     {
                         // No specific errors list -> Toast the title/detail
-                        _toastService.ShowError(title, problemDetails.Detail ?? "An error occurred.");
+                        _toastService.ShowError(title, detail);
                     }
                     return;
                 }
@@ -100,8 +117,9 @@ public class ProblemDetailsHandler : DelegatingHandler
             // Fallback for non-JSON errors
             _toastService.ShowError($"Error {response.StatusCode}", response.ReasonPhrase ?? "Unknown error");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Failed to handle error response parsing");
             // Failed to parse or handle -> Generic Toast
             _toastService.ShowError("Error", "An unexpected error occurred while processing the response.");
         }
