@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="Onyx.Oms.Client.Desktop.Features.Couriers.CourierFormDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Onyx.Oms.Client.Desktop.Features.Couriers"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="Courier Details"
+    PrimaryButtonText="Save"
+    CloseButtonText="Cancel"
+    DefaultButton="Primary"
+    CornerRadius="8"
+    PrimaryButtonStyle="{StaticResource AccentButtonStyle}"
+    CloseButtonStyle="{StaticResource SubtleButtonStyle}">
+
+    <Grid RowSpacing="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBox x:Name="NameBox" Header="Name" PlaceholderText="Enter courier name" />
+        <TextBox Grid.Row="1" x:Name="ContactPersonBox" Header="Contact Person" PlaceholderText="Enter contact person" />
+        <TextBox Grid.Row="2" x:Name="PrimaryPhoneBox" Header="Primary Phone" PlaceholderText="Enter primary phone" InputScope="TelephoneNumber" />
+        <TextBox Grid.Row="3" x:Name="SecondaryPhoneBox" Header="Secondary Phone" PlaceholderText="Enter secondary phone" InputScope="TelephoneNumber" />
+        <TextBox Grid.Row="4" x:Name="WebsiteUrlBox" Header="Website" PlaceholderText="Enter website URL" InputScope="Url" />
+        <CheckBox Grid.Row="5" x:Name="IsActiveBox" Content="Active" IsChecked="True" IsEnabled="False" />
+    </Grid>
+</ContentDialog>

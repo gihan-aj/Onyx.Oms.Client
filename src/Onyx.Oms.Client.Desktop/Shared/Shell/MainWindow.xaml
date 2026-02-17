@@ -68,7 +68,7 @@
                 <NavigationViewItem Icon="Send" Content="Couriers" Tag="Onyx.Oms.Client.Desktop.Features.Couriers.CouriersPage" />
             </NavigationView.MenuItems>
 
-            <Frame x:Name="ContentFrame" />
+            <Frame x:Name="ContentFrame" ScrollViewer.VerticalScrollBarVisibility="Disabled" />
         </NavigationView>
 
         <!-- Login View Overlay -->

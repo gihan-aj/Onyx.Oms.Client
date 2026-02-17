@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Onyx.Oms.Client.Desktop.Features.Couriers"
     xmlns:toolkit="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:primitives="using:CommunityToolkit.WinUI.UI.Controls.Primitives"
     xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -12,6 +13,7 @@
 
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:BoolToVisibilityConverter x:Key="InvertedBoolToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible" />
     </Page.Resources>
 
     <Grid Padding="24">
@@ -50,7 +52,7 @@
                         </StackPanel>
                     </Button.Content>
                 </Button>
-                <Button Style="{StaticResource AccentButtonStyle}">
+                <Button Style="{StaticResource AccentButtonStyle}" Click="OnNewClick">
                     <Button.Content>
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <SymbolIcon Symbol="Add" />
@@ -61,7 +63,7 @@
             </StackPanel>
         </Grid>
 
-        <!-- Data Grid -->
+        <!-- DataGrid -->
         <toolkit:DataGrid Grid.Row="2"
                           ItemsSource="{x:Bind ViewModel.Couriers, Mode=OneWay}"
                           AutoGenerateColumns="False"
@@ -70,19 +72,42 @@
                           GridLinesVisibility="Horizontal"
                           HeadersVisibility="Column"
                           CanUserSortColumns="True"
-                          Sorting="OnDataGridSorting">
+                          Sorting="OnDataGridSorting"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Auto">
             <toolkit:DataGrid.Columns>
-                <toolkit:DataGridTextColumn Header="Name" Binding="{Binding Name}" Tag="name" Width="*" />
-                <toolkit:DataGridTextColumn Header="Contact Person" Binding="{Binding ContactPerson}" Tag="contactPerson" Width="150" />
-                <toolkit:DataGridTextColumn Header="Phone" Binding="{Binding PrimaryPhone}" Tag="primaryPhone" Width="120" />
-                <toolkit:DataGridTextColumn Header="Website" Binding="{Binding WebsiteUrl}" Tag="websiteUrl" Width="200" />
-                <toolkit:DataGridCheckBoxColumn Header="Active" Binding="{Binding IsActive}" Tag="isActive" Width="80" />
-                <toolkit:DataGridTemplateColumn Header="Actions" Width="100">
+                <toolkit:DataGridTextColumn Header="Name" Binding="{Binding Name}" Tag="name" Width="*" MinWidth="150" HeaderStyle="{StaticResource LeftAlignedHeaderStyle}" ElementStyle="{StaticResource LeftAlignedCellStyle}" />
+                <toolkit:DataGridTextColumn Header="Contact Person" Binding="{Binding ContactPerson}" Tag="contactPerson" Width="200" MinWidth="150" HeaderStyle="{StaticResource LeftAlignedHeaderStyle}" ElementStyle="{StaticResource LeftAlignedCellStyle}" />
+                <toolkit:DataGridTextColumn Header="Phone" Binding="{Binding PrimaryPhone}" Tag="primaryPhone" Width="150" MinWidth="130" HeaderStyle="{StaticResource RightAlignedHeaderStyle}" ElementStyle="{StaticResource RightAlignedCellStyle}" />
+                <toolkit:DataGridTextColumn Header="Website" Binding="{Binding WebsiteUrl}" Tag="websiteUrl" Width="200" MinWidth="150" HeaderStyle="{StaticResource LeftAlignedHeaderStyle}" ElementStyle="{StaticResource LeftAlignedCellStyle}" />
+                
+                <toolkit:DataGridTemplateColumn Header="Status" Tag="isActive" Width="100" MinWidth="100" HeaderStyle="{StaticResource CenteredHeaderStyle}">
                     <toolkit:DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <Button Content="&#xE70F;" FontFamily="Segoe MDL2 Assets" ToolTipService.ToolTip="Edit" Style="{StaticResource SubtleButtonStyle}" />
-                                <Button Content="&#xE74D;" FontFamily="Segoe MDL2 Assets" ToolTipService.ToolTip="Delete" Style="{StaticResource SubtleButtonStyle}" Foreground="Red" />
+                            <Border Style="{StaticResource StatusBadgeStyle}" 
+                                    Background="{Binding IsActive, Converter={StaticResource StatusBackgroundConverter}}">
+                                <TextBlock Text="{Binding IsActive, Converter={StaticResource StatusTextConverter}}"
+                                           Style="{StaticResource StatusBadgeTextStyle}"
+                                           Foreground="{Binding IsActive, Converter={StaticResource StatusForegroundConverter}}" />
+                            </Border>
+                        </DataTemplate>
+                    </toolkit:DataGridTemplateColumn.CellTemplate>
+                </toolkit:DataGridTemplateColumn>
+
+                <toolkit:DataGridTemplateColumn Header="Actions" Width="200" MinWidth="200" HeaderStyle="{StaticResource CenteredHeaderStyle}">
+                    <toolkit:DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Center">
+                                <Button Content="&#xE73E;" FontFamily="Segoe MDL2 Assets" ToolTipService.ToolTip="Activate" Style="{StaticResource SubtleButtonStyle}" Click="OnActivateClick"
+                                        Visibility="{Binding IsActive, Converter={StaticResource InvertedBoolToVisibilityConverter}}" />
+                                <Button Content="&#xE711;" FontFamily="Segoe MDL2 Assets" ToolTipService.ToolTip="Deactivate" Style="{StaticResource SubtleButtonStyle}" Click="OnDeactivateClick"
+                                        Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                <AppBarSeparator />
+                                <Button Content="&#xE890;" FontFamily="Segoe MDL2 Assets" ToolTipService.ToolTip="View" Style="{StaticResource SubtleButtonStyle}" Click="OnViewClick" />
+                                <AppBarSeparator />
+                                <Button Content="&#xE70F;" FontFamily="Segoe MDL2 Assets" ToolTipService.ToolTip="Edit" Style="{StaticResource SubtleButtonStyle}" Click="OnEditClick" />
+                                <AppBarSeparator />
+                                <Button Content="&#xE74D;" FontFamily="Segoe MDL2 Assets" ToolTipService.ToolTip="Delete" Style="{StaticResource SubtleButtonStyle}" Foreground="Red" Click="OnDeleteClick" />
                             </StackPanel>
                         </DataTemplate>
                     </toolkit:DataGridTemplateColumn.CellTemplate>
@@ -107,7 +132,7 @@
 
         <!-- Loading Indicator -->
         <ProgressRing Grid.Row="2" 
-                      IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+                      IsActive="{x:Bind ViewModel.IsListLoading, Mode=OneWay}" 
                       Width="50" Height="50" 
                       HorizontalAlignment="Center" VerticalAlignment="Center" />
 

@@ -21,11 +21,24 @@ public partial class CouriersViewModel : ObservableObject, INavigationAware
         set => SetProperty(ref _couriers, value);
     }
 
-    private bool _isLoading;
-    public bool IsLoading
+    private bool _isListLoading;
+    public bool IsListLoading
     {
-        get => _isLoading;
-        set => SetProperty(ref _isLoading, value);
+        get => _isListLoading;
+        set => SetProperty(ref _isListLoading, value);
+    }
+    
+    private bool _isBusy;
+    public bool IsBusy
+    {
+        get => _isBusy;
+        set
+        {
+            if (SetProperty(ref _isBusy, value))
+            {
+                // Notify commands to re-evaluate CanExecute if needed
+            }
+        }
     }
 
     private int _page = 1;
@@ -115,6 +128,9 @@ public partial class CouriersViewModel : ObservableObject, INavigationAware
     public IAsyncRelayCommand PreviousPageCommand { get; }
     public IAsyncRelayCommand RefreshCommand { get; }
     public IAsyncRelayCommand<string> SearchCommand { get; }
+    public IAsyncRelayCommand<CourierDto> DeleteCommand { get; }
+    public IAsyncRelayCommand<CourierDto> ActivateCommand { get; }
+    public IAsyncRelayCommand<CourierDto> DeactivateCommand { get; }
 
     public CouriersViewModel(ICourierApi courierApi, IToastService toastService, IDialogService dialogService)
     {
@@ -127,15 +143,18 @@ public partial class CouriersViewModel : ObservableObject, INavigationAware
         PreviousPageCommand = new AsyncRelayCommand(OnPreviousPage);
         RefreshCommand = new AsyncRelayCommand(OnRefresh);
         SearchCommand = new AsyncRelayCommand<string>(OnSearch);
+        DeleteCommand = new AsyncRelayCommand<CourierDto>(DeleteCourier);
+        ActivateCommand = new AsyncRelayCommand<CourierDto>(ActivateCourier);
+        DeactivateCommand = new AsyncRelayCommand<CourierDto>(DeactivateCourier);
     }
 
     private async Task LoadDataAsync()
     {
-        if (IsLoading) return;
+        if (IsListLoading) return;
 
         try
         {
-            IsLoading = true;
+            IsListLoading = true;
             HasNoData = false;
             
             var result = await _courierApi.SearchCouriers(Page, PageSize, SearchTerm, SortColumn, SortDirection);
@@ -148,20 +167,118 @@ public partial class CouriersViewModel : ObservableObject, INavigationAware
 
             TotalCount = result.TotalCount;
             HasNoData = TotalCount == 0;
-            
-            // Update dependent properties manually since we are not using [ObservableProperty] for them anymore?
-            // Actually PageSummary depends on TotalCount which we updated via property setter, so it should trigger.
         }
         catch (Exception ex)
         {
-            // Error handling is mostly done by the DelegatingHandler, but we catch here to stop loading spinner
-            // and potentially log. The Interceptor shows the toast.
             Console.WriteLine($"Error loading couriers: {ex.Message}");
-            HasNoData = true; // Or show specific error state
+            HasNoData = true; 
         }
         finally
         {
-            IsLoading = false;
+            IsListLoading = false;
+        }
+    }
+
+    public async Task CreateCourier(CreateCourierDto courier)
+    {
+        if (IsBusy) return;
+        try
+        {
+            IsBusy = true;
+            await _courierApi.CreateCourier(courier);
+            _toastService.ShowSuccess("Success", "Courier created successfully.");
+            await LoadDataAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error creating courier: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    public async Task UpdateCourier(UpdateCourierDto courier)
+    {
+        if (IsBusy) return;
+        try
+        {
+            IsBusy = true;
+            await _courierApi.UpdateCourier(courier.Id, courier);
+            _toastService.ShowSuccess("Success", "Courier updated successfully.");
+            await LoadDataAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating courier: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    public async Task DeleteCourier(CourierDto? courier)
+    {
+        if (courier == null || IsBusy) return;
+
+        try
+        {
+            IsBusy = true;
+            await _courierApi.DeleteCourier(courier.Id);
+            _toastService.ShowSuccess("Success", "Courier deleted successfully.");
+            await LoadDataAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting courier: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    public async Task ActivateCourier(CourierDto? courier)
+    {
+        if (courier == null || IsBusy) return;
+
+        try
+        {
+            IsBusy = true;
+            await _courierApi.ActivateCourier(courier.Id);
+            _toastService.ShowSuccess("Success", "Courier activated successfully.");
+            await LoadDataAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error activating courier: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    public async Task DeactivateCourier(CourierDto? courier)
+    {
+        if (courier == null || IsBusy) return;
+
+        try
+        {
+            IsBusy = true;
+            await _courierApi.DeactivateCourier(courier.Id);
+            _toastService.ShowSuccess("Success", "Courier deactivated successfully.");
+            await LoadDataAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deactivating courier: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
         }
     }
 

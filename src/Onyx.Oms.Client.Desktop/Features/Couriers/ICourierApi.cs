@@ -18,6 +18,18 @@ public interface ICourierApi
     [Get("/api/v1/couriers/{id}")]
     Task<CourierDto> GetCourier(Guid id);
 
+    [Post("/api/v1/couriers")]
+    Task<Guid> CreateCourier([Body] CreateCourierDto courier);
+
+    [Put("/api/v1/couriers/{id}")]
+    Task UpdateCourier(Guid id, [Body] UpdateCourierDto courier);
+
+    [Put("/api/v1/couriers/{id}/activate")]
+    Task ActivateCourier(Guid id);
+
+    [Put("/api/v1/couriers/{id}/deactivate")]
+    Task DeactivateCourier(Guid id);
+
     [Delete("/api/v1/couriers/{id}")]
     Task DeleteCourier(Guid id);
 }

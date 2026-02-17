@@ -55,4 +55,134 @@ public sealed partial class CouriersPage : Page
         var direction = e.Column.SortDirection == CommunityToolkit.WinUI.UI.Controls.DataGridSortDirection.Ascending ? "asc" : "desc";
         _ = ViewModel.Sort(sortColumn, direction);
     }
+
+    private async void OnNewClick(object sender, RoutedEventArgs e)
+    {
+        var dialog = new CourierFormDialog() { XamlRoot = this.XamlRoot };
+        
+        // Handle saving before closing
+        dialog.PrimaryButtonClick += async (s, args) =>
+        {
+            var d = (CourierFormDialog)s;
+            var deferral = args.GetDeferral(); // Keep open while async
+            args.Cancel = true; // Assume failure/validation first
+
+            try
+            {
+                var dto = d.GetCreateDto();
+                // Validate if needed?
+                
+                await ViewModel.CreateCourier(dto);
+                args.Cancel = false; // Close on success
+            }
+            catch
+            {
+                // Error handled in VM/Interceptor, keep dialog open
+            }
+            finally
+            {
+                deferral.Complete();
+            }
+        };
+
+        await dialog.ShowAsync();
+    }
+
+    private async void OnViewClick(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is not CourierDto courier) return;
+
+        var dialog = new CourierFormDialog(courier, isReadOnly: true)
+        {
+            XamlRoot = this.XamlRoot
+        };
+        await dialog.ShowAsync();
+    }
+
+    private async void OnEditClick(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is not CourierDto courier) return;
+
+        var dialog = new CourierFormDialog(courier) { XamlRoot = this.XamlRoot };
+
+        dialog.PrimaryButtonClick += async (s, args) =>
+        {
+            var d = (CourierFormDialog)s;
+            var deferral = args.GetDeferral();
+            args.Cancel = true; 
+
+            try
+            {
+                var dto = d.GetUpdateDto(courier.Id);
+                await ViewModel.UpdateCourier(dto);
+                args.Cancel = false; 
+            }
+            catch
+            {
+                // Keep open
+            }
+            finally
+            {
+                deferral.Complete();
+            }
+        };
+
+        await dialog.ShowAsync();
+    }
+
+    private async void OnDeleteClick(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is not CourierDto courier) return;
+
+        // We can use IDialogService here since we have access to App.Services, 
+        // OR standard ContentDialog. Let's use ContentDialog for consistency or the service if injected.
+        // Actually ViewModel has DeleteCommand and DialogService, but for confirmation we usually want UI control.
+        // Let's us the DialogService via the ServiceProvider since we didn't inject it into Page (only ViewModel has it).
+        // Wait, Page has ViewModel, and ViewModel has DialogService. 
+        // But ViewModel's DialogService is for errors. 
+        // Let's just use a simple ContentDialog here for confirmation.
+
+        var dialog = new ContentDialog
+        {
+            Title = "Delete Courier",
+            Content = $"Are you sure you want to delete {courier.Name}?",
+            PrimaryButtonText = "Delete",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Close,
+            XamlRoot = this.XamlRoot
+        };
+
+        var result = await dialog.ShowAsync();
+        if (result == ContentDialogResult.Primary)
+        {
+            await ViewModel.DeleteCourier(courier);
+        }
+    }
+
+    private async void OnActivateClick(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is not CourierDto courier) return;
+        await ViewModel.ActivateCourier(courier);
+    }
+
+    private async void OnDeactivateClick(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is not CourierDto courier) return;
+
+        var dialog = new ContentDialog
+        {
+            Title = "Deactivate Courier",
+            Content = $"Are you sure you want to deactivate {courier.Name}?",
+            PrimaryButtonText = "Deactivate",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Close,
+            XamlRoot = this.XamlRoot
+        };
+
+        var result = await dialog.ShowAsync();
+        if (result == ContentDialogResult.Primary)
+        {
+            await ViewModel.DeactivateCourier(courier);
+        }
+    }
 }

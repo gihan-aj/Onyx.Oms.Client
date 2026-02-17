@@ -10,6 +10,8 @@
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
                 <ResourceDictionary Source="Shared/Styles/TextBlock.xaml" />
                 <ResourceDictionary Source="Shared/Styles/Grid.xaml" />
+                <ResourceDictionary Source="Shared/Styles/Badge.xaml" />
+                <ResourceDictionary Source="Shared/Styles/DataGrid.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <!-- Other app resources here -->
         </ResourceDictionary>
