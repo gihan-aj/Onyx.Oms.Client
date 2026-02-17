@@ -11,21 +11,40 @@ public sealed partial class MainWindow : Window
     private readonly INavigationViewService _navigationViewService;
     private readonly IAuthenticationService _authenticationService;
 
-    public MainWindow(INavigationService navigationService, INavigationViewService navigationViewService, IAuthenticationService authenticationService)
+    private readonly IDialogService _dialogService;
+    private readonly IToastService _toastService;
+
+    public MainWindow(
+        INavigationService navigationService, 
+        INavigationViewService navigationViewService, 
+        IAuthenticationService authenticationService,
+        IDialogService dialogService,
+        IToastService toastService)
     {
         InitializeComponent();
 
         _navigationService = navigationService;
         _navigationViewService = navigationViewService;
         _authenticationService = authenticationService;
+        _dialogService = dialogService;
+        _toastService = toastService;
 
         // Setup Custom TitleBar
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(AppTitleBar);
 
-        // Initialize Navigation
+        // Initialize Services
         _navigationService.Frame = ContentFrame;
         _navigationViewService.Initialize(NavView);
+        
+        // Register InfoBar (Can be done here as object exists)
+        if (_toastService is ToastService ts) ts.RegisterInfoBar(ShellInfoBar);
+
+        // Register XamlRoot when loaded (Required for ContentDialog)
+        RootGrid.Loaded += (s, e) =>
+        {
+            if (_dialogService is DialogService ds) ds.RegisterXamlRoot(RootGrid.XamlRoot);
+        };
 
         // Setup Auth UI
         CheckLoginStatus();

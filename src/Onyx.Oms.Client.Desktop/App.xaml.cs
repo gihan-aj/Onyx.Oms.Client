@@ -8,6 +8,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Shapes;
 using Onyx.Oms.Client.Desktop.Shared.Services;
+using Onyx.Oms.Client.Desktop.Shared.Services.Http;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -49,7 +50,15 @@ namespace Onyx.Oms.Client.Desktop
             services.AddSingleton<INavigationViewService, NavigationViewService>();
             services.AddSingleton<IPermissionService, PermissionService>();
             services.AddSingleton<IAuthenticationService, AuthenticationService>();
+            services.AddSingleton<IToastService, ToastService>();
+            services.AddSingleton<IDialogService, DialogService>();
             services.AddSingleton<IPageService, PageService>();
+
+            // HTTP Infrastructure
+            services.AddTransient<AuthHeaderHandler>();
+            services.AddTransient<ProblemDetailsHandler>();
+
+            // Future: AddRefitClient<ICourierApi>().AddHttpMessageHandler<AuthHeaderHandler>().AddHttpMessageHandler<ProblemDetailsHandler>();
 
             // Activation Handlers
             // Register specific activation handlers here
@@ -65,6 +74,7 @@ namespace Onyx.Oms.Client.Desktop
             services.AddTransient<Features.Dashboard.DashboardPage>();
             services.AddTransient<Features.Orders.OrdersPage>();
             services.AddTransient<Features.Customers.CustomersPage>();
+            services.AddTransient<Features.Couriers.CouriersPage>();
             services.AddTransient<Features.Settings.SettingsPage>();
             // Add other pages
 
@@ -78,6 +88,7 @@ namespace Onyx.Oms.Client.Desktop
             pageService.Configure(typeof(Features.Dashboard.DashboardPage).FullName!, typeof(Features.Dashboard.DashboardPage));
             pageService.Configure(typeof(Features.Orders.OrdersPage).FullName!, typeof(Features.Orders.OrdersPage));
             pageService.Configure(typeof(Features.Customers.CustomersPage).FullName!, typeof(Features.Customers.CustomersPage));
+            pageService.Configure(typeof(Features.Couriers.CouriersPage).FullName!, typeof(Features.Couriers.CouriersPage));
             pageService.Configure(typeof(Features.Settings.SettingsPage).FullName!, typeof(Features.Settings.SettingsPage));
 
             return serviceProvider;

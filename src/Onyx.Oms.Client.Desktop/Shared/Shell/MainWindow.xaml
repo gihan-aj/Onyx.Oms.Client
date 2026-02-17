@@ -65,6 +65,7 @@
                 <NavigationViewItem Icon="Home" Content="Dashboard" Tag="Onyx.Oms.Client.Desktop.Features.Dashboard.DashboardPage" />
                 <NavigationViewItem Icon="Shop" Content="Orders" Tag="Onyx.Oms.Client.Desktop.Features.Orders.OrdersPage" />
                 <NavigationViewItem Icon="Contact" Content="Customers" Tag="Onyx.Oms.Client.Desktop.Features.Customers.CustomersPage" />
+                <NavigationViewItem Icon="Send" Content="Couriers" Tag="Onyx.Oms.Client.Desktop.Features.Couriers.CouriersPage" />
             </NavigationView.MenuItems>
 
             <Frame x:Name="ContentFrame" />
@@ -76,6 +77,16 @@
                          Grid.RowSpan="2"
                          Visibility="Collapsed"
                          Canvas.ZIndex="10" />
+
+        <!-- Notification Overlay -->
+        <InfoBar x:Name="ShellInfoBar"
+                 Grid.Row="1"
+                 Grid.RowSpan="2"
+                 VerticalAlignment="Bottom"
+                 HorizontalAlignment="Right"
+                 Margin="24"
+                 Canvas.ZIndex="20"
+                 IsOpen="False" />
 
     </Grid>
 
