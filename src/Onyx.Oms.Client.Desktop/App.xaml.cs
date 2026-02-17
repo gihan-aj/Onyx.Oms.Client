@@ -7,8 +7,10 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Shapes;
+using Onyx.Oms.Client.Desktop.Features.Couriers;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using Onyx.Oms.Client.Desktop.Shared.Services.Http;
+using Refit;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -58,7 +60,14 @@ namespace Onyx.Oms.Client.Desktop
             services.AddTransient<AuthHeaderHandler>();
             services.AddTransient<ProblemDetailsHandler>();
 
-            // Future: AddRefitClient<ICourierApi>().AddHttpMessageHandler<AuthHeaderHandler>().AddHttpMessageHandler<ProblemDetailsHandler>();
+            services.AddTransient<ProblemDetailsHandler>();
+
+            // API Clients
+            // We use a base URL placeholder for now. In a real app, this comes from AppConfig.
+            services.AddRefitClient<ICourierApi>()
+                    .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://localhost:7157")) // Replace with actual API URL
+                    .AddHttpMessageHandler<AuthHeaderHandler>()
+                    .AddHttpMessageHandler<ProblemDetailsHandler>();
 
             // Activation Handlers
             // Register specific activation handlers here
@@ -70,6 +79,8 @@ namespace Onyx.Oms.Client.Desktop
             // Views and ViewModels
             services.AddTransient<Shared.Shell.MainWindow>();
             // services.AddTransient<ShellViewModel>(); // If we have one
+            
+            services.AddTransient<Features.Couriers.CouriersViewModel>();
             
             services.AddTransient<Features.Dashboard.DashboardPage>();
             services.AddTransient<Features.Orders.OrdersPage>();

@@ -4,25 +4,124 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Onyx.Oms.Client.Desktop.Features.Couriers"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid>
-        <StackPanel Spacing="24" Padding="24">
-            <TextBlock Text="Couriers" Style="{StaticResource TitleTextBlockStyle}" />
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    </Page.Resources>
 
-            <TextBlock Text="UI Service Testing" Style="{StaticResource SubtitleTextBlockStyle}" />
+    <Grid Padding="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
 
-            <StackPanel Orientation="Horizontal" Spacing="12">
-                <Button Content="Test Success Toast" Click="OnSuccessToastClick" />
-                <Button Content="Test Error Toast" Click="OnErrorToastClick" />
+        <!-- Header -->
+        <TextBlock Grid.Row="0" Text="Couriers" Style="{StaticResource TitleTextBlockStyle}" Margin="0,0,0,24" />
+
+        <!-- Toolbar -->
+        <Grid Grid.Row="1" Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Search Box -->
+            <AutoSuggestBox PlaceholderText="Search couriers..."
+                            QueryIcon="Find"
+                            Width="300"
+                            HorizontalAlignment="Left"
+                            Text="{x:Bind ViewModel.SearchTerm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            QuerySubmitted="OnQuerySubmitted" />
+
+            <!-- Actions -->
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                <Button Command="{x:Bind ViewModel.RefreshCommand}">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <SymbolIcon Symbol="Refresh" />
+                            <TextBlock Text="Refresh" />
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+                <Button Style="{StaticResource AccentButtonStyle}">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <SymbolIcon Symbol="Add" />
+                            <TextBlock Text="New" />
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <!-- Data Grid -->
+        <toolkit:DataGrid Grid.Row="2"
+                          ItemsSource="{x:Bind ViewModel.Couriers, Mode=OneWay}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          SelectionMode="Single"
+                          GridLinesVisibility="Horizontal"
+                          HeadersVisibility="Column"
+                          CanUserSortColumns="True">
+            <toolkit:DataGrid.Columns>
+                <toolkit:DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" />
+                <toolkit:DataGridTextColumn Header="Contact Person" Binding="{Binding ContactPerson}" Width="150" />
+                <toolkit:DataGridTextColumn Header="Phone" Binding="{Binding PrimaryPhone}" Width="120" />
+                <toolkit:DataGridTextColumn Header="Website" Binding="{Binding WebsiteUrl}" Width="200" />
+                <toolkit:DataGridCheckBoxColumn Header="Active" Binding="{Binding IsActive}" Width="80" />
+                <toolkit:DataGridTemplateColumn Header="Actions" Width="100">
+                    <toolkit:DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Content="&#xE70F;" FontFamily="Segoe MDL2 Assets" ToolTipService.ToolTip="Edit" Style="{StaticResource SubtleButtonStyle}" />
+                                <Button Content="&#xE74D;" FontFamily="Segoe MDL2 Assets" ToolTipService.ToolTip="Delete" Style="{StaticResource SubtleButtonStyle}" Foreground="Red" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </toolkit:DataGridTemplateColumn.CellTemplate>
+                </toolkit:DataGridTemplateColumn>
+            </toolkit:DataGrid.Columns>
+        </toolkit:DataGrid>
+
+        <!-- No Data Message -->
+        <StackPanel Grid.Row="2"
+                    VerticalAlignment="Center" 
+                    HorizontalAlignment="Center"
+                    Spacing="16"
+                    Visibility="{x:Bind ViewModel.HasNoData, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+            <SymbolIcon Symbol="Library" RenderTransformOrigin="0.5,0.5">
+                <SymbolIcon.RenderTransform>
+                    <ScaleTransform ScaleX="2" ScaleY="2" />
+                </SymbolIcon.RenderTransform>
+            </SymbolIcon>
+            <TextBlock HorizontalAlignment="Center" Text="No couriers found." Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            <TextBlock HorizontalAlignment="Center" Text="Try adjusting your search or add a new courier." Style="{StaticResource BodyTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+        </StackPanel>
+
+        <!-- Loading Indicator -->
+        <ProgressRing Grid.Row="2" 
+                      IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+                      Width="50" Height="50" 
+                      HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+        <!-- Pagination -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="16" Margin="0,16,0,0">
+            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <TextBlock Text="Rows per page:" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" />
+                <ComboBox ItemsSource="{x:Bind ViewModel.PageSizes}" 
+                          SelectedItem="{x:Bind ViewModel.PageSize, Mode=TwoWay}"
+                          Width="80" />
             </StackPanel>
 
-            <StackPanel Orientation="Horizontal" Spacing="12">
-                <Button Content="Test Confirmation Dialog" Click="OnConfirmationDialogClick" />
-                <Button Content="Test Validation Dialog" Click="OnValidationDialogClick" />
-            </StackPanel>
+            <TextBlock Text="{x:Bind ViewModel.PageSummary, Mode=OneWay}" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" />
+            <Button Content="Previous" Command="{x:Bind ViewModel.PreviousPageCommand}" IsEnabled="{x:Bind ViewModel.HasPreviousPage, Mode=OneWay}" />
+            <Button Content="Next" Command="{x:Bind ViewModel.NextPageCommand}" IsEnabled="{x:Bind ViewModel.HasNextPage, Mode=OneWay}" />
         </StackPanel>
     </Grid>
 </Page>
