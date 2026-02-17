@@ -90,6 +90,20 @@ public partial class CouriersViewModel : ObservableObject, INavigationAware
         set => SetProperty(ref _hasNoData, value);
     }
 
+    private string? _sortColumn;
+    public string? SortColumn
+    {
+        get => _sortColumn;
+        set => SetProperty(ref _sortColumn, value);
+    }
+
+    private string? _sortDirection;
+    public string? SortDirection
+    {
+        get => _sortDirection;
+        set => SetProperty(ref _sortDirection, value);
+    }
+
     public int TotalPages => (int)Math.Ceiling((double)TotalCount / PageSize);
     public bool HasPreviousPage => Page > 1;
     public bool HasNextPage => Page < TotalPages;
@@ -124,7 +138,7 @@ public partial class CouriersViewModel : ObservableObject, INavigationAware
             IsLoading = true;
             HasNoData = false;
             
-            var result = await _courierApi.SearchCouriers(Page, PageSize, SearchTerm);
+            var result = await _courierApi.SearchCouriers(Page, PageSize, SearchTerm, SortColumn, SortDirection);
             
             Couriers.Clear();
             foreach (var item in result.Items)
@@ -149,6 +163,13 @@ public partial class CouriersViewModel : ObservableObject, INavigationAware
         {
             IsLoading = false;
         }
+    }
+
+    public async Task Sort(string column, string direction)
+    {
+        SortColumn = column;
+        SortDirection = direction;
+        await LoadDataAsync();
     }
 
     private async Task OnNextPage()
