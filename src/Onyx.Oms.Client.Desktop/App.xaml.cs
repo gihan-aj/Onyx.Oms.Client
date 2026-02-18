@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -8,6 +10,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Shapes;
 using Onyx.Oms.Client.Desktop.Features.Couriers;
+using Onyx.Oms.Client.Desktop.Shared.Models.Configuration;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using Onyx.Oms.Client.Desktop.Shared.Services.Http;
 using Refit;
@@ -68,6 +71,23 @@ namespace Onyx.Oms.Client.Desktop
         {
             var services = new ServiceCollection();
 
+            // Build Configuration
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
+#if DEBUG
+            builder.AddJsonFile("appsettings.development.json", optional: true, reloadOnChange: true);
+#endif
+
+            var configuration = builder.Build();
+
+            services.AddSingleton<IConfiguration>(configuration);
+
+            // Configure Options
+            services.Configure<AuthenticationOptions>(configuration.GetSection(AuthenticationOptions.SectionName));
+            services.Configure<OnyxOmsApiOptions>(configuration.GetSection(OnyxOmsApiOptions.SectionName));
+
             // Logging
             services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
 
@@ -92,9 +112,12 @@ namespace Onyx.Oms.Client.Desktop
             services.AddTransient<ProblemDetailsHandler>();
 
             // API Clients
-            // We use a base URL placeholder for now. In a real app, this comes from AppConfig.
             services.AddRefitClient<ICourierApi>()
-                    .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://localhost:7157")) // Replace with actual API URL
+                    .ConfigureHttpClient((sp, c) => 
+                    {
+                        var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
+                        c.BaseAddress = new Uri(options.BaseUrl);
+                    })
                     .AddHttpMessageHandler<AuthHeaderHandler>()
                     .AddHttpMessageHandler<ProblemDetailsHandler>();
             

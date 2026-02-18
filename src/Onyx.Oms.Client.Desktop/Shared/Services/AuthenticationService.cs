@@ -1,5 +1,7 @@
 using Duende.IdentityModel.OidcClient;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Onyx.Oms.Client.Desktop.Shared.Models.Configuration;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -10,24 +12,23 @@ public class AuthenticationService : IAuthenticationService
 {
     private readonly ITokenStorageService _tokenStorageService;
     private readonly ILogger<AuthenticationService> _logger;
+    private readonly AuthenticationOptions _options;
     private OidcClient? _oidcClient;
     
-    // Configuration Constants
-    private const string Authority = "https://localhost:7062";
-    private const string ClientId = "onyx-oms-client";
-    private const string RedirectUri = "http://127.0.0.1:7890/";
-    private const string Scope = "openid profile offline_access idp_roles_manage";
-
     public event EventHandler<bool>? AuthenticationChanged;
 
     public bool IsAuthenticated => User?.Identity?.IsAuthenticated ?? false;
 
     public ClaimsPrincipal User { get; private set; } = new ClaimsPrincipal(new ClaimsIdentity());
 
-    public AuthenticationService(ITokenStorageService tokenStorageService, ILogger<AuthenticationService> logger)
+    public AuthenticationService(
+        ITokenStorageService tokenStorageService, 
+        ILogger<AuthenticationService> logger,
+        IOptions<AuthenticationOptions> options)
     {
         _tokenStorageService = tokenStorageService;
         _logger = logger;
+        _options = options.Value;
         InitializeOidcClient();
     }
 
@@ -36,10 +37,10 @@ public class AuthenticationService : IAuthenticationService
     {
         var options = new OidcClientOptions
         {
-            Authority = Authority,
-            ClientId = ClientId,
-            RedirectUri = RedirectUri,
-            Scope = Scope,
+            Authority = _options.Authority,
+            ClientId = _options.ClientId,
+            RedirectUri = _options.RedirectUri,
+            Scope = _options.Scope,
             Browser = new SystemBrowser(), // Required: We need a system browser implementation
             Policy = new Policy
             {
