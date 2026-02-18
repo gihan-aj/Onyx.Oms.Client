@@ -32,6 +32,7 @@ namespace Onyx.Oms.Client.Desktop
     public partial class App : Application
     {
         public new static App Current => (App)Application.Current;
+        public static Window MainWindow { get; set; } = new Window();
 
         // Expose ServiceProvider
         public IServiceProvider Services { get; }
@@ -73,6 +74,7 @@ namespace Onyx.Oms.Client.Desktop
             // Core Infrastructure
             services.AddSingleton<ISettingsService, SettingsService>();
             services.AddSingleton<IFileService, FileService>();
+            services.AddSingleton<IThemeSelectorService, ThemeSelectorService>();
 
             // Core Services
             services.AddSingleton<IActivationService, ActivationService>();
@@ -113,6 +115,7 @@ namespace Onyx.Oms.Client.Desktop
             services.AddTransient<Features.Customers.CustomersPage>();
             services.AddTransient<Features.Couriers.CouriersPage>();
             services.AddTransient<Features.Settings.SettingsPage>();
+            services.AddTransient<Features.Settings.SettingsViewModel>();
             // Add other pages
 
             // Configuration
@@ -138,9 +141,14 @@ namespace Onyx.Oms.Client.Desktop
         protected override async void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
             base.OnLaunched(args);
+            
             // Activate the service
             var activationService = Services.GetRequiredService<IActivationService>();
             await activationService.ActivateAsync(args);
+
+            // Initialize Theme
+            var themeSelector = Services.GetRequiredService<IThemeSelectorService>();
+            await ((ThemeSelectorService)themeSelector).InitializeAsync();
         }
     }
 }

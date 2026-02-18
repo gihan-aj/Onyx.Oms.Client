@@ -37,6 +37,8 @@ public class ActivationService : IActivationService
 
         if (_mainWindow != null)
         {
+            App.MainWindow = _mainWindow;
+
             // 2. Activate Window
             _mainWindow.Activate();
 
