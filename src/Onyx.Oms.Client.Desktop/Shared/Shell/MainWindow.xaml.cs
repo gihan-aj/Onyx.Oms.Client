@@ -50,6 +50,17 @@ public sealed partial class MainWindow : Window
         CheckLoginStatus();
         _authenticationService.AuthenticationChanged += OnAuthenticationChanged;
         LoginView.LoginRequested += OnLoginRequested;
+
+        // Ensure app shuts down when window is closed
+        Closed += (s, e) => 
+        {
+             // Unsubscribe to prevent memory leak (Singleton holding ref to MainWindow)
+             _authenticationService.AuthenticationChanged -= OnAuthenticationChanged;
+             LoginView.LoginRequested -= OnLoginRequested;
+
+             // Make sure to dispose settings or services if needed
+             Microsoft.UI.Xaml.Application.Current.Exit();
+        };
     }
 
     private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)

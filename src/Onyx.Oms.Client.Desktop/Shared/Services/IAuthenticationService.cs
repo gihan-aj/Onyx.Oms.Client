@@ -11,4 +11,5 @@ public interface IAuthenticationService
     ClaimsPrincipal User { get; }
     Task<bool> LoginAsync();
     Task LogoutAsync();
+    Task InitializeAsync();
 }

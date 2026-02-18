@@ -74,6 +74,7 @@ namespace Onyx.Oms.Client.Desktop
             // Core Infrastructure
             services.AddSingleton<ISettingsService, SettingsService>();
             services.AddSingleton<IFileService, FileService>();
+            services.AddSingleton<ITokenStorageService, TokenStorageService>();
             services.AddSingleton<IThemeSelectorService, ThemeSelectorService>();
 
             // Core Services
@@ -149,6 +150,10 @@ namespace Onyx.Oms.Client.Desktop
             // Initialize Theme
             var themeSelector = Services.GetRequiredService<IThemeSelectorService>();
             await ((ThemeSelectorService)themeSelector).InitializeAsync();
+
+            // Initialize Authentication
+            var authService = Services.GetRequiredService<IAuthenticationService>();
+            await authService.InitializeAsync();
         }
     }
 }
