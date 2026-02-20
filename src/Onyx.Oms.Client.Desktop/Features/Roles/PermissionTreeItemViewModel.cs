@@ -38,6 +38,22 @@ public partial class PermissionTreeItemViewModel : ObservableObject
         set => SetProperty(ref _value, value);
     }
 
+    private bool _isReadOnly;
+    public bool IsReadOnly
+    {
+        get => _isReadOnly;
+        set
+        {
+            if (SetProperty(ref _isReadOnly, value))
+            {
+                OnPropertyChanged(nameof(IsNotReadOnly));
+            }
+        }
+
+    }
+
+    public bool IsNotReadOnly => !IsReadOnly;
+
     private bool? _isChecked = false;
     public bool? IsChecked
     {

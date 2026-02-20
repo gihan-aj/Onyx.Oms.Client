@@ -92,7 +92,7 @@
                     </toolkit:DataGridTemplateColumn.CellTemplate>
                 </toolkit:DataGridTemplateColumn>
 
-                <toolkit:DataGridTemplateColumn Header="Actions" Width="150" MinWidth="150" HeaderStyle="{StaticResource CenteredHeaderStyle}">
+                <toolkit:DataGridTemplateColumn Header="Actions" Width="200" MinWidth="200" HeaderStyle="{StaticResource CenteredHeaderStyle}">
                     <toolkit:DataGridTemplateColumn.CellTemplate>
                         <DataTemplate x:DataType="local:RoleDto">
                             <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Center">
@@ -100,6 +100,8 @@
                                         Visibility="{x:Bind IsActive, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}" />
                                 <Button Content="&#xE711;" FontFamily="Segoe MDL2 Assets" ToolTipService.ToolTip="Deactivate" Style="{StaticResource SubtleButtonStyle}" Click="OnDeactivateClick"
                                         Visibility="{x:Bind IsActive, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                <AppBarSeparator />
+                                <Button Content="&#xE890;" FontFamily="Segoe MDL2 Assets" ToolTipService.ToolTip="View Details" Style="{StaticResource SubtleButtonStyle}" Click="OnViewClick" />
                                 <AppBarSeparator />
                                 <Button Content="&#xE70F;" FontFamily="Segoe MDL2 Assets" ToolTipService.ToolTip="Edit" Style="{StaticResource SubtleButtonStyle}" Click="OnEditClick" />
                                 <AppBarSeparator />

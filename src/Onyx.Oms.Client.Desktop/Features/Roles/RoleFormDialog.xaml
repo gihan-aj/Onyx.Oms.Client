@@ -22,6 +22,7 @@
                     <!-- ThreeState CheckBox bound to IsChecked -->
                     <CheckBox IsThreeState="{x:Bind Value, Converter={StaticResource NullToTrueConverter}}" 
                               IsChecked="{x:Bind IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                              IsEnabled="{x:Bind IsNotReadOnly, Mode=OneWay}"
                               Content="{x:Bind Name}" 
                               Margin="0,0,0,0" />
                 </StackPanel>
@@ -44,6 +45,7 @@
 
         <StackPanel Grid.Row="0" Margin="0,0,0,16">
             <TextBox Header="Name" Text="{x:Bind ViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                     IsReadOnly="{x:Bind ViewModel.IsReadOnly, Mode=OneWay}"
                      IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"/>
             <!-- Error Message (Hidden by default) -->
             <TextBlock x:Name="ErrorText" Foreground="{ThemeResource SystemFillColorCriticalBrush}" Style="{StaticResource CaptionTextBlockStyle}" Margin="0,4,0,0" Visibility="Collapsed" />
@@ -51,6 +53,7 @@
         
         <TextBox Grid.Row="1" Header="Description" Text="{x:Bind ViewModel.Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                  Margin="0,0,0,16" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="60" 
+                 IsReadOnly="{x:Bind ViewModel.IsReadOnly, Mode=OneWay}"
                  IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"/>
 
         <TextBlock Grid.Row="2" Text="Permissions" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,0,0,8" />

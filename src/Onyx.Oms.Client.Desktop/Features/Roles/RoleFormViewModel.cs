@@ -18,6 +18,21 @@ public partial class RoleFormViewModel : ObservableObject
     public bool IsEditMode { get; private set; }
     public Guid? RoleId { get; private set; }
 
+    private bool _isReadOnly;
+    public bool IsReadOnly
+    {
+        get => _isReadOnly;
+        private set
+        {
+            if (SetProperty(ref _isReadOnly, value))
+            {
+                OnPropertyChanged(nameof(IsNotReadOnly));
+            }
+        }
+    }
+
+    public bool IsNotReadOnly => !IsReadOnly;
+
     private string _title = "Create Role";
     public string Title
     {
@@ -60,8 +75,9 @@ public partial class RoleFormViewModel : ObservableObject
         _logger = logger;
     }
 
-    public async Task InitializeAsync(RoleWithPermissionsDto? roleToEdit = null)
+    public async Task InitializeAsync(RoleWithPermissionsDto? roleToEdit = null, bool isReadOnly = false)
     {
+        IsReadOnly = isReadOnly;
         IsLoading = true;
         try
         {
@@ -71,11 +87,11 @@ public partial class RoleFormViewModel : ObservableObject
 
             if (roleToEdit != null)
             {
-                IsEditMode = true;
+                IsEditMode = !IsReadOnly;
                 RoleId = roleToEdit.Id;
                 Name = roleToEdit.Name;
                 Description = roleToEdit.Description;
-                Title = $"Edit Role ({Name})";
+                Title = IsReadOnly ? $"Role Details ({Name})" : $"Edit Role ({Name})";
 
                 existingPermissions = new(roleToEdit.Permissions);
 
@@ -98,7 +114,8 @@ public partial class RoleFormViewModel : ObservableObject
                 var groupNode = new PermissionTreeItemViewModel
                 {
                     Name = group.GroupName,
-                    Value = null
+                    Value = null,
+                    IsReadOnly = IsReadOnly
                 };
 
                 foreach (var perm in group.Permissions)
@@ -107,6 +124,7 @@ public partial class RoleFormViewModel : ObservableObject
                     {
                         Name = perm.Name,
                         Value = perm.Value,
+                        IsReadOnly = IsReadOnly,
                         IsChecked = existingPermissions.Contains(perm.Value) // If editing
                     };
                     groupNode.Children.Add(childNode);

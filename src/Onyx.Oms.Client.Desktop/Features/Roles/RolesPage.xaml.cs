@@ -78,6 +78,34 @@ public sealed partial class RolesPage : Page
         }
     }
 
+    private async void OnViewClick(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is RoleDto role)
+        {
+            try
+            {
+                ViewModel.IsBusy = true;
+                
+                var details = await ViewModel.GetRoleDetailsAsync(role.Id);
+                if (details == null) return;
+                
+                var vm = App.Current.Services.GetRequiredService<RoleFormViewModel>();
+                await vm.InitializeAsync(details, isReadOnly: true);
+
+                var dialog = new RoleFormDialog(vm)
+                {
+                    XamlRoot = this.XamlRoot
+                };
+
+                await dialog.ShowAsync();
+            }
+            finally
+            {
+                ViewModel.IsBusy = false;
+            }
+        }
+    }
+
     private async void OnEditClick(object sender, RoutedEventArgs e)
     {
         if ((sender as FrameworkElement)?.DataContext is RoleDto role)

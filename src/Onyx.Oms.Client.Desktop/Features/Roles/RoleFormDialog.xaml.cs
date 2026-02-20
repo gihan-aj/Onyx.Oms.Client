@@ -44,6 +44,12 @@ public sealed partial class RoleFormDialog : ContentDialog
     {
         ViewModel = viewModel;
         InitializeComponent();
+
+        if (ViewModel.IsReadOnly)
+        {
+            PrimaryButtonText = string.Empty;
+            IsPrimaryButtonEnabled = false;
+        }
     }
 
     private async void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
