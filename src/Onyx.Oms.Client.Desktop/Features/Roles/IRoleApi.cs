@@ -2,11 +2,15 @@ using Refit;
 using System;
 using System.Threading.Tasks;
 using Onyx.Oms.Client.Desktop.Shared.Models;
+using System.Collections.Generic;
 
 namespace Onyx.Oms.Client.Desktop.Features.Roles;
 
 public interface IRoleApi
 {
+    [Get("/api/v1/permissions")]
+    Task<List<PermissionGroupDto>> GetAllPermissions();
+
     [Get("/api/v1/roles/search")]
     Task<PagedResult<RoleDto>> SearchRoles(
         [AliasAs("Page")] int page,

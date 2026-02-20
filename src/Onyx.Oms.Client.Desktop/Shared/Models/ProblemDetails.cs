@@ -19,6 +19,9 @@ public class ProblemDetails
 
     [JsonPropertyName("extensions")]
     public ErrorExtensions? Extensions { get; set; }
+
+    [JsonPropertyName("errors")]
+    public List<ErrorDetail>? Errors { get; set; }
 }
 
 public class ErrorExtensions

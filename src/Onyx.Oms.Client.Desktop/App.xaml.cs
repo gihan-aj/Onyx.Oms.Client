@@ -153,6 +153,8 @@ namespace Onyx.Oms.Client.Desktop
             
             services.AddTransient<Features.Couriers.CouriersViewModel>();
             services.AddTransient<Features.Roles.RolesViewModel>();
+            services.AddTransient<Features.Roles.RoleFormViewModel>();
+            services.AddTransient<Features.Roles.RoleFormDialog>();
             
             services.AddTransient<Features.Dashboard.DashboardPage>();
             services.AddTransient<Features.Orders.OrdersPage>();

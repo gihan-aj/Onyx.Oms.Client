@@ -1,0 +1,69 @@
+<ContentDialog
+    x:Class="Onyx.Oms.Client.Desktop.Features.Roles.RoleFormDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Onyx.Oms.Client.Desktop.Features.Roles"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="{x:Bind ViewModel.Title, Mode=OneWay}"
+    PrimaryButtonText="Save"
+    CloseButtonText="Cancel"
+    CloseButtonStyle="{StaticResource SubtleButtonStyle}"
+    DefaultButton="Primary"
+    CornerRadius="8"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
+
+    <!-- We define a hierarchical data template for the TreeView -->
+    <ContentDialog.Resources>
+        <DataTemplate x:Key="FolderTemplate" x:DataType="local:PermissionTreeItemViewModel">
+            <TreeViewItem ItemsSource="{x:Bind Children}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <!-- ThreeState CheckBox bound to IsChecked -->
+                    <CheckBox IsThreeState="{x:Bind Value, Converter={StaticResource NullToTrueConverter}}" 
+                              IsChecked="{x:Bind IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                              Content="{x:Bind Name}" 
+                              Margin="0,0,0,0" />
+                </StackPanel>
+            </TreeViewItem>
+        </DataTemplate>
+        <local:NullToTrueConverter x:Key="NullToTrueConverter" />
+        <local:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+    </ContentDialog.Resources>
+
+    <Grid Width="450" MaxHeight="600">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <ProgressRing Grid.Row="0" Grid.RowSpan="4" IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+                      HorizontalAlignment="Center" VerticalAlignment="Center" Canvas.ZIndex="10" />
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,16">
+            <TextBox Header="Name" Text="{x:Bind ViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                     IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"/>
+            <!-- Error Message (Hidden by default) -->
+            <TextBlock x:Name="ErrorText" Foreground="{ThemeResource SystemFillColorCriticalBrush}" Style="{StaticResource CaptionTextBlockStyle}" Margin="0,4,0,0" Visibility="Collapsed" />
+        </StackPanel>
+        
+        <TextBox Grid.Row="1" Header="Description" Text="{x:Bind ViewModel.Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                 Margin="0,0,0,16" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="60" 
+                 IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"/>
+
+        <TextBlock Grid.Row="2" Text="Permissions" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,0,0,8" />
+
+        <!-- TreeView for Permissions -->
+        <Border Grid.Row="3" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4" Padding="8">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <TreeView ItemsSource="{x:Bind ViewModel.PermissionGroups, Mode=OneWay}" 
+                          ItemTemplate="{StaticResource FolderTemplate}" 
+                          SelectionMode="None" 
+                          IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}">
+                </TreeView>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</ContentDialog>

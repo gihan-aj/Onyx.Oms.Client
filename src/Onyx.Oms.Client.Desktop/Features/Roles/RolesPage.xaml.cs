@@ -2,6 +2,7 @@ using CommunityToolkit.WinUI.UI.Controls;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Onyx.Oms.Client.Desktop.Shared.Services;
 using System;
 
 namespace Onyx.Oms.Client.Desktop.Features.Roles;
@@ -59,16 +60,42 @@ public sealed partial class RolesPage : Page
         await ViewModel.Sort(tag, newDirection);
     }
 
-    private void OnNewClick(object sender, RoutedEventArgs e)
+    private async void OnNewClick(object sender, RoutedEventArgs e)
     {
-        // To be implemented in next phase: Create Role Dialog
+        var vm = App.Current.Services.GetRequiredService<RoleFormViewModel>();
+        await vm.InitializeAsync();
+
+        var dialog = new RoleFormDialog(vm)
+        {
+            XamlRoot = this.XamlRoot
+        };
+
+        var result = await dialog.ShowAsync();
+
+        if (result == ContentDialogResult.Primary)
+        {
+            ViewModel.RefreshCommand.Execute(null);
+        }
     }
 
-    private void OnEditClick(object sender, RoutedEventArgs e)
+    private async void OnEditClick(object sender, RoutedEventArgs e)
     {
         if ((sender as FrameworkElement)?.DataContext is RoleDto role)
         {
-            // To be implemented in next phase: Edit Role Dialog
+            var vm = App.Current.Services.GetRequiredService<RoleFormViewModel>();
+            await vm.InitializeAsync(role);
+
+            var dialog = new RoleFormDialog(vm)
+            {
+                XamlRoot = this.XamlRoot
+            };
+
+            var result = await dialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary)
+            {
+                ViewModel.RefreshCommand.Execute(null);
+            }
         }
     }
 

@@ -146,3 +146,32 @@ To ensure a professional and responsive DataGrid:
 ### Visual Polish
 -   **Status Columns**: Use `DataGridTemplateColumn` with a reusable `Badge` style (see `Shared/Styles/Badge.xaml`).
 -   **Actions Column**: Center align action buttons using `HeaderStyle="{StaticResource CenteredHeaderStyle}"` and a centered `StackPanel`.
+
+## 6. Error Handling
+
+API requests made via Refit clients are registered with the `ProblemDetailsHandler` in `App.xaml.cs`. This global handler natively intercepts `ProblemDetails` JSON responses (like 400 Bad Request or 409 Conflict) and standard HTTP errors.
+
+**Best Practices:**
+- Do **not** manually invoke the `IToastService` to show generic API error messages in your ViewModels. 
+- The global handler automatically displays context-appropriate Toasts or Validation Dialogs based on the backend response.
+- Use `try-catch` in your ViewModel **only** for local UI state cleanup (e.g., setting `IsBusy = false`). 
+
+**Example ViewModel Implementation:**
+```csharp
+try 
+{
+    IsBusy = true;
+    await _api.CreateCourier(dto);
+    _toastService.ShowSuccess("Success", "Courier created.");
+    // Proceed to refresh grid or close dialog
+}
+catch (Exception)
+{
+    // The ProblemDetailsHandler has already shown the error UI.
+    // Handle any local ViewModel state reset here, but do not show another error Toast.
+}
+finally
+{
+    IsBusy = false;
+}
+```

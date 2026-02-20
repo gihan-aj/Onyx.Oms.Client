@@ -86,7 +86,7 @@
                  VerticalAlignment="Bottom"
                  HorizontalAlignment="Right"
                  Margin="24"
-                 Canvas.ZIndex="20"
+                 Canvas.ZIndex="9999"
                  IsOpen="False" />
 
     </Grid>

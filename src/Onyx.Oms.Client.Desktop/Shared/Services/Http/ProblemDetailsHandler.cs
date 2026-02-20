@@ -89,7 +89,9 @@ public class ProblemDetailsHandler : DelegatingHandler
                 {
                     var title = problemDetails.Title ?? "Error";
                     var detail = problemDetails.Detail ?? "An error occurred."; // Capture detail for logging
-                    var errors = problemDetails.Extensions?.Errors;
+                    
+                    // The errors array can be at the root, or nested in extensions depending on the backend format
+                    var errors = problemDetails.Errors ?? problemDetails.Extensions?.Errors;
 
                     _logger.LogWarning("ProblemDetails: {Title} - {Detail}", title, detail);
 
