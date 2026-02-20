@@ -15,6 +15,8 @@ Define the data structures and API endpoints first. We use **Refit** for API cli
 
 **File**: `Features/[Feature]/I[Feature]Api.cs`
 ```csharp
+using Onyx.Oms.Client.Desktop.Shared.Models;
+
 public interface ICourierApi
 {
     [Get("/api/v1/couriers/search")]

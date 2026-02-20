@@ -66,6 +66,7 @@
                 <NavigationViewItem Icon="Shop" Content="Orders" Tag="Onyx.Oms.Client.Desktop.Features.Orders.OrdersPage" />
                 <NavigationViewItem Icon="Contact" Content="Customers" Tag="Onyx.Oms.Client.Desktop.Features.Customers.CustomersPage" />
                 <NavigationViewItem Icon="Send" Content="Couriers" Tag="Onyx.Oms.Client.Desktop.Features.Couriers.CouriersPage" />
+                <NavigationViewItem Icon="People" Content="Roles" Tag="Onyx.Oms.Client.Desktop.Features.Roles.RolesPage" />
             </NavigationView.MenuItems>
 
             <Frame x:Name="ContentFrame" ScrollViewer.VerticalScrollBarVisibility="Disabled" />

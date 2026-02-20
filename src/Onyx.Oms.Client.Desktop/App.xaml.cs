@@ -10,6 +10,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Shapes;
 using Onyx.Oms.Client.Desktop.Features.Couriers;
+using Onyx.Oms.Client.Desktop.Features.Roles;
 using Onyx.Oms.Client.Desktop.Shared.Models.Configuration;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using Onyx.Oms.Client.Desktop.Shared.Services.Http;
@@ -130,6 +131,15 @@ namespace Onyx.Oms.Client.Desktop
                     .AddHttpMessageHandler<AuthHeaderHandler>()
                     .AddHttpMessageHandler<ProblemDetailsHandler>();
             
+            services.AddRefitClient<IRoleApi>()
+                    .ConfigureHttpClient((sp, c) => 
+                    {
+                        var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
+                        c.BaseAddress = new Uri(options.BaseUrl);
+                    })
+                    .AddHttpMessageHandler<AuthHeaderHandler>()
+                    .AddHttpMessageHandler<ProblemDetailsHandler>();
+            
             // Activation Handlers
             // Register specific activation handlers here
             // services.AddTransient<IActivationHandler, SomeSpecificHandler>();
@@ -142,11 +152,13 @@ namespace Onyx.Oms.Client.Desktop
             // services.AddTransient<ShellViewModel>(); // If we have one
             
             services.AddTransient<Features.Couriers.CouriersViewModel>();
+            services.AddTransient<Features.Roles.RolesViewModel>();
             
             services.AddTransient<Features.Dashboard.DashboardPage>();
             services.AddTransient<Features.Orders.OrdersPage>();
             services.AddTransient<Features.Customers.CustomersPage>();
             services.AddTransient<Features.Couriers.CouriersPage>();
+            services.AddTransient<Features.Roles.RolesPage>();
             services.AddTransient<Features.Settings.SettingsPage>();
             services.AddTransient<Features.Settings.SettingsViewModel>();
             // Add other pages
@@ -162,6 +174,7 @@ namespace Onyx.Oms.Client.Desktop
             pageService.Configure(typeof(Features.Orders.OrdersPage).FullName!, typeof(Features.Orders.OrdersPage));
             pageService.Configure(typeof(Features.Customers.CustomersPage).FullName!, typeof(Features.Customers.CustomersPage));
             pageService.Configure(typeof(Features.Couriers.CouriersPage).FullName!, typeof(Features.Couriers.CouriersPage));
+            pageService.Configure(typeof(Features.Roles.RolesPage).FullName!, typeof(Features.Roles.RolesPage));
             pageService.Configure(typeof(Features.Settings.SettingsPage).FullName!, typeof(Features.Settings.SettingsPage));
 
             return serviceProvider;
