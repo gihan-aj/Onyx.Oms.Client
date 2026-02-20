@@ -60,7 +60,7 @@ public partial class RoleFormViewModel : ObservableObject
         _logger = logger;
     }
 
-    public async Task InitializeAsync(RoleDto? roleToEdit = null)
+    public async Task InitializeAsync(RoleWithPermissionsDto? roleToEdit = null)
     {
         IsLoading = true;
         try
@@ -76,7 +76,9 @@ public partial class RoleFormViewModel : ObservableObject
                 Name = roleToEdit.Name;
                 Description = roleToEdit.Description;
                 Title = $"Edit Role ({Name})";
-                
+
+                existingPermissions = new(roleToEdit.Permissions);
+
                 // Note: The Search API might not return the full list of permissions for a role in 'PermissionCount'.
                 // If the backend doesn't return the full array in a GET /roles/{id}, 
                 // we might need an endpoint for `GET /api/v1/roles/{id}/permissions` or ensure `RoleDto` includes `List<string> Permissions`.
@@ -105,7 +107,7 @@ public partial class RoleFormViewModel : ObservableObject
                     {
                         Name = perm.Name,
                         Value = perm.Value,
-                        // IsChecked = existingPermissions.Contains(perm.Value) // If editing
+                        IsChecked = existingPermissions.Contains(perm.Value) // If editing
                     };
                     groupNode.Children.Add(childNode);
                 }

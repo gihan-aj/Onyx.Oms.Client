@@ -20,6 +20,9 @@ public interface IRoleApi
         [AliasAs("SortDirection")] string? sortDirection = null,
         [AliasAs("IsActive")] bool? isActive = null);
 
+    [Get("/api/v1/roles/{id}")]
+    Task<RoleWithPermissionsDto> GetRoleById(Guid id); 
+
     [Post("/api/v1/roles")]
     Task<Guid> CreateRole([Body] CreateRoleDto role);
 

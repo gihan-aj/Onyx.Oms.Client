@@ -82,8 +82,10 @@ public sealed partial class RolesPage : Page
     {
         if ((sender as FrameworkElement)?.DataContext is RoleDto role)
         {
+            var roleWithPermissions = await ViewModel.GetRoleDetailsAsync(role.Id);
+
             var vm = App.Current.Services.GetRequiredService<RoleFormViewModel>();
-            await vm.InitializeAsync(role);
+            await vm.InitializeAsync(roleWithPermissions);
 
             var dialog = new RoleFormDialog(vm)
             {

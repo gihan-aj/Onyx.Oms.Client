@@ -149,6 +149,19 @@ public partial class RolesViewModel : ObservableObject, INavigationAware
         DeactivateCommand = new AsyncRelayCommand<RoleDto>(DeactivateRole);
     }
 
+    public async Task<RoleWithPermissionsDto?> GetRoleDetailsAsync(Guid roleId)
+    {
+        try
+        {
+            return await _roleApi.GetRoleById(roleId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching role details for ID {RoleId}", roleId);
+            return null;
+        }
+    }
+
     private async Task LoadDataAsync()
     {
         if (IsListLoading) return;
