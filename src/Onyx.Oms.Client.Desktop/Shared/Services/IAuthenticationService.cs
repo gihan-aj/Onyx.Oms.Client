@@ -12,4 +12,5 @@ public interface IAuthenticationService
     Task<bool> LoginAsync();
     Task LogoutAsync();
     Task InitializeAsync();
+    string? AccessToken { get; }
 }

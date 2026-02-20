@@ -21,13 +21,9 @@ public class AuthHeaderHandler : DelegatingHandler
         // The mock IAuthenticationService currently exposes a ClaimsPrincipal but not a raw token string property.
         // We will skip adding the header if not authenticated or if we can't get a token.
         
-        if (_authenticationService.IsAuthenticated)
+        if (_authenticationService.IsAuthenticated && !string.IsNullOrEmpty(_authenticationService.AccessToken))
         {
-            // TODO: Expose AccessToken in IAuthenticationService
-            // request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.AccessToken);
-            
-            // For now, adding a dummy header to prove the concept
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", "mock-token");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.AccessToken);
         }
 
         return await base.SendAsync(request, cancellationToken);

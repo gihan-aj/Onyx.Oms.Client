@@ -10,6 +10,7 @@ public sealed partial class MainWindow : Window
     private readonly INavigationService _navigationService;
     private readonly INavigationViewService _navigationViewService;
     private readonly IAuthenticationService _authenticationService;
+    private readonly IPermissionService _permissionService;
 
     private readonly IDialogService _dialogService;
     private readonly IToastService _toastService;
@@ -18,6 +19,7 @@ public sealed partial class MainWindow : Window
         INavigationService navigationService, 
         INavigationViewService navigationViewService, 
         IAuthenticationService authenticationService,
+        IPermissionService permissionService,
         IDialogService dialogService,
         IToastService toastService)
     {
@@ -26,6 +28,7 @@ public sealed partial class MainWindow : Window
         _navigationService = navigationService;
         _navigationViewService = navigationViewService;
         _authenticationService = authenticationService;
+        _permissionService = permissionService;
         _dialogService = dialogService;
         _toastService = toastService;
 
@@ -81,8 +84,19 @@ public sealed partial class MainWindow : Window
         NavView.IsPaneOpen = !NavView.IsPaneOpen;
     }
 
-    private void OnAuthenticationChanged(object? sender, bool isAuthenticated)
+    private async void OnAuthenticationChanged(object? sender, bool isAuthenticated)
     {
+        if (isAuthenticated)
+        {
+            // Block UI update until permissions are fetched.
+            // The user will see exactly what they saw during login (the splash/loading state)
+            await _permissionService.InitializeAsync();
+        }
+        else
+        {
+            _permissionService.ClearPermissions();
+        }
+
         // UI updates must happen on the UI thread
         DispatcherQueue.TryEnqueue(() =>
         {

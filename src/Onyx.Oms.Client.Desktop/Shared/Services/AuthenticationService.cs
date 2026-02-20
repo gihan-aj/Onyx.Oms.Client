@@ -19,6 +19,8 @@ public class AuthenticationService : IAuthenticationService
 
     public bool IsAuthenticated => User?.Identity?.IsAuthenticated ?? false;
 
+    public string? AccessToken { get; private set; }
+
     public ClaimsPrincipal User { get; private set; } = new ClaimsPrincipal(new ClaimsIdentity());
 
     public AuthenticationService(
@@ -62,6 +64,7 @@ public class AuthenticationService : IAuthenticationService
         }
         else if (!string.IsNullOrEmpty(accessToken)) 
         {
+             AccessToken = accessToken;
              // If we only have access token (unlikely with our flow but possible), we might validate it.
              // For now, simpler to require refresh token for persistence or just login again.
              // We can check if it's expired.
@@ -85,6 +88,9 @@ public class AuthenticationService : IAuthenticationService
 
             // Save tokens
             await _tokenStorageService.SaveTokensAsync(loginResult.AccessToken, loginResult.RefreshToken, loginResult.IdentityToken);
+
+            AccessToken = loginResult.AccessToken;
+
 
             _logger.LogInformation("Login Successful");
             _logger.LogInformation("Access Token: {AccessToken}", loginResult.AccessToken);
@@ -121,6 +127,8 @@ public class AuthenticationService : IAuthenticationService
             // Update tokens
             await _tokenStorageService.SaveTokensAsync(result.AccessToken, result.RefreshToken, result.IdentityToken);
 
+            AccessToken = result.AccessToken;
+
             _logger.LogInformation("Token Refresh Successful");
             _logger.LogInformation("New Access Token: {AccessToken}", result.AccessToken);
 
@@ -154,8 +162,10 @@ public class AuthenticationService : IAuthenticationService
             // Optional: Call IdP logout if needed
             // await _oidcClient.LogoutAsync(new LogoutRequest { IdTokenHint = ... });
             
+            
             await _tokenStorageService.ClearTokensAsync();
             User = new ClaimsPrincipal(new ClaimsIdentity());
+            AccessToken = null;
             AuthenticationChanged?.Invoke(this, false);
         }
         catch(Exception)

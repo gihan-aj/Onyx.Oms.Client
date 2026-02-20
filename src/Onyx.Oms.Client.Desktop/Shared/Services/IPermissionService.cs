@@ -6,4 +6,6 @@ public interface IPermissionService
 {
     Task<bool> CanNavigateToAsync(string pageKey);
     Task<bool> CanExecuteAsync(string permissionKey);
+    Task InitializeAsync();
+    void ClearPermissions();
 }
