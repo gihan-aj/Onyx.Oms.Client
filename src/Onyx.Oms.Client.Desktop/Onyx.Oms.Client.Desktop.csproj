@@ -15,8 +15,14 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Assets\StoreLogo.png" />
+    <None Remove="Features\Catalog\CatalogPage.xaml" />
     <None Remove="Features\Dashboard\DashboardPage.xaml" />
+    <None Remove="Features\Fulfillment\FulfillmentPage.xaml" />
+    <None Remove="Features\ProductCategories\ProductCategoriesPage.xaml" />
+    <None Remove="Features\Products\ProductsPage.xaml" />
+    <None Remove="Features\ProductVariants\ProductVariantsPage.xaml" />
     <None Remove="Features\Roles\RoleFormPage.xaml" />
+    <None Remove="Features\Users\UsersPage.xaml" />
     <None Remove="Shared\Styles\Grid.xaml" />
     <None Remove="Shared\Styles\GridViewItem.xaml" />
     <None Remove="Shared\Styles\TextBlock.xaml" />
@@ -80,6 +86,36 @@
     <Folder Include="Shared\Components\" />
     <Folder Include="Shared\Services\" />
     <Folder Include="Shared\Shell\Navigation\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Features\Products\ProductsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Features\ProductVariants\ProductVariantsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Features\ProductCategories\ProductCategoriesPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Features\Catalog\CatalogPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Features\Fulfillment\FulfillmentPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Features\Users\UsersPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Features\Roles\RoleFormPage.xaml">

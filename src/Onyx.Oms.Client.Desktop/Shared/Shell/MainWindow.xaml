@@ -62,10 +62,26 @@
             Canvas.ZIndex="0">
 
             <NavigationView.MenuItems>
+                <NavigationViewItemHeader Content="Overview" />
                 <NavigationViewItem Icon="Home" Content="Dashboard" Tag="Onyx.Oms.Client.Desktop.Features.Dashboard.DashboardPage" />
+                
+                <NavigationViewItemHeader Content="Sales" />
                 <NavigationViewItem Icon="Shop" Content="Orders" Tag="Onyx.Oms.Client.Desktop.Features.Orders.OrdersPage" />
                 <NavigationViewItem Icon="Contact" Content="Customers" Tag="Onyx.Oms.Client.Desktop.Features.Customers.CustomersPage" />
+                
+                <NavigationViewItemHeader Content="Operations" />
+                <NavigationViewItem Icon="List" Content="Fulfillment" Tag="Onyx.Oms.Client.Desktop.Features.Fulfillment.FulfillmentPage" />
+                <NavigationViewItem Icon="Library" Content="Catalog" Tag="Onyx.Oms.Client.Desktop.Features.Catalog.CatalogPage">
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem Content="Categories" Tag="Onyx.Oms.Client.Desktop.Features.ProductCategories.ProductCategoriesPage" />
+                        <NavigationViewItem Content="Products" Tag="Onyx.Oms.Client.Desktop.Features.Products.ProductsPage" />
+                        <NavigationViewItem Content="Variants" Tag="Onyx.Oms.Client.Desktop.Features.ProductVariants.ProductVariantsPage" />
+                    </NavigationViewItem.MenuItems>
+                </NavigationViewItem>
                 <NavigationViewItem Icon="Send" Content="Couriers" Tag="Onyx.Oms.Client.Desktop.Features.Couriers.CouriersPage" />
+                
+                <NavigationViewItemHeader Content="Administration" />
+                <NavigationViewItem Icon="ContactInfo" Content="Users" Tag="Onyx.Oms.Client.Desktop.Features.Users.UsersPage" />
                 <NavigationViewItem Icon="People" Content="Roles" Tag="Onyx.Oms.Client.Desktop.Features.Roles.RolesPage" />
             </NavigationView.MenuItems>
 
