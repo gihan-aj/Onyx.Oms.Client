@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Onyx.Oms.Client.Desktop.Shared.Services;
 using System;
 using System.Collections.Generic;
 
@@ -19,6 +20,9 @@ public sealed partial class CouriersPage : Page
                     ?? throw new InvalidOperationException("CouriersViewModel not found");
         
         DataContext = ViewModel;
+
+        var permissionService = App.Current.Services.GetRequiredService<IPermissionService>();
+        NewCourierButton.Visibility = permissionService.CanExecute(Shared.Constants.Permissions.Couriers.Create) ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void OnQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)

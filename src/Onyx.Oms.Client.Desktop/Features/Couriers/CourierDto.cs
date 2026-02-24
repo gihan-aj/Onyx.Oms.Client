@@ -25,4 +25,17 @@ public class CourierDto
 
     [JsonPropertyName("isActive")]
     public bool IsActive { get; set; }
+
+    // Permission flags (Not mapped from API, populated locally)
+    [JsonIgnore]
+    public bool CanView { get; set; }
+
+    [JsonIgnore]
+    public bool CanEdit { get; set; }
+
+    [JsonIgnore]
+    public bool CanDelete { get; set; }
+
+    [JsonIgnore]
+    public bool CanToggleStatus { get; set; }
 }

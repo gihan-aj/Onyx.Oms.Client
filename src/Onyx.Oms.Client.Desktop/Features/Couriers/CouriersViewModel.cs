@@ -14,6 +14,7 @@ public partial class CouriersViewModel : ObservableObject, INavigationAware
     private readonly ICourierApi _courierApi;
     private readonly IToastService _toastService;
     private readonly IDialogService _dialogService;
+    private readonly IPermissionService _permissionService;
     private readonly ILogger<CouriersViewModel> _logger;
 
     private ObservableCollection<CourierDto> _couriers = new();
@@ -138,11 +139,13 @@ public partial class CouriersViewModel : ObservableObject, INavigationAware
         ICourierApi courierApi, 
         IToastService toastService, 
         IDialogService dialogService,
+        IPermissionService permissionService,
         ILogger<CouriersViewModel> logger)
     {
         _courierApi = courierApi;
         _toastService = toastService;
         _dialogService = dialogService;
+        _permissionService = permissionService;
         _logger = logger;
 
         LoadDataCommand = new AsyncRelayCommand(LoadDataAsync);
@@ -166,9 +169,19 @@ public partial class CouriersViewModel : ObservableObject, INavigationAware
             
             var result = await _courierApi.SearchCouriers(Page, PageSize, SearchTerm, SortColumn, SortDirection);
             
+            var canView = _permissionService.CanExecute(Shared.Constants.Permissions.Couriers.View);
+            var canEdit = _permissionService.CanExecute(Shared.Constants.Permissions.Couriers.Edit);
+            var canDelete = _permissionService.CanExecute(Shared.Constants.Permissions.Couriers.Delete);
+            var canActivate = _permissionService.CanExecute(Shared.Constants.Permissions.Couriers.Activate);
+            var canDeactivate = _permissionService.CanExecute(Shared.Constants.Permissions.Couriers.Deactivate);
+
             Couriers.Clear();
             foreach (var item in result.Items)
             {
+                item.CanView = canView;
+                item.CanEdit = canEdit;
+                item.CanDelete = canDelete;
+                item.CanToggleStatus = item.IsActive ? canDeactivate : canActivate;
                 Couriers.Add(item);
             }
 
