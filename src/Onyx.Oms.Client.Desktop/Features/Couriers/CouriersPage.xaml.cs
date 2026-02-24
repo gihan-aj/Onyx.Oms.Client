@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
@@ -58,41 +59,15 @@ public sealed partial class CouriersPage : Page
 
     private async void OnNewClick(object sender, RoutedEventArgs e)
     {
-        var dialog = new CourierFormDialog() { XamlRoot = this.XamlRoot };
-        
-        // Handle saving before closing
-        dialog.PrimaryButtonClick += async (s, args) =>
-        {
-            var d = (CourierFormDialog)s;
-            var deferral = args.GetDeferral(); // Keep open while async
-            args.Cancel = true; // Assume failure/validation first
-
-            try
-            {
-                var dto = d.GetCreateDto();
-                // Validate if needed?
-                
-                await ViewModel.CreateCourier(dto);
-                args.Cancel = false; // Close on success
-            }
-            catch
-            {
-                // Error handled in VM/Interceptor, keep dialog open
-            }
-            finally
-            {
-                deferral.Complete();
-            }
-        };
-
-        await dialog.ShowAsync();
+        var navigationService = App.Current.Services.GetRequiredService<Shared.Services.INavigationService>();
+        navigationService.NavigateTo(typeof(CourierFormViewModel).FullName!);
     }
 
     private async void OnViewClick(object sender, RoutedEventArgs e)
     {
         if ((sender as FrameworkElement)?.DataContext is not CourierDto courier) return;
 
-        var dialog = new CourierFormDialog(courier, isReadOnly: true)
+        var dialog = new CourierDetailsDialog(courier)
         {
             XamlRoot = this.XamlRoot
         };
@@ -103,31 +78,8 @@ public sealed partial class CouriersPage : Page
     {
         if ((sender as FrameworkElement)?.DataContext is not CourierDto courier) return;
 
-        var dialog = new CourierFormDialog(courier) { XamlRoot = this.XamlRoot };
-
-        dialog.PrimaryButtonClick += async (s, args) =>
-        {
-            var d = (CourierFormDialog)s;
-            var deferral = args.GetDeferral();
-            args.Cancel = true; 
-
-            try
-            {
-                var dto = d.GetUpdateDto(courier.Id);
-                await ViewModel.UpdateCourier(dto);
-                args.Cancel = false; 
-            }
-            catch
-            {
-                // Keep open
-            }
-            finally
-            {
-                deferral.Complete();
-            }
-        };
-
-        await dialog.ShowAsync();
+        var navigationService = App.Current.Services.GetRequiredService<Shared.Services.INavigationService>();
+        navigationService.NavigateTo(typeof(CourierFormViewModel).FullName!, courier);
     }
 
     private async void OnDeleteClick(object sender, RoutedEventArgs e)

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="Onyx.Oms.Client.Desktop.Features.Couriers.CourierDetailsDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
+    xmlns:local="using:Onyx.Oms.Client.Desktop.Features.Couriers"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="Courier Details"
+    CloseButtonText="Close"
+    DefaultButton="Close"
+    CornerRadius="8"
+    CloseButtonStyle="{StaticResource AccentButtonStyle}">
+
+    <ContentDialog.Resources>
+        <converters:EmptyStringToObjectConverter x:Key="StringToVisibilityConverter" EmptyValue="Collapsed" NotEmptyValue="Visible" />
+    </ContentDialog.Resources>
+
+    <StackPanel Spacing="16" MinWidth="300">
+        <!-- Status Badge -->
+        <Border Style="{StaticResource StatusBadgeStyle}" 
+                Background="{x:Bind Courier.IsActive, Mode=OneTime, Converter={StaticResource StatusBackgroundConverter}}"
+                HorizontalAlignment="Left">
+            <TextBlock Text="{x:Bind Courier.IsActive, Mode=OneTime, Converter={StaticResource StatusTextConverter}}"
+                       Style="{StaticResource StatusBadgeTextStyle}"
+                       Foreground="{x:Bind Courier.IsActive, Mode=OneTime, Converter={StaticResource StatusForegroundConverter}}" />
+        </Border>
+
+        <Grid RowSpacing="12" ColumnSpacing="24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="Name:" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Center" />
+            <TextBlock Grid.Column="1" Text="{x:Bind Courier.Name, Mode=OneTime}" TextWrapping="Wrap" />
+
+            <TextBlock Grid.Row="1" Text="Contact:" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Center" />
+            <TextBlock Grid.Row="1" Grid.Column="1" Text="{x:Bind Courier.ContactPerson, Mode=OneTime}" TextWrapping="Wrap" />
+
+            <TextBlock Grid.Row="2" Text="Primary Phone:" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Center" />
+            <TextBlock Grid.Row="2" Grid.Column="1" Text="{x:Bind Courier.PrimaryPhone, Mode=OneTime}" TextWrapping="Wrap" />
+
+            <TextBlock Grid.Row="3" Text="Secondary Phone:" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Center" />
+            <TextBlock Grid.Row="3" Grid.Column="1" Text="{x:Bind Courier.SecondaryPhone, Mode=OneTime}" TextWrapping="Wrap" />
+
+            <TextBlock Grid.Row="4" Text="Website:" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Center" />
+            <HyperlinkButton Grid.Row="4" Grid.Column="1" Content="{x:Bind Courier.WebsiteUrl, Mode=OneTime}" NavigateUri="{x:Bind Courier.WebsiteUrl, Mode=OneTime}" Visibility="{x:Bind Courier.WebsiteUrl, Mode=OneTime, Converter={StaticResource StringToVisibilityConverter}}" />
+        </Grid>
+    </StackPanel>
+</ContentDialog>

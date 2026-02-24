@@ -160,6 +160,8 @@ namespace Onyx.Oms.Client.Desktop
             services.AddTransient<Features.Orders.OrdersPage>();
             services.AddTransient<Features.Customers.CustomersPage>();
             services.AddTransient<Features.Couriers.CouriersPage>();
+            services.AddTransient<Features.Couriers.CourierFormPage>();
+            services.AddTransient<Features.Couriers.CourierFormViewModel>();
             services.AddTransient<Features.Roles.RolesPage>();
             services.AddTransient<Features.Roles.RoleFormPage>();
             services.AddTransient<Features.Settings.SettingsPage>();
@@ -177,6 +179,7 @@ namespace Onyx.Oms.Client.Desktop
             pageService.Configure(typeof(Features.Orders.OrdersPage).FullName!, typeof(Features.Orders.OrdersPage));
             pageService.Configure(typeof(Features.Customers.CustomersPage).FullName!, typeof(Features.Customers.CustomersPage));
             pageService.Configure(typeof(Features.Couriers.CouriersPage).FullName!, typeof(Features.Couriers.CouriersPage));
+            pageService.Configure(typeof(Features.Couriers.CourierFormViewModel).FullName!, typeof(Features.Couriers.CourierFormPage));
             pageService.Configure(typeof(Features.Roles.RolesPage).FullName!, typeof(Features.Roles.RolesPage));
             pageService.Configure(typeof(Features.Roles.RoleFormPage).FullName!, typeof(Features.Roles.RoleFormPage));
             pageService.Configure(typeof(Features.Settings.SettingsPage).FullName!, typeof(Features.Settings.SettingsPage));

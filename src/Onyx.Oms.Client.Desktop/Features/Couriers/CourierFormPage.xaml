@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Onyx.Oms.Client.Desktop.Features.Couriers.CourierFormPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Onyx.Oms.Client.Desktop.Features.Couriers"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:BoolToObjectConverter x:Key="InvertedBoolConverter" TrueValue="False" FalseValue="True" />
+        <converters:EmptyStringToObjectConverter x:Key="StringToVisibilityConverter" EmptyValue="Collapsed" NotEmptyValue="Visible" />
+    </Page.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Grid Padding="24">
+            <!-- Form Center Card Setup -->
+            <Border MaxWidth="600" 
+                    MinWidth="450"
+                    VerticalAlignment="Top" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Background="{ThemeResource LayerFillColorDefaultBrush}" 
+                    Padding="32"
+                    HorizontalAlignment="Center">
+                    
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <ProgressRing Grid.RowSpan="8" IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+                                  HorizontalAlignment="Center" VerticalAlignment="Center" Canvas.ZIndex="10" />
+
+                    <!-- Header -->
+                    <TextBlock Grid.Row="0" Text="{x:Bind ViewModel.Title, Mode=OneWay}" Style="{StaticResource TitleTextBlockStyle}" Margin="0,0,0,24" />
+
+                    <!-- Name Field -->
+                    <StackPanel Grid.Row="1" Margin="0,0,0,16">
+                        <TextBox Header="Name" Text="{x:Bind ViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                 IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"
+                                 PlaceholderText="Enter courier name" />
+                        <TextBlock Foreground="{ThemeResource SystemFillColorCriticalBrush}" 
+                                   Text="{x:Bind ViewModel.NameError, Mode=OneWay}"
+                                   Visibility="{x:Bind ViewModel.NameError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"
+                                   Style="{StaticResource CaptionTextBlockStyle}" Margin="0,4,0,0" />
+                    </StackPanel>
+
+                    <!-- Contact Person Field -->
+                    <StackPanel Grid.Row="2" Margin="0,0,0,16">
+                        <TextBox Header="Contact Person" Text="{x:Bind ViewModel.ContactPerson, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                 IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"
+                                 PlaceholderText="Enter contact person" />
+                    </StackPanel>
+
+                    <!-- Primary Phone Field -->
+                    <StackPanel Grid.Row="3" Margin="0,0,0,16">
+                        <TextBox Header="Primary Phone" Text="{x:Bind ViewModel.PrimaryPhone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                 IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"
+                                 InputScope="TelephoneNumber"
+                                 PlaceholderText="Enter primary phone" />
+                    </StackPanel>
+
+                    <!-- Secondary Phone Field -->
+                    <StackPanel Grid.Row="4" Margin="0,0,0,16">
+                        <TextBox Header="Secondary Phone" Text="{x:Bind ViewModel.SecondaryPhone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                 IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"
+                                 InputScope="TelephoneNumber"
+                                 PlaceholderText="Enter secondary phone" />
+                    </StackPanel>
+
+                    <!-- Website URL Field -->
+                    <StackPanel Grid.Row="5" Margin="0,0,0,24">
+                        <TextBox Header="Website URL" Text="{x:Bind ViewModel.WebsiteUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                 IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"
+                                 InputScope="Url"
+                                 PlaceholderText="Enter website URL" />
+                    </StackPanel>
+
+                    <!-- Is Active Field -->
+                    <CheckBox Grid.Row="6" Content="Active" IsChecked="{x:Bind ViewModel.IsActive, Mode=TwoWay}"
+                              IsEnabled="False" Margin="0,0,0,32"/>
+
+                    <!-- Buttons Area -->
+                    <StackPanel Grid.Row="7" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                        <Button Content="Cancel" Command="{x:Bind ViewModel.CancelCommand}" Style="{StaticResource SubtleButtonStyle}" />
+                        <Button Content="Save" Command="{x:Bind ViewModel.SaveCommand}" Style="{StaticResource AccentButtonStyle}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</Page>

@@ -186,45 +186,6 @@ public partial class CouriersViewModel : ObservableObject, INavigationAware
         }
     }
 
-    public async Task CreateCourier(CreateCourierDto courier)
-    {
-        if (IsBusy) return;
-        try
-        {
-            IsBusy = true;
-            await _courierApi.CreateCourier(courier);
-            _toastService.ShowSuccess("Success", "Courier created successfully.");
-            await LoadDataAsync();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error creating courier: {ex.Message}");
-        }
-        finally
-        {
-            IsBusy = false;
-        }
-    }
-
-    public async Task UpdateCourier(UpdateCourierDto courier)
-    {
-        if (IsBusy) return;
-        try
-        {
-            IsBusy = true;
-            await _courierApi.UpdateCourier(courier.Id, courier);
-            _toastService.ShowSuccess("Success", "Courier updated successfully.");
-            await LoadDataAsync();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error updating courier: {ex.Message}");
-        }
-        finally
-        {
-            IsBusy = false;
-        }
-    }
 
     public async Task DeleteCourier(CourierDto? courier)
     {
