@@ -60,24 +60,6 @@ public sealed partial class RolesPage : Page
         await ViewModel.Sort(tag, newDirection);
     }
 
-    private async void OnNewClick(object sender, RoutedEventArgs e)
-    {
-        var vm = App.Current.Services.GetRequiredService<RoleFormViewModel>();
-        await vm.InitializeAsync();
-
-        var dialog = new RoleFormDialog(vm)
-        {
-            XamlRoot = this.XamlRoot
-        };
-
-        var result = await dialog.ShowAsync();
-
-        if (result == ContentDialogResult.Primary)
-        {
-            ViewModel.RefreshCommand.Execute(null);
-        }
-    }
-
     private async void OnViewClick(object sender, RoutedEventArgs e)
     {
         if ((sender as FrameworkElement)?.DataContext is RoleDto role)
@@ -106,25 +88,13 @@ public sealed partial class RolesPage : Page
         }
     }
 
-    private async void OnEditClick(object sender, RoutedEventArgs e)
+    private void OnEditClick(object sender, RoutedEventArgs e)
     {
         if ((sender as FrameworkElement)?.DataContext is RoleDto role)
         {
-            var roleWithPermissions = await ViewModel.GetRoleDetailsAsync(role.Id);
-
-            var vm = App.Current.Services.GetRequiredService<RoleFormViewModel>();
-            await vm.InitializeAsync(roleWithPermissions);
-
-            var dialog = new RoleFormDialog(vm)
+            if (ViewModel.EditRoleCommand.CanExecute(role))
             {
-                XamlRoot = this.XamlRoot
-            };
-
-            var result = await dialog.ShowAsync();
-
-            if (result == ContentDialogResult.Primary)
-            {
-                ViewModel.RefreshCommand.Execute(null);
+                ViewModel.EditRoleCommand.Execute(role);
             }
         }
     }

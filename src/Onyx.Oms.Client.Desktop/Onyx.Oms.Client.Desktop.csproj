@@ -16,6 +16,7 @@
   <ItemGroup>
     <None Remove="Assets\StoreLogo.png" />
     <None Remove="Features\Dashboard\DashboardPage.xaml" />
+    <None Remove="Features\Roles\RoleFormPage.xaml" />
     <None Remove="Shared\Styles\Grid.xaml" />
     <None Remove="Shared\Styles\GridViewItem.xaml" />
     <None Remove="Shared\Styles\TextBlock.xaml" />
@@ -79,6 +80,11 @@
     <Folder Include="Shared\Components\" />
     <Folder Include="Shared\Services\" />
     <Folder Include="Shared\Shell\Navigation\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Features\Roles\RoleFormPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Shared\Styles\GridViewItem.xaml">

@@ -15,6 +15,7 @@ public partial class RolesViewModel : ObservableObject, INavigationAware
     private readonly IToastService _toastService;
     private readonly IDialogService _dialogService;
     private readonly ILogger<RolesViewModel> _logger;
+    private readonly INavigationService _navigationService;
 
     private ObservableCollection<RoleDto> _roles = new();
     public ObservableCollection<RoleDto> Roles
@@ -127,17 +128,21 @@ public partial class RolesViewModel : ObservableObject, INavigationAware
     public IAsyncRelayCommand<RoleDto> DeleteCommand { get; }
     public IAsyncRelayCommand<RoleDto> ActivateCommand { get; }
     public IAsyncRelayCommand<RoleDto> DeactivateCommand { get; }
+    public IRelayCommand NewRoleCommand { get; }
+    public IRelayCommand<RoleDto> EditRoleCommand { get; }
 
     public RolesViewModel(
         IRoleApi roleApi,
         IToastService toastService,
         IDialogService dialogService,
-        ILogger<RolesViewModel> logger)
+        ILogger<RolesViewModel> logger,
+        INavigationService navigationService)
     {
         _roleApi = roleApi;
         _toastService = toastService;
         _dialogService = dialogService;
         _logger = logger;
+        _navigationService = navigationService;
 
         LoadDataCommand = new AsyncRelayCommand(LoadDataAsync);
         NextPageCommand = new AsyncRelayCommand(OnNextPage);
@@ -147,6 +152,21 @@ public partial class RolesViewModel : ObservableObject, INavigationAware
         DeleteCommand = new AsyncRelayCommand<RoleDto>(DeleteRole);
         ActivateCommand = new AsyncRelayCommand<RoleDto>(ActivateRole);
         DeactivateCommand = new AsyncRelayCommand<RoleDto>(DeactivateRole);
+        NewRoleCommand = new RelayCommand(OnNewRole);
+        EditRoleCommand = new RelayCommand<RoleDto>(OnEditRole);
+    }
+
+    private void OnNewRole()
+    {
+        _navigationService.NavigateTo(typeof(RoleFormPage).FullName!);
+    }
+
+    private void OnEditRole(RoleDto? role)
+    {
+        if (role != null)
+        {
+            _navigationService.NavigateTo(typeof(RoleFormPage).FullName!, role.Id);
+        }
     }
 
     public async Task<RoleWithPermissionsDto?> GetRoleDetailsAsync(Guid roleId)
@@ -244,7 +264,7 @@ public partial class RolesViewModel : ObservableObject, INavigationAware
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error activating role");
-            _toastService.ShowError("Error", "Failed to activate role.");
+            //_toastService.ShowError("Error", "Failed to activate role.");
         }
         finally
         {
@@ -265,7 +285,7 @@ public partial class RolesViewModel : ObservableObject, INavigationAware
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error deactivating role");
-            _toastService.ShowError("Error", "Failed to deactivate role.");
+            //_toastService.ShowError("Error", "Failed to deactivate role.");
         }
         finally
         {
@@ -295,7 +315,7 @@ public partial class RolesViewModel : ObservableObject, INavigationAware
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting role");
-                _toastService.ShowError("Error", "Failed to delete role.");
+                //_toastService.ShowError("Error", "Failed to delete role.");
             }
             finally
             {

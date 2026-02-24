@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -9,11 +10,12 @@ using Onyx.Oms.Client.Desktop.Shared.Services;
 
 namespace Onyx.Oms.Client.Desktop.Features.Roles;
 
-public partial class RoleFormViewModel : ObservableObject
+public partial class RoleFormViewModel : ObservableObject, INavigationAware
 {
     private readonly IRoleApi _roleApi;
     private readonly IToastService _toastService;
     private readonly ILogger<RoleFormViewModel> _logger;
+    private readonly INavigationService _navigationService;
 
     public bool IsEditMode { get; private set; }
     public Guid? RoleId { get; private set; }
@@ -54,6 +56,20 @@ public partial class RoleFormViewModel : ObservableObject
         set => SetProperty(ref _description, value);
     }
 
+    private string? _nameError;
+    public string? NameError
+    {
+        get => _nameError;
+        set => SetProperty(ref _nameError, value);
+    }
+
+    private string? _descriptionError;
+    public string? DescriptionError
+    {
+        get => _descriptionError;
+        set => SetProperty(ref _descriptionError, value);
+    }
+
     private bool _isLoading = true;
     public bool IsLoading
     {
@@ -68,11 +84,22 @@ public partial class RoleFormViewModel : ObservableObject
         set => SetProperty(ref _permissionGroups, value);
     }
 
-    public RoleFormViewModel(IRoleApi roleApi, IToastService toastService, ILogger<RoleFormViewModel> logger)
+    public IAsyncRelayCommand SaveCommand { get; }
+    public IRelayCommand CancelCommand { get; }
+
+    public RoleFormViewModel(
+        IRoleApi roleApi, 
+        IToastService toastService, 
+        ILogger<RoleFormViewModel> logger,
+        INavigationService navigationService)
     {
         _roleApi = roleApi;
         _toastService = toastService;
         _logger = logger;
+        _navigationService = navigationService;
+
+        SaveCommand = new AsyncRelayCommand(OnSaveExecuteAsync);
+        CancelCommand = new RelayCommand(OnCancelExecute);
     }
 
     public async Task InitializeAsync(RoleWithPermissionsDto? roleToEdit = null, bool isReadOnly = false)
@@ -162,9 +189,29 @@ public partial class RoleFormViewModel : ObservableObject
         return selected;
     }
 
+    private void OnCancelExecute()
+    {
+        if (_navigationService.CanGoBack)
+        {
+            _navigationService.GoBack();
+        }
+    }
+
+    private async Task OnSaveExecuteAsync()
+    {
+        var result = await SaveAsync();
+        if (result && _navigationService.CanGoBack)
+        {
+            _navigationService.GoBack();
+        }
+    }
+
     public async Task<bool> SaveAsync()
     {
         IsLoading = true;
+        NameError = null;
+        DescriptionError = null;
+        
         try
         {
             var selectedPermissions = GetSelectedPermissions();
@@ -194,14 +241,59 @@ public partial class RoleFormViewModel : ObservableObject
             }
             return true;
         }
-        catch (Exception)
+        catch (Refit.ApiException ex)
         {
-            // The global ProblemDetailsHandler handles the UI error toasts
+            // The global ProblemDetailsHandler will show the Toast/Dialog if we don't catch it, 
+            // but since we want field-specific errors, we should parse them here if possible
+            
+            var problemDetails = ex.GetContentAsAsync<Onyx.Oms.Client.Desktop.Shared.Models.ProblemDetails>().Result;
+            var errors = problemDetails?.Errors ?? problemDetails?.Extensions?.Errors;
+
+            if (errors != null)
+            {
+                foreach (var error in errors)
+                {
+                    if (string.Equals(error.Code, "Name", StringComparison.OrdinalIgnoreCase) || 
+                        error.Description?.Contains("Name", StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        NameError = error.Description;
+                    }
+                    else if (string.Equals(error.Code, "Description", StringComparison.OrdinalIgnoreCase) || 
+                             error.Description?.Contains("Description", StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        DescriptionError = error.Description;
+                    }
+                }
+            }
+            
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to save role");
+            // The global ProblemDetailsHandler handles the UI error toasts generically
             return false;
         }
         finally
         {
             IsLoading = false;
         }
+    }
+
+    public async void OnNavigatedTo(object parameter)
+    {
+        if (parameter is Guid roleId)
+        {
+            var roleDetails = await _roleApi.GetRoleById(roleId);
+            await InitializeAsync(roleDetails);
+        }
+        else
+        {
+            await InitializeAsync();
+        }
+    }
+
+    public void OnNavigatedFrom()
+    {
     }
 }

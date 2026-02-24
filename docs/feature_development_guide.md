@@ -107,32 +107,32 @@ Expose the page in the main navigation menu.
 -   **No Data**: Always verify if the result count is 0 and show a friendly "No items found" message.
 -   **Busy State**: Use `ProgressRing` bound to `IsLoading` property.
 
-## 4. Add/Edit Dialogs (Recommended)
-For creating or editing entities, we prefer **ContentDialogs** over full pages if the form is relatively simple.
+## 4. Add/Edit Forms (Page-Based Architecture)
+For creating or editing entities, we use **dedicated Pages** (e.g., `[Feature]FormPage.xaml`) rather than `ContentDialog`s. 
+
+This architectural decision is required because WinUI 3 strictly forbids opening two native `ContentDialog`s simultaneously. If a form is inside a dialog, our global `ProblemDetailsHandler` cannot show validation error dialogs or might obscure toast notifications behind the dialog backdrop.
 
 **Pattern**:
-1.  Create a separate UserControl or Page for the Form (e.g., `CourierForm.xaml`).
-2.  Wrap it in a `ContentDialog` or simpler, just define the Form directly in the `ContentDialog.Content`.
-3.  **Prevent Closing**: Handle the `Closing` event on the dialog. Set `args.Cancel = true` if the save operation fails or validation fails. Only allow close on success or cancellation.
+1. Create a `[Feature]FormPage.xaml` for entry forms.
+2. Wrap the form in a center-aligned elevated `Border` (Card style) inside a `ScrollViewer` to ensure the form remains accessible on small screens.
+3. Use `INavigationService` to navigate to this page (passing an ID for edit mode, or null for create mode). Navigate `GoBack()` on success or cancellation.
+4. Implement inline field validation by mapping `Refit.ApiException` errors to specific ViewModel properties if inline validation is desired.
 
-### Read-Only / View Mode
-To support "View Details" without duplicating forms:
-1.  Add a `bool isReadOnly = false` parameter to the Dialog constructor.
-2.  If true:
-    -   Set `IsReadOnly = true` and `IsEnabled = false` on inputs.
-    -   Hide the Primary ("Save") button (`PrimaryButtonText = ""`).
-    -   Change the Title (e.g., "Courier Details").
-3.  Add a **View Button** (Icon: `&#xE890;` or `&#xE7AD;`) to the DataGrid Actions column.
+### Read-Only / View Details Dialog
+We use a **ContentDialog** for the "View Details" action because read-only views do not trigger validation error dialogs, avoiding the overlap issue.
+1. Create a dedicated `[Feature]DetailsDialog.xaml`.
+2. Keep it clean: use `TextBlock`s and visual elements instead of disabled `TextBox`es and `CheckBox`es.
+3. Provide a single "Close" button.
+4. Add a **View Button** (Icon: `&#xE890;`) to the DataGrid Actions column to trigger this dialog.
 
 ## 5. DataGrid Best Practices
 
 To ensure a professional and responsive DataGrid:
 
 ### Layout & Scrolling
--   **Constrained Height**: The `DataGrid` must have a finite height to show scrollbars.
-    -   **Approach A**: If using a `Grid` row with `Height="*"`, ensure the parent container (like `Frame`) does NOT have a `ScrollViewer` enabling infinite height. set `ScrollViewer.VerticalScrollBarVisibility="Disabled"` on the hosting Frame.
-    -   **Approach B**: Wrap the DataGrid in a `Grid` and bind `Width/Height` to the container's `ActualWidth/ActualHeight` (less preferred but works for complex nesting).
--   **Scrollbars**: Explicitly set `VerticalScrollBarVisibility="Auto"` and `HorizontalScrollBarVisibility="Auto"`.
+-   **Scrollable Pages**: Both list pages (containing the DataGrid) and form pages should be scrollable to support responsive resizing. Wrap the main content or the entire page in a `ScrollViewer` with `VerticalScrollBarVisibility="Auto"`.
+-   **Constrained Height**: The `DataGrid` must have a finite height to show scrollbars. If the grid takes up the remaining space, ensure its bounding container provides a layout constraint.
+-   **Scrollbars**: Explicitly set `VerticalScrollBarVisibility="Auto"` and `HorizontalScrollBarVisibility="Auto"` on the `DataGrid` itself.
 
 ### Column Styling
 -   **Alignment**: Use `ElementStyle` instead of full `CellTemplate` for simple text alignment.
@@ -152,9 +152,9 @@ To ensure a professional and responsive DataGrid:
 API requests made via Refit clients are registered with the `ProblemDetailsHandler` in `App.xaml.cs`. This global handler natively intercepts `ProblemDetails` JSON responses (like 400 Bad Request or 409 Conflict) and standard HTTP errors.
 
 **Best Practices:**
-- Do **not** manually invoke the `IToastService` to show generic API error messages in your ViewModels. 
-- The global handler automatically displays context-appropriate Toasts or Validation Dialogs based on the backend response.
-- Use `try-catch` in your ViewModel **only** for local UI state cleanup (e.g., setting `IsBusy = false`). 
+- Do **not** manually show notifications or error dialogs for API errors in your feature pages or ViewModels. The `ProblemDetailsHandler` automatically displays context-appropriate Toasts or Validation Dialogs globally.
+- You do **not** need to handle validation errors manually unless you want to map them to inline field-specific errors.
+- Use `try-catch` in your ViewModel **only** for local UI state cleanup (e.g., setting `IsLoading = false` in a `finally` block). 
 
 **Example ViewModel Implementation:**
 ```csharp
