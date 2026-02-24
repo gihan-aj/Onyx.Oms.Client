@@ -19,6 +19,36 @@ using Windows.Foundation.Collections;
 
 namespace Onyx.Oms.Client.Desktop.Features.Roles
 {
+    // Simple converter to make parent nodes Three-State and leaf nodes Two-State
+    public partial class NullToTrueConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            return value == null;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    // Inverted Bool Converter
+    public partial class InvertedBoolConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is bool b) return !b;
+            return true;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            if (value is bool b) return !b;
+            return false;
+        }
+    }
+
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>

@@ -73,11 +73,8 @@ public sealed partial class RolesPage : Page
                 
                 var details = await ViewModel.GetRoleDetailsAsync(role.Id);
                 if (details == null) return;
-                
-                var vm = App.Current.Services.GetRequiredService<RoleFormViewModel>();
-                await vm.InitializeAsync(details, isReadOnly: true);
 
-                var dialog = new RoleFormDialog(vm)
+                var dialog = new RoleDetailsDialog(details)
                 {
                     XamlRoot = this.XamlRoot
                 };
