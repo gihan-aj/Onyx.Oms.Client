@@ -46,16 +46,40 @@ public class PermissionService : IPermissionService
         _logger.LogInformation("Permissions cleared due to logout.");
     }
 
-    public Task<bool> CanExecuteAsync(string permissionKey)
+    public bool CanExecute(string permissionKey)
     {
-        // If not empty, check if we have the specific permission.
-        return Task.FromResult(_permissions.Contains(permissionKey));
+        return _permissions.Contains(permissionKey);
     }
 
-    public Task<bool> CanNavigateToAsync(string pageKey)
+    public bool HasFeatureAccess(string featurePrefix)
     {
-        // For now, allow navigation to all pages. 
-        // We can hook this up to a mapping of Page => RequiredPermission later.
-        return Task.FromResult(true);
+        // True if the user has any permission starting with the given prefix
+        foreach (var perm in _permissions)
+        {
+            if (perm.StartsWith(featurePrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public bool CanNavigateTo(string pageKey)
+    {
+        if (pageKey == typeof(Features.Roles.RolesPage).FullName ||
+            pageKey == typeof(Features.Roles.RoleFormPage).FullName)
+        {
+            return HasFeatureAccess("Permissions.Roles.");
+        }
+        
+        if (pageKey == typeof(Features.Couriers.CouriersPage).FullName)
+        {
+            return HasFeatureAccess("Permissions.Couriers.");
+        }
+
+        // Add other restricted pages here
+
+        // Dashboard, Settings, etc. are allowed by default if logged in
+        return true;
     }
 }

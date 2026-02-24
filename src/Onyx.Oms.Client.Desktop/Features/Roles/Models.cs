@@ -11,6 +11,12 @@ public class RoleDto
     public int PermissionCount { get; set; }
     public int UserCount { get; set; }
     public bool IsActive { get; set; }
+    
+    // UI Permission Flags
+    public bool CanEdit { get; set; }
+    public bool CanDelete { get; set; }
+    public bool CanActivate { get; set; }
+    public bool CanDeactivate { get; set; }
 }
 
 public class RoleWithPermissionsDto

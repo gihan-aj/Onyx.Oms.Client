@@ -18,6 +18,9 @@ public sealed partial class RolesPage : Page
         InitializeComponent();
 
         DataContext = ViewModel;
+
+        var permissionService = App.Current.Services.GetRequiredService<IPermissionService>();
+        NewRoleButton.Visibility = permissionService.CanExecute(Shared.Constants.Permissions.Roles.Create) ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void OnQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)

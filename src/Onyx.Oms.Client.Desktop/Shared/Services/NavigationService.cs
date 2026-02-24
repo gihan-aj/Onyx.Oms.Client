@@ -7,14 +7,16 @@ public class NavigationService : INavigationService
 {
     private readonly IPermissionService _permissionService;
     private readonly IPageService _pageService;
+    private readonly IToastService _toastService;
     private Frame? _frame;
 
     public event NavigatedEventHandler? Navigated;
 
-    public NavigationService(IPermissionService permissionService, IPageService pageService)
+    public NavigationService(IPermissionService permissionService, IPageService pageService, IToastService toastService)
     {
         _permissionService = permissionService;
         _pageService = pageService;
+        _toastService = toastService;
     }
 
     public Frame? Frame
@@ -33,10 +35,11 @@ public class NavigationService : INavigationService
     public bool NavigateTo(string pageKey, object? parameter = null, bool clearNavigation = false)
     {
         // 1. Check Permissions
-        // specific implementation depends on how async usage is handled in sync NavigateTo
-        // For now, we assume _permissionService.CanNavigateToAsync returns true or we block/fire-and-forget.
-        // Ideally NavigationService should be Async or PermissionService should have a sync check cache.
-        // For simplicity in this step, we'll proceed.
+        if (!_permissionService.CanNavigateTo(pageKey))
+        {
+            _toastService.ShowError("Access Denied", "You do not have permission to view this page.");
+            return false;
+        }
 
         var pageType = _pageService.GetPageType(pageKey);
         if (_frame != null && (_frame.Content?.GetType() != pageType || (parameter != null && !parameter.Equals(_lastParamUsed))))

@@ -5,6 +5,7 @@ using Onyx.Oms.Client.Desktop.Shared.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Onyx.Oms.Client.Desktop.Features.Roles;
@@ -16,6 +17,8 @@ public partial class RolesViewModel : ObservableObject, INavigationAware
     private readonly IDialogService _dialogService;
     private readonly ILogger<RolesViewModel> _logger;
     private readonly INavigationService _navigationService;
+    private readonly IPermissionService _permissionService;
+    private readonly IAuthenticationService _authService;
 
     private ObservableCollection<RoleDto> _roles = new();
     public ObservableCollection<RoleDto> Roles
@@ -136,13 +139,17 @@ public partial class RolesViewModel : ObservableObject, INavigationAware
         IToastService toastService,
         IDialogService dialogService,
         ILogger<RolesViewModel> logger,
-        INavigationService navigationService)
+        INavigationService navigationService,
+        IPermissionService permissionService,
+        IAuthenticationService authService)
     {
         _roleApi = roleApi;
         _toastService = toastService;
         _dialogService = dialogService;
         _logger = logger;
         _navigationService = navigationService;
+        _permissionService = permissionService;
+        _authService = authService;
 
         LoadDataCommand = new AsyncRelayCommand(LoadDataAsync);
         NextPageCommand = new AsyncRelayCommand(OnNextPage);
@@ -192,10 +199,30 @@ public partial class RolesViewModel : ObservableObject, INavigationAware
             HasNoData = false;
 
             var result = await _roleApi.SearchRoles(Page, PageSize, SearchTerm, SortColumn, SortDirection);
+            
+            // Evaluate permissions once
+            var canEdit = _permissionService.CanExecute(Shared.Constants.Permissions.Roles.Edit);
+            var canDelete = _permissionService.CanExecute(Shared.Constants.Permissions.Roles.Delete);
+            var canActivate = _permissionService.CanExecute(Shared.Constants.Permissions.Roles.Activate);
+            var canDeactivate = _permissionService.CanExecute(Shared.Constants.Permissions.Roles.Deactivate);
+
+            // Get current user's roles to prevent self-lockout
+            var currentUserRoles = _authService.User.FindAll("role")
+                .Select(c => c.Value)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
             Roles.Clear();
             foreach (var item in result.Items)
             {
+                bool isSuperAdmin = item.Name.Equals("SuperAdmin", StringComparison.OrdinalIgnoreCase);
+                bool isUserOwnRole = currentUserRoles.Contains(item.Name);
+                bool isProtected = isSuperAdmin || isUserOwnRole;
+
+                item.CanEdit = canEdit && !isProtected;
+                item.CanDelete = canDelete && !isProtected;
+                item.CanActivate = canActivate && !isProtected;
+                item.CanDeactivate = canDeactivate && !isProtected;
+                
                 Roles.Add(item);
             }
 

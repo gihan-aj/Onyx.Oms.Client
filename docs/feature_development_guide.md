@@ -175,3 +175,46 @@ finally
     IsBusy = false;
 }
 ```
+
+## 7. Permission-Based Access Control
+
+We employ a robust, completely synchronized permission architecture to manage UI features dynamically without duplicating backend logic.
+
+### Constants Map
+All backend permission strings must be identically mapped in `Shared/Constants/Permissions.cs`. Do not hardcode raw strings in your code.
+```csharp
+public static class Permissions
+{
+    public static class Couriers
+    {
+        public const string Create = "Permissions.Couriers.Create";
+        // ...
+    }
+}
+```
+
+### Accessing Permissions
+The `IPermissionService` caches user permissions explicitly upon login. Use it synchronously within ViewModels or Code-Behind:
+- `_permissionService.CanExecute(Permissions.Couriers.Create)`: For button-level checks.
+- `_permissionService.HasFeatureAccess("Permissions.Couriers.")`: For Navigation block routing checks.
+
+### UI Toggling Standards
+
+**1. Page-Level Action Buttons**
+For top-level Page actions (e.g., a "New Courier" button sitting above a DataGrid), handle the `Visibility` directly in the **Code-Behind**.
+```csharp
+// Inside FeaturePage.xaml.cs constructor
+var permissionService = App.Current.Services.GetRequiredService<IPermissionService>();
+NewCourierButton.Visibility = permissionService.CanExecute(Permissions.Couriers.Create) 
+    ? Visibility.Visible : Visibility.Collapsed;
+```
+
+**2. DataGrid Row Actions (Edit/Delete)**
+For action buttons residing *inside* a DataGrid `DataTemplate`, direct `x:Name` access from Code-Behind is impossible. Instead:
+1. Add property flags to your `Dto` (e.g., `CourierDto.CanEdit`, `CourierDto.CanDelete`).
+2. Populate these properties explicitly inside the `ViewModel.LoadDataAsync` method by querying the `IPermissionService` once.
+3. In your XAML `DataTemplate`, bind the **`IsEnabled`** property of the Edit/Delete/Toggle buttons directly to these properties to maintain a consistent UI layout for all users, regardless of access level.
+```xml
+<Button Content="&#xE70F;" Style="{StaticResource SubtleButtonStyle}" 
+        IsEnabled="{x:Bind CanEdit, Mode=OneWay}" />
+```

@@ -2,6 +2,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using Onyx.Oms.Client.Desktop.Shared.Services;
+using System.Linq;
 
 namespace Onyx.Oms.Client.Desktop.Shared.Shell;
 
@@ -139,10 +140,34 @@ public sealed partial class MainWindow : Window
             // Enable Pane Toggle
             AppTitleBar.IsPaneToggleButtonVisible = true;
 
+            // Filter Navigation Menu Items based on Permissions
+            foreach (var item in NavView.MenuItems)
+            {
+                if (item is NavigationViewItem navItem && navItem.Tag is string pageKey)
+                {
+                    navItem.Visibility = _permissionService.CanNavigateTo(pageKey) ? Visibility.Visible : Visibility.Collapsed;
+                }
+            }
+
             // Animate Transition
             AnimateOpacity(LoginView, 1, 0, () => LoginView.Visibility = Visibility.Collapsed);
             NavView.Visibility = Visibility.Visible;
             AnimateOpacity(NavView, 0, 1);
+
+            // Navigate to default page on fresh login
+            if (ContentFrame.Content == null)
+            {
+                var dashboardKey = typeof(Features.Dashboard.DashboardPage).FullName!;
+                _navigationService.NavigateTo(dashboardKey, null, true);
+                
+                // Select dashboard item in the menu
+                var dashboardItem = System.Linq.Enumerable.OfType<NavigationViewItem>(NavView.MenuItems)
+                    .FirstOrDefault(i => (string)i.Tag == dashboardKey);
+                if (dashboardItem != null)
+                {
+                    NavView.SelectedItem = dashboardItem;
+                }
+            }
         }
         else
         {
@@ -153,6 +178,11 @@ public sealed partial class MainWindow : Window
             
             // Disable Pane Toggle
             AppTitleBar.IsPaneToggleButtonVisible = false;
+
+            // Clear frame content and history so previous user's data isn't preserved
+            ContentFrame.Content = null;
+            ContentFrame.BackStack.Clear();
+            ContentFrame.ForwardStack.Clear();
 
             // Animate Transition
             LoginView.Visibility = Visibility.Visible;
