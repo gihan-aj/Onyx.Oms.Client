@@ -36,4 +36,14 @@ public static class Permissions
         public const string Deactivate = "Permissions.Couriers.Deactivate";
         public const string Delete = "Permissions.Couriers.Delete";
     }
+
+    public static class Customers
+    {
+        public const string View = "Permissions.Customers.View";
+        public const string Create = "Permissions.Customers.Create";
+        public const string Edit = "Permissions.Customers.Edit";
+        public const string Activate = "Permissions.Customers.Activate";
+        public const string Deactivate = "Permissions.Customers.Deactivate";
+        public const string Delete = "Permissions.Customers.Delete";
+    }
 }

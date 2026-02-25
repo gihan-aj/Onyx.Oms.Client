@@ -103,6 +103,7 @@ Expose the page in the main navigation menu.
 ## 3. UI Patterns
 
 -   **Search**: Use `AutoSuggestBox` with `QuerySubmitted` event.
+-   **Refresh**: Use a Code-Behind `Click` handler (e.g., `OnRefreshClick`) for the Refresh button that visually resets all DataGrid columns' `SortDirection` to `null` before executing the ViewModel's `RefreshCommand`. The ViewModel's `RefreshCommand` should subsequently reset `Page = 1`, `SearchTerm = null`, `SortColumn = null`, and `SortDirection = null`.
 -   **Sorting**: Implement server-side sorting. Use `Tag` on DataGrid columns to map to API sort fields.
 -   **No Data**: Always verify if the result count is 0 and show a friendly "No items found" message.
 -   **Busy State**: Use `ProgressRing` bound to `IsLoading` property.

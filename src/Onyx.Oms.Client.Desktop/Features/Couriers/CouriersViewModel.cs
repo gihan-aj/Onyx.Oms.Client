@@ -291,6 +291,9 @@ public partial class CouriersViewModel : ObservableObject, INavigationAware
     private async Task OnRefresh()
     {
         Page = 1;
+        SearchTerm = null;
+        SortColumn = null;
+        SortDirection = null;
         await LoadDataAsync();
     }
 

@@ -31,6 +31,20 @@ public sealed partial class RolesPage : Page
         }
     }
 
+    private async void OnRefreshClick(object sender, RoutedEventArgs e)
+    {
+        // Reset all columns sorting visually
+        if (RolesDataGrid != null)
+        {
+            foreach (var col in RolesDataGrid.Columns)
+            {
+                col.SortDirection = null;
+            }
+        }
+
+        await ViewModel.RefreshCommand.ExecuteAsync(null);
+    }
+
     private async void OnDataGridSorting(object sender, DataGridColumnEventArgs e)
     {
         var tag = e.Column.Tag?.ToString();

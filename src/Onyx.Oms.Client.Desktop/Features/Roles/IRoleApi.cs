@@ -17,7 +17,7 @@ public interface IRoleApi
         [AliasAs("PageSize")] int pageSize,
         [AliasAs("SearchTerm")] string? searchTerm = null,
         [AliasAs("SortColumn")] string? sortColumn = null,
-        [AliasAs("SortDirection")] string? sortDirection = null,
+        [AliasAs("SortOrder")] string? sortOrder = null,
         [AliasAs("IsActive")] bool? isActive = null);
 
     [Get("/api/v1/roles/{id}")]

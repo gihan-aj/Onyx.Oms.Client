@@ -8,23 +8,22 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Onyx.Oms.Client.Desktop.Features.Roles;
+namespace Onyx.Oms.Client.Desktop.Features.Customers;
 
-public partial class RolesViewModel : ObservableObject, INavigationAware
+public partial class CustomersViewModel : ObservableObject, INavigationAware
 {
-    private readonly IRoleApi _roleApi;
+    private readonly ICustomerApi _customerApi;
     private readonly IToastService _toastService;
     private readonly IDialogService _dialogService;
-    private readonly ILogger<RolesViewModel> _logger;
+    private readonly ILogger<CustomersViewModel> _logger;
     private readonly INavigationService _navigationService;
     private readonly IPermissionService _permissionService;
-    private readonly IAuthenticationService _authService;
 
-    private ObservableCollection<RoleDto> _roles = new();
-    public ObservableCollection<RoleDto> Roles
+    private ObservableCollection<CustomerDto> _items = new();
+    public ObservableCollection<CustomerDto> Items
     {
-        get => _roles;
-        set => SetProperty(ref _roles, value);
+        get => _items;
+        set => SetProperty(ref _items, value);
     }
 
     private bool _isListLoading;
@@ -128,63 +127,61 @@ public partial class RolesViewModel : ObservableObject, INavigationAware
     public IAsyncRelayCommand PreviousPageCommand { get; }
     public IAsyncRelayCommand RefreshCommand { get; }
     public IAsyncRelayCommand<string> SearchCommand { get; }
-    public IAsyncRelayCommand<RoleDto> DeleteCommand { get; }
-    public IAsyncRelayCommand<RoleDto> ActivateCommand { get; }
-    public IAsyncRelayCommand<RoleDto> DeactivateCommand { get; }
-    public IRelayCommand NewRoleCommand { get; }
-    public IRelayCommand<RoleDto> EditRoleCommand { get; }
+    public IAsyncRelayCommand<CustomerDto> DeleteCommand { get; }
+    public IAsyncRelayCommand<CustomerDto> ActivateCommand { get; }
+    public IAsyncRelayCommand<CustomerDto> DeactivateCommand { get; }
+    public IRelayCommand NewCustomerCommand { get; }
+    public IRelayCommand<CustomerDto> EditCustomerCommand { get; }
 
-    public RolesViewModel(
-        IRoleApi roleApi,
+    public CustomersViewModel(
+        ICustomerApi customerApi,
         IToastService toastService,
         IDialogService dialogService,
-        ILogger<RolesViewModel> logger,
+        ILogger<CustomersViewModel> logger,
         INavigationService navigationService,
-        IPermissionService permissionService,
-        IAuthenticationService authService)
+        IPermissionService permissionService)
     {
-        _roleApi = roleApi;
+        _customerApi = customerApi;
         _toastService = toastService;
         _dialogService = dialogService;
         _logger = logger;
         _navigationService = navigationService;
         _permissionService = permissionService;
-        _authService = authService;
 
         LoadDataCommand = new AsyncRelayCommand(LoadDataAsync);
         NextPageCommand = new AsyncRelayCommand(OnNextPage);
         PreviousPageCommand = new AsyncRelayCommand(OnPreviousPage);
         RefreshCommand = new AsyncRelayCommand(OnRefresh);
         SearchCommand = new AsyncRelayCommand<string>(OnSearch);
-        DeleteCommand = new AsyncRelayCommand<RoleDto>(DeleteRole);
-        ActivateCommand = new AsyncRelayCommand<RoleDto>(ActivateRole);
-        DeactivateCommand = new AsyncRelayCommand<RoleDto>(DeactivateRole);
-        NewRoleCommand = new RelayCommand(OnNewRole);
-        EditRoleCommand = new RelayCommand<RoleDto>(OnEditRole);
+        DeleteCommand = new AsyncRelayCommand<CustomerDto>(DeleteCustomer);
+        ActivateCommand = new AsyncRelayCommand<CustomerDto>(ActivateCustomer);
+        DeactivateCommand = new AsyncRelayCommand<CustomerDto>(DeactivateCustomer);
+        NewCustomerCommand = new RelayCommand(OnNewCustomer);
+        EditCustomerCommand = new RelayCommand<CustomerDto>(OnEditCustomer);
     }
 
-    private void OnNewRole()
+    private void OnNewCustomer()
     {
-        _navigationService.NavigateTo(typeof(RoleFormPage).FullName!);
+        _navigationService.NavigateTo("Onyx.Oms.Client.Desktop.Features.Customers.CustomerFormPage");
     }
 
-    private void OnEditRole(RoleDto? role)
+    private void OnEditCustomer(CustomerDto? customer)
     {
-        if (role != null)
+        if (customer != null)
         {
-            _navigationService.NavigateTo(typeof(RoleFormPage).FullName!, role.Id);
+            _navigationService.NavigateTo("Onyx.Oms.Client.Desktop.Features.Customers.CustomerFormPage", customer.Id);
         }
     }
 
-    public async Task<RoleWithPermissionsDto?> GetRoleDetailsAsync(Guid roleId)
+    public async Task<CustomerDto?> GetCustomerDetailsAsync(Guid customerId)
     {
         try
         {
-            return await _roleApi.GetRoleById(roleId);
+            return await _customerApi.GetCustomerById(customerId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error fetching role details for ID {RoleId}", roleId);
+            _logger.LogError(ex, "Error fetching customer details for ID {CustomerId}", customerId);
             return null;
         }
     }
@@ -198,32 +195,23 @@ public partial class RolesViewModel : ObservableObject, INavigationAware
             IsListLoading = true;
             HasNoData = false;
 
-            var result = await _roleApi.SearchRoles(Page, PageSize, SearchTerm, SortColumn, SortDirection);
+            var result = await _customerApi.SearchCustomers(Page, PageSize, SearchTerm, SortColumn, SortDirection);
             
             // Evaluate permissions once
-            var canEdit = _permissionService.CanExecute(Shared.Constants.Permissions.Roles.Edit);
-            var canDelete = _permissionService.CanExecute(Shared.Constants.Permissions.Roles.Delete);
-            var canActivate = _permissionService.CanExecute(Shared.Constants.Permissions.Roles.Activate);
-            var canDeactivate = _permissionService.CanExecute(Shared.Constants.Permissions.Roles.Deactivate);
+            var canEdit = _permissionService.CanExecute(Shared.Constants.Permissions.Customers.Edit);
+            var canDelete = _permissionService.CanExecute(Shared.Constants.Permissions.Customers.Delete);
+            var canActivate = _permissionService.CanExecute(Shared.Constants.Permissions.Customers.Activate);
+            var canDeactivate = _permissionService.CanExecute(Shared.Constants.Permissions.Customers.Deactivate);
 
-            // Get current user's roles to prevent self-lockout
-            var currentUserRoles = _authService.User.FindAll("role")
-                .Select(c => c.Value)
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-            Roles.Clear();
+            Items.Clear();
             foreach (var item in result.Items)
             {
-                bool isSuperAdmin = item.Name.Equals("SuperAdmin", StringComparison.OrdinalIgnoreCase);
-                bool isUserOwnRole = currentUserRoles.Contains(item.Name);
-                bool isProtected = isSuperAdmin || isUserOwnRole;
-
-                item.CanEdit = canEdit && !isProtected;
-                item.CanDelete = canDelete && !isProtected;
-                item.CanActivate = canActivate && !isProtected;
-                item.CanDeactivate = canDeactivate && !isProtected;
+                item.CanEdit = canEdit;
+                item.CanDelete = canDelete;
+                item.CanActivate = canActivate;
+                item.CanDeactivate = canDeactivate;
                 
-                Roles.Add(item);
+                Items.Add(item);
             }
 
             TotalCount = result.TotalCount;
@@ -231,7 +219,7 @@ public partial class RolesViewModel : ObservableObject, INavigationAware
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error loading roles");
+            _logger.LogError(ex, "Error loading customers");
             HasNoData = true;
         }
         finally
@@ -281,20 +269,19 @@ public partial class RolesViewModel : ObservableObject, INavigationAware
         await LoadDataAsync();
     }
 
-    public async Task ActivateRole(RoleDto? role)
+    public async Task ActivateCustomer(CustomerDto? customer)
     {
-        if (role == null || IsBusy) return;
+        if (customer == null || IsBusy) return;
         try
         {
             IsBusy = true;
-            await _roleApi.ActivateRole(role.Id);
-            _toastService.ShowSuccess("Success", "Role activated successfully.");
+            await _customerApi.ActivateCustomer(customer.Id);
+            _toastService.ShowSuccess("Success", "Customer activated successfully.");
             await LoadDataAsync();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error activating role");
-            //_toastService.ShowError("Error", "Failed to activate role.");
+            _logger.LogError(ex, "Error activating customer");
         }
         finally
         {
@@ -302,34 +289,43 @@ public partial class RolesViewModel : ObservableObject, INavigationAware
         }
     }
 
-    public async Task DeactivateRole(RoleDto? role)
+    public async Task DeactivateCustomer(CustomerDto? customer)
     {
-        if (role == null || IsBusy) return;
-        try
-        {
-            IsBusy = true;
-            await _roleApi.DeactivateRole(role.Id);
-            _toastService.ShowSuccess("Success", "Role deactivated successfully.");
-            await LoadDataAsync();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error deactivating role");
-            //_toastService.ShowError("Error", "Failed to deactivate role.");
-        }
-        finally
-        {
-            IsBusy = false;
-        }
-    }
-
-    public async Task DeleteRole(RoleDto? role)
-    {
-        if (role == null || IsBusy) return;
+        if (customer == null || IsBusy) return;
 
         var confirmed = await _dialogService.ShowConfirmationAsync(
-            "Delete Role",
-            $"Are you sure you want to delete the role '{role.Name}'?",
+            "Deactivate Customer",
+            $"Are you sure you want to deactivate the customer '{customer.Name}'?",
+            "Deactivate",
+            "Cancel");
+
+        if (confirmed)
+        {
+            try
+            {
+                IsBusy = true;
+                await _customerApi.DeactivateCustomer(customer.Id);
+                _toastService.ShowSuccess("Success", "Customer deactivated successfully.");
+                await LoadDataAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deactivating customer");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+    }
+
+    public async Task DeleteCustomer(CustomerDto? customer)
+    {
+        if (customer == null || IsBusy) return;
+
+        var confirmed = await _dialogService.ShowConfirmationAsync(
+            "Delete Customer",
+            $"Are you sure you want to delete the customer '{customer.Name}'?",
             "Delete",
             "Cancel");
 
@@ -338,14 +334,13 @@ public partial class RolesViewModel : ObservableObject, INavigationAware
             try
             {
                 IsBusy = true;
-                await _roleApi.DeleteRole(role.Id);
-                _toastService.ShowSuccess("Success", "Role deleted successfully.");
+                await _customerApi.DeleteCustomer(customer.Id);
+                _toastService.ShowSuccess("Success", "Customer deleted successfully.");
                 await LoadDataAsync();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting role");
-                //_toastService.ShowError("Error", "Failed to delete role.");
+                _logger.LogError(ex, "Error deleting customer");
             }
             finally
             {

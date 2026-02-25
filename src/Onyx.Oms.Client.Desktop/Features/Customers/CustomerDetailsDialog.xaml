@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="Onyx.Oms.Client.Desktop.Features.Customers.CustomerDetailsDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Onyx.Oms.Client.Desktop.Features.Customers"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.UI.Controls"
+    mc:Ignorable="d"
+    Title="Customer Details"
+    CloseButtonText="Close"
+    DefaultButton="Close"
+    CornerRadius="8"
+    CloseButtonStyle="{StaticResource AccentButtonStyle}">
+
+    <ContentDialog.Resources>
+        <converters:EmptyStringToObjectConverter x:Key="StringToVisibilityConverter" EmptyValue="Collapsed" NotEmptyValue="Visible" />
+    </ContentDialog.Resources>
+
+    <StackPanel Spacing="16" MinWidth="400" MaxWidth="500">
+        <!-- Status Badge -->
+        <Border Style="{StaticResource StatusBadgeStyle}" 
+                Background="{x:Bind Customer.IsActive, Mode=OneTime, Converter={StaticResource StatusBackgroundConverter}}"
+                HorizontalAlignment="Left">
+            <TextBlock Text="{x:Bind Customer.IsActive, Mode=OneTime, Converter={StaticResource StatusTextConverter}}"
+                       Style="{StaticResource StatusBadgeTextStyle}"
+                       Foreground="{x:Bind Customer.IsActive, Mode=OneTime, Converter={StaticResource StatusForegroundConverter}}" />
+        </Border>
+
+        <Grid RowSpacing="12" ColumnSpacing="24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="Name:" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Top" />
+            <TextBlock Grid.Column="1" Text="{x:Bind Customer.Name, Mode=OneTime}" TextWrapping="Wrap" />
+
+            <TextBlock Grid.Row="1" Text="Email:" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Top" />
+            <TextBlock Grid.Row="1" Grid.Column="1" Text="{x:Bind Customer.Email, Mode=OneTime}" TextWrapping="Wrap" />
+
+            <TextBlock Grid.Row="2" Text="Primary Phone:" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Top" />
+            <TextBlock Grid.Row="2" Grid.Column="1" Text="{x:Bind Customer.PrimaryPhone, Mode=OneTime}" TextWrapping="Wrap" />
+
+            <TextBlock Grid.Row="3" Text="Secondary Phone:" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Top" Visibility="{x:Bind Customer.SecondaryPhone, Mode=OneTime, Converter={StaticResource StringToVisibilityConverter}}" />
+            <TextBlock Grid.Row="3" Grid.Column="1" Text="{x:Bind Customer.SecondaryPhone, Mode=OneTime}" TextWrapping="Wrap" Visibility="{x:Bind Customer.SecondaryPhone, Mode=OneTime, Converter={StaticResource StringToVisibilityConverter}}" />
+
+            <TextBlock Grid.Row="4" Text="Address:" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Top" />
+            <TextBlock Grid.Row="4" Grid.Column="1" Text="{x:Bind FullAddress, Mode=OneTime}" TextWrapping="Wrap" />
+
+            <TextBlock Grid.Row="5" Text="Notes:" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Top" Visibility="{x:Bind Customer.Notes, Mode=OneTime, Converter={StaticResource StringToVisibilityConverter}}" />
+            <TextBlock Grid.Row="5" Grid.Column="1" Text="{x:Bind Customer.Notes, Mode=OneTime}" TextWrapping="Wrap" Visibility="{x:Bind Customer.Notes, Mode=OneTime, Converter={StaticResource StringToVisibilityConverter}}" />
+        </Grid>
+    </StackPanel>
+</ContentDialog>

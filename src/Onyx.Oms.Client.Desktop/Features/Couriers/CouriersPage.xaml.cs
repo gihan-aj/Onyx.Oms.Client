@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Controls;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Onyx.Oms.Client.Desktop.Features.Couriers;
 
@@ -31,6 +32,20 @@ public sealed partial class CouriersPage : Page
         {
             ViewModel.SearchCommand.Execute(args.QueryText);
         }
+    }
+
+    private async void OnRefreshClick(object sender, RoutedEventArgs e)
+    {
+        // Reset all columns sorting visually
+        if (CouriersDataGrid != null)
+        {
+            foreach (var col in CouriersDataGrid.Columns)
+            {
+                col.SortDirection = null;
+            }
+        }
+
+        await ViewModel.RefreshCommand.ExecuteAsync(null);
     }
 
     private void OnDataGridSorting(object sender, CommunityToolkit.WinUI.UI.Controls.DataGridColumnEventArgs e)
