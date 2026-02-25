@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Onyx.Oms.Client.Desktop.Features.ProductCategories.ProductCategoryFormPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Onyx.Oms.Client.Desktop.Features.ProductCategories"
+    xmlns:controls="using:Onyx.Oms.Client.Desktop.Features.ProductCategories.Controls"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:BoolToObjectConverter x:Key="InvertedBoolConverter" TrueValue="False" FalseValue="True" />
+        <converters:EmptyStringToObjectConverter x:Key="StringToVisibilityConverter" EmptyValue="Collapsed" NotEmptyValue="Visible" />
+    </Page.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Grid Padding="24">
+            <!-- Form Center Card Setup -->
+            <Border MaxWidth="600" 
+                    MinWidth="450"
+                    VerticalAlignment="Top" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Background="{ThemeResource LayerFillColorDefaultBrush}" 
+                    Padding="32"
+                    HorizontalAlignment="Center">
+                    
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <ProgressRing Grid.RowSpan="7" IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+                                  HorizontalAlignment="Center" VerticalAlignment="Center" Canvas.ZIndex="10" />
+
+                    <!-- Header -->
+                    <TextBlock Grid.Row="0" Text="{x:Bind ViewModel.Title, Mode=OneWay}" Style="{StaticResource TitleTextBlockStyle}" Margin="0,0,0,24" />
+
+                    <!-- Name Field -->
+                    <StackPanel Grid.Row="1" Margin="0,0,0,16">
+                        <TextBox Header="Category Name *" Text="{x:Bind ViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                 IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"
+                                 PlaceholderText="e.g. Men's Clothing" />
+                        <TextBlock Foreground="{ThemeResource SystemFillColorCriticalBrush}" 
+                                   Text="{x:Bind ViewModel.NameError, Mode=OneWay}"
+                                   Visibility="{x:Bind ViewModel.NameError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"
+                                   Style="{StaticResource CaptionTextBlockStyle}" Margin="0,4,0,0" />
+                    </StackPanel>
+
+                    <!-- Description Field -->
+                    <StackPanel Grid.Row="2" Margin="0,0,0,16">
+                        <TextBox Header="Description" Text="{x:Bind ViewModel.Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                 IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"
+                                 PlaceholderText="Optional description"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 MinHeight="80" />
+                    </StackPanel>
+
+                    <!-- Parent Category Field -->
+                    <StackPanel Grid.Row="3" Margin="0,0,0,16">
+                        <TextBlock Text="Parent Category" Margin="0,0,0,4" />
+                        <controls:ProductCategoryPicker 
+                                  SelectedCategory="{x:Bind ViewModel.SelectedParentCategory, Mode=TwoWay}"
+                                  PlaceholderText="None (Root Category)"
+                                  FetchDataDelegate="{x:Bind ViewModel.FetchParentCategories, Mode=OneWay}"
+                                  IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"
+                                  HorizontalAlignment="Stretch" />
+                    </StackPanel>
+
+                    <!-- Display Order Field -->
+                    <StackPanel Grid.Row="4" Margin="0,0,0,16">
+                        <TextBox Header="Display Order" Text="{x:Bind ViewModel.DisplayOrder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                 IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"
+                                 PlaceholderText="0" />
+                    </StackPanel>
+
+                    <!-- Icon & Color Row -->
+                    <Grid Grid.Row="5" ColumnSpacing="16" Margin="0,0,0,32">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBox Grid.Column="0" Header="Icon URL / Glyph" Text="{x:Bind ViewModel.IconUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                 IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"
+                                 PlaceholderText="e.g. &#xE8D5; or http://..." />
+
+                        <TextBox Grid.Column="1" Header="Color (Hex)" Text="{x:Bind ViewModel.Color, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                 IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"
+                                 PlaceholderText="e.g. #FF5733" />
+                    </Grid>
+
+                    <!-- Buttons Area -->
+                    <StackPanel Grid.Row="6" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                        <Button Content="Cancel" Command="{x:Bind ViewModel.CancelCommand}" Style="{StaticResource SubtleButtonStyle}" 
+                                IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"/>
+                        <Button Content="Save" Command="{x:Bind ViewModel.SaveCommand}" Style="{StaticResource AccentButtonStyle}" 
+                                IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</Page>

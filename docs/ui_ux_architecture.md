@@ -85,3 +85,26 @@ To handle complex data flows, cross-page communication, and draft states, the ap
 * To prevent data leakage between sessions, the State Service enforces a strict `Reset()` protocol. 
 * When navigating away from an order or successfully saving a draft, the service's internal state is completely cleared, ensuring the next operation starts with a clean slate.
 * **Context Awareness:** The service explicitly differentiates between a "Draft Context" (creating a new order in memory) and an "Execution Context" (viewing an existing order where additions trigger immediate backend commands).
+
+### 5.3 State Service Implementation Details (`IOrderStateService`)
+
+The State Service is implemented as an **Observable Singleton** injected into the ViewModels. It acts as the single source of truth for the current user session regarding order manipulation.
+
+#### Core Modes of Operation
+The service handles two distinct operational modes to support our Task-Based UI:
+
+1. **Draft Mode (`IsDraftMode = true`):**
+   - Triggered when navigating to the "Create Order" page.
+   - The service acts as an in-memory "shopping cart".
+   - It maintains an `ObservableCollection` of selected variants, quantities, and the selected `Customer`.
+   - Modifying items in this mode *does not* interact with the backend API. All changes are held in memory until the user commits the entire draft via a "Save as Pending" command.
+
+2. **Context Mode (`IsDraftMode = false`):**
+   - Triggered when navigating to the "Order Details" page from the global Orders List.
+   - The service holds the `CurrentOrderId` to provide context to child components and dialogs.
+   - *Crucial Distinction:* In this mode, the service does *not* hold a draft collection of items. Because we use a Task-Based UI, adding an item to an existing order via a dialog immediately fires an atomic `AddOrderItemCommand` to the backend. The service simply tells the dialog *which* order it is acting upon.
+
+#### State Synchronization & Data Binding
+- The service implements standard MVVM notification patterns (e.g., `INotifyPropertyChanged` or specific `StateChanged` events).
+- UI components, such as the "Add Products Dialog", bind directly to the service's `DraftItems` collection. This allows the dialog to dynamically disable the "Add" button or display a checkmark if a specific `ProductVariant` is already present in the current draft state.
+- **Memory Management:** To prevent state leakage, the `ClearState()` method is mandatorily invoked during the `OnNavigatedFrom` event of the root Order pages.

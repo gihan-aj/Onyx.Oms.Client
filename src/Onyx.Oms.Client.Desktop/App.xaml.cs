@@ -11,6 +11,7 @@ using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Shapes;
 using Onyx.Oms.Client.Desktop.Features.Couriers;
 using Onyx.Oms.Client.Desktop.Features.Customers;
+using Onyx.Oms.Client.Desktop.Features.ProductCategories;
 using Onyx.Oms.Client.Desktop.Features.Roles;
 using Onyx.Oms.Client.Desktop.Shared.Models.Configuration;
 using Onyx.Oms.Client.Desktop.Shared.Services;
@@ -149,6 +150,15 @@ namespace Onyx.Oms.Client.Desktop
                     })
                     .AddHttpMessageHandler<AuthHeaderHandler>()
                     .AddHttpMessageHandler<ProblemDetailsHandler>();
+                    
+            services.AddRefitClient<IProductCategoryApi>()
+                    .ConfigureHttpClient((sp, c) => 
+                    {
+                        var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
+                        c.BaseAddress = new Uri(options.BaseUrl);
+                    })
+                    .AddHttpMessageHandler<AuthHeaderHandler>()
+                    .AddHttpMessageHandler<ProblemDetailsHandler>();
             
             // Activation Handlers
             // Register specific activation handlers here
@@ -177,6 +187,9 @@ namespace Onyx.Oms.Client.Desktop
             services.AddTransient<Features.Fulfillment.FulfillmentPage>();
             services.AddTransient<Features.Catalog.CatalogPage>();
             services.AddTransient<Features.ProductCategories.ProductCategoriesPage>();
+            services.AddTransient<Features.ProductCategories.ProductCategoriesViewModel>();
+            services.AddTransient<Features.ProductCategories.ProductCategoryFormPage>();
+            services.AddTransient<Features.ProductCategories.ProductCategoryFormViewModel>();
             services.AddTransient<Features.Products.ProductsPage>();
             services.AddTransient<Features.ProductVariants.ProductVariantsPage>();
             services.AddTransient<Features.Couriers.CouriersPage>();
@@ -203,6 +216,7 @@ namespace Onyx.Oms.Client.Desktop
             pageService.Configure(typeof(Features.Fulfillment.FulfillmentPage).FullName!, typeof(Features.Fulfillment.FulfillmentPage));
             pageService.Configure(typeof(Features.Catalog.CatalogPage).FullName!, typeof(Features.Catalog.CatalogPage));
             pageService.Configure(typeof(Features.ProductCategories.ProductCategoriesPage).FullName!, typeof(Features.ProductCategories.ProductCategoriesPage));
+            pageService.Configure(typeof(Features.ProductCategories.ProductCategoryFormViewModel).FullName!, typeof(Features.ProductCategories.ProductCategoryFormPage));
             pageService.Configure(typeof(Features.Products.ProductsPage).FullName!, typeof(Features.Products.ProductsPage));
             pageService.Configure(typeof(Features.ProductVariants.ProductVariantsPage).FullName!, typeof(Features.ProductVariants.ProductVariantsPage));
             pageService.Configure(typeof(Features.Couriers.CouriersPage).FullName!, typeof(Features.Couriers.CouriersPage));
