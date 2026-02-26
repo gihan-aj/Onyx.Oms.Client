@@ -12,5 +12,8 @@ public interface IAuthenticationService
     Task<bool> LoginAsync();
     Task LogoutAsync();
     Task InitializeAsync();
+    Task<CurrentUser?> GetCurrentUserAsync();
     string? AccessToken { get; }
 }
+
+public record CurrentUser(string? Id, string? FirstName, string? LastName, string? Email, string[] Roles);

@@ -4,11 +4,218 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Onyx.Oms.Client.Desktop.Features.Dashboard"
+    xmlns:controls="using:Onyx.Oms.Client.Desktop.Shared.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid>
-        <TextBlock Text="Dashboard" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{StaticResource TitleTextBlockStyle}"/>
-    </Grid>
+    <Page.Resources>
+        <!-- Custom GridView Item Container Style mirroring the Catalog cards -->
+        <Style x:Key="DashboardGridViewItemStyle" TargetType="GridViewItem">
+            <Setter Property="Margin" Value="0,0,16,16" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="UseSystemFocusVisuals" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GridViewItem">
+                        <ListViewItemPresenter
+                            ContentMargin="0"
+                            Padding="0"
+                            HorizontalContentAlignment="Stretch"
+                            VerticalContentAlignment="Stretch"
+                            CornerRadius="8"
+                            PointerOverBackground="{ThemeResource ControlFillColorSecondaryBrush}" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Page.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> <!-- Hero Header -->
+                <RowDefinition Height="Auto"/> <!-- Quick Actions -->
+                <RowDefinition Height="Auto"/> <!-- SelectorBar -->
+                <RowDefinition Height="*"/>    <!-- Content Grid -->
+            </Grid.RowDefinitions>
+
+            <!-- 1. Hero Header -->
+            <Grid Grid.Row="0" Height="280">
+                <controls:OpacityMaskView Height="280" VerticalAlignment="Stretch">
+                    <controls:OpacityMaskView.OpacityMask>
+                        <Rectangle>
+                            <Rectangle.Fill>
+                                <LinearGradientBrush StartPoint="0,1" EndPoint="0,0">
+                                    <GradientStop Color="#00000000" Offset="0.0" />
+                                    <GradientStop Color="{ThemeResource SolidBackgroundFillColorBase}" Offset="0.1" />
+                                </LinearGradientBrush>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                    </controls:OpacityMaskView.OpacityMask>
+                    
+                    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+                        <Image Source="ms-appx:///Assets/hero_bg.jpg" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Grid>
+                </controls:OpacityMaskView>
+
+                <!-- Greeting Content -->
+                <StackPanel VerticalAlignment="Bottom" Margin="40,0,0,100">
+                    <TextBlock Text="Welcome back," Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Text="{x:Bind ViewModel.UserName, Mode=OneWay}" Style="{StaticResource TitleTextBlockStyle}" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontWeight="Bold" Margin="0,4,0,0" />
+                </StackPanel>
+            </Grid>
+
+            <!-- 2. Quick Actions -->
+            <Grid Grid.Row="1" Margin="40,-60,40,24">
+                <ScrollViewer x:Name="QuickActionsScrollViewer" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" ViewChanged="QuickActionsScrollViewer_ViewChanged">
+                    <StackPanel x:Name="QuickActionsStack" Orientation="Horizontal" Spacing="16" Padding="0,0,40,0">
+                    <!-- Action 1 -->
+                    <HyperlinkButton Padding="0" BorderThickness="0" CornerRadius="8" Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
+                        <HyperlinkButton.Resources>
+                                <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="{ThemeResource AcrylicBackgroundFillColorBase}" />
+                            <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="{ThemeResource AcrylicBackgroundFillColorBase}" />
+                        </HyperlinkButton.Resources>
+                        <Grid Width="240" Height="120" Padding="16" CornerRadius="8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <FontIcon Grid.Row="0" FontFamily="Segoe Fluent Icons" Glyph="&#xE710;" Foreground="{ThemeResource AccentFillColorDefaultBrush}" FontSize="32" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                            <TextBlock Grid.Row="1" Text="New Order" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,12,0,4"/>
+                            <TextBlock Grid.Row="2" Text="Create a new customer order" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        </Grid>
+                    </HyperlinkButton>
+
+                    <!-- Action 2 -->
+                    <HyperlinkButton Padding="0" BorderThickness="0" CornerRadius="8" Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
+                        <HyperlinkButton.Resources>
+                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="{ThemeResource AcrylicBackgroundFillColorBase}" />
+                            <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="{ThemeResource AcrylicBackgroundFillColorBase}" />
+                        </HyperlinkButton.Resources>
+                        <Grid Width="240" Height="120" Padding="16" CornerRadius="8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <FontIcon Grid.Row="0" FontFamily="Segoe Fluent Icons" Glyph="&#xE8FA;" Foreground="{ThemeResource AccentFillColorDefaultBrush}" FontSize="32" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                            <TextBlock Grid.Row="1" Text="Add Customer" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,12,0,4"/>
+                            <TextBlock Grid.Row="2" Text="Register a new buyer profile" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        </Grid>
+                    </HyperlinkButton>
+
+                    <!-- Action 3 -->
+                    <HyperlinkButton Padding="0" BorderThickness="0" CornerRadius="8" Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
+                        <HyperlinkButton.Resources>
+                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="{ThemeResource AcrylicBackgroundFillColorBase}" />
+                            <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="{ThemeResource AcrylicBackgroundFillColorBase}" />
+                        </HyperlinkButton.Resources>
+                        <Grid Width="240" Height="120" Padding="16" CornerRadius="8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <FontIcon Grid.Row="0" FontFamily="Segoe Fluent Icons" Glyph="&#xE81E;" Foreground="{ThemeResource AccentFillColorDefaultBrush}" FontSize="32" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                            <TextBlock Grid.Row="1" Text="View Catalog" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,12,0,4"/>
+                            <TextBlock Grid.Row="2" Text="Manage latest products/variants" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        </Grid>
+                    </HyperlinkButton>
+                    
+                     <!-- Action 4 (Extra to show scrolling) -->
+                    <HyperlinkButton Padding="0" BorderThickness="0" CornerRadius="8" Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
+                        <HyperlinkButton.Resources>
+                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="{ThemeResource AcrylicBackgroundFillColorBase}" />
+                            <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="{ThemeResource AcrylicBackgroundFillColorBase}" />
+                        </HyperlinkButton.Resources>
+                        <Grid Width="240" Height="120" Padding="16" CornerRadius="8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <FontIcon Grid.Row="0" FontFamily="Segoe Fluent Icons" Glyph="&#xE9D5;" Foreground="{ThemeResource AccentFillColorDefaultBrush}" FontSize="32" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                            <TextBlock Grid.Row="1" Text="Fulfillment" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,12,0,4"/>
+                            <TextBlock Grid.Row="2" Text="View pending task assignments" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        </Grid>
+                    </HyperlinkButton>
+                </StackPanel>
+                </ScrollViewer>
+
+                <!-- Scroll Buttons -->
+                <Button x:Name="ScrollLeftButton" 
+                        Click="ScrollLeft_Click"
+                        Visibility="Collapsed"
+                        HorizontalAlignment="Left" VerticalAlignment="Center" 
+                        Width="40" Height="40" CornerRadius="20"
+                        Background="{ThemeResource LayerFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                        Margin="-20,0,0,0" Padding="0">
+                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE76B;" FontSize="14"/>
+                </Button>
+                
+                <Button x:Name="ScrollRightButton" 
+                        Click="ScrollRight_Click"
+                        HorizontalAlignment="Right" VerticalAlignment="Center" 
+                        Width="40" Height="40" CornerRadius="20"
+                        Background="{ThemeResource LayerFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                        Margin="0,0,-20,0" Padding="0">
+                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE76C;" FontSize="14"/>
+                </Button>
+            </Grid>
+
+            <!-- 3. Filter / Selector Bar -->
+            <SelectorBar Grid.Row="2" Margin="40,0,40,16" SelectionChanged="SelectorBar_SelectionChanged">
+                <SelectorBarItem Text="Recent Orders" Tag="RecentOrders" IsSelected="True" />
+                <SelectorBarItem Text="Pending Tasks" Tag="PendingTasks" />
+            </SelectorBar>
+
+            <!-- 4. Content Cards Grid -->
+            <GridView Grid.Row="3" Margin="40,0,40,40"
+                      ItemsSource="{x:Bind ViewModel.DashboardItems, Mode=OneWay}"
+                      SelectionMode="None"
+                      IsItemClickEnabled="True"
+                      ItemContainerStyle="{StaticResource DashboardGridViewItemStyle}">
+                
+                <GridView.ItemTemplate>
+                    <DataTemplate x:DataType="local:DashboardItem">
+                        <Grid Width="300" MinHeight="96" Padding="16"
+                              Background="{ThemeResource ControlFillColorDefaultBrush}"
+                              BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                              BorderThickness="1"
+                              CornerRadius="8">
+                            
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Left: Icon representing Item Type -->
+                            <FontIcon Grid.Column="0" 
+                                      FontFamily="ms-appx:///Assets/Fonts/fa-solid-900.ttf#Font Awesome 6 Free" 
+                                      Glyph="{x:Bind IconGlyph}" 
+                                      Foreground="{ThemeResource SystemAccentColor}"
+                                      FontSize="28"
+                                      VerticalAlignment="Center" 
+                                      Margin="0,0,16,0" />
+
+                            <!-- Right: Text Stack -->
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
+                                <TextBlock Text="{x:Bind Title}" Style="{StaticResource BodyStrongTextBlockStyle}" TextTrimming="CharacterEllipsis" />
+                                <TextBlock Text="{x:Bind Subtitle}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextTrimming="WordEllipsis"/>
+                                
+                                <Border Background="{ThemeResource SystemControlBackgroundBaseLowBrush}" CornerRadius="4" Padding="4,2" HorizontalAlignment="Left" Margin="0,4,0,0">
+                                    <TextBlock Text="{x:Bind Status}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="11" />
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </GridView.ItemTemplate>
+            </GridView>
+        </Grid>
+    </ScrollViewer>
 </Page>

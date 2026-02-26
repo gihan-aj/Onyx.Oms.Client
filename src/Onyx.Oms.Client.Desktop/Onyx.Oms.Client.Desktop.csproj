@@ -14,6 +14,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Assets\hero_bg.jpg" />
     <None Remove="Assets\StoreLogo.png" />
     <None Remove="Features\Catalog\CatalogPage.xaml" />
     <None Remove="Features\Dashboard\DashboardPage.xaml" />
@@ -82,6 +83,7 @@
     <PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
     <PackageReference Include="Serilog.Sinks.Debug" Version="3.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.16.0" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Shared\Components\" />

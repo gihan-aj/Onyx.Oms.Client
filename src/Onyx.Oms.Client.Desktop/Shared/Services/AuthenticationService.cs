@@ -3,6 +3,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Onyx.Oms.Client.Desktop.Shared.Models.Configuration;
 using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -72,6 +74,38 @@ public class AuthenticationService : IAuthenticationService
              
              // TODO: Validate existing access token or assume logged out if no refresh token
         }
+    }
+
+    public Task<CurrentUser?> GetCurrentUserAsync()
+    {
+        if (!IsAuthenticated || string.IsNullOrEmpty(AccessToken))
+        {
+            return Task.FromResult<CurrentUser?>(null);
+        }
+
+        // The default OidcClient User may only contain a subset of claims from the id_token.
+        // We will parse the Access Token directly to get all enriched claims (like roles, name).
+        var handler = new JwtSecurityTokenHandler();
+        if (!handler.CanReadToken(AccessToken))
+        {
+            return Task.FromResult<CurrentUser?>(null);
+        }
+
+        var jwtToken = handler.ReadJwtToken(AccessToken);
+        var claims = jwtToken.Claims;
+
+        var id = claims.FirstOrDefault(c => c.Type == "sub" || c.Type == ClaimTypes.NameIdentifier)?.Value;
+        var firstName = claims.FirstOrDefault(c => c.Type == "given_name" || c.Type == ClaimTypes.GivenName)?.Value;
+        var lastName = claims.FirstOrDefault(c => c.Type == "family_name" || c.Type == ClaimTypes.Surname)?.Value;
+        var email = claims.FirstOrDefault(c => c.Type == "email" || c.Type == ClaimTypes.Email)?.Value;
+
+        var roles = new System.Collections.Generic.List<string>();
+        foreach (var claim in claims.Where(c => c.Type == "role" || c.Type == ClaimTypes.Role))
+        {
+            roles.Add(claim.Value);
+        }
+
+        return Task.FromResult<CurrentUser?>(new CurrentUser(id, firstName, lastName, email, roles.ToArray()));
     }
 
     public async Task<bool> LoginAsync()

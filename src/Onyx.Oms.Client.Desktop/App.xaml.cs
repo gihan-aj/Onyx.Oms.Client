@@ -192,6 +192,7 @@ namespace Onyx.Oms.Client.Desktop
             services.AddTransient<Features.Roles.RoleDetailsDialog>();
             
             services.AddTransient<Features.Dashboard.DashboardPage>();
+            services.AddTransient<Features.Dashboard.DashboardViewModel>();
             services.AddTransient<Features.Orders.OrdersPage>();
             services.AddTransient<Features.Customers.CustomersPage>();
             services.AddTransient<Features.Fulfillment.FulfillmentPage>();

@@ -1,31 +1,67 @@
-using Microsoft.UI.Xaml;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+namespace Onyx.Oms.Client.Desktop.Features.Dashboard;
 
-namespace Onyx.Oms.Client.Desktop.Features.Dashboard
+public sealed partial class DashboardPage : Page
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
-    public sealed partial class DashboardPage : Page
+    public DashboardViewModel ViewModel { get; }
+
+    public DashboardPage()
     {
-        public DashboardPage()
+        InitializeComponent();
+        ViewModel = App.Current.Services.GetRequiredService<DashboardViewModel>();
+    }
+
+    protected override async void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+        ViewModel.Subscribe();
+        await ViewModel.InitializeAsync();
+    }
+
+    protected override void OnNavigatedFrom(NavigationEventArgs e)
+    {
+        base.OnNavigatedFrom(e);
+        ViewModel.Unsubscribe();
+    }
+
+    private void SelectorBar_SelectionChanged(SelectorBar sender, SelectorBarSelectionChangedEventArgs args)
+    {
+        if (sender.SelectedItem?.Tag is string tag)
         {
-            InitializeComponent();
+            ViewModel.SelectedFilter = tag;
+            ViewModel.LoadDummyData();
+        }
+    }
+
+    private void ScrollLeft_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        var currentOffset = QuickActionsScrollViewer.HorizontalOffset;
+        var offset = System.Math.Max(currentOffset - 256, 0); // 240 width + 16 spacing
+        QuickActionsScrollViewer.ChangeView(offset, null, null);
+    }
+
+    private void ScrollRight_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        var currentOffset = QuickActionsScrollViewer.HorizontalOffset;
+        var maxOffset = QuickActionsScrollViewer.ScrollableWidth;
+        var offset = System.Math.Min(currentOffset + 256, maxOffset);
+        QuickActionsScrollViewer.ChangeView(offset, null, null);
+    }
+
+    private void QuickActionsScrollViewer_ViewChanged(object sender, ScrollViewerViewChangedEventArgs args)
+    {
+        if (sender is ScrollViewer scrollViewer)
+        {
+            ScrollLeftButton.Visibility = scrollViewer.HorizontalOffset > 0 
+                ? Microsoft.UI.Xaml.Visibility.Visible 
+                : Microsoft.UI.Xaml.Visibility.Collapsed;
+
+            ScrollRightButton.Visibility = scrollViewer.HorizontalOffset < scrollViewer.ScrollableWidth 
+                ? Microsoft.UI.Xaml.Visibility.Visible 
+                : Microsoft.UI.Xaml.Visibility.Collapsed;
         }
     }
 }

@@ -12,6 +12,7 @@
                 <ResourceDictionary Source="Shared/Styles/Grid.xaml" />
                 <ResourceDictionary Source="Shared/Styles/Badge.xaml" />
                 <ResourceDictionary Source="Shared/Styles/DataGrid.xaml" />
+                <ResourceDictionary Source="Shared/Controls/OpacityMaskView.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <!-- Other app resources here -->
         </ResourceDictionary>
