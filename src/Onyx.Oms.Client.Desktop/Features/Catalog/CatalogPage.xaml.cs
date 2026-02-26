@@ -12,19 +12,39 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
+using Onyx.Oms.Client.Desktop.Shared.Services;
 
 namespace Onyx.Oms.Client.Desktop.Features.Catalog;
 
-/// <summary>
-/// An empty page that can be used on its own or navigated to within a Frame.
-/// </summary>
 public sealed partial class CatalogPage : Page
 {
+    private readonly INavigationService _navigationService;
+
+    public CatalogViewModel ViewModel { get; }
+
     public CatalogPage()
     {
         InitializeComponent();
+        
+        ViewModel = App.Current.Services.GetRequiredService<CatalogViewModel>();
+        _navigationService = App.Current.Services.GetRequiredService<INavigationService>();
+    }
+
+    protected override async void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+        await ViewModel.InitializeAsync();
+    }
+
+    private void CatalogGridView_ItemClick(object sender, ItemClickEventArgs e)
+    {
+        if (e.ClickedItem is CatalogCardItem item && !string.IsNullOrEmpty(item.TargetPageType))
+        {
+            _navigationService.NavigateTo(item.TargetPageType);
+        }
     }
 }

@@ -9,6 +9,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Shapes;
+using Onyx.Oms.Client.Desktop.Features.Catalog;
 using Onyx.Oms.Client.Desktop.Features.Couriers;
 using Onyx.Oms.Client.Desktop.Features.Customers;
 using Onyx.Oms.Client.Desktop.Features.ProductCategories;
@@ -159,6 +160,15 @@ namespace Onyx.Oms.Client.Desktop
                     })
                     .AddHttpMessageHandler<AuthHeaderHandler>()
                     .AddHttpMessageHandler<ProblemDetailsHandler>();
+
+            services.AddRefitClient<ICatalogApi>()
+                    .ConfigureHttpClient((sp, c) => 
+                    {
+                        var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
+                        c.BaseAddress = new Uri(options.BaseUrl);
+                    })
+                    .AddHttpMessageHandler<AuthHeaderHandler>()
+                    .AddHttpMessageHandler<ProblemDetailsHandler>();
             
             // Activation Handlers
             // Register specific activation handlers here
@@ -186,6 +196,7 @@ namespace Onyx.Oms.Client.Desktop
             services.AddTransient<Features.Customers.CustomersPage>();
             services.AddTransient<Features.Fulfillment.FulfillmentPage>();
             services.AddTransient<Features.Catalog.CatalogPage>();
+            services.AddTransient<Features.Catalog.CatalogViewModel>();
             services.AddTransient<Features.ProductCategories.ProductCategoriesPage>();
             services.AddTransient<Features.ProductCategories.ProductCategoriesViewModel>();
             services.AddTransient<Features.ProductCategories.ProductCategoryFormPage>();

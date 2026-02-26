@@ -8,7 +8,93 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid>
+    <Page.Resources>
+        <!-- Custom GridView Item Container Style to remove ugly selection borders -->
+        <Style x:Key="CatalogGridViewItemStyle" TargetType="GridViewItem">
+            <Setter Property="Margin" Value="0,0,16,16" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="UseSystemFocusVisuals" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GridViewItem">
+                        <ListViewItemPresenter
+                            ContentMargin="0"
+                            Padding="0"
+                            HorizontalContentAlignment="Stretch"
+                            VerticalContentAlignment="Stretch"
+                            CornerRadius="8"
+                            PointerOverBackground="{ThemeResource ControlFillColorSecondaryBrush}" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Page.Resources>
 
+    <Grid Padding="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <TextBlock Grid.Row="0" Text="Catalog" Style="{StaticResource TitleTextBlockStyle}" Margin="0,0,0,24" />
+
+        <!-- Cards Grid -->
+        <GridView Grid.Row="1"
+                  ItemsSource="{x:Bind ViewModel.CatalogItems, Mode=OneWay}"
+                  SelectionMode="None"
+                  IsItemClickEnabled="True"
+                  ItemClick="CatalogGridView_ItemClick"
+                  ItemContainerStyle="{StaticResource CatalogGridViewItemStyle}">
+                  
+            <GridView.ItemTemplate>
+                <DataTemplate x:DataType="local:CatalogCardItem">
+                    <Grid Width="300" MinHeight="96" Padding="16"
+                          Background="{ThemeResource ControlFillColorDefaultBrush}"
+                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                          BorderThickness="1"
+                          CornerRadius="8">
+                        
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Left: Icon -->
+                        <Border Grid.Column="0" 
+                                Width="40" Height="40" 
+                                CornerRadius="8" 
+                                Background="{ThemeResource AccentFillColorDefaultBrush}" 
+                                VerticalAlignment="Center" 
+                                Margin="0,0,16,0">
+                            <FontIcon FontFamily="ms-appx:///Assets/Fonts/fa-solid-900.ttf#Font Awesome 6 Free" 
+                                      Glyph="{x:Bind IconGlyph}" 
+                                      Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" 
+                                      FontSize="20"/>
+                        </Border>
+
+                        <!-- Right: Details -->
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
+                            <!-- Title & Metric -->
+                            <Grid>
+                                <TextBlock Text="{x:Bind Title}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                <TextBlock Text="{x:Bind MetricValue, Mode=OneWay}" 
+                                           HorizontalAlignment="Right" 
+                                           VerticalAlignment="Center" 
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" 
+                                           Style="{StaticResource CaptionTextBlockStyle}" />
+                            </Grid>
+                            
+                            <!-- Description -->
+                            <TextBlock Text="{x:Bind Description}" 
+                                       Style="{StaticResource CaptionTextBlockStyle}" 
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" 
+                                       TextTrimming="WordEllipsis" />
+                        </StackPanel>
+                    </Grid>
+                </DataTemplate>
+            </GridView.ItemTemplate>
+        </GridView>
     </Grid>
 </Page>

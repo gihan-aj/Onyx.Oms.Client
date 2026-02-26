@@ -49,7 +49,7 @@ public class ProductCategoryTreeDto
     {
         get
         {
-            if (string.IsNullOrEmpty(IconUrl)) return "\xE8D5"; // Default to Folder icon
+            if (string.IsNullOrEmpty(IconUrl)) return "\xF07B"; // Default to FontAwesome Folder icon
             
             // Handle if user typed "&#xE8D5;"
             if (IconUrl.StartsWith("&#x", StringComparison.OrdinalIgnoreCase) && IconUrl.EndsWith(";"))

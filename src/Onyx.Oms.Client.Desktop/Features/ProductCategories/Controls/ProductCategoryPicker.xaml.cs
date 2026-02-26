@@ -70,7 +70,7 @@ public sealed partial class ProductCategoryPicker : UserControl
     public Func<string, int, int, Task<PagedResult<ProductCategoryDto>>>? FetchDataDelegate { get; set; }
 
     private int _currentPage = 1;
-    private const int PageSize = 5;
+    private const int PageSize = 10;
     private bool _hasMore = true;
     private string _currentSearchTerm = string.Empty;
 
