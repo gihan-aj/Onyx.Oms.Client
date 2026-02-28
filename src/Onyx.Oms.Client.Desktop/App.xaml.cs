@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml;
 using Onyx.Oms.Client.Desktop.Features.Catalog;
 using Onyx.Oms.Client.Desktop.Features.Couriers;
 using Onyx.Oms.Client.Desktop.Features.Customers;
+using Onyx.Oms.Client.Desktop.Features.Products;
 using Onyx.Oms.Client.Desktop.Features.ProductCategories;
 using Onyx.Oms.Client.Desktop.Features.Roles;
 using Onyx.Oms.Client.Desktop.Features.Settings.Services;
@@ -149,6 +150,24 @@ namespace Onyx.Oms.Client.Desktop
                     .AddHttpMessageHandler<AuthHeaderHandler>()
                     .AddHttpMessageHandler<ProblemDetailsHandler>();
 
+            services.AddRefitClient<IProductApi>()
+                    .ConfigureHttpClient((sp, c) => 
+                    {
+                        var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
+                        c.BaseAddress = new Uri(options.BaseUrl);
+                    })
+                    .AddHttpMessageHandler<AuthHeaderHandler>()
+                    .AddHttpMessageHandler<ProblemDetailsHandler>();
+            
+            services.AddRefitClient<IProductCategoryLookupApi>()
+                    .ConfigureHttpClient((sp, c) => 
+                    {
+                        var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
+                        c.BaseAddress = new Uri(options.BaseUrl);
+                    })
+                    .AddHttpMessageHandler<AuthHeaderHandler>()
+                    .AddHttpMessageHandler<ProblemDetailsHandler>();
+
             services.AddRefitClient<ICatalogApi>()
                     .ConfigureHttpClient((sp, c) => 
                     {
@@ -209,6 +228,7 @@ namespace Onyx.Oms.Client.Desktop
             services.AddTransient<Features.ProductCategories.ProductCategoryFormPage>();
             services.AddTransient<Features.ProductCategories.ProductCategoryFormViewModel>();
             services.AddTransient<Features.Products.ProductsPage>();
+            services.AddTransient<Features.Products.ProductsViewModel>();
             services.AddTransient<Features.ProductVariants.ProductVariantsPage>();
             services.AddTransient<Features.Couriers.CouriersPage>();
             services.AddTransient<Features.Couriers.CourierFormPage>();
