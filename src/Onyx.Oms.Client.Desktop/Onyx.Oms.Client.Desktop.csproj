@@ -87,7 +87,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Shared\Components\" />
-    <Folder Include="Shared\Services\" />
     <Folder Include="Shared\Shell\Navigation\" />
   </ItemGroup>
   <ItemGroup>

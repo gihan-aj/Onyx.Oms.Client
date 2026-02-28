@@ -2,31 +2,18 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Microsoft.UI.Xaml.Shapes;
 using Onyx.Oms.Client.Desktop.Features.Catalog;
 using Onyx.Oms.Client.Desktop.Features.Couriers;
 using Onyx.Oms.Client.Desktop.Features.Customers;
 using Onyx.Oms.Client.Desktop.Features.ProductCategories;
 using Onyx.Oms.Client.Desktop.Features.Roles;
+using Onyx.Oms.Client.Desktop.Features.Settings.Services;
 using Onyx.Oms.Client.Desktop.Shared.Models.Configuration;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using Onyx.Oms.Client.Desktop.Shared.Services.Http;
 using Refit;
 using Serilog;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.ApplicationModel;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -106,6 +93,7 @@ namespace Onyx.Oms.Client.Desktop
             services.AddSingleton<INavigationService, NavigationService>();
             services.AddSingleton<INavigationViewService, NavigationViewService>();
             services.AddSingleton<IPermissionService, PermissionService>();
+            services.AddSingleton<ITenantProfileService, TenantProfileService>();
             services.AddSingleton<IAuthenticationService, AuthenticationService>();
             services.AddSingleton<IToastService, ToastService>();
             services.AddSingleton<IDialogService, DialogService>();
@@ -162,6 +150,24 @@ namespace Onyx.Oms.Client.Desktop
                     .AddHttpMessageHandler<ProblemDetailsHandler>();
 
             services.AddRefitClient<ICatalogApi>()
+                    .ConfigureHttpClient((sp, c) => 
+                    {
+                        var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
+                        c.BaseAddress = new Uri(options.BaseUrl);
+                    })
+                    .AddHttpMessageHandler<AuthHeaderHandler>()
+                    .AddHttpMessageHandler<ProblemDetailsHandler>();
+            
+            services.AddRefitClient<ITenantProfileApi>()
+                    .ConfigureHttpClient((sp, c) => 
+                    {
+                        var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
+                        c.BaseAddress = new Uri(options.BaseUrl);
+                    })
+                    .AddHttpMessageHandler<AuthHeaderHandler>()
+                    .AddHttpMessageHandler<ProblemDetailsHandler>();
+
+            services.AddRefitClient<IAppSequenceApi>()
                     .ConfigureHttpClient((sp, c) => 
                     {
                         var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;

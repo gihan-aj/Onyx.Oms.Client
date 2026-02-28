@@ -214,8 +214,43 @@ NewCourierButton.Visibility = permissionService.CanExecute(Permissions.Couriers.
 For action buttons residing *inside* a DataGrid `DataTemplate`, direct `x:Name` access from Code-Behind is impossible. Instead:
 1. Add property flags to your `Dto` (e.g., `CourierDto.CanEdit`, `CourierDto.CanDelete`).
 2. Populate these properties explicitly inside the `ViewModel.LoadDataAsync` method by querying the `IPermissionService` once.
-3. In your XAML `DataTemplate`, bind the **`IsEnabled`** property of the Edit/Delete/Toggle buttons directly to these properties to maintain a consistent UI layout for all users, regardless of access level.
 ```xml
 <Button Content="&#xE70F;" Style="{StaticResource SubtleButtonStyle}" 
         IsEnabled="{x:Bind CanEdit, Mode=OneWay}" />
 ```
+
+## 8. Global State & Settings
+
+We utilize global services initialized at application startup (during login) to cache frequently accessed data, avoiding redundant API calls across different Views.
+
+### Permissions (`IPermissionService`)
+As documented above, `IPermissionService` fetches and caches all user permissions upon login.
+
+### Tenant Profile (`ITenantProfileService`)
+The `ITenantProfileService` fetches and caches the `TenantProfileDto` upon successful authentication. This object contains globally relevant settings for the current store.
+
+**What it gets:**
+- `StoreName`, `LegalName`, `TaxRegistrationNumber`
+- `ContactEmail`, `ContactPhone`
+- `StoreAddress`
+- **Regional Settings**: `BaseCurrency`, `WeightUnit`
+- `LogoUrl`, `InvoiceFooterText`, `PreferencesJson`
+
+**How to use it:**
+Inject `ITenantProfileService` into your ViewModel to access the current tenant's regional settings (e.g., to format currency correctly in the UI) without needing to fetch the profile from the API again.
+
+```csharp
+public class DashboardViewModel : ObservableObject
+{
+    private readonly ITenantProfileService _tenantProfileService;
+
+    public string CurrencySymbol => _tenantProfileService.Profile?.BaseCurrency ?? "LKR";
+
+    public DashboardViewModel(ITenantProfileService tenantProfileService)
+    {
+        _tenantProfileService = tenantProfileService;
+    }
+}
+```
+
+This service is automatically cleared when the user logs out.

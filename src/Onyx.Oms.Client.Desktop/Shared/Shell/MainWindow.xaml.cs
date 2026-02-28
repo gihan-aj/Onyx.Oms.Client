@@ -12,6 +12,7 @@ public sealed partial class MainWindow : Window
     private readonly INavigationViewService _navigationViewService;
     private readonly IAuthenticationService _authenticationService;
     private readonly IPermissionService _permissionService;
+    private readonly ITenantProfileService _tenantProfileService;
 
     private readonly IDialogService _dialogService;
     private readonly IToastService _toastService;
@@ -21,6 +22,7 @@ public sealed partial class MainWindow : Window
         INavigationViewService navigationViewService, 
         IAuthenticationService authenticationService,
         IPermissionService permissionService,
+        ITenantProfileService tenantProfileService,
         IDialogService dialogService,
         IToastService toastService)
     {
@@ -30,6 +32,7 @@ public sealed partial class MainWindow : Window
         _navigationViewService = navigationViewService;
         _authenticationService = authenticationService;
         _permissionService = permissionService;
+        _tenantProfileService = tenantProfileService;
         _dialogService = dialogService;
         _toastService = toastService;
 
@@ -89,13 +92,15 @@ public sealed partial class MainWindow : Window
     {
         if (isAuthenticated)
         {
-            // Block UI update until permissions are fetched.
+            // Block UI update until permissions and tenant profile are fetched.
             // The user will see exactly what they saw during login (the splash/loading state)
             await _permissionService.InitializeAsync();
+            await _tenantProfileService.InitializeAsync();
         }
         else
         {
             _permissionService.ClearPermissions();
+            _tenantProfileService.ClearProfile();
         }
 
         // UI updates must happen on the UI thread

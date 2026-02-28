@@ -56,4 +56,16 @@ public static class Permissions
         public const string Deactivate = "Permissions.Customers.Deactivate";
         public const string Delete = "Permissions.Customers.Delete";
     }
+
+    public static class AppSequences
+    {
+        public const string View = "Permissions.AppSequences.View";
+        public const string Edit = "Permissions.AppSequences.Edit";
+    }
+
+    public static class TenantSettings
+    {
+        public const string View = "Permissions.TenantSettings.View";
+        public const string Edit = "Permissions.TenantSettings.Edit";
+    }
 }
