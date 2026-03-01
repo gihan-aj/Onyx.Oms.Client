@@ -22,4 +22,7 @@ public interface IProductApi
 
     [Put("/api/v1/products/{id}/deactivate")]
     Task DeactivateProduct(Guid id);
+
+    [Post("/api/v1/products")]
+    Task<Guid> CreateProduct([Body] CreateProductCommand command);
 }

@@ -145,6 +145,9 @@ public interface IProductCategoryApi
     [Get("/api/v1/product-categories/tree")]
     Task<List<ProductCategoryTreeDto>> GetCategoryTree([AliasAs("isActive")] bool? isActive = null);
 
+    [Get("/api/v1/product-categories/{id}")]
+    Task UpdateCategory(Guid id);
+
     [Post("/api/v1/product-categories")]
     Task<Guid> CreateCategory([Body] CreateProductCategoryDto dto);
 

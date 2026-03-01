@@ -280,8 +280,7 @@ public partial class ProductsViewModel : ObservableObject, INavigationAware
 
     private void NavigateToNewProduct()
     {
-        // TODO: Implement ProductFormPage later
-        // _navigationService.NavigateTo("ProductFormPage");
+         _navigationService.NavigateTo(typeof(ProductFormViewModel).FullName!);
     }
 
     public async Task ActivateProductAsync(ProductDto product)

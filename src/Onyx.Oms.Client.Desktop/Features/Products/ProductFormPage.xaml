@@ -1,0 +1,220 @@
+<Page
+    x:Class="Onyx.Oms.Client.Desktop.Features.Products.ProductFormPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Onyx.Oms.Client.Desktop.Features.Products"
+    xmlns:controls="using:Onyx.Oms.Client.Desktop.Features.Products.Controls"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:ct="using:CommunityToolkit.WinUI.Controls"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:sharedConverters="using:Onyx.Oms.Client.Desktop.Shared.Converters"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:BoolToVisibilityConverter x:Key="InvertedBoolToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible" />
+        <sharedConverters:DecimalToDoubleConverter x:Key="DecimalToDoubleConverter" />
+    </Page.Resources>
+
+    <Grid>
+        <!-- Overlay Loading State -->
+        <Border Canvas.ZIndex="100" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Opacity="0.6" Visibility="{x:Bind ViewModel.IsBusy, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+            <ProgressRing IsActive="True" Width="60" Height="60" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </Border>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Padding="24" MaxWidth="1000" HorizontalAlignment="Stretch" Spacing="24">
+                
+                <!-- Header -->
+                <Grid>
+                    <TextBlock Text="Create New Product" Style="{StaticResource TitleTextBlockStyle}" VerticalAlignment="Center" />
+                    
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12">
+                        <TextBlock Text="Unsaved changes" 
+                                   Foreground="{ThemeResource SystemFillColorCautionBrush}" 
+                                   VerticalAlignment="Center" 
+                                   Visibility="{x:Bind ViewModel.HasUnsavedChanges, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                        <Button Content="Cancel" Command="{x:Bind ViewModel.CancelCommand}" />
+                        <Button Content="Save Product" Style="{StaticResource AccentButtonStyle}" Command="{x:Bind ViewModel.SaveCommand}" />
+                    </StackPanel>
+                </Grid>
+
+                <!-- Basic Details -->
+                <Expander Header="Basic Details" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <StackPanel Spacing="16" Padding="0,12,0,0">
+                        <Grid ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox Header="Product Name *" Text="{x:Bind ViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0" />
+                            <TextBox Header="Base SKU (Optional - Auto-generated if blank)" Text="{x:Bind ViewModel.BaseSku, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" />
+                        </Grid>
+
+                        <Grid ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Column="0" Spacing="4">
+                                <TextBlock Text="Category *" Style="{StaticResource BodyTextBlockStyle}" />
+                                <controls:LeafProductCategoryPicker x:Name="CategoryPicker" 
+                                                                    SelectedCategory="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}" 
+                                                                    HorizontalAlignment="Stretch" 
+                                                                    Margin="0,5,0,0"/>
+                            </StackPanel>
+                            
+                            <TextBox Header="Brand" Text="{x:Bind ViewModel.Brand, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" />
+                            <ComboBox Header="Gender Target" SelectedIndex="{x:Bind ViewModel.SelectedGender, Mode=TwoWay}" Grid.Column="2" HorizontalAlignment="Stretch">
+                                <x:String>Unknown / N/A</x:String>
+                                <x:String>Male</x:String>
+                                <x:String>Female</x:String>
+                                <x:String>Unisex</x:String>
+                            </ComboBox>
+                        </Grid>
+                        
+                        <TextBox Header="Material" Text="{x:Bind ViewModel.Material, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <TextBox Header="Description" Text="{x:Bind ViewModel.Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                 TextWrapping="Wrap" AcceptsReturn="True" MinHeight="100" />
+                    </StackPanel>
+                </Expander>
+
+                <!-- Pricing & Shipping Defaults -->
+                <Expander Header="Pricing &amp; Shipping Defaults" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <Grid ColumnSpacing="24" Padding="0,12,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Spacing="4">
+                            <TextBlock Text="Base Cost Amount" Style="{StaticResource BodyTextBlockStyle}" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <NumberBox Value="{x:Bind ViewModel.BaseCostAmount, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}" Minimum="0" Grid.Column="0" />
+                                <TextBlock Text="{x:Bind ViewModel.BaseCurrency, Mode=OneWay}" VerticalAlignment="Center" Margin="12,0,0,0" Grid.Column="1" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </Grid>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <TextBlock Text="Base Price Amount *" Style="{StaticResource BodyTextBlockStyle}" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <NumberBox Value="{x:Bind ViewModel.BasePriceAmount, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}" Minimum="0" Grid.Column="0" />
+                                <TextBlock Text="{x:Bind ViewModel.BaseCurrency, Mode=OneWay}" VerticalAlignment="Center" Margin="12,0,0,0" Grid.Column="1" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </Grid>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2" Spacing="4">
+                            <TextBlock Text="Base Weight" Style="{StaticResource BodyTextBlockStyle}" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <NumberBox Value="{x:Bind ViewModel.BaseWeightValue, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}" Minimum="0" Grid.Column="0" />
+                                <TextBlock Text="{x:Bind ViewModel.BaseWeightUnit, Mode=OneWay}" VerticalAlignment="Center" Margin="12,0,0,0" Grid.Column="1" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+                </Expander>
+
+                <!-- Options & Variants -->
+                <Expander Header="Options &amp; Variant Matrix" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <StackPanel Spacing="16" Padding="0,12,0,0">
+                        <TextBlock Text="Define the attributes for this product. Checking these enforces that every variation must have a value for that attribute." 
+                                   TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Style="{StaticResource CaptionTextBlockStyle}" />
+
+                        <StackPanel Orientation="Horizontal" Spacing="32">
+                            <ToggleSwitch Header="Has Color Variations" IsOn="{x:Bind ViewModel.HasColor, Mode=TwoWay}" />
+                            <ToggleSwitch Header="Has Size Variations" IsOn="{x:Bind ViewModel.HasSize, Mode=TwoWay}" />
+                        </StackPanel>
+
+                        <!-- Color Inputs -->
+                        <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.HasColor, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <TextBlock Text="Colors (Type and press Enter)" Style="{StaticResource BodyTextBlockStyle}" />
+                            <ct:TokenizingTextBox 
+                                ItemsSource="{x:Bind ViewModel.SelectedColors, Mode=OneWay}"
+                                TokenDelimiter="&#13;"
+                                PlaceholderText="e.g. Red, Blue, Neon Green" />
+                        </StackPanel>
+
+                        <!-- Size Inputs -->
+                        <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.HasSize, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <TextBlock Text="Sizes (Type and press Enter)" Style="{StaticResource BodyTextBlockStyle}" />
+                            <ct:TokenizingTextBox 
+                                ItemsSource="{x:Bind ViewModel.SelectedSizes, Mode=OneWay}"
+                                TokenDelimiter="&#13;"
+                                PlaceholderText="e.g. S, M, L, XL" />
+                        </StackPanel>
+
+                        <!-- Matrix Generator -->
+                        <Button Content="Generate Variant Matrix" Command="{x:Bind ViewModel.GenerateMatrixCommand}" Margin="0,8,0,0" />
+
+                        <!-- Variant Grid -->
+                        <Border BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4" Margin="0,8,0,0">
+                            <toolkit:DataGrid ItemsSource="{x:Bind ViewModel.Variants, Mode=OneWay}" 
+                                            AutoGenerateColumns="False" 
+                                            Height="300"
+                                            VerticalScrollBarVisibility="Auto" 
+                                            HorizontalScrollBarVisibility="Auto">
+                                <toolkit:DataGrid.Columns>
+                                    <toolkit:DataGridTextColumn Header="Color" Binding="{Binding Color}" IsReadOnly="True" Width="*" />
+                                    <toolkit:DataGridTextColumn Header="Size" Binding="{Binding Size}" IsReadOnly="True" Width="*" />
+                                    <!-- Editables -->
+                                    <toolkit:DataGridTextColumn Header="SKU Overide" Binding="{Binding Sku, Mode=TwoWay}" Width="150" />
+                                    <toolkit:DataGridTextColumn Header="Cost" Binding="{Binding CostAmount, Mode=TwoWay}" Width="100" HeaderStyle="{StaticResource RightAlignedHeaderStyle}" ElementStyle="{StaticResource RightAlignedCellStyle}"/>
+                                    <toolkit:DataGridTextColumn Header="Price" Binding="{Binding PriceAmount, Mode=TwoWay}" Width="100" HeaderStyle="{StaticResource RightAlignedHeaderStyle}" ElementStyle="{StaticResource RightAlignedCellStyle}"/>
+                                    <toolkit:DataGridTextColumn Header="Weight" Binding="{Binding WeightValue, Mode=TwoWay}" Width="100" HeaderStyle="{StaticResource RightAlignedHeaderStyle}" ElementStyle="{StaticResource RightAlignedCellStyle}"/>
+                                    <toolkit:DataGridTextColumn Header="Initial Stock" Binding="{Binding StockOnHand, Mode=TwoWay}" Width="110" HeaderStyle="{StaticResource RightAlignedHeaderStyle}" ElementStyle="{StaticResource RightAlignedCellStyle}"/>
+                                </toolkit:DataGrid.Columns>
+                            </toolkit:DataGrid>
+                        </Border>
+                    </StackPanel>
+                </Expander>
+
+                <!-- Images (Simplified for now) -->
+                <Expander Header="Images" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <StackPanel Spacing="16" Padding="0,12,0,0">
+                        <TextBlock Text="Provide URLs for product images." Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        
+                        <!-- List view to show image DTOs -->
+                        <ListView ItemsSource="{x:Bind ViewModel.Images, Mode=OneWay}" MaxHeight="200" Background="{ThemeResource LayerFillColorDefaultBrush}" CornerRadius="4">
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType="local:CreateProductImageDto">
+                                    <StackPanel Orientation="Horizontal" Spacing="12" Padding="8">
+                                        <TextBlock Text="{x:Bind Url}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Width="400" />
+                                        <TextBlock Text="{x:Bind Color}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
+                                        <TextBlock Text="[MAIN]" Visibility="{x:Bind IsMain, Converter={StaticResource BoolToVisibilityConverter}}" Foreground="{ThemeResource SystemFillColorSuccessBrush}" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBox x:Name="ImageUrlBox" PlaceholderText="Image URL" Width="300" />
+                            <TextBox x:Name="ImageColorBox" PlaceholderText="Color Tag (Optional)" Width="150" Visibility="{x:Bind ViewModel.HasColor, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                            <CheckBox x:Name="ImageIsMainCheck" Content="Is Main" />
+                            <Button Content="Add Link" Click="OnAddImageClick" />
+                        </StackPanel>
+                    </StackPanel>
+                </Expander>
+                
+                <!-- Bottom Spacer -->
+                <Rectangle Height="48" />
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

@@ -66,6 +66,7 @@
     <PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.2.251219" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.2.251219" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.2.251219" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.TokenizingTextBox" Version="8.2.251219" />
     <PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.2.251219" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.DataGrid" Version="7.1.2" />
     <PackageReference Include="Duende.IdentityModel.OidcClient" Version="7.0.0" />
