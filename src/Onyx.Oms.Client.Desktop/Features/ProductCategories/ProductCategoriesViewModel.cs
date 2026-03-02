@@ -38,8 +38,50 @@ public partial class ProductCategoriesViewModel : ObservableObject, INavigationA
         get => _selectedCategory;
         set
         {
-            SetProperty(ref _selectedCategory, value);
-            OnPropertyChanged(nameof(HasSelection));
+            if (SetProperty(ref _selectedCategory, value))
+            {
+                OnPropertyChanged(nameof(HasSelection));
+                _ = LoadCategoryDetailsAsync();
+            }
+        }
+    }
+
+    private ProductCategoryResponse? _selectedCategoryDetails;
+    public ProductCategoryResponse? SelectedCategoryDetails
+    {
+        get => _selectedCategoryDetails;
+        private set
+        {
+            if (SetProperty(ref _selectedCategoryDetails, value))
+            {
+                OnPropertyChanged(nameof(HasCategoryDetails));
+            }
+        }
+    }
+
+    public bool HasCategoryDetails => _selectedCategoryDetails != null;
+
+    private async Task LoadCategoryDetailsAsync()
+    {
+        if (_selectedCategory == null)
+        {
+            SelectedCategoryDetails = null;
+            return;
+        }
+
+        try
+        {
+            IsLoading = true;
+            SelectedCategoryDetails = await _api.GetCategoryById(_selectedCategory.Id);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to load category details: {ex.Message}");
+            SelectedCategoryDetails = null;
+        }
+        finally
+        {
+            IsLoading = false;
         }
     }
 

@@ -4,11 +4,76 @@ using Microsoft.Extensions.Logging;
 using Onyx.Oms.Client.Desktop.Shared.Models;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Onyx.Oms.Client.Desktop.Features.ProductCategories;
+
+public class SpecDefinitionViewModel : ObservableObject
+{
+    private string _key = string.Empty;
+    public string Key
+    {
+        get => _key;
+        set => SetProperty(ref _key, value);
+    }
+
+    private string _label = string.Empty;
+    public string Label
+    {
+        get => _label;
+        set => SetProperty(ref _label, value);
+    }
+
+    private SpecType _type = SpecType.Text;
+    public SpecType Type
+    {
+        get => _type;
+        set => SetProperty(ref _type, value);
+    }
+
+    private bool _isRequired;
+    public bool IsRequired
+    {
+        get => _isRequired;
+        set => SetProperty(ref _isRequired, value);
+    }
+
+    private string _optionsString = string.Empty;
+    public string OptionsString
+    {
+        get => _optionsString;
+        set => SetProperty(ref _optionsString, value);
+    }
+
+    public SpecDefinition ToModel()
+    {
+        return new SpecDefinition
+        {
+            Key = Key,
+            Label = Label,
+            Type = Type,
+            IsRequired = IsRequired,
+            Options = string.IsNullOrWhiteSpace(OptionsString) 
+                ? new List<string>() 
+                : OptionsString.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList()
+        };
+    }
+
+    public static SpecDefinitionViewModel FromModel(SpecDefinition model)
+    {
+        return new SpecDefinitionViewModel
+        {
+            Key = model.Key,
+            Label = model.Label,
+            Type = model.Type,
+            IsRequired = model.IsRequired,
+            OptionsString = string.Join(", ", model.Options ?? new List<string>())
+        };
+    }
+}
 
 public class ProductCategoryFormNavArgs
 {
@@ -89,6 +154,25 @@ public partial class ProductCategoryFormViewModel : ObservableObject, INavigatio
         set => SetProperty(ref _nameError, value);
     }
 
+    private bool _hasProducts;
+    public bool HasProducts
+    {
+        get => _hasProducts;
+        set
+        {
+            if (SetProperty(ref _hasProducts, value))
+            {
+                OnPropertyChanged(nameof(CanEditSpecifications));
+            }
+        }
+    }
+
+    public bool CanEditSpecifications => !HasProducts;
+
+    public ObservableCollection<SpecDefinitionViewModel> Specifications { get; } = new();
+
+    public IReadOnlyList<SpecType> AvailableSpecTypes { get; } = Enum.GetValues<SpecType>();
+
     public Func<string, int, int, Task<PagedResult<ProductCategoryDto>>> FetchParentCategories => async (searchTerm, page, pageSize) =>
     {
         var result = await _api.SearchCategories(page, pageSize, searchTerm: searchTerm, isValidParent: true, sortColumn: "namePath", sortOrder: "asc");
@@ -112,6 +196,8 @@ public partial class ProductCategoryFormViewModel : ObservableObject, INavigatio
 
     public IAsyncRelayCommand SaveCommand { get; }
     public IRelayCommand CancelCommand { get; }
+    public IRelayCommand AddSpecificationCommand { get; }
+    public IRelayCommand<SpecDefinitionViewModel> RemoveSpecificationCommand { get; }
 
     public ProductCategoryFormViewModel(
         IProductCategoryApi api,
@@ -126,6 +212,22 @@ public partial class ProductCategoryFormViewModel : ObservableObject, INavigatio
 
         SaveCommand = new AsyncRelayCommand(OnSaveExecuteAsync);
         CancelCommand = new RelayCommand(OnCancelExecute);
+        AddSpecificationCommand = new RelayCommand(OnAddSpecificationExecute);
+        RemoveSpecificationCommand = new RelayCommand<SpecDefinitionViewModel>(OnRemoveSpecificationExecute);
+    }
+
+    private void OnAddSpecificationExecute()
+    {
+        var spec = new SpecDefinitionViewModel();
+        Specifications.Add(spec);
+    }
+
+    private void OnRemoveSpecificationExecute(SpecDefinitionViewModel? spec)
+    {
+        if (spec != null)
+        {
+            Specifications.Remove(spec);
+        }
     }
 
     public async Task InitializeAsync(ProductCategoryFormNavArgs args)
@@ -141,17 +243,25 @@ public partial class ProductCategoryFormViewModel : ObservableObject, INavigatio
                 IsEditMode = true;
                 CategoryId = args.CategoryId;
                 
-                // Find existing details from the flat list to populate form
-                var existing = allCategories.FirstOrDefault(c => c.Id == CategoryId);
-                if (existing != null)
+                // Fetch full details including specifications and HasProducts
+                var fullCategory = await _api.GetCategoryById(CategoryId.Value);
+                
+                if (fullCategory != null)
                 {
-                    Name = existing.Name;
-                    Description = existing.Description;
-                    DisplayOrder = existing.DisplayOrder;
-                    IconUrl = existing.IconUrl;
-                    Color = existing.Color;
-                    SelectedParentCategory = allCategories.FirstOrDefault(p => p.Id == existing.ParentCategoryId);
+                    Name = fullCategory.Name;
+                    Description = fullCategory.Description;
+                    DisplayOrder = fullCategory.DisplayOrder;
+                    IconUrl = fullCategory.IconUrl;
+                    Color = fullCategory.Color;
+                    SelectedParentCategory = allCategories.FirstOrDefault(p => p.Id == fullCategory.ParentCategoryId);
                     Title = $"Edit Category ({Name})";
+                    HasProducts = fullCategory.HasProducts;
+
+                    Specifications.Clear();
+                    foreach (var spec in fullCategory.Specifications ?? new List<SpecDefinition>())
+                    {
+                        Specifications.Add(SpecDefinitionViewModel.FromModel(spec));
+                    }
                 }
             }
             else
@@ -159,6 +269,8 @@ public partial class ProductCategoryFormViewModel : ObservableObject, INavigatio
                 IsEditMode = false;
                 Title = "Create Category";
                 DisplayOrder = 0; // Default
+                HasProducts = false;
+                Specifications.Clear();
                 
                 if (args.PreselectedParentId.HasValue)
                 {
@@ -200,6 +312,22 @@ public partial class ProductCategoryFormViewModel : ObservableObject, INavigatio
 
         try
         {
+            // Check for duplicate specification keys
+            var duplicateKeys = Specifications
+                .Where(s => !string.IsNullOrWhiteSpace(s.Key))
+                .GroupBy(s => s.Key)
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToList();
+
+            if (duplicateKeys.Any())
+            {
+                _toastService.ShowError("Validation Error", $"Duplicate specification keys found: {string.Join(", ", duplicateKeys)}");
+                return false;
+            }
+
+            var specs = Specifications.Select(s => s.ToModel()).ToList();
+
             if (IsEditMode)
             {
                 var updateDto = new UpdateProductCategoryDto
@@ -210,7 +338,8 @@ public partial class ProductCategoryFormViewModel : ObservableObject, INavigatio
                     DisplayOrder = DisplayOrder,
                     IconUrl = string.IsNullOrWhiteSpace(IconUrl) ? null : IconUrl,
                     Color = string.IsNullOrWhiteSpace(Color) ? null : Color,
-                    ParentCategoryId = SelectedParentCategory?.Id
+                    ParentCategoryId = SelectedParentCategory?.Id,
+                    Specifications = specs
                 };
                 await _api.UpdateCategory(updateDto.Id, updateDto);
                 _toastService.ShowSuccess("Success", "Category updated successfully.");
@@ -224,8 +353,10 @@ public partial class ProductCategoryFormViewModel : ObservableObject, INavigatio
                     DisplayOrder = DisplayOrder,
                     IconUrl = string.IsNullOrWhiteSpace(IconUrl) ? null : IconUrl,
                     Color = string.IsNullOrWhiteSpace(Color) ? null : Color,
-                    ParentCategoryId = SelectedParentCategory?.Id
+                    ParentCategoryId = SelectedParentCategory?.Id,
+                    Specifications = specs
                 };
+
                 await _api.CreateCategory(createDto);
                 _toastService.ShowSuccess("Success", "Category created successfully.");
             }

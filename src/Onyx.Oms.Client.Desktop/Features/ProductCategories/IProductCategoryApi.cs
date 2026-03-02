@@ -119,12 +119,48 @@ public class CreateProductCategoryDto
     public int DisplayOrder { get; set; }
     public string? IconUrl { get; set; }
     public string? Color { get; set; }
+    public List<SpecDefinition> Specifications { get; set; } = new();
 }
 
 public class UpdateProductCategoryDto : CreateProductCategoryDto
 {
     public Guid Id { get; set; }
 }
+
+public enum SpecType
+{
+    Text = 0,
+    Number = 1,
+    Select = 2,
+    MultiSelect = 3,
+    Toggle = 4,
+    Date = 5
+}
+
+public class SpecDefinition
+{
+    public string Key { get; set; } = string.Empty;
+    public string Label { get; set; } = string.Empty;
+    public SpecType Type { get; set; } = SpecType.Text;
+    public bool IsRequired { get; set; } = false;
+    public List<string> Options { get; set; } = new();
+}
+
+public record ProductCategoryResponse(
+    Guid Id,
+    string Name,
+    string? Description,
+    Guid? ParentCategoryId,
+    int Level,
+    string Path,
+    string NamePath,
+    bool IsActive,
+    int DisplayOrder,
+    string? IconUrl,
+    string? Color,
+    bool HasProducts,
+    List<SpecDefinition> Specifications
+);
 
 public interface IProductCategoryApi
 {
@@ -146,7 +182,7 @@ public interface IProductCategoryApi
     Task<List<ProductCategoryTreeDto>> GetCategoryTree([AliasAs("isActive")] bool? isActive = null);
 
     [Get("/api/v1/product-categories/{id}")]
-    Task UpdateCategory(Guid id);
+    Task<ProductCategoryResponse> GetCategoryById(Guid id);
 
     [Post("/api/v1/product-categories")]
     Task<Guid> CreateCategory([Body] CreateProductCategoryDto dto);

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="Onyx.Oms.Client.Desktop.Features.ProductCategories.ProductCategoryFormPage"
+    x:Name="RootPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Onyx.Oms.Client.Desktop.Features.ProductCategories"
@@ -8,115 +9,218 @@
     xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:tk="using:CommunityToolkit.WinUI.UI.Controls"
     mc:Ignorable="d">
 
     <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converters:BoolToObjectConverter x:Key="InvertedBoolConverter" TrueValue="False" FalseValue="True" />
         <converters:EmptyStringToObjectConverter x:Key="StringToVisibilityConverter" EmptyValue="Collapsed" NotEmptyValue="Visible" />
     </Page.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <Grid Padding="24">
-            <!-- Form Center Card Setup -->
-            <Border MaxWidth="600" 
-                    MinWidth="450"
-                    VerticalAlignment="Top" 
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-                    BorderThickness="1" 
-                    CornerRadius="8" 
-                    Background="{ThemeResource LayerFillColorDefaultBrush}" 
-                    Padding="32"
-                    HorizontalAlignment="Center">
-                    
-                <Grid>
+    <Grid Background="{ThemeResource LayerFillColorDefaultBrush}">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0"
+              Padding="24, 16" BorderThickness="0,0,0,1"
+              BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" Background="{ThemeResource SolidBackgroundFillColorBaseBrush}">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Spacing="4" >
+                <TextBlock Text="{x:Bind ViewModel.Title, Mode=OneWay}" Style="{StaticResource SubtitleHeadingTextBlockStyle}" FontWeight="SemiBold" />
+                <TextBlock Text="Manage category details and specification rules" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                <Button Content="Cancel" Command="{x:Bind ViewModel.CancelCommand}" Style="{StaticResource SubtleButtonStyle}"
+                        IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"/>
+                <Button Content="Save Changes" Command="{x:Bind ViewModel.SaveCommand}" Style="{StaticResource AccentButtonStyle}"
+                        IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"/>
+            </StackPanel>
+        </Grid>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="24">
+
+            <Grid ColumnSpacing="8">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" MinWidth="300" MaxWidth="500" />
+                    <ColumnDefinition Width="2*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Spacing="16">
+                    <StackPanel Spacing="16" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1" CornerRadius="4" Padding="16">
+
+                        <TextBlock Text="General Information" Style="{StaticResource BodyStrongTextBlockStyle}" />
+
+                        <TextBox Header="Category Name" Text="{x:Bind ViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                 IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"/>
+
+                        <TextBox Header="Description" Text="{x:Bind ViewModel.Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                 AcceptsReturn="True" TextWrapping="Wrap" MinHeight="60" MaxHeight="100" />
+
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="Parent Category" Margin="0,0,0,4" />
+                            <controls:ProductCategoryPicker 
+                                                    SelectedCategory="{x:Bind ViewModel.SelectedParentCategory, Mode=TwoWay}"
+                                                    FetchDataDelegate="{x:Bind ViewModel.FetchParentCategories, Mode=OneWay}"
+                                                    HorizontalAlignment="Stretch" />
+                        </StackPanel>
+
+
+                        <NumberBox Header="Display Order" Value="{x:Bind ViewModel.DisplayOrder, Mode=TwoWay}" SpinButtonPlacementMode="Inline" />
+
+                    </StackPanel>
+
+                    <StackPanel Spacing="16" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4" Padding="16">
+                        <TextBlock Text="Appearance" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox Header="Icon (URL/Glyph)" Text="{x:Bind ViewModel.IconUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <!--<TextBox Grid.Column="1" Header="Color Hex" Text="{x:Bind ViewModel.Color, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                <TextBox.ContextFlyout>
+                                    <MenuFlyout>
+                                        <ColorPicker ColorSpectrumShape="Ring" IsMoreButtonVisible="False" IsColorSliderVisible="True" />
+                                    </MenuFlyout>
+                                </TextBox.ContextFlyout>
+                            </TextBox>-->
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                <TextBox Header="Color" Text="{x:Bind ViewModel.Color, Mode=TwoWay}" Width="150" />
+
+                                <Button VerticalAlignment="Bottom" Margin="0,0,0,4" Padding="8" Style="{StaticResource SubtleButtonStyle}">
+                                    <Button.Content>
+                                        <FontIcon Glyph="&#xE790;" />
+                                    </Button.Content>
+                                    <Button.Flyout>
+                                        <Flyout Placement="Bottom">
+                                            <!--<ColorPicker ColorSpectrumShape="Ring" 
+                                                         IsMoreButtonVisible="False" 
+                                                         IsColorSliderVisible="True"
+                                                         Color="{x:Bind ViewModel.Color, Mode=TwoWay}" />-->
+                                        </Flyout>
+                                    </Button.Flyout>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+
+                <Grid Grid.Column="1">
+
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <ProgressRing Grid.RowSpan="7" IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
-                                  HorizontalAlignment="Center" VerticalAlignment="Center" Canvas.ZIndex="10" />
+                    <StackPanel Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1" CornerRadius="4" Padding="0">
 
-                    <!-- Header -->
-                    <TextBlock Grid.Row="0" Text="{x:Bind ViewModel.Title, Mode=OneWay}" Style="{StaticResource TitleTextBlockStyle}" Margin="0,0,0,24" />
+                        <Grid Padding="16" BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" BorderThickness="0,0,0,1" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Technical Specifications" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                <TextBlock Text="Define attributes required for products in this category" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </StackPanel>
+                            <Button Grid.Column="1" Command="{x:Bind ViewModel.AddSpecificationCommand}" Style="{StaticResource DefaultButtonStyle}">
+                                <Button.Content>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE710;" FontSize="12" />
+                                        <TextBlock Text="New Attribute" />
+                                    </StackPanel>
+                                </Button.Content>
+                            </Button>
+                        </Grid>
 
-                    <!-- Name Field -->
-                    <StackPanel Grid.Row="1" Margin="0,0,0,16">
-                        <TextBox Header="Category Name *" Text="{x:Bind ViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                 IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"
-                                 PlaceholderText="e.g. Men's Clothing" />
-                        <TextBlock Foreground="{ThemeResource SystemFillColorCriticalBrush}" 
-                                   Text="{x:Bind ViewModel.NameError, Mode=OneWay}"
-                                   Visibility="{x:Bind ViewModel.NameError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"
-                                   Style="{StaticResource CaptionTextBlockStyle}" Margin="0,4,0,0" />
+                        <ListView ItemsSource="{x:Bind ViewModel.Specifications, Mode=OneWay}" SelectionMode="None">
+
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    <Setter Property="Padding" Value="0" />
+                                    <Setter Property="Margin" Value="0" />
+                                    <Setter Property="MinHeight" Value="0" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType="local:SpecDefinitionViewModel">
+
+                                    <Grid BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" BorderThickness="0,0,0,1" Padding="16,12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <Grid RowSpacing="8" ColumnSpacing="12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="1.5*"/>
+                                                <ColumnDefinition Width="1.5*"/>
+                                                <ColumnDefinition Width="1*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <TextBox Grid.Column="0" Text="{x:Bind Label, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Label" 
+                                                     BorderThickness="0,0,0,1" Background="Transparent" />
+
+                                            <TextBox Grid.Column="1" Text="{x:Bind Key, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="key_name" FontFamily="Consolas" FontSize="12"
+                                                     BorderThickness="0,0,0,1" Background="Transparent" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+
+                                            <ComboBox Grid.Column="2" SelectedItem="{x:Bind Type, Mode=TwoWay}" ItemsSource="{Binding ElementName=RootPage, Path=ViewModel.AvailableSpecTypes}" 
+                                                      HorizontalAlignment="Stretch" BorderThickness="0" Background="Transparent" PlaceholderText="Type" />
+
+                                            <CheckBox Grid.Column="3" Content="Req" IsChecked="{x:Bind IsRequired, Mode=TwoWay}" MinWidth="0" Margin="8,0,0,0" />
+
+                                            <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" 
+                                                     Text="{x:Bind OptionsString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                     PlaceholderText="Options (comma separated) - Only for Select/MultiSelect" 
+                                                     FontSize="12" BorderThickness="0" Background="{ThemeResource LayerFillColorAltBrush}" 
+                                                     Padding="8,4" CornerRadius="4" Margin="0,4,0,0"
+                                                     Visibility="{x:Bind Type, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}" />
+                                        </Grid>
+
+                                        <Button Grid.Column="1" Style="{StaticResource SubtleButtonStyle}" VerticalAlignment="Top" Margin="8,0,0,0"
+                                                Command="{Binding ElementName=RootPage, Path=ViewModel.RemoveSpecificationCommand}" CommandParameter="{Binding}">
+                                            <FontIcon Glyph="&#xE74D;" FontSize="14" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                                        </Button>
+
+                                    </Grid>
+
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                            
+                        </ListView>
+
                     </StackPanel>
-
-                    <!-- Description Field -->
-                    <StackPanel Grid.Row="2" Margin="0,0,0,16">
-                        <TextBox Header="Description" Text="{x:Bind ViewModel.Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                 IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"
-                                 PlaceholderText="Optional description"
-                                 AcceptsReturn="True"
-                                 TextWrapping="Wrap"
-                                 MinHeight="80" />
-                    </StackPanel>
-
-                    <!-- Parent Category Field -->
-                    <StackPanel Grid.Row="3" Margin="0,0,0,16">
-                        <TextBlock Text="Parent Category" Margin="0,0,0,4" />
-                        <controls:ProductCategoryPicker 
-                                  SelectedCategory="{x:Bind ViewModel.SelectedParentCategory, Mode=TwoWay}"
-                                  PlaceholderText="None (Root Category)"
-                                  FetchDataDelegate="{x:Bind ViewModel.FetchParentCategories, Mode=OneWay}"
-                                  IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"
-                                  HorizontalAlignment="Stretch" />
-                    </StackPanel>
-
-                    <!-- Display Order Field -->
-                    <StackPanel Grid.Row="4" Margin="0,0,0,16">
-                        <TextBox Header="Display Order" Text="{x:Bind ViewModel.DisplayOrder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                 IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"
-                                 PlaceholderText="0" />
-                    </StackPanel>
-
-                    <!-- Icon & Color Row -->
-                    <Grid Grid.Row="5" ColumnSpacing="16" Margin="0,0,0,32">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-
-                        <TextBox Grid.Column="0" Header="Icon URL / Glyph" Text="{x:Bind ViewModel.IconUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                 IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"
-                                 PlaceholderText="e.g. f553 or http://..." />
-
-                        <TextBox Grid.Column="1" Header="Color (Hex)" Text="{x:Bind ViewModel.Color, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                 IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"
-                                 PlaceholderText="e.g. #FF5733" />
-                    </Grid>
-
-                    <StackPanel Grid.Row="6">
-                        <HyperlinkButton Content="Find Icons on FontAwesome" 
-                                         NavigateUri="https://fontawesome.com/search?o=r&amp;m=free&amp;f=solid" 
-                                         Style="{StaticResource SubtleButtonStyle}"
-                                         Margin="0,4,0,0" Padding="0" MinHeight="0" />
-                    </StackPanel>
-
-                    <!-- Buttons Area -->
-                    <StackPanel Grid.Row="6" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
-                        <Button Content="Cancel" Command="{x:Bind ViewModel.CancelCommand}" Style="{StaticResource SubtleButtonStyle}" 
-                                IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"/>
-                        <Button Content="Save" Command="{x:Bind ViewModel.SaveCommand}" Style="{StaticResource AccentButtonStyle}" 
-                                IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"/>
-                    </StackPanel>
+                    
                 </Grid>
-            </Border>
+
+            </Grid>
+
+        </ScrollViewer>
+
+        <Grid Grid.RowSpan="2" Background="{ThemeResource SolidBackgroundFillColorBaseBrush}" Opacity="0.8" 
+              Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+            <ProgressRing IsActive="True" Width="48" Height="48" />
         </Grid>
-    </ScrollViewer>
+
+    </Grid>
 </Page>

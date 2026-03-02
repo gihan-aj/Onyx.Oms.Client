@@ -101,6 +101,7 @@ namespace Onyx.Oms.Client.Desktop
             services.AddSingleton<IPageService, PageService>();
 
             // HTTP Infrastructure
+            services.AddTransient<HttpLoggingHandler>();
             services.AddTransient<AuthHeaderHandler>();
             services.AddTransient<ProblemDetailsHandler>();
 
@@ -111,6 +112,7 @@ namespace Onyx.Oms.Client.Desktop
                         var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
                         c.BaseAddress = new Uri(options.BaseUrl);
                     })
+                    .AddHttpMessageHandler<HttpLoggingHandler>()
                     .AddHttpMessageHandler<AuthHeaderHandler>()
                     .AddHttpMessageHandler<ProblemDetailsHandler>();
 
@@ -120,6 +122,7 @@ namespace Onyx.Oms.Client.Desktop
                         var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
                         c.BaseAddress = new Uri(options.BaseUrl);
                     })
+                    .AddHttpMessageHandler<HttpLoggingHandler>()
                     .AddHttpMessageHandler<AuthHeaderHandler>()
                     .AddHttpMessageHandler<ProblemDetailsHandler>();
             
@@ -129,6 +132,7 @@ namespace Onyx.Oms.Client.Desktop
                         var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
                         c.BaseAddress = new Uri(options.BaseUrl);
                     })
+                    .AddHttpMessageHandler<HttpLoggingHandler>()
                     .AddHttpMessageHandler<AuthHeaderHandler>()
                     .AddHttpMessageHandler<ProblemDetailsHandler>();
 
@@ -138,6 +142,7 @@ namespace Onyx.Oms.Client.Desktop
                         var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
                         c.BaseAddress = new Uri(options.BaseUrl);
                     })
+                    .AddHttpMessageHandler<HttpLoggingHandler>()
                     .AddHttpMessageHandler<AuthHeaderHandler>()
                     .AddHttpMessageHandler<ProblemDetailsHandler>();
                     
@@ -147,6 +152,7 @@ namespace Onyx.Oms.Client.Desktop
                         var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
                         c.BaseAddress = new Uri(options.BaseUrl);
                     })
+                    .AddHttpMessageHandler<HttpLoggingHandler>()
                     .AddHttpMessageHandler<AuthHeaderHandler>()
                     .AddHttpMessageHandler<ProblemDetailsHandler>();
 
@@ -156,6 +162,7 @@ namespace Onyx.Oms.Client.Desktop
                         var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
                         c.BaseAddress = new Uri(options.BaseUrl);
                     })
+                    .AddHttpMessageHandler<HttpLoggingHandler>()
                     .AddHttpMessageHandler<AuthHeaderHandler>()
                     .AddHttpMessageHandler<ProblemDetailsHandler>();
             
@@ -165,6 +172,7 @@ namespace Onyx.Oms.Client.Desktop
                         var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
                         c.BaseAddress = new Uri(options.BaseUrl);
                     })
+                    .AddHttpMessageHandler<HttpLoggingHandler>()
                     .AddHttpMessageHandler<AuthHeaderHandler>()
                     .AddHttpMessageHandler<ProblemDetailsHandler>();
 
@@ -174,6 +182,7 @@ namespace Onyx.Oms.Client.Desktop
                         var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
                         c.BaseAddress = new Uri(options.BaseUrl);
                     })
+                    .AddHttpMessageHandler<HttpLoggingHandler>()
                     .AddHttpMessageHandler<AuthHeaderHandler>()
                     .AddHttpMessageHandler<ProblemDetailsHandler>();
             
@@ -183,6 +192,7 @@ namespace Onyx.Oms.Client.Desktop
                         var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
                         c.BaseAddress = new Uri(options.BaseUrl);
                     })
+                    .AddHttpMessageHandler<HttpLoggingHandler>()
                     .AddHttpMessageHandler<AuthHeaderHandler>()
                     .AddHttpMessageHandler<ProblemDetailsHandler>();
 
@@ -192,6 +202,7 @@ namespace Onyx.Oms.Client.Desktop
                         var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
                         c.BaseAddress = new Uri(options.BaseUrl);
                     })
+                    .AddHttpMessageHandler<HttpLoggingHandler>()
                     .AddHttpMessageHandler<AuthHeaderHandler>()
                     .AddHttpMessageHandler<ProblemDetailsHandler>();
             

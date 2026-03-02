@@ -183,7 +183,53 @@
                             
                             <TextBlock Text="Description" Style="{StaticResource SubtitleTextBlockStyle}" />
                             <TextBlock Text="{x:Bind ViewModel.SelectedCategory.Description, Mode=OneWay, FallbackValue='No description provided.'}" TextWrapping="Wrap" />
+
+                            <Line Stroke="{ThemeResource DividerStrokeColorDefaultBrush}" X2="400" StrokeThickness="1" Margin="0,8"
+                                  Visibility="{x:Bind ViewModel.HasCategoryDetails, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
                             
+                            <!-- Specifications Viewer -->
+                            <StackPanel Visibility="{x:Bind ViewModel.HasCategoryDetails, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" Spacing="12">
+                                <TextBlock Text="Specifications" Style="{StaticResource SubtitleTextBlockStyle}" />
+                                
+                                <ItemsControl ItemsSource="{x:Bind ViewModel.SelectedCategoryDetails.Specifications, Mode=OneWay}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="local:SpecDefinition">
+                                            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                                                    BorderThickness="1" 
+                                                    CornerRadius="4" 
+                                                    Padding="12,8" 
+                                                    Margin="0,0,0,8">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <StackPanel Grid.Column="0">
+                                                        <TextBlock Text="{x:Bind Label}" FontWeight="SemiBold" />
+                                                        <TextBlock Text="{x:Bind Key}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                                    </StackPanel>
+
+                                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                                        <Border Background="{ThemeResource SystemFillColorNeutralBrush}" CornerRadius="4" Padding="6,2">
+                                                            <TextBlock Text="{x:Bind Type}" Style="{StaticResource CaptionTextBlockStyle}" />
+                                                        </Border>
+                                                        <Border Background="{ThemeResource SystemFillColorCriticalBrush}" CornerRadius="4" Padding="6,2" Visibility="{x:Bind IsRequired, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                            <TextBlock Text="Required" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
+                                                        </Border>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <TextBlock Text="No specifications defined." 
+                                           Visibility="{x:Bind ViewModel.SelectedCategoryDetails.Specifications.Count, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}, FallbackValue='Collapsed'}" 
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" 
+                                           FontStyle="Italic" />
+                            </StackPanel>
                         </StackPanel>
                     </Grid>
                 </Border>
