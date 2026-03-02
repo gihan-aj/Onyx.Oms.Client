@@ -3,23 +3,32 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:converters="using:CommunityToolkit.WinUI.Converters">
 
-    <!-- Status Color Converters -->
-    <converters:BoolToObjectConverter x:Key="StatusBackgroundConverter" TrueValue="{ThemeResource SystemFillColorSuccessBrush}" FalseValue="{ThemeResource SystemFillColorCriticalBrush}" />
-    <converters:BoolToObjectConverter x:Key="StatusForegroundConverter" TrueValue="{ThemeResource TextOnAccentFillColorPrimaryBrush}" FalseValue="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
-    <converters:BoolToObjectConverter x:Key="StatusTextConverter" TrueValue="Active" FalseValue="Inactive" />
+    <converters:BoolToObjectConverter x:Key="StatusBackgroundConverter" 
+                                      TrueValue="{ThemeResource SystemFillColorSuccessBackgroundBrush}" 
+                                      FalseValue="{ThemeResource SystemFillColorNeutralBackgroundBrush}" />
 
-    <!-- Badge Style -->
+    <converters:BoolToObjectConverter x:Key="StatusForegroundConverter" 
+                                      TrueValue="{ThemeResource SystemFillColorSuccessBrush}" 
+                                      FalseValue="{ThemeResource TextFillColorSecondaryBrush}" />
+
+    <converters:BoolToObjectConverter x:Key="StatusTextConverter" 
+                                      TrueValue="Active" 
+                                      FalseValue="Inactive" />
+
     <Style x:Key="StatusBadgeStyle" TargetType="Border">
         <Setter Property="CornerRadius" Value="4" />
-        <Setter Property="Padding" Value="8,2" />
-        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Padding" Value="6,2" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
         <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="MinWidth" Value="60" />
     </Style>
 
     <Style x:Key="StatusBadgeTextStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Style" Value="{ThemeResource CaptionTextBlockStyle}" />
         <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="TextAlignment" Value="Center" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
+    
 </ResourceDictionary>

@@ -91,6 +91,11 @@
     <Folder Include="Shared\Shell\Navigation\" />
   </ItemGroup>
   <ItemGroup>
+    <Page Update="Shared\Styles\CardStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
     <Page Update="Features\Products\ProductsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

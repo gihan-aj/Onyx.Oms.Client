@@ -91,4 +91,9 @@ public sealed partial class ProductCategoriesPage : Page
             ViewModel.DeleteCommand.Execute(ViewModel.SelectedCategory);
         }
     }
+
+    private void OnNewRootClick(object sender, RoutedEventArgs e)
+    {
+
+    }
 }

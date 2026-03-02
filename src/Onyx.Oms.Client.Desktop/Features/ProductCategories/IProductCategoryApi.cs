@@ -41,7 +41,7 @@ public class ProductCategoryTreeDto
     // However, since TreeView binds directly, having them here or wrapping them is a choice.
     // For simplicity, we add standard UI helpers.
     public bool CanEdit { get; set; }
-    public bool CanAddSubcategory => Level < 2; // Business rule max depth 2
+    public bool CanAddSubcategory => Level < 3; // Business rule max depth 2
     public bool CanDelete { get; set; }
     public bool CanToggleStatus { get; set; }
     
