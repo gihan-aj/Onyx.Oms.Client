@@ -52,6 +52,9 @@ public partial class CustomerFormViewModel : ObservableObject, INavigationAware
     private string? _secondaryPhone;
     public string? SecondaryPhone { get => _secondaryPhone; set => SetProperty(ref _secondaryPhone, value); }
 
+    private bool _isActive = true;
+    public bool IsActive { get => _isActive; set => SetProperty(ref _isActive, value); }
+
     private string _street = string.Empty;
     public string Street { get => _street; set => SetProperty(ref _street, value); }
 
@@ -64,7 +67,7 @@ public partial class CustomerFormViewModel : ObservableObject, INavigationAware
     private string _postalCode = string.Empty;
     public string PostalCode { get => _postalCode; set => SetProperty(ref _postalCode, value); }
 
-    private string _country = string.Empty;
+    private string _country = "Sri Lanka";
     public string Country { get => _country; set => SetProperty(ref _country, value); }
 
     private string? _notes;
@@ -105,6 +108,7 @@ public partial class CustomerFormViewModel : ObservableObject, INavigationAware
                 Email = customerToEdit.Email;
                 PrimaryPhone = customerToEdit.PrimaryPhone;
                 SecondaryPhone = customerToEdit.SecondaryPhone;
+                IsActive = customerToEdit.IsActive;
                 
                 if (customerToEdit.Address != null)
                 {

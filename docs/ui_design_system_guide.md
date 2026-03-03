@@ -81,32 +81,68 @@ Used for browsing lists or trees and viewing details without leaving the context
 </Grid>
 ```
 
+### 3.3 Layout C: DataGrid Explorer (Customers, Orders List)
+Used for high-density tabular data management.
+* **Structure:** Full Bleed (No Padding) + Top Toolbar + DataGrid + Bottom Status Bar.
+
+```xml
+<Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" /> <RowDefinition Height="*" />    <RowDefinition Height="Auto" /> </Grid.RowDefinitions>
+
+    <Grid Grid.Row="0" Padding="16,12" Background="{ThemeResource LayerFillColorDefaultBrush}" 
+          BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        </Grid>
+
+    <Grid Grid.Row="1" Background="{ThemeResource LayerFillColorAltBrush}">
+        <toolkit:DataGrid BorderThickness="0" 
+                          GridLinesVisibility="Horizontal" 
+                          RowBackground="Transparent"
+                          AlternatingRowBackground="{ThemeResource LayerFillColorDefaultBrush}">
+             </toolkit:DataGrid>
+    </Grid>
+
+    <Grid Grid.Row="2" Background="{ThemeResource LayerFillColorDefaultBrush}" 
+          BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" BorderThickness="0,1,0,0" Padding="16,8">
+        </Grid>
+</Grid>
+```
+
 ---
 
 ## 4. Component Patterns
 
-### 4.1 The Sticky Header
-Contains the Page Title and Primary Actions.
-* **Background:** `SolidBackgroundFillColorBaseBrush` (Opaque).
-* **Border:** Bottom border only (`SurfaceStrokeColorDefaultBrush`).
+### 4.1 The Sticky Header & Toolbar
+Contains the Page Title and Contextual Actions.
+* **Layout:** Title on Left, Action Toolbar on Right.
+* **Toolbar Pattern:** Use `AccentButtonStyle` for the primary action, `StandardButtonStyle` for secondary actions, and `SubtleButtonStyle` (Icon Only) for destructive actions like Delete.
 
 ```xml
 <Grid Grid.Row="0" Padding="24,16" BorderThickness="0,0,0,1" 
       BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" 
       Background="{ThemeResource SolidBackgroundFillColorBaseBrush}">
-    <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*" />
-        <ColumnDefinition Width="Auto" />
-    </Grid.ColumnDefinitions>
-
+    
     <StackPanel Spacing="4">
         <TextBlock Text="{x:Bind ViewModel.Title}" Style="{StaticResource SubtitleTextBlockStyle}" FontWeight="SemiBold" />
-        <TextBlock Text="{x:Bind ViewModel.Subtitle}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
     </StackPanel>
 
     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-        <Button Content="Cancel" Style="{StaticResource SubtleButtonStyle}" />
-        <Button Content="Save Changes" Style="{StaticResource AccentButtonStyle}" />
+        <Button Style="{StaticResource AccentButtonStyle}" Command="{x:Bind ViewModel.EditCommand}">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <FontIcon Glyph="&#xE70F;" FontSize="14" />
+                <TextBlock Text="Edit" />
+            </StackPanel>
+        </Button>
+
+        <AppBarSeparator />
+
+        <Button Style="{StaticResource SubtleButtonStyle}" Command="{x:Bind ViewModel.DeleteCommand}" ToolTipService.ToolTip="Delete">
+            <FontIcon Glyph="&#xE74D;" FontSize="16" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+        </Button>
     </StackPanel>
 </Grid>
 ```
@@ -158,6 +194,18 @@ Attach a `Flyout` to a Button, not the Context Menu.
         </Button.Flyout>
     </Button>
 </StackPanel>
+```
+
+### 4.5 The Status Badge
+Use the `StatusBadgeStyle` border with converters for standardized tagging.
+
+```xml
+<Border Style="{StaticResource StatusBadgeStyle}" 
+        Background="{Binding IsActive, Converter={StaticResource StatusBackgroundConverter}}">
+    <TextBlock Text="{Binding IsActive, Converter={StaticResource StatusTextConverter}}"
+               Style="{StaticResource StatusBadgeTextStyle}"
+               Foreground="{Binding IsActive, Converter={StaticResource StatusForegroundConverter}}" />
+</Border>
 ```
 
 ---

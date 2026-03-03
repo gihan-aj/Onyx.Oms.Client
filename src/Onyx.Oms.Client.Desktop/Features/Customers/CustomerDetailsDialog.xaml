@@ -13,53 +13,87 @@
     CloseButtonText="Close"
     DefaultButton="Close"
     CornerRadius="8"
-    CloseButtonStyle="{StaticResource AccentButtonStyle}">
+    CloseButtonStyle="{StaticResource AccentButtonStyle}"
+    Style="{StaticResource DefaultContentDialogStyle}">
 
     <ContentDialog.Resources>
         <converters:EmptyStringToObjectConverter x:Key="StringToVisibilityConverter" EmptyValue="Collapsed" NotEmptyValue="Visible" />
     </ContentDialog.Resources>
 
-    <StackPanel Spacing="16" MinWidth="400" MaxWidth="500">
-        <!-- Status Badge -->
-        <Border Style="{StaticResource StatusBadgeStyle}" 
-                Background="{x:Bind Customer.IsActive, Mode=OneTime, Converter={StaticResource StatusBackgroundConverter}}"
-                HorizontalAlignment="Left">
-            <TextBlock Text="{x:Bind Customer.IsActive, Mode=OneTime, Converter={StaticResource StatusTextConverter}}"
-                       Style="{StaticResource StatusBadgeTextStyle}"
-                       Foreground="{x:Bind Customer.IsActive, Mode=OneTime, Converter={StaticResource StatusForegroundConverter}}" />
-        </Border>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
 
-        <Grid RowSpacing="12" ColumnSpacing="24">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+        <StackPanel MinWidth="350" MaxWidth="550" Spacing="20" Padding="0,8,0,0">
 
-            <TextBlock Text="Name:" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Top" />
-            <TextBlock Grid.Column="1" Text="{x:Bind Customer.Name, Mode=OneTime}" TextWrapping="Wrap" />
+            <Grid ColumnSpacing="16">
 
-            <TextBlock Grid.Row="1" Text="Email:" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Top" />
-            <TextBlock Grid.Row="1" Grid.Column="1" Text="{x:Bind Customer.Email, Mode=OneTime}" TextWrapping="Wrap" />
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
 
-            <TextBlock Grid.Row="2" Text="Primary Phone:" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Top" />
-            <TextBlock Grid.Row="2" Grid.Column="1" Text="{x:Bind Customer.PrimaryPhone, Mode=OneTime}" TextWrapping="Wrap" />
+                <PersonPicture DisplayName="{x:Bind Customer.Name, Mode=OneTime}" Height="64" Width="64" />
 
-            <TextBlock Grid.Row="3" Text="Secondary Phone:" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Top" Visibility="{x:Bind Customer.SecondaryPhone, Mode=OneTime, Converter={StaticResource StringToVisibilityConverter}}" />
-            <TextBlock Grid.Row="3" Grid.Column="1" Text="{x:Bind Customer.SecondaryPhone, Mode=OneTime}" TextWrapping="Wrap" Visibility="{x:Bind Customer.SecondaryPhone, Mode=OneTime, Converter={StaticResource StringToVisibilityConverter}}" />
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
+                    <TextBlock Text="{x:Bind Customer.Name, Mode=OneTime}" Style="{StaticResource SubtitleTextBlockStyle}" FontWeight="SemiBold" IsTextSelectionEnabled="True" />
 
-            <TextBlock Grid.Row="4" Text="Address:" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Top" />
-            <TextBlock Grid.Row="4" Grid.Column="1" Text="{x:Bind FullAddress, Mode=OneTime}" TextWrapping="Wrap" />
+                    <Border Style="{StaticResource StatusBadgeStyle}" 
+                            HorizontalAlignment="Left"
+                            Background="{x:Bind Customer.IsActive, Mode=OneTime, Converter={StaticResource StatusBackgroundConverter}}">
+                        <TextBlock Text="{x:Bind Customer.IsActive, Mode=OneTime, Converter={StaticResource StatusTextConverter}}"
+                                   Style="{StaticResource StatusBadgeTextStyle}"
+                                   Foreground="{x:Bind Customer.IsActive, Mode=OneTime, Converter={StaticResource StatusForegroundConverter}}" />
+                    </Border>
+                </StackPanel>
 
-            <TextBlock Grid.Row="5" Text="Notes:" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Top" Visibility="{x:Bind Customer.Notes, Mode=OneTime, Converter={StaticResource StringToVisibilityConverter}}" />
-            <TextBlock Grid.Row="5" Grid.Column="1" Text="{x:Bind Customer.Notes, Mode=OneTime}" TextWrapping="Wrap" Visibility="{x:Bind Customer.Notes, Mode=OneTime, Converter={StaticResource StringToVisibilityConverter}}" />
-        </Grid>
-    </StackPanel>
+            </Grid>
+
+            <MenuFlyoutSeparator />
+
+            <Grid RowSpacing="16" ColumnSpacing="24">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <StackPanel>
+                    <TextBlock Text="Email" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Text="{x:Bind Customer.Email, Mode=OneTime}" Style="{StaticResource BodyTextBlockStyle}" IsTextSelectionEnabled="True" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="Primary Phone" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Text="{x:Bind Customer.PrimaryPhone, Mode=OneTime}" Style="{StaticResource BodyTextBlockStyle}" FontFamily="Consolas" IsTextSelectionEnabled="True" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Grid.Column="1" Visibility="{x:Bind Customer.SecondaryPhone, Mode=OneTime, Converter={StaticResource StringToVisibilityConverter}}">
+                    <TextBlock Text="Secondary Phone" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Text="{x:Bind Customer.SecondaryPhone, Mode=OneTime}" Style="{StaticResource BodyTextBlockStyle}" FontFamily="Consolas" IsTextSelectionEnabled="True" />
+                </StackPanel>
+            </Grid>
+
+            <StackPanel Spacing="16">
+                <StackPanel>
+                    <TextBlock Text="Shipping Address" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Text="{x:Bind FullAddress, Mode=OneTime}" Style="{StaticResource BodyTextBlockStyle}" IsTextSelectionEnabled="True" TextWrapping="Wrap" />
+                </StackPanel>
+
+                <StackPanel Visibility="{x:Bind Customer.Notes, Mode=OneTime, Converter={StaticResource StringToVisibilityConverter}}">
+                    <TextBlock Text="Internal Notes" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <Grid Background="{ThemeResource LayerFillColorAltBrush}" CornerRadius="4" Padding="12" Margin="0,4,0,0">
+                        <TextBlock Text="{x:Bind Customer.Notes, Mode=OneTime}" 
+                                   Style="{StaticResource BodyTextBlockStyle}" 
+                                   FontStyle="Italic"
+                                   TextWrapping="Wrap" IsTextSelectionEnabled="True" />
+                    </Grid>
+                </StackPanel>
+            </StackPanel>
+
+        </StackPanel>
+        
+    </ScrollViewer>
+    
 </ContentDialog>

@@ -16,133 +16,162 @@
         <converters:EmptyStringToObjectConverter x:Key="StringToVisibilityConverter" EmptyValue="Collapsed" NotEmptyValue="Visible" />
     </Page.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <Grid Padding="24">
-            <!-- Form Center Card Setup -->
-            <Border MaxWidth="800" 
-                    MinWidth="700"
-                    VerticalAlignment="Top" 
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-                    BorderThickness="1" 
-                    CornerRadius="8" 
-                    Background="{ThemeResource LayerFillColorDefaultBrush}" 
-                    Padding="32"
-                    HorizontalAlignment="Center">
-                    
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
+    <Grid Background="{ThemeResource LayerFillColorDefaultBrush}">
 
-                    <ProgressRing Grid.Row="0" Grid.RowSpan="4" IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
-                                  HorizontalAlignment="Center" VerticalAlignment="Center" Canvas.ZIndex="10" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-                    <!-- Header -->
-                    <TextBlock Grid.Row="0" Text="{x:Bind ViewModel.Title, Mode=OneWay}" Style="{StaticResource TitleTextBlockStyle}" Margin="0,0,0,24" />
+        <Grid Grid.Row="0" Padding="24,20" 
+              Background="{ThemeResource SolidBackgroundFillColorBaseBrush}" 
+              BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
 
-                    <Grid Grid.Row="1" ColumnSpacing="24">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        
-                        <!-- Left Column: Contact Details -->
-                        <StackPanel Grid.Column="0" Spacing="16">
-                            <TextBlock Text="Contact Details" Style="{StaticResource BodyStrongTextBlockStyle}" />
-                            <!-- Name -->
-                            <StackPanel>
-                                <TextBox Header="Name" Text="{x:Bind ViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                         IsReadOnly="{x:Bind ViewModel.IsReadOnly, Mode=OneWay}"
-                                         IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"/>
-                                <TextBlock Foreground="{ThemeResource SystemFillColorCriticalBrush}" 
-                                           Text="{x:Bind ViewModel.NameError, Mode=OneWay}"
-                                           Visibility="{x:Bind ViewModel.NameError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"
-                                           Style="{StaticResource CaptionTextBlockStyle}" Margin="0,4,0,0" />
-                            </StackPanel>
-                            
-                            <!-- Email -->
-                            <StackPanel>
-                                <TextBox Header="Email" Text="{x:Bind ViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                         IsReadOnly="{x:Bind ViewModel.IsReadOnly, Mode=OneWay}"
-                                         IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"/>
-                                <TextBlock Foreground="{ThemeResource SystemFillColorCriticalBrush}" 
-                                           Text="{x:Bind ViewModel.EmailError, Mode=OneWay}"
-                                           Visibility="{x:Bind ViewModel.EmailError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"
-                                           Style="{StaticResource CaptionTextBlockStyle}" Margin="0,4,0,0" />
-                            </StackPanel>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
 
-                            <!-- Primary Phone -->
+            <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+
+                <TextBlock Text="{x:Bind ViewModel.Title, Mode=OneWay}" Style="{StaticResource SubtitleTextBlockStyle}" FontWeight="SemiBold" />
+
+                <Border Style="{StaticResource StatusBadgeStyle}" 
+                        Background="{x:Bind ViewModel.IsActive, Mode=OneWay, Converter={StaticResource StatusBackgroundConverter}}">
+                    <TextBlock Text="{x:Bind ViewModel.IsActive, Mode=OneWay, Converter={StaticResource StatusTextConverter}}"
+                               Style="{StaticResource StatusBadgeTextStyle}"
+                               Foreground="{x:Bind ViewModel.IsActive, Mode=OneWay, Converter={StaticResource StatusForegroundConverter}}" />
+                </Border>
+
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                <Button Content="Cancel" Command="{x:Bind ViewModel.CancelCommand}" Style="{StaticResource SubtleButtonStyle}" 
+                        IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"/>
+
+                <Button Command="{x:Bind ViewModel.SaveCommand}" Style="{StaticResource AccentButtonStyle}" 
+                        Visibility="{x:Bind ViewModel.IsNotReadOnly, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                        IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE74E;" FontSize="14" />
+                            <TextBlock Text="Save Changes" />
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+            </StackPanel>
+
+        </Grid>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="24">
+
+            <Grid ColumnSpacing="24" MaxWidth="1000" HorizontalAlignment="Center">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" MinWidth="350"/>
+                    <ColumnDefinition Width="1.2*" MinWidth="350"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Spacing="16" >
+
+                    <StackPanel Style="{StaticResource CardStackStyle}">
+                        <TextBlock Text="Identity" Style="{StaticResource BodyStrongTextBlockStyle}" />
+
+                        <StackPanel>
+                            <TextBox Header="Full Name" Text="{x:Bind ViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                     IsReadOnly="{x:Bind ViewModel.IsReadOnly, Mode=OneWay}"/>
+                            <TextBlock Text="{x:Bind ViewModel.NameError, Mode=OneWay}" Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                       Visibility="{x:Bind ViewModel.NameError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"
+                                       Style="{StaticResource CaptionTextBlockStyle}" Margin="0,4,0,0" />
+                        </StackPanel>
+
+                        <StackPanel>
+                            <TextBox Header="Email Address" Text="{x:Bind ViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                     PlaceholderText="name@company.com"
+                                     IsReadOnly="{x:Bind ViewModel.IsReadOnly, Mode=OneWay}"/>
+                            <TextBlock Text="{x:Bind ViewModel.EmailError, Mode=OneWay}" Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                       Visibility="{x:Bind ViewModel.EmailError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"
+                                       Style="{StaticResource CaptionTextBlockStyle}" Margin="0,4,0,0" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Style="{StaticResource CardStackStyle}">
+                        <TextBlock Text="Contact Numbers" Style="{StaticResource BodyStrongTextBlockStyle}" />
+
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
                             <StackPanel>
                                 <TextBox Header="Primary Phone" Text="{x:Bind ViewModel.PrimaryPhone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                         IsReadOnly="{x:Bind ViewModel.IsReadOnly, Mode=OneWay}"
-                                         IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"/>
-                                <TextBlock Foreground="{ThemeResource SystemFillColorCriticalBrush}" 
-                                           Text="{x:Bind ViewModel.PrimaryPhoneError, Mode=OneWay}"
+                                         FontFamily="Consolas" IsReadOnly="{x:Bind ViewModel.IsReadOnly, Mode=OneWay}"/>
+                                <TextBlock Text="{x:Bind ViewModel.PrimaryPhoneError, Mode=OneWay}" Foreground="{ThemeResource SystemFillColorCriticalBrush}"
                                            Visibility="{x:Bind ViewModel.PrimaryPhoneError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"
                                            Style="{StaticResource CaptionTextBlockStyle}" Margin="0,4,0,0" />
                             </StackPanel>
 
-                            <!-- Secondary Phone -->
-                            <StackPanel>
-                                <TextBox Header="Secondary Phone (Optional)" Text="{x:Bind ViewModel.SecondaryPhone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                         IsReadOnly="{x:Bind ViewModel.IsReadOnly, Mode=OneWay}"
-                                         IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <!-- Right Column: Address and Notes -->
-                        <StackPanel Grid.Column="1" Spacing="16">
-                            <TextBlock Text="Address" Style="{StaticResource BodyStrongTextBlockStyle}" />
-                            
-                            <TextBox Header="Street" Text="{x:Bind ViewModel.Street, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                     IsReadOnly="{x:Bind ViewModel.IsReadOnly, Mode=OneWay}"
-                                     IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"/>
-                                     
-                            <Grid ColumnSpacing="16">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="2*" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <TextBox Grid.Column="0" Header="City" Text="{x:Bind ViewModel.City, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                         IsReadOnly="{x:Bind ViewModel.IsReadOnly, Mode=OneWay}"
-                                         IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"/>
-                                <TextBox Grid.Column="1" Header="State" Text="{x:Bind ViewModel.State, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                         IsReadOnly="{x:Bind ViewModel.IsReadOnly, Mode=OneWay}"
-                                         IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"/>
-                            </Grid>
-
-                            <Grid ColumnSpacing="16">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <TextBox Grid.Column="0" Header="Postal Code" Text="{x:Bind ViewModel.PostalCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                         IsReadOnly="{x:Bind ViewModel.IsReadOnly, Mode=OneWay}"
-                                         IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"/>
-                                <TextBox Grid.Column="1" Header="Country" Text="{x:Bind ViewModel.Country, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                         IsReadOnly="{x:Bind ViewModel.IsReadOnly, Mode=OneWay}"
-                                         IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"/>
-                            </Grid>
-                            
-                            <TextBlock Text="Notes" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0" />
-                            <TextBox Text="{x:Bind ViewModel.Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                     AcceptsReturn="True" TextWrapping="Wrap" MinHeight="60" 
-                                     IsReadOnly="{x:Bind ViewModel.IsReadOnly, Mode=OneWay}"
-                                     IsEnabled="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <!-- Buttons Area -->
-                    <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right" Margin="0,32,0,0">
-                        <Button Content="Cancel" Command="{x:Bind ViewModel.CancelCommand}" Style="{StaticResource SubtleButtonStyle}" />
-                        <Button Content="Save" Command="{x:Bind ViewModel.SaveCommand}" Style="{StaticResource AccentButtonStyle}" 
-                                Visibility="{x:Bind ViewModel.IsNotReadOnly, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                            <TextBox Grid.Column="1" Header="Secondary (Opt)" Text="{x:Bind ViewModel.SecondaryPhone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                     FontFamily="Consolas" IsReadOnly="{x:Bind ViewModel.IsReadOnly, Mode=OneWay}"/>
+                        </Grid>
                     </StackPanel>
-                </Grid>
-            </Border>
+
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Spacing="16">
+
+                    <StackPanel Style="{StaticResource CardStackStyle}">
+                        <TextBlock Text="Location / Shipping Address" Style="{StaticResource BodyStrongTextBlockStyle}" />
+
+                        <TextBox Header="Street Address" Text="{x:Bind ViewModel.Street, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                 IsReadOnly="{x:Bind ViewModel.IsReadOnly, Mode=OneWay}"/>
+
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="1.5*" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox Header="City" Text="{x:Bind ViewModel.City, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                     IsReadOnly="{x:Bind ViewModel.IsReadOnly, Mode=OneWay}"/>
+
+                            <TextBox Grid.Column="1" Header="State / Province" Text="{x:Bind ViewModel.State, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                     IsReadOnly="{x:Bind ViewModel.IsReadOnly, Mode=OneWay}"/>
+                        </Grid>
+
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="2*" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox Header="Zip / Postal" Text="{x:Bind ViewModel.PostalCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                     FontFamily="Consolas" IsReadOnly="{x:Bind ViewModel.IsReadOnly, Mode=OneWay}"/>
+
+                            <TextBox Grid.Column="1" Header="Country" Text="{x:Bind ViewModel.Country, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                     IsReadOnly="{x:Bind ViewModel.IsReadOnly, Mode=OneWay}"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <StackPanel Style="{StaticResource CardStackStyle}">
+                        <TextBlock Text="Internal Notes" Style="{StaticResource BodyStrongTextBlockStyle}" />
+
+                        <TextBox Text="{x:Bind ViewModel.Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                 PlaceholderText="Add details about this customer..."
+                                 AcceptsReturn="True" TextWrapping="Wrap" MinHeight="100" 
+                                 IsReadOnly="{x:Bind ViewModel.IsReadOnly, Mode=OneWay}"/>
+                    </StackPanel>
+                </StackPanel>
+
+            </Grid>
+            
+        </ScrollViewer>
+
+        <Grid Grid.RowSpan="2" Background="{ThemeResource SolidBackgroundFillColorBaseBrush}" Opacity="0.7" 
+              Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+            <ProgressRing IsActive="True" Width="64" Height="64" />
         </Grid>
-    </ScrollViewer>
+
+    </Grid>
 </Page>

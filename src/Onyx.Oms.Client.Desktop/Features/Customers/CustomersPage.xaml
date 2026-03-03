@@ -14,159 +14,211 @@
         <converters:BoolToVisibilityConverter x:Key="InvertedBoolToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible" />
     </Page.Resources>
 
-    <Grid Padding="24">
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <TextBlock Grid.Row="0" Text="Customers" Style="{StaticResource TitleTextBlockStyle}" Margin="0,0,0,24" />
+        <Grid Grid.Row="0" Padding="16,12" 
+              Background="{ThemeResource LayerFillColorDefaultBrush}" 
+              BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" BorderThickness="0,0,0,1"
+              ColumnSpacing="8">
 
-        <!-- Toolbar -->
-        <Grid Grid.Row="1" Margin="0,0,0,16">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Search Box -->
-            <AutoSuggestBox PlaceholderText="Search customers..."
+            <TextBlock Grid.Column="0" 
+                       Text="Customers" 
+                       Style="{StaticResource SubtitleTextBlockStyle}" 
+                       VerticalAlignment="Center" FontWeight="SemiBold" Margin="0,0,16,0"/>
+
+            <AutoSuggestBox Grid.Column="1" 
+                            PlaceholderText="Search by name, email or phone..."
                             QueryIcon="Find"
-                            Width="300"
-                            HorizontalAlignment="Left"
+                            Width="320"
+                            VerticalAlignment="Center"
                             Text="{x:Bind ViewModel.SearchTerm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             QuerySubmitted="OnQuerySubmitted" />
 
-            <!-- Actions -->
-            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-                <Button Click="OnRefreshClick">
-                    <Button.Content>
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <SymbolIcon Symbol="Refresh" />
-                            <TextBlock Text="Refresh" />
-                        </StackPanel>
-                    </Button.Content>
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+                <Button Command="{x:Bind ViewModel.RefreshCommand}" Style="{StaticResource SubtleButtonStyle}" ToolTipService.ToolTip="Refresh Data">
+                    <FontIcon Glyph="&#xE72C;" FontSize="16"/>
                 </Button>
-                <Button x:Name="NewCustomerButton" Style="{StaticResource AccentButtonStyle}" Command="{x:Bind ViewModel.NewCustomerCommand}">
-                    <Button.Content>
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <SymbolIcon Symbol="Add" />
-                            <TextBlock Text="New" />
-                        </StackPanel>
-                    </Button.Content>
+
+                <AppBarSeparator />
+
+                <Button x:Name="NewCustomerButton" Command="{x:Bind ViewModel.NewCustomerCommand}" Style="{StaticResource AccentButtonStyle}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE710;" FontSize="14" />
+                        <TextBlock Text="New Customer" />
+                    </StackPanel>
                 </Button>
             </StackPanel>
+
         </Grid>
 
-        <!-- DataGrid -->
-        <toolkit:DataGrid x:Name="CustomersDataGrid"
-                          Grid.Row="2"
-                          ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}"
-                          AutoGenerateColumns="False"
-                          IsReadOnly="True"
-                          SelectionMode="Single"
-                          GridLinesVisibility="Horizontal"
-                          HeadersVisibility="Column"
-                          CanUserSortColumns="True"
-                          Sorting="OnDataGridSorting"
-                          VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Auto">
-            <toolkit:DataGrid.Columns>
-                <toolkit:DataGridTextColumn Header="Name" Binding="{Binding Name}" Tag="name" Width="*" MinWidth="150" HeaderStyle="{StaticResource LeftAlignedHeaderStyle}" ElementStyle="{StaticResource LeftAlignedCellStyle}" />
-                <toolkit:DataGridTextColumn Header="Email" Binding="{Binding Email}" Tag="email" Width="*" MinWidth="150" HeaderStyle="{StaticResource LeftAlignedHeaderStyle}" ElementStyle="{StaticResource LeftAlignedCellStyle}" />
-                <toolkit:DataGridTextColumn Header="Phone" Binding="{Binding PrimaryPhone}" Tag="primaryPhone" Width="150" MinWidth="120" HeaderStyle="{StaticResource RightAlignedHeaderStyle}" ElementStyle="{StaticResource RightAlignedCellStyle}" />
-                <toolkit:DataGridTextColumn Header="Location" Binding="{Binding Address}" Width="180" MinWidth="120" HeaderStyle="{StaticResource LeftAlignedHeaderStyle}" ElementStyle="{StaticResource LeftAlignedCellStyle}" />
-                
-                <toolkit:DataGridTemplateColumn Header="Status" Tag="isActive" Width="100" MinWidth="100" HeaderStyle="{StaticResource CenteredHeaderStyle}">
-                    <toolkit:DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Border Style="{StaticResource StatusBadgeStyle}" 
-                                    Background="{Binding IsActive, Converter={StaticResource StatusBackgroundConverter}}">
-                                <TextBlock Text="{Binding IsActive, Converter={StaticResource StatusTextConverter}}"
-                                           Style="{StaticResource StatusBadgeTextStyle}"
-                                           Foreground="{Binding IsActive, Converter={StaticResource StatusForegroundConverter}}" />
-                            </Border>
-                        </DataTemplate>
-                    </toolkit:DataGridTemplateColumn.CellTemplate>
-                </toolkit:DataGridTemplateColumn>
+        <Grid Grid.Row="1" Background="{ThemeResource LayerFillColorAltBrush}">
 
-                <toolkit:DataGridTemplateColumn Header="Actions" Width="200" MinWidth="200" HeaderStyle="{StaticResource CenteredHeaderStyle}">
-                    <toolkit:DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate x:DataType="local:CustomerDto">
-                            <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Center">
-                                <Button Content="&#xE73E;" FontFamily="Segoe MDL2 Assets" ToolTipService.ToolTip="Activate" Style="{StaticResource SubtleButtonStyle}" Click="OnActivateClick"
-                                        IsEnabled="{x:Bind CanActivate, Mode=OneTime}"
-                                        Visibility="{x:Bind IsActive, Mode=OneTime, Converter={StaticResource InvertedBoolToVisibilityConverter}}" />
-                                <Button Content="&#xE711;" FontFamily="Segoe MDL2 Assets" ToolTipService.ToolTip="Deactivate" Style="{StaticResource SubtleButtonStyle}" Click="OnDeactivateClick"
-                                        IsEnabled="{x:Bind CanDeactivate, Mode=OneTime}"
-                                        Visibility="{x:Bind IsActive, Mode=OneTime, Converter={StaticResource BoolToVisibilityConverter}}" />
-                                <AppBarSeparator />
-                                <Button Content="&#xE890;" FontFamily="Segoe MDL2 Assets" ToolTipService.ToolTip="View Details" Style="{StaticResource SubtleButtonStyle}" Click="OnViewClick" />
-                                <AppBarSeparator />
-                                <Button Content="&#xE70F;" FontFamily="Segoe MDL2 Assets" ToolTipService.ToolTip="Edit" Style="{StaticResource SubtleButtonStyle}" Click="OnEditClick"
-                                        IsEnabled="{x:Bind CanEdit, Mode=OneTime}" />
-                                <AppBarSeparator />
-                                <Button Content="&#xE74D;" FontFamily="Segoe MDL2 Assets" ToolTipService.ToolTip="Delete" Style="{StaticResource SubtleButtonStyle}" Foreground="Red" Click="OnDeleteClick"
-                                        IsEnabled="{x:Bind CanDelete, Mode=OneTime}" />
-                            </StackPanel>
-                        </DataTemplate>
-                    </toolkit:DataGridTemplateColumn.CellTemplate>
-                </toolkit:DataGridTemplateColumn>
-            </toolkit:DataGrid.Columns>
-        </toolkit:DataGrid>
+            <toolkit:DataGrid x:Name="CustomersDataGrid"
+                              ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              SelectionMode="Single"
+                              GridLinesVisibility="Horizontal"
+                              HeadersVisibility="Column"
+                              CanUserSortColumns="True"
+                              Sorting="OnDataGridSorting"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Auto"
+                              BorderThickness="0"
+                              RowBackground="Transparent"
+                              AlternatingRowBackground="{ThemeResource LayerFillColorDefaultBrush}">
 
-        <!-- No Data Message -->
-        <StackPanel Grid.Row="2"
-                    VerticalAlignment="Center" 
-                    HorizontalAlignment="Center"
-                    Spacing="16"
-                    Visibility="{x:Bind ViewModel.HasNoData, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-            <SymbolIcon Symbol="ContactInfo" RenderTransformOrigin="0.5,0.5">
-                <SymbolIcon.RenderTransform>
-                    <ScaleTransform ScaleX="2" ScaleY="2" />
-                </SymbolIcon.RenderTransform>
-            </SymbolIcon>
-            <TextBlock HorizontalAlignment="Center" Text="No customers found." Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-            <TextBlock HorizontalAlignment="Center" Text="Try adjusting your search or add a new customer." Style="{StaticResource BodyTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-        </StackPanel>
+                <toolkit:DataGrid.Columns>
 
-        <!-- Loading Indicator -->
-        <ProgressRing Grid.Row="2" 
-                      IsActive="{x:Bind ViewModel.IsListLoading, Mode=OneWay}" 
-                      Width="50" Height="50" 
-                      HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <toolkit:DataGridTextColumn Header="Name" 
+                                                Binding="{Binding Name}" 
+                                                Width="*" MinWidth="180"
+                                                HeaderStyle="{StaticResource LeftAlignedHeaderStyle}"
+                                                ElementStyle="{StaticResource LeftAlignedCellStyle}"
+                                                FontWeight="SemiBold" />
 
-        <!-- Pagination -->
-        <Grid Grid.Row="3" Margin="0,16,0,0">
+                    <toolkit:DataGridTextColumn Header="Email" 
+                                                Binding="{Binding Email}" 
+                                                Width="220"
+                                                HeaderStyle="{StaticResource LeftAlignedHeaderStyle}"
+                                                ElementStyle="{StaticResource LeftAlignedCellStyle}" />
+
+                    <toolkit:DataGridTextColumn Header="Phone" 
+                                                Binding="{Binding PrimaryPhone}" 
+                                                Width="160"
+                                                FontFamily="Consolas"
+                                                HeaderStyle="{StaticResource RightAlignedHeaderStyle}"
+                                                ElementStyle="{StaticResource RightAlignedCellStyle}" />
+
+                    <toolkit:DataGridTextColumn Header="Location" 
+                                                Binding="{Binding Address}" 
+                                                Width="200"
+                                                HeaderStyle="{StaticResource LeftAlignedHeaderStyle}"
+                                                ElementStyle="{StaticResource LeftAlignedCellStyle}" />
+
+                    <toolkit:DataGridTemplateColumn Header="Status" 
+                                                    Width="120" 
+                                                    HeaderStyle="{StaticResource CenteredHeaderStyle}">
+                        <toolkit:DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource StatusBadgeStyle}" 
+                                        HorizontalAlignment="Center"
+                                        Background="{Binding IsActive, Converter={StaticResource StatusBackgroundConverter}}">
+                                    <TextBlock Text="{Binding IsActive, Converter={StaticResource StatusTextConverter}}"
+                                               Style="{StaticResource StatusBadgeTextStyle}"
+                                               Foreground="{Binding IsActive, Converter={StaticResource StatusForegroundConverter}}" />
+                                </Border>
+                            </DataTemplate>
+                        </toolkit:DataGridTemplateColumn.CellTemplate>
+                    </toolkit:DataGridTemplateColumn>
+
+                    <toolkit:DataGridTemplateColumn 
+                                                    Width="80"
+                                                    HeaderStyle="{StaticResource CenteredHeaderStyle}">
+                        <toolkit:DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="local:CustomerDto">
+                                <Button Content="&#xE712;" FontFamily="Segoe MDL2 Assets" 
+                                        Style="{StaticResource SubtleButtonStyle}" 
+                                        HorizontalAlignment="Center"
+                                        ToolTipService.ToolTip="Actions">
+
+                                    <Button.Flyout>
+                                        <MenuFlyout>
+                                            <MenuFlyoutItem Text="View Details" Icon="ContactInfo" Click="OnViewClick" />
+
+                                            <MenuFlyoutSeparator />
+
+                                            <MenuFlyoutItem Text="Edit" Icon="Edit" Click="OnEditClick" 
+                                                            IsEnabled="{x:Bind CanEdit}" />
+
+                                            <MenuFlyoutItem Text="Activate" Icon="Play" Click="OnActivateClick" 
+                                                            Visibility="{x:Bind IsActive, Converter={StaticResource InvertedBoolToVisibilityConverter}}"
+                                                            IsEnabled="{x:Bind CanEdit}" />
+
+                                            <MenuFlyoutItem Text="Deactivate" Icon="Pause" Click="OnDeactivateClick" 
+                                                            Visibility="{x:Bind IsActive, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                            IsEnabled="{x:Bind CanEdit}" />
+
+                                            <MenuFlyoutSeparator />
+
+                                            <MenuFlyoutItem Text="Delete" Icon="Delete" Foreground="Red" Click="OnDeleteClick" 
+                                                            IsEnabled="{x:Bind CanDelete}" />
+                                        </MenuFlyout>
+                                    </Button.Flyout>
+                                </Button>
+                            </DataTemplate>
+                        </toolkit:DataGridTemplateColumn.CellTemplate>
+                    </toolkit:DataGridTemplateColumn>
+
+                </toolkit:DataGrid.Columns>
+            </toolkit:DataGrid>
+
+            <Grid Background="{ThemeResource LayerFillColorAltBrush}" Opacity="0.8" 
+                  Visibility="{x:Bind ViewModel.IsListLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ProgressRing IsActive="True" Width="48" Height="48" />
+            </Grid>
+
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="16"
+                        Visibility="{x:Bind ViewModel.HasNoData, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <FontIcon Glyph="&#xE721;" FontSize="48" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                <TextBlock Text="No customers found matching your search." 
+                           Style="{StaticResource SubtitleTextBlockStyle}" 
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           HorizontalAlignment="Center"/>
+                <Button Content="Clear Search" 
+                        Command="{x:Bind ViewModel.RefreshCommand}" 
+                        Style="{StaticResource DefaultButtonStyle}" 
+                        HorizontalAlignment="Center"/>
+            </StackPanel>
+
+        </Grid>
+
+        <Grid Grid.Row="2" 
+              Background="{ThemeResource LayerFillColorDefaultBrush}" 
+              BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" BorderThickness="0,1,0,0" 
+              Padding="16,8">
+
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <!-- Rows Per Page (Left) -->
-            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                <TextBlock Text="Rows per page:" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" />
+            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                <TextBlock Text="Rows per page:" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                 <ComboBox ItemsSource="{x:Bind ViewModel.PageSizes}" 
                           SelectedItem="{x:Bind ViewModel.PageSize, Mode=TwoWay}"
-                          Width="80" />
+                          Style="{StaticResource DefaultComboBoxStyle}"
+                          MinWidth="80" VerticalAlignment="Center"/>
             </StackPanel>
 
-            <!-- Page Summary (Center) -->
-            <TextBlock Grid.Column="1" 
-                       Text="{x:Bind ViewModel.PageSummary, Mode=OneWay}" 
-                       VerticalAlignment="Center" 
-                       HorizontalAlignment="Center" 
-                       Style="{StaticResource CaptionTextBlockStyle}" />
+            <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.PageSummary, Mode=OneWay}" 
+                       Style="{StaticResource CaptionTextBlockStyle}" 
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
-            <!-- Navigation Buttons (Right) -->
-            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="16">
-                <Button Content="Previous" Command="{x:Bind ViewModel.PreviousPageCommand}" IsEnabled="{x:Bind ViewModel.HasPreviousPage, Mode=OneWay}" />
-                <Button Content="Next" Command="{x:Bind ViewModel.NextPageCommand}" IsEnabled="{x:Bind ViewModel.HasNextPage, Mode=OneWay}" />
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
+                <Button Style="{StaticResource SubtleButtonStyle}" Command="{x:Bind ViewModel.PreviousPageCommand}" IsEnabled="{x:Bind ViewModel.HasPreviousPage, Mode=OneWay}" ToolTipService.ToolTip="Previous Page">
+                    <FontIcon Glyph="&#xE76B;" FontSize="12" />
+                </Button>
+                <Button Style="{StaticResource SubtleButtonStyle}" Command="{x:Bind ViewModel.NextPageCommand}" IsEnabled="{x:Bind ViewModel.HasNextPage, Mode=OneWay}" ToolTipService.ToolTip="Next Page">
+                    <FontIcon Glyph="&#xE76C;" FontSize="12" />
+                </Button>
             </StackPanel>
+
         </Grid>
+        
     </Grid>
 </Page>

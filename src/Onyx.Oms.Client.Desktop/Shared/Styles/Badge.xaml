@@ -5,11 +5,11 @@
 
     <converters:BoolToObjectConverter x:Key="StatusBackgroundConverter" 
                                       TrueValue="{ThemeResource SystemFillColorSuccessBackgroundBrush}" 
-                                      FalseValue="{ThemeResource SystemFillColorNeutralBackgroundBrush}" />
+                                      FalseValue="{ThemeResource SystemFillColorCriticalBackgroundBrush}" />
 
     <converters:BoolToObjectConverter x:Key="StatusForegroundConverter" 
                                       TrueValue="{ThemeResource SystemFillColorSuccessBrush}" 
-                                      FalseValue="{ThemeResource TextFillColorSecondaryBrush}" />
+                                      FalseValue="{ThemeResource SystemFillColorCriticalBrush}" />
 
     <converters:BoolToObjectConverter x:Key="StatusTextConverter" 
                                       TrueValue="Active" 
@@ -18,7 +18,7 @@
     <Style x:Key="StatusBadgeStyle" TargetType="Border">
         <Setter Property="CornerRadius" Value="4" />
         <Setter Property="Padding" Value="6,2" />
-        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="MinWidth" Value="60" />
     </Style>
