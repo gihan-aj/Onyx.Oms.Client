@@ -21,26 +21,49 @@ The request body should be a JSON object matching the `CreateProductCommand`.
   "baseSku": "string (Max 100) - Optional, will be auto-generated if omitted",
   "description": "string (Optional)",
   "categoryId": "00000000-0000-0000-0000-000000000000 (Required)",
-  "brand": "string (Optional)",
-  "material": "string (Optional)",
-  "gender": "integer/string (Enum: Unknown=0, Male=1, Female=2, Unisex=3)",
-  "baseCostAmount": "decimal (>= 0)",
-  "baseCostCurrency": "string (Max 3, e.g., 'LKR') - Required & must match Tenant Profile",
-  "basePriceAmount": "decimal (>= 0)",
-  "basePriceCurrency": "string (Max 3, e.g., 'LKR') - Required & must match Tenant Profile",
-  "baseWeightValue": "decimal (>= 0)",
-  "baseWeightUnit": "string (Max 10, e.g., 'kg') - Required & must match Tenant Profile",
-  "hasColor": "boolean",
-  "hasSize": "boolean",
-  "tags": [ "string" ],
+  "baseCost": {
+    "amount": "decimal (>= 0)",
+    "currency": "string (Max 3, e.g., 'LKR') - Default 'LKR'"
+  },
+  "basePrice": {
+    "amount": "decimal (>= 0)",
+    "currency": "string (Max 3, e.g., 'LKR') - Default 'LKR'"
+  },
+  "baseWeight": {
+    "value": "decimal (>= 0)",
+    "unit": "string (Max 10, e.g., 'kg') - Default 'kg'"
+  },
+  "baseStockOnHand": "integer (>= 0) - Optional, used only if the product has NO variants",
+  "options": [
+    {
+      "name": "string (e.g., 'Color') - Required",
+      "values": [ "string (e.g., 'Red', 'Blue')" ]
+    }
+  ],
+  "specifications": {
+    "string (key)": "string (value)"
+  },
   "variants": [
     {
       "sku": "string (Max 100) - Optional, will be auto-generated if omitted",
-      "color": "string (Max 50) - Required if product HasColor is true",
-      "size": "string (Max 50) - Required if product HasSize is true",
-      "costAmount": "decimal (>= 0) - Optional fallback to BaseCostAmount",
-      "priceAmount": "decimal (>= 0) - Optional fallback to BasePriceAmount",
-      "weightValue": "decimal (>= 0) - Optional fallback to BaseWeightValue",
+      "attributes": [
+        {
+          "name": "string (e.g., 'Color')",
+          "value": "string (e.g., 'Red')"
+        }
+      ],
+      "cost": {
+        "amount": "decimal (>= 0)",
+        "currency": "string (Max 3, e.g., 'LKR')"
+      },
+      "price": {
+        "amount": "decimal (>= 0)",
+        "currency": "string (Max 3, e.g., 'LKR')"
+      },
+      "weight": {
+        "value": "decimal (>= 0)",
+        "unit": "string (Max 10, e.g., 'kg')"
+      },
       "stockOnHand": "integer (>= 0)"
     }
   ],
@@ -49,9 +72,11 @@ The request body should be a JSON object matching the `CreateProductCommand`.
       "url": "string (Max 2048) - Required",
       "displayOrder": "integer",
       "isMain": "boolean",
-      "color": "string (Max 50) - Optional. Must match a variant color if provided."
+      "optionName": "string (Max 50) - Optional (e.g., 'Color')",
+      "optionValue": "string (Max 50) - Optional (e.g., 'Red')"
     }
-  ]
+  ],
+  "tags": [ "string" ]
 }
 ```
 
@@ -67,12 +92,10 @@ The request body should be a JSON object matching the `CreateProductCommand`.
 *   **Category Validation:** `categoryId` must exist in the database.
 *   **Variant SKU Generation:** If a variant's `Sku` is omitted, the domain `SkuGenerator` service will auto-generate it using the Base SKU + Color Code + Size Code (e.g. `PROD-0004-RED-XL`).
 *   **Variant SKU Uniqueness:** All sent Variant SKUs (provided or generated) must be unique within the request payload and globally against the database.
-*   **Attribute Flags:** 
-    *   If `hasColor` is true, all variant DTOs must provide a non-empty `Color`.
-    *   If `hasSize` is true, all variant DTOs must provide a non-empty `Size`.
-*   **Image Color Tagging:** If an Image provides a `Color`:
-    *   The Product's `hasColor` must be true.
-    *   The specified color must exactly match one of the `Color`s provided in the `variants` array.
+*   **Dynamic Matrix Match:** Any provided variant must have exactly the same number of attributes as the product's options, and its attribute values must exist in the product options allowed values list.
+*   **Image Tagging:** If an Image provides an `optionName` and `optionValue`:
+    *   The Product must have that option name defined in its `options`.
+    *   The `optionValue` must exactly match one of the allowed values for that option.
 
 ### 1.3 Responses
 *   `200 OK`: Returns the raw `Guid` of the newly created `Product`.
@@ -99,13 +122,12 @@ This endpoint accepts form query parameters bound to `GetProductsPagedQuery`.
 | :--- | :--- | :--- | :--- |
 | `Page` | Integer | `1` | The page number to retrieve. |
 | `PageSize` | Integer | `10` | The number of items per page. |
-| `SearchTerm` | String | null | Case-insensitive search on Product `Name`, `BaseSku`, and `Brand`. |
-| `SortColumn` | String | null | Column to sort by (`Name`, `BaseSku`, `Category`, `Brand`, `IsActive`, `CreatedDate`). |
+| `SearchTerm` | String | null | Case-insensitive search on Product `Name`, `BaseSku`, `Description` and `Tags`. |
+| `SortColumn` | String | null | Column to sort by (`Name`, `BaseSku`, `CategoryName`, `BasePrice`, `IsActive`, `CreatedDate`). |
 | `SortOrder` | String | null | Sort direction (`asc` or `desc`). Default is descending. |
 | `IsActive` | Boolean | null | Filter by active/inactive products. |
 | `CategoryId` | Guid | null | Filter by a specific Category ID. |
-| `HasColor` | Boolean | null | Filter products that have color variants enabled. |
-| `HasSize` | Boolean | null | Filter products that have size variants enabled. |
+| `HasVariants` | Boolean | null | Filter products that have variants enabled. |
 
 ### 2.2 Response Body
 
@@ -118,17 +140,15 @@ Returns a `PagedResult<ProductDto>`.
       "id": "e7bfa51a-d0ba-4ffb-8217-08dcd37c95a0",
       "name": "Classic T-Shirt",
       "baseSku": "PROD-0004",
+      "categoryId": "20b2fbe8-3c35-46ee-bc00-dc21d51a6575",
       "categoryName": "T-Shirts",
-      "brand": "Onyx Basic",
-      "isActive": true,
-      "hasColor": true,
-      "hasSize": true,
       "basePriceAmount": 2500.00,
       "basePriceCurrency": "LKR",
-      "baseCostAmount": 1200.00,
-      "baseCostCurrency": "LKR",
-      "totalStock": 150, 
-      "createdOnUtc": "2026-02-28T08:00:00.0000000+00:00"
+      "mainImageUrl": "https://example.com/image.jpg",
+      "hasVariants": true,
+      "isActive": true,
+      "createdOnUtc": "2026-02-28T08:00:00.0000000+00:00",
+      "lastModifiedOnUtc": null
     }
   ],
   "page": 1,
@@ -139,4 +159,4 @@ Returns a `PagedResult<ProductDto>`.
 }
 ```
 
-*Note: `totalStock` is a dynamically summed aggregation of `StockOnHand` from all associated `ProductVariant` entities for that specific base product.*
+}

@@ -1,11 +1,11 @@
-# Onyx.Oms UI Design System & Style Guide
+# Onyx.Oms UI Design System & Style Guide v2.0
 
 ## 1. Design Philosophy
 **"Industrial Professional"**
 * **Density:** Maximize screen real estate. Avoid massive padding in "Explorer" views.
 * **Context:** Distinct separation between navigation (Master) and content (Detail).
 * **Immutability:** Default views should be Read-Only Dashboards. "Edit" is a deliberate state.
-* **Safety:** Sticky Headers ensure actions are always visible.
+* **Safety:** Sticky Headers ensure actions are always visible. Text in read-only views must be selectable.
 
 ---
 
@@ -37,7 +37,7 @@ Add these to `Styles/CardStyles.xaml` and merge into `App.xaml` to ensure consis
 
 ### 3.1 Layout A: Entity Edit Form (Product, Customer, Order)
 Used when focusing on a single entity for creation or modification.
-* **Structure:** Sticky Header + Split View (Metadata Left, Complex Data Right).
+* **Structure:** Sticky Header + Split View (Identity Left, Logistics Right).
 
 ```xml
 <Grid Background="{ThemeResource LayerFillColorDefaultBrush}">
@@ -47,15 +47,15 @@ Used when focusing on a single entity for creation or modification.
     <Grid Grid.Row="0">...</Grid>
 
     <ScrollViewer Grid.Row="1" Padding="24">
-        <Grid ColumnSpacing="24">
+        <Grid ColumnSpacing="24" MaxWidth="1200" HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*" MinWidth="300" MaxWidth="500" /> 
-                <ColumnDefinition Width="2*" /> 
+                <ColumnDefinition Width="1*" MinWidth="350" /> 
+                <ColumnDefinition Width="1.2*" MinWidth="350" /> 
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0" Spacing="16">...</StackPanel>
 
-            <Grid Grid.Column="1">...</Grid>
+            <StackPanel Grid.Column="1" Spacing="16">...</StackPanel>
         </Grid>
     </ScrollViewer>
 </Grid>
@@ -63,7 +63,6 @@ Used when focusing on a single entity for creation or modification.
 
 ### 3.2 Layout B: Master-Detail Explorer (Categories, Inventory)
 Used for browsing lists or trees and viewing details without leaving the context.
-* **Structure:** Full Bleed (No Padding) + Master Pane (Left) + Detail Dashboard (Right).
 
 ```xml
 <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -72,8 +71,6 @@ Used for browsing lists or trees and viewing details without leaving the context
 
     <Grid Grid.Column="0" Background="{ThemeResource LayerFillColorDefaultBrush}" 
           BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" BorderThickness="0,0,1,0">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" /> <RowDefinition Height="*" />    </Grid.RowDefinitions>
         </Grid>
 
     <Grid Grid.Column="1" Background="{ThemeResource LayerFillColorAltBrush}">
@@ -83,7 +80,6 @@ Used for browsing lists or trees and viewing details without leaving the context
 
 ### 3.3 Layout C: DataGrid Explorer (Customers, Orders List)
 Used for high-density tabular data management.
-* **Structure:** Full Bleed (No Padding) + Top Toolbar + DataGrid + Bottom Status Bar.
 
 ```xml
 <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -92,10 +88,6 @@ Used for high-density tabular data management.
 
     <Grid Grid.Row="0" Padding="16,12" Background="{ThemeResource LayerFillColorDefaultBrush}" 
           BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="Auto" />
-        </Grid.ColumnDefinitions>
         </Grid>
 
     <Grid Grid.Row="1" Background="{ThemeResource LayerFillColorAltBrush}">
@@ -105,11 +97,29 @@ Used for high-density tabular data management.
                           AlternatingRowBackground="{ThemeResource LayerFillColorDefaultBrush}">
              </toolkit:DataGrid>
     </Grid>
-
-    <Grid Grid.Row="2" Background="{ThemeResource LayerFillColorDefaultBrush}" 
-          BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" BorderThickness="0,1,0,0" Padding="16,8">
-        </Grid>
 </Grid>
+```
+
+### 3.4 Layout D: Read-Only Detail Dialog
+Used for quick viewing of records.
+* **Typography:** Labels are small/gray. Values are standard/black.
+* **Interaction:** All text must be selectable (`IsTextSelectionEnabled="True"`).
+
+```xml
+<ContentDialog Style="{StaticResource DefaultContentDialogStyle}">
+    <ScrollViewer>
+        <StackPanel Spacing="20" MinWidth="450">
+            <Grid>
+                 <PersonPicture Height="64" />
+                 <StackPanel Grid.Column="1">
+                     <TextBlock Text="{x:Bind Name}" Style="{StaticResource SubtitleTextBlockStyle}" />
+                     <Border Style="{StaticResource StatusBadgeStyle}" ... />
+                 </StackPanel>
+            </Grid>
+            <Grid>...</Grid>
+        </StackPanel>
+    </ScrollViewer>
+</ContentDialog>
 ```
 
 ---
@@ -118,86 +128,48 @@ Used for high-density tabular data management.
 
 ### 4.1 The Sticky Header & Toolbar
 Contains the Page Title and Contextual Actions.
-* **Layout:** Title on Left, Action Toolbar on Right.
-* **Toolbar Pattern:** Use `AccentButtonStyle` for the primary action, `StandardButtonStyle` for secondary actions, and `SubtleButtonStyle` (Icon Only) for destructive actions like Delete.
 
 ```xml
 <Grid Grid.Row="0" Padding="24,16" BorderThickness="0,0,0,1" 
       BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" 
       Background="{ThemeResource SolidBackgroundFillColorBaseBrush}">
     
-    <StackPanel Spacing="4">
+    <StackPanel Orientation="Horizontal" Spacing="12">
         <TextBlock Text="{x:Bind ViewModel.Title}" Style="{StaticResource SubtitleTextBlockStyle}" FontWeight="SemiBold" />
-    </StackPanel>
+        </StackPanel>
 
     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-        <Button Style="{StaticResource AccentButtonStyle}" Command="{x:Bind ViewModel.EditCommand}">
-            <StackPanel Orientation="Horizontal" Spacing="8">
-                <FontIcon Glyph="&#xE70F;" FontSize="14" />
-                <TextBlock Text="Edit" />
-            </StackPanel>
-        </Button>
-
-        <AppBarSeparator />
-
-        <Button Style="{StaticResource SubtleButtonStyle}" Command="{x:Bind ViewModel.DeleteCommand}" ToolTipService.ToolTip="Delete">
-            <FontIcon Glyph="&#xE74D;" FontSize="16" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
-        </Button>
+        <Button Content="Save" Style="{StaticResource AccentButtonStyle}" />
     </StackPanel>
 </Grid>
 ```
 
-### 4.2 The "Inline Edit" List
-Used for Specifications, Variants, or Order Items inside a Form.
-* **Look:** Transparent inputs, bottom border only on rows.
-* **Font:** Monospace (`Consolas`) for technical keys/IDs.
+### 4.2 The "Label-Value" Pair (Read-Only)
+Used in Dialogs and Dashboards.
 
 ```xml
-<Grid BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" BorderThickness="0,0,0,1" Padding="12,8">
-    <Grid.ColumnDefinitions>...</Grid.ColumnDefinitions>
-
-    <TextBox Text="{x:Bind Value}" 
-             BorderThickness="0,0,0,1" 
-             CornerRadius="0" 
-             Background="Transparent" 
-             Padding="0,6" />
-</Grid>
-```
-
-### 4.3 Buttons with Icons
-Since `Button` doesn't have an Icon property, use this stack:
-
-```xml
-<Button Style="{StaticResource DefaultButtonStyle}" Command="...">
-    <StackPanel Orientation="Horizontal" Spacing="8">
-        <FontIcon Glyph="&#xE710;" FontSize="12" />
-        <TextBlock Text="Add New Item" />
-    </StackPanel>
-</Button>
-```
-
-### 4.4 The Correct Color Picker
-Attach a `Flyout` to a Button, not the Context Menu.
-
-```xml
-<StackPanel Orientation="Horizontal" Spacing="8">
-    <TextBox Header="Color" Text="{x:Bind ViewModel.Color, Mode=TwoWay}" Width="150" />
-    <Button VerticalAlignment="Bottom" Margin="0,0,0,4" Padding="8">
-        <FontIcon Glyph="&#xE790;" /> 
-        <Button.Flyout>
-            <Flyout Placement="Bottom">
-                <ColorPicker ColorSpectrumShape="Ring" 
-                             IsMoreButtonVisible="False" 
-                             IsColorSliderVisible="True"
-                             Color="{x:Bind ViewModel.ColorInstance, Mode=TwoWay}" />
-            </Flyout>
-        </Button.Flyout>
-    </Button>
+<StackPanel>
+    <TextBlock Text="Email Address" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+    <TextBlock Text="{x:Bind Email}" Style="{StaticResource BodyTextBlockStyle}" IsTextSelectionEnabled="True" />
 </StackPanel>
 ```
 
-### 4.5 The Status Badge
-Use the `StatusBadgeStyle` border with converters for standardized tagging.
+### 4.3 The "Address Grid" (Form Layout)
+Standard ratio for City/State/Zip inputs.
+
+```xml
+<Grid ColumnSpacing="12">
+    <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="2*" />   <ColumnDefinition Width="1.5*" /> </Grid.ColumnDefinitions>
+    </Grid>
+<Grid ColumnSpacing="12">
+    <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="1*" /> <ColumnDefinition Width="2*" /> </Grid.ColumnDefinitions>
+    </Grid>
+```
+
+### 4.4 The Status Badge
+Use the `StatusBadgeStyle` border with converters.
 
 ```xml
 <Border Style="{StaticResource StatusBadgeStyle}" 
@@ -208,6 +180,56 @@ Use the `StatusBadgeStyle` border with converters for standardized tagging.
 </Border>
 ```
 
+### 4.5 The "Meatballs" Action Menu (DataGrid)
+Clean up row actions into a single menu.
+
+```xml
+<Button Content="&#xE712;" FontFamily="Segoe MDL2 Assets" Style="{StaticResource SubtleButtonStyle}">
+    <Button.Flyout>
+        <MenuFlyout>
+            <MenuFlyoutItem Text="Edit" Icon="Edit" IsEnabled="{x:Bind CanEdit}" />
+            <MenuFlyoutItem Text="Delete" Icon="Delete" Foreground="Red" />
+        </MenuFlyout>
+    </Button.Flyout>
+</Button>
+```
+
+### 4.6 Extended Filter Toolbars
+When a DataGrid or Explorer requires multiple complex filters (e.g., category pickers, status dropdowns) that might crowd the main header, split the toolbar into two distinct rows within the same header container to prevent the UI from becoming squished.
+
+```xml
+<!-- Header & Filters container (Row 0 of Page Grid) -->
+<Grid Padding="16,12" Background="{ThemeResource LayerFillColorDefaultBrush}" 
+      BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" BorderThickness="0,0,0,1"
+      ColumnSpacing="8" RowSpacing="12">
+    
+    <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" /> <!-- Primary: Title, Search, Actions -->
+        <RowDefinition Height="Auto" /> <!-- Secondary: Extended Filters -->
+    </Grid.RowDefinitions>
+
+    <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+    </Grid.ColumnDefinitions>
+
+    <!-- Top Row -->
+    <TextBlock Grid.Row="0" Grid.Column="0" Text="Page Title" Style="{StaticResource SubtitleTextBlockStyle}" />
+    <AutoSuggestBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" Width="320" />
+    <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" Spacing="8">
+        <!-- Actions: Refresh, New, etc. -->
+    </StackPanel>
+
+    <!-- Bottom Row (Filters) -->
+    <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" Spacing="16">
+        <ComboBox PlaceholderText="Status" Width="120" />
+        <!-- Additional Filters Here -->
+        <Button Content="Clear Filters" Style="{StaticResource SubtleButtonStyle}" />
+    </StackPanel>
+</Grid>
+```
+
 ---
 
 ## 5. Typography & Brushes Cheat Sheet
@@ -215,9 +237,10 @@ Use the `StatusBadgeStyle` border with converters for standardized tagging.
 | Use Case | Style / Resource |
 | :--- | :--- |
 | **Page Title** | `SubtitleTextBlockStyle` (SemiBold) |
-| **Card Header** | `BodyStrongTextBlockStyle` |
-| **Label/Body** | `BodyTextBlockStyle` |
-| **Helper Text** | `CaptionTextBlockStyle` + `TextFillColorSecondaryBrush` |
+| **Section Header** | `BodyStrongTextBlockStyle` |
+| **Field Label (Form)** | Default TextBox Header |
+| **Field Label (Read)** | `CaptionTextBlockStyle` + `TextFillColorSecondaryBrush` |
+| **Field Value (Read)** | `BodyTextBlockStyle` + `IsTextSelectionEnabled="True"` |
 | **Technical ID** | `FontFamily="Consolas"` |
 | **Page BG** | `LayerFillColorDefaultBrush` (ApplicationPageBackgroundThemeBrush for Full Bleed) |
 | **Detail Pane BG**| `LayerFillColorAltBrush` |
@@ -229,7 +252,8 @@ Use the `StatusBadgeStyle` border with converters for standardized tagging.
 
 ## 6. Implementation Checklist
 1.  [ ] **Sticky Header:** Does the page title stay visible when scrolling?
-2.  [ ] **Split View:** Is the metadata on the left and the complex list on the right?
-3.  [ ] **Keyboard:** Can you Tab through the inline list rows easily?
-4.  [ ] **Loading:** Is the `ProgressRing` overlay covering the interaction area?
-5.  [ ] **Read-Only:** Does the Detail view default to a static dashboard before editing?
+2.  [ ] **Selection:** Can you copy text from read-only views (Dialogs/Grids)?
+3.  [ ] **Split View:** Is the form visually balanced (Identity vs Logistics)?
+4.  [ ] **Keyboard:** Can you Tab through the inline list rows easily?
+5.  [ ] **Loading:** Is the `ProgressRing` overlay covering the interaction area?
+6.  [ ] **Empty States:** Do lists show a helpful "No Data" message with a clear action (e.g., Clear Search)?

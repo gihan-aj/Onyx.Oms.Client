@@ -76,6 +76,36 @@ The hierarchical representation used when fetching the category tree.
 | `isActive` | `bool` | Indicates if the category is active. |
 | `subCategories` | `List<ProductCategoryTreeDto>`| Nested sub-categories. |
 
+### 2.3 ProductCategoryResponse (Detailed View)
+The detailed representation of a Product Category, including its specifications, used when fetching a specific category by ID.
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `id` | `Guid` | Unique identifier for the category. |
+| `name` | `string` | Name of the category. |
+| `description` | `string` | (Optional) Description of the category. |
+| `parentCategoryId` | `Guid` | (Optional) ID of the parent category. Null if root. |
+| `level` | `int` | Depth level (0 for root, 1 for sub, 2 for sub-sub). |
+| `path` | `string` | Hierarchical materialized ID path. |
+| `namePath` | `string` | Breadcrumb name path. |
+| `isActive` | `bool` | Indicates if the category is active. |
+| `displayOrder` | `int` | Integer for controlling sorting in the UI. |
+| `iconUrl` | `string` | (Optional) Link to an icon image. |
+| `color` | `string` | (Optional) Hex color code for UI styling. |
+| `specifications` | `List<SpecDefinition>` | Specifications defined directly on this category. |
+| `allSpecifications` | `List<SpecDefinition>` | All specifications applicable to this category (including inherited from parents). |
+
+### 2.4 SpecDefinition
+The definition of a dynamic specification field used to generate product UI forms.
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `key` | `string` | Internal unique ID for the field (e.g., `screen_size`). |
+| `label` | `string` | Display label (e.g., `Screen Size (inches)`). |
+| `type` | `SpecType` | Type of input (`Text`, `Number`, `Select`, `MultiSelect`, `Toggle`, `Date`). |
+| `isRequired` | `bool` | Whether the product must have a value for this field. |
+| `options` | `List<string>` | For `Select` or `MultiSelect` types, the available dropdown options. |
+
 ---
 
 ## 3. Endpoints
@@ -163,7 +193,20 @@ Retrieves the full hierarchy of product categories as a nested tree structure.
 **Response (200 OK):**
 Returns a list of `ProductCategoryTreeDto` (Root categories, which contain nested sub-categories).
 
-### 3.3 Create Category
+### 3.4 Get Category By Id
+Retrieves the details of a specific product category including its specifications.
+
+*   **URL**: `/api/v1/product-categories/{id}`
+*   **Method**: `GET`
+*   **Path Parameters**:
+    *   `id` (Guid): The ID of the product category.
+*   **Query Parameters**:
+    *   `includeParentSpecs` (boolean, optional): Set to `true` to include specifications from parent categories. Default is `false`.
+
+**Response (200 OK):**
+Returns a `ProductCategoryResponse` containing the category details.
+
+### 3.5 Create Category
 Creates a new product category. Supports hierarchy.
 
 *   **URL**: `/api/v1/product-categories`
@@ -178,16 +221,26 @@ Creates a new product category. Supports hierarchy.
 | `displayOrder` | `int` | Yes | Sorting order number. |
 | `iconUrl` | `string` | No | Link to an icon image. |
 | `color` | `string` | No | UI hex color code. |
+| `specifications` | `List<SpecDefinition>`| No | A list of specifications to define dynamic product attributes. Max 30. Keys must be unique.|
 
 **Example Request:**
 ```json
 {
-  "name": "Men's Clothing",
-  "description": "Apparel for men",
+  "name": "Smartphones",
+  "description": "Mobile phones",
   "parentCategoryId": null,
   "displayOrder": 0,
   "iconUrl": null,
-  "color": "#000000"
+  "color": "#000000",
+  "specifications": [
+    {
+      "key": "ram",
+      "label": "RAM",
+      "type": "Select",
+      "isRequired": true,
+      "options": ["8GB", "12GB", "16GB"]
+    }
+  ]
 }
 ```
 
@@ -197,7 +250,7 @@ Returns the GUID of the created category.
 "c9281a8b-12d4-4a5c-a1d2-b8f9e2c7a0d4"
 ```
 
-### 3.4 Update Category
+### 3.6 Update Category
 Updates a product category. Handles moving categories (and their entire subtrees) to a new parent, updating names and recursively recalculating paths.
 
 *   **URL**: `/api/v1/product-categories/{id}`
@@ -210,7 +263,7 @@ Updates a product category. Handles moving categories (and their entire subtrees
 **Response (204 No Content):**
 The update was successful.
 
-### 3.5 Delete Category
+### 3.7 Delete Category
 Deletes a product category if it has no children. To delete heavily nested categories, you either delete children first or modify the parent ID.
 
 *   **URL**: `/api/v1/product-categories/{id}`
@@ -221,7 +274,7 @@ Deletes a product category if it has no children. To delete heavily nested categ
 **Response (204 No Content):**
 The deletion was successful.
 
-### 3.6 Activate Category
+### 3.8 Activate Category
 Activates a product category. Note: This does NOT recursively activate children.
 
 *   **URL**: `/api/v1/product-categories/{id}/activate`
@@ -232,7 +285,7 @@ Activates a product category. Note: This does NOT recursively activate children.
 **Response (204 No Content):**
 Success.
 
-### 3.7 Deactivate Category
+### 3.9 Deactivate Category
 Deactivates a product category. Note: This recursively deactivates all of its sub-categories.
 
 *   **URL**: `/api/v1/product-categories/{id}/deactivate`

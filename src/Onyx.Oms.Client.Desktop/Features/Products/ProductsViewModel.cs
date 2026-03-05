@@ -120,6 +120,21 @@ public partial class ProductsViewModel : ObservableObject, INavigationAware
     }
     public ObservableCollection<string> StatusOptions { get; } = new(new[] { "Active", "Inactive", "All" });
 
+    private string _selectedHasVariants = "All";
+    public string SelectedHasVariants
+    {
+        get => _selectedHasVariants;
+        set
+        {
+            if (SetProperty(ref _selectedHasVariants, value))
+            {
+                Page = 1;
+                LoadDataCommand.ExecuteAsync(null);
+            }
+        }
+    }
+    public ObservableCollection<string> HasVariantsOptions { get; } = new(new[] { "Yes", "No", "All" });
+
     // --- UI State ---
     private bool _isListLoading;
     public bool IsListLoading
@@ -189,6 +204,13 @@ public partial class ProductsViewModel : ObservableObject, INavigationAware
                 _ => null
             };
 
+            bool? hasVariantsFilter = SelectedHasVariants switch
+            {
+                "Yes" => true,
+                "No" => false,
+                _ => null
+            };
+
             var result = await _productApi.SearchProducts(
                 page: Page,
                 pageSize: PageSize,
@@ -196,7 +218,8 @@ public partial class ProductsViewModel : ObservableObject, INavigationAware
                 sortColumn: _sortColumn,
                 sortOrder: _sortOrder,
                 isActive: activeFilter,
-                categoryId: SelectedCategory?.Id);
+                categoryId: SelectedCategory?.Id,
+                hasVariants: hasVariantsFilter);
 
             Items.Clear();
             
@@ -264,6 +287,7 @@ public partial class ProductsViewModel : ObservableObject, INavigationAware
         SearchTerm = string.Empty;
         SelectedCategory = null;
         SelectedStatus = "Active";
+        SelectedHasVariants = "All";
         _sortColumn = null;
         _sortOrder = null;
         await LoadDataAsync();
@@ -274,13 +298,14 @@ public partial class ProductsViewModel : ObservableObject, INavigationAware
         SearchTerm = string.Empty;
         SelectedCategory = null;
         SelectedStatus = "All";
+        SelectedHasVariants = "All";
         Page = 1;
         await LoadDataAsync();
     }
 
     private void NavigateToNewProduct()
     {
-         _navigationService.NavigateTo(typeof(ProductFormViewModel).FullName!);
+         _navigationService.NavigateTo(typeof(CreateProductViewModel).FullName!);
     }
 
     public async Task ActivateProductAsync(ProductDto product)

@@ -3,7 +3,7 @@
     x:Class="Onyx.Oms.Client.Desktop.Features.Products.Controls.LeafProductCategoryPicker"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:shared="using:Onyx.Oms.Client.Desktop.Shared.Models"
+    xmlns:products="using:Onyx.Oms.Client.Desktop.Features.Products"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
@@ -57,7 +57,7 @@
                                   Loaded="ItemsListView_Loaded"
                                   Unloaded="ItemsListView_Unloaded">
                             <ListView.ItemTemplate>
-                                <DataTemplate x:DataType="shared:ProductCategoryDto">
+                                <DataTemplate x:DataType="products:ProductCategoryDto">
                                     <TextBlock Text="{x:Bind NamePath, TargetNullValue='Unnamed Category'}" TextTrimming="CharacterEllipsis" Margin="0,8"/>
                                 </DataTemplate>
                             </ListView.ItemTemplate>

@@ -8,29 +8,38 @@ public record CreateProductCommand(
     string? BaseSku,
     string? Description,
     Guid CategoryId,
-    string? Brand,
-    string? Material,
-    int Gender,
-    decimal BaseCostAmount,
-    string BaseCostCurrency,
-    decimal BasePriceAmount,
-    string BasePriceCurrency,
-    decimal BaseWeightValue,
-    string BaseWeightUnit,
-    bool HasColor,
-    bool HasSize,
-    List<string>? Tags,
-    List<CreateProductVariantDto> Variants,
-    List<CreateProductImageDto> Images
+    MoneyDto BaseCost,
+    MoneyDto BasePrice,
+    WeightDto? BaseWeight,
+    bool HasVariants,
+    int? BaseStockOnHand,
+    List<ProductOptionDto>? Options,
+    Dictionary<string, string>? Specifications,
+    List<CreateProductVariantDto>? Variants,
+    List<CreateProductImageDto>? Images,
+    List<string>? Tags
+);
+
+public record MoneyDto(decimal Amount, string Currency);
+
+public record WeightDto(decimal Value, string Unit);
+
+public record ProductOptionDto(
+    string Name,
+    List<string> Values
+);
+
+public record VariantAttributeDto(
+    string Name,
+    string Value
 );
 
 public record CreateProductVariantDto(
     string? Sku,
-    string? Color,
-    string? Size,
-    decimal? CostAmount,
-    decimal? PriceAmount,
-    decimal? WeightValue,
+    List<VariantAttributeDto> Attributes,
+    MoneyDto? Cost,
+    MoneyDto? Price,
+    WeightDto? Weight,
     int StockOnHand
 );
 
@@ -38,5 +47,6 @@ public record CreateProductImageDto(
     string Url,
     int DisplayOrder,
     bool IsMain,
-    string? Color
+    string? OptionName,
+    string? OptionValue
 );
