@@ -142,10 +142,13 @@ Returns a `PagedResult<ProductDto>`.
       "baseSku": "PROD-0004",
       "categoryId": "20b2fbe8-3c35-46ee-bc00-dc21d51a6575",
       "categoryName": "T-Shirts",
+      "categoryPath": "Clothing/T-Shirts",
       "basePriceAmount": 2500.00,
       "basePriceCurrency": "LKR",
       "mainImageUrl": "https://example.com/image.jpg",
       "hasVariants": true,
+      "stockOnHand": 0,
+      "availableQuantity": 0,
       "isActive": true,
       "createdOnUtc": "2026-02-28T08:00:00.0000000+00:00",
       "lastModifiedOnUtc": null
@@ -158,5 +161,3 @@ Returns a `PagedResult<ProductDto>`.
   "hasPreviousPage": false
 }
 ```
-
-}

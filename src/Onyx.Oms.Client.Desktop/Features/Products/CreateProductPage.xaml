@@ -49,11 +49,6 @@
     </Page.Resources>
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <!-- Overlay Loading State -->
-        <!--<Border Canvas.ZIndex="100" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Opacity="0.6" Visibility="{x:Bind ViewModel.IsBusy, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-            <ProgressRing IsActive="True" Width="60" Height="60" HorizontalAlignment="Center" VerticalAlignment="Center" />
-        </Border>-->
-
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -75,10 +70,25 @@
             </StackPanel>
         </Grid>
 
+        <!-- Loading Progress Bar along Sticky Header -->
+        <ProgressBar Grid.Row="0" 
+                     VerticalAlignment="Bottom" 
+                     HorizontalAlignment="Stretch" 
+                     IsIndeterminate="True" 
+                     Visibility="{x:Bind ViewModel.IsBusy, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" 
+                     Canvas.ZIndex="100" />
+
         <!-- Scrollable Body -->
         <ScrollViewer Grid.Row="1" Padding="12" VerticalScrollBarVisibility="Auto">
 
-            <StackPanel Grid.Column="1" MaxWidth="1200" HorizontalAlignment="Stretch" Spacing="12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="10000*" MaxWidth="1200" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="1" HorizontalAlignment="Stretch" Spacing="12">
                 
                 <!-- Section 2: Split View -->
                 <Grid ColumnSpacing="12">
@@ -159,22 +169,39 @@
 
                         <CheckBox Content="This is a physical product (requires shipping)" IsChecked="{x:Bind ViewModel.IsPhysicalProduct, Mode=TwoWay}" Margin="0,0,0,8" />
                         
-                        <!-- Weight field (hidden if digital) -->
-                        <StackPanel Visibility="{x:Bind ViewModel.IsPhysicalProduct, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" Margin="0,0,0,16">
-                            <TextBlock Text="Base Weight" Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,4"/>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" /> <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <NumberBox Value="{x:Bind ViewModel.BaseWeightValue, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}" Minimum="0" Grid.Column="0" />
-                                <TextBlock Text="{x:Bind ViewModel.BaseWeightUnit, Mode=OneWay}" VerticalAlignment="Center" Margin="12,0,0,0" Grid.Column="1" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                            </Grid>
-                        </StackPanel>
+                        <!-- Logistics Bottom Row -->
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            
+                            <!-- Weight field (hidden if digital) -->
+                            <StackPanel Grid.Column="0" Visibility="{x:Bind ViewModel.IsPhysicalProduct, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" Margin="0,0,0,16">
+                                    <TextBlock Text="Base Weight" Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,4"/>
+                                    <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" /> <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <NumberBox Value="{x:Bind ViewModel.BaseWeightValue, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}" Minimum="0" Grid.Column="0" />
+                                    <TextBlock Text="{x:Bind ViewModel.BaseWeightUnit, Mode=OneWay}" VerticalAlignment="Center" Margin="12,0,0,0" Grid.Column="1" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                </Grid>
+                            </StackPanel>
+                           
+                        </Grid>
                         
-                        <!-- Stock Tracker (Hidden if resolving variants) -->
-                        <NumberBox Header="Initial Stock Available" Minimum="0" 
-                                   Value="{x:Bind ViewModel.BaseStockOnHand, Mode=TwoWay}" 
-                                   Visibility="{x:Bind ViewModel.HasVariants, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}"/>
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                                                     
+                            <!-- Stock Tracker (Hidden if resolving variants) -->
+                            <NumberBox Grid.Column="0" Header="Initial Stock Available" Minimum="0" 
+                                       Value="{x:Bind ViewModel.BaseStockOnHand, Mode=TwoWay}" 
+                                       Visibility="{x:Bind ViewModel.HasVariants, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}"
+                                       VerticalAlignment="Top"/>
+                        </Grid>
                                    
                     </StackPanel>
                 </Grid>
@@ -401,6 +428,7 @@
                 <!-- Bottom Spacer -->
                 <Rectangle Height="64" />
             </StackPanel>
+            </Grid>
 
         </ScrollViewer>
     </Grid>

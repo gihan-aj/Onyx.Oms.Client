@@ -35,11 +35,14 @@ public record ProductDto
     public string BaseSku { get; init; } = string.Empty;
     public Guid CategoryId { get; init; }
     public string? CategoryName { get; init; }
+    public string? CategoryPath { get; init; }
     public decimal BasePriceAmount { get; init; }
     public string BasePriceCurrency { get; init; } = string.Empty;
     public string? MainImageUrl { get; init; }
     public bool HasVariants { get; init; }
     public string HasVariantsText => HasVariants ? "Yes" : "No";
+    public int StockOnHand { get; init; }
+    public int AvailableQuantity { get; init; }
     public bool IsActive { get; init; }
     public DateTime CreatedOnUtc { get; init; }
     public DateTime? LastModifiedOnUtc { get; init; }
@@ -48,4 +51,16 @@ public record ProductDto
     public bool CanEdit { get; set; }
     public bool CanActivate { get; set; }
     public bool CanDeactivate { get; set; }
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    public Microsoft.UI.Xaml.Media.Imaging.BitmapImage? MainImageSource { get; set; }
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    public bool IsOutOfStock => AvailableQuantity <= 0;
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    public bool IsLowStock => AvailableQuantity > 0 && AvailableQuantity <= 10;
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    public bool IsInStock => AvailableQuantity > 10;
 }

@@ -7,6 +7,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Threading;
+using System.IO;
 
 namespace Onyx.Oms.Client.Desktop.Features.Products;
 
@@ -18,6 +19,7 @@ public partial class ProductsViewModel : ObservableObject, INavigationAware
     private readonly IToastService _toastService;
     private readonly IDialogService _dialogService;
     private readonly INavigationService _navigationService;
+    private readonly IFileService _fileService;
 
     // --- Data ---
     private ObservableCollection<ProductDto> _items = new();
@@ -163,7 +165,8 @@ public partial class ProductsViewModel : ObservableObject, INavigationAware
         IPermissionService permissionService,
         IToastService toastService,
         IDialogService dialogService,
-        INavigationService navigationService)
+        INavigationService navigationService,
+        IFileService fileService)
     {
         _productApi = productApi;
         _productCategoryLookupApi = productCategoryLookupApi;
@@ -171,6 +174,7 @@ public partial class ProductsViewModel : ObservableObject, INavigationAware
         _toastService = toastService;
         _dialogService = dialogService;
         _navigationService = navigationService;
+        _fileService = fileService;
 
         LoadDataCommand = new AsyncRelayCommand(LoadDataAsync);
         NextPageCommand = new AsyncRelayCommand(NextPageAsync);
@@ -233,6 +237,26 @@ public partial class ProductsViewModel : ObservableObject, INavigationAware
                 item.CanEdit = canEdit;
                 item.CanActivate = canEdit && !item.IsActive;
                 item.CanDeactivate = canEdit && item.IsActive;
+                
+                if (!string.IsNullOrWhiteSpace(item.MainImageUrl))
+                {
+                    try
+                    {
+                        var imageBytes = await _fileService.ReadFileAsync("ProductImages", item.MainImageUrl);
+                        if (imageBytes != null)
+                        {
+                            using var stream = new MemoryStream(imageBytes);
+                            using var randomAccessStream = stream.AsRandomAccessStream();
+                            var bitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
+                            await bitmap.SetSourceAsync(randomAccessStream);
+                            item.MainImageSource = bitmap;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Error loading image for product {item.Id}: {ex.Message}");
+                    }
+                }
                 
                 Items.Add(item);
             }

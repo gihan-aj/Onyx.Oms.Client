@@ -115,17 +115,41 @@
                               AlternatingRowBackground="{ThemeResource LayerFillColorDefaultBrush}">
                               
                 <toolkit:DataGrid.Columns>
+                    <!-- Image Preview -->
+                    <toolkit:DataGridTemplateColumn Header="Preview" 
+                                                    Width="108" MinWidth="108" CanUserSort="False"
+                                                    HeaderStyle="{StaticResource CenteredHeaderStyle}">
+                        <toolkit:DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="local:ProductDto">
+                                <Grid Width="84" Height="84" CornerRadius="4" Background="{ThemeResource LayerFillColorAltBrush}" BorderThickness="1" BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" Margin="12,4">
+                                    <FontIcon Glyph="&#xE8B9;" FontSize="16" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                                    <Image Source="{x:Bind MainImageSource, Mode=OneWay}" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </toolkit:DataGridTemplateColumn.CellTemplate>
+                    </toolkit:DataGridTemplateColumn>
+
                     <!-- Name -->
                     <toolkit:DataGridTextColumn Header="Name" 
                                                 Binding="{Binding Name}" Tag="name" 
-                                                Width="2*" MinWidth="200" 
+                                                Width="*" MinWidth="200" 
                                                 FontWeight="SemiBold"
                                                 HeaderStyle="{StaticResource LeftAlignedHeaderStyle}" 
                                                 ElementStyle="{StaticResource LeftAlignedCellStyle}" />
                     <!-- SKU -->
-                    <toolkit:DataGridTextColumn Header="SKU" Binding="{Binding BaseSku}" Tag="baseSku" Width="*" MinWidth="120" FontFamily="Consolas" HeaderStyle="{StaticResource LeftAlignedHeaderStyle}" ElementStyle="{StaticResource LeftAlignedCellStyle}" />
+                    <toolkit:DataGridTextColumn Header="SKU" Binding="{Binding BaseSku}" Tag="baseSku" Width="150" MinWidth="120" FontFamily="Consolas" HeaderStyle="{StaticResource LeftAlignedHeaderStyle}" ElementStyle="{StaticResource LeftAlignedCellStyle}" />
+                    
                     <!-- Category -->
-                    <toolkit:DataGridTextColumn Header="Category" Binding="{Binding CategoryName}" Tag="category" Width="*" MinWidth="120" HeaderStyle="{StaticResource LeftAlignedHeaderStyle}" ElementStyle="{StaticResource LeftAlignedCellStyle}" />
+                    <toolkit:DataGridTemplateColumn Header="Category" Tag="category" Width="*" MinWidth="180" HeaderStyle="{StaticResource LeftAlignedHeaderStyle}">
+                        <toolkit:DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="local:ProductDto">
+                                <StackPanel VerticalAlignment="Center" Margin="12,4">
+                                    <TextBlock Text="{x:Bind CategoryName}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{x:Bind CategoryPath}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextTrimming="CharacterEllipsis" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </toolkit:DataGridTemplateColumn.CellTemplate>
+                    </toolkit:DataGridTemplateColumn>
                     
                     <!-- Price -->
                     <toolkit:DataGridTemplateColumn Header="Base Price" Tag="basePrice" Width="120" MinWidth="120" HeaderStyle="{StaticResource RightAlignedHeaderStyle}">
@@ -139,8 +163,46 @@
                         </toolkit:DataGridTemplateColumn.CellTemplate>
                     </toolkit:DataGridTemplateColumn>
 
+                    <!-- Stock -->
+                    <toolkit:DataGridTemplateColumn Header="Stock" Width="140" MinWidth="140" HeaderStyle="{StaticResource LeftAlignedHeaderStyle}">
+                        <toolkit:DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="local:ProductDto">
+                                <StackPanel VerticalAlignment="Center" Margin="12,4">
+                                    
+                                    <!-- Out of Stock -->
+                                    <StackPanel Orientation="Horizontal" Spacing="6" Visibility="{x:Bind IsOutOfStock, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <FontIcon Glyph="&#xE814;" Foreground="{ThemeResource SystemFillColorCriticalBrush}" FontSize="12"/>
+                                        <TextBlock Text="Out of Stock" Foreground="{ThemeResource SystemFillColorCriticalBrush}" FontWeight="SemiBold" FontSize="12" />
+                                    </StackPanel>
+
+                                    <!-- Low Stock -->
+                                    <StackPanel Orientation="Horizontal" Spacing="6" Visibility="{x:Bind IsLowStock, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <FontIcon Glyph="&#xE814;" Foreground="{ThemeResource SystemFillColorCautionBrush}" FontSize="12"/>
+                                        <TextBlock Text="{x:Bind AvailableQuantity}" Foreground="{ThemeResource SystemFillColorCautionBrush}" FontWeight="SemiBold" FontSize="12" />
+                                        <TextBlock Text="Available" Foreground="{ThemeResource SystemFillColorCautionBrush}" FontSize="12" />
+                                    </StackPanel>
+
+                                    <!-- In Stock -->
+                                    <StackPanel Orientation="Horizontal" Spacing="6" Visibility="{x:Bind IsInStock, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <FontIcon Glyph="&#xE814;" Foreground="{ThemeResource SystemFillColorSuccessBrush}" FontSize="12"/>
+                                        <TextBlock Text="{x:Bind AvailableQuantity}" Foreground="{ThemeResource SystemFillColorSuccessBrush}" FontWeight="SemiBold" FontSize="12" />
+                                        <TextBlock Text="Available" Foreground="{ThemeResource SystemFillColorSuccessBrush}" FontSize="12" />
+                                    </StackPanel>
+
+                                    <TextBlock Foreground="{ThemeResource TextFillColorTertiaryBrush}" FontSize="12" Margin="0,2,0,0">
+                                        <Run Text="{x:Bind StockOnHand}" />
+                                        <Run Text=" On Hand" />
+                                    </TextBlock>
+                                </StackPanel>
+                            </DataTemplate>
+                        </toolkit:DataGridTemplateColumn.CellTemplate>
+                    </toolkit:DataGridTemplateColumn>
+
                     <!-- Variants -->
-                    <toolkit:DataGridTextColumn Header="Variants" Binding="{Binding HasVariantsText}" Tag="hasVariants" Width="100" MinWidth="100" HeaderStyle="{StaticResource LeftAlignedHeaderStyle}" ElementStyle="{StaticResource LeftAlignedCellStyle}" />
+                    <toolkit:DataGridTextColumn Header="Variants" 
+                                                Binding="{Binding HasVariantsText}" 
+                                                Tag="hasVariants" Width="100" MinWidth="100" 
+                                                HeaderStyle="{StaticResource CenteredHeaderStyle}" ElementStyle="{StaticResource CenteredCellStyle}" />
 
                     <!-- Status Badge -->
                     <toolkit:DataGridTemplateColumn Header="Status" Tag="isActive" Width="100" MinWidth="100" HeaderStyle="{StaticResource CenteredHeaderStyle}">
