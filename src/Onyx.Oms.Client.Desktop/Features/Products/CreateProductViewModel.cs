@@ -1,12 +1,16 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI.Xaml;
 using Onyx.Oms.Client.Desktop.Shared.Models;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.Storage.Pickers;
+using WinRT.Interop;
 
 namespace Onyx.Oms.Client.Desktop.Features.Products;
 
@@ -18,6 +22,7 @@ public partial class CreateProductViewModel : ObservableObject, INavigationAware
     private readonly IDialogService _dialogService;
     private readonly INavigationService _navigationService;
     private readonly IToastService _toastService;
+    private readonly IFileService _fileService;
 
     public CreateProductViewModel(
         IProductApi productApi,
@@ -25,7 +30,8 @@ public partial class CreateProductViewModel : ObservableObject, INavigationAware
         ITenantProfileService tenantProfileService,
         IDialogService dialogService,
         INavigationService navigationService,
-        IToastService toastService)
+        IToastService toastService,
+        IFileService fileService)
     {
         _productApi = productApi;
         _productCategoryLookupApi = productCategoryLookupApi;
@@ -33,12 +39,16 @@ public partial class CreateProductViewModel : ObservableObject, INavigationAware
         _dialogService = dialogService;
         _navigationService = navigationService;
         _toastService = toastService;
+        _fileService = fileService;
 
         SaveCommand = new AsyncRelayCommand(SaveAsync);
         CancelCommand = new AsyncRelayCommand(CancelAsync);
         GenerateMatrixCommand = new RelayCommand(GenerateMatrix);
         AddOptionCommand = new RelayCommand(AddOption);
         RemoveOptionCommand = new RelayCommand<ProductOptionModel>(RemoveOption);
+        UploadImageCommand = new AsyncRelayCommand(UploadImageAsync);
+        SetMainImageCommand = new RelayCommand<ImagePreviewModel>(SetMainImage);
+        DeleteImageCommand = new AsyncRelayCommand<ImagePreviewModel>(DeleteImageAsync);
 
         VariantDrafts.CollectionChanged += (s, e) => HasUnsavedChanges = true;
         ProductOptions.CollectionChanged += (s, e) => HasUnsavedChanges = true;
@@ -134,6 +144,7 @@ public partial class CreateProductViewModel : ObservableObject, INavigationAware
                 {
                     ProductOptions.Clear();
                     VariantDrafts.Clear();
+                    AvailableImageTags.Clear();
                 }
             }
         }
@@ -147,9 +158,10 @@ public partial class CreateProductViewModel : ObservableObject, INavigationAware
 
     public ObservableCollection<ProductOptionModel> ProductOptions { get; } = new();
     public ObservableCollection<VariantDraftModel> VariantDrafts { get; } = new();
-    public ObservableCollection<CreateProductImageDto> Images { get; } = new();
     public ObservableCollection<string> Tags { get; } = new();
     public ObservableCollection<SpecFieldViewModel> DynamicSpecs { get; } = new();
+    public ObservableCollection<ImagePreviewModel> ProductImages { get; } = new();
+    public ObservableCollection<ImageOptionTag> AvailableImageTags { get; } = new();
 
     // --- Commands ---
     public IAsyncRelayCommand SaveCommand { get; }
@@ -157,6 +169,9 @@ public partial class CreateProductViewModel : ObservableObject, INavigationAware
     public IRelayCommand GenerateMatrixCommand { get; }
     public IRelayCommand AddOptionCommand { get; }
     public IRelayCommand<ProductOptionModel> RemoveOptionCommand { get; }
+    public IRelayCommand UploadImageCommand { get; }
+    public IRelayCommand SetMainImageCommand { get; }
+    public IRelayCommand DeleteImageCommand { get; }
 
     public void OnNavigatedTo(object parameter)
     {
@@ -282,6 +297,8 @@ public partial class CreateProductViewModel : ObservableObject, INavigationAware
                 StockOnHand = 0
             });
         }
+
+        RefreshAvailabelImageTags();
     }
 
     // Helper to generate cartesian product of N lists
@@ -309,6 +326,111 @@ public partial class CreateProductViewModel : ObservableObject, INavigationAware
 
         Permute(0, new List<VariantAttributeDto>());
         return result;
+    }
+
+    private void RefreshAvailabelImageTags()
+    {
+        var cuurentSelections = ProductImages.Select(i => i.SelectedTag).ToList();
+
+        AvailableImageTags.Clear();
+
+        foreach(var option in ProductOptions)
+        {
+            foreach(var value in option.Values)
+            {
+                AvailableImageTags.Add(new ImageOptionTag(option.Name, value));
+            }
+        }
+
+        foreach (var img in ProductImages) img.SyncTags(AvailableImageTags);
+    }
+
+    private async Task UploadImageAsync()
+    {
+        try
+        {
+            var picker = new FileOpenPicker
+            {
+                ViewMode = PickerViewMode.Thumbnail,
+                SuggestedStartLocation = PickerLocationId.PicturesLibrary
+            };
+
+            picker.FileTypeFilter.Add(".jpg");
+            picker.FileTypeFilter.Add(".jpeg");
+            picker.FileTypeFilter.Add(".png");
+
+            // WinUI 3 requirement: Bind the picker to the current Window HWND
+            var hwnd = WindowNative.GetWindowHandle(App.MainWindow);
+            InitializeWithWindow.Initialize(picker, hwnd);
+
+            var file = await picker.PickSingleFileAsync();
+            if (file == null)
+                return;
+
+            // Unique name
+            string extension = Path.GetExtension(file.Path);
+            string newFileName = $"{Guid.NewGuid()}{extension}";
+
+            using var stream = await file.OpenStreamForReadAsync();
+
+            // resize, write
+            await _fileService.SaveImageAsync("ProductImages", newFileName, stream);
+
+            var imageBytes = await _fileService.ReadFileAsync("ProductImages", newFileName);
+
+            if(imageBytes != null)
+            {
+                bool isFirstImage = ProductImages.Count == 0;
+
+                var previwImage = await ImagePreviewModel.CreateAsync(newFileName, imageBytes, isFirstImage);
+                previwImage.SyncTags(AvailableImageTags);
+                ProductImages.Add(previwImage);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error uploading image: {ex.Message}");
+            _toastService.ShowError("Upload Failed", "An error occurred while uploading the image.");
+        }
+    }
+
+    private void SetMainImage(ImagePreviewModel? selectedImage)
+    {
+        if (selectedImage == null)
+            return;
+
+        foreach(var image in ProductImages)
+        {
+            image.IsMain = (image == selectedImage);
+        }
+    }
+
+    private async Task DeleteImageAsync(ImagePreviewModel? imageToDelete)
+    {
+        if (imageToDelete == null)
+            return;
+
+        try
+        {
+            // Delete physical file
+            await _fileService.DeleteFileAsync("ProductImages", imageToDelete.FileName);
+
+            // Remove from UI
+            ProductImages.Remove(imageToDelete);
+
+            if (imageToDelete.IsMain && ProductImages.Count > 0)
+                ProductImages[0].IsMain = true;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error deleting image: {ex.Message}");
+            _toastService.ShowError("Delete Failed", "An error occurred while deleting the image.");
+        }
+    }
+
+    public Visibility GetEmptyStateVisibility(int imageCount)
+    {
+        return imageCount == 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private async Task SaveAsync()
@@ -363,6 +485,14 @@ public partial class CreateProductViewModel : ObservableObject, INavigationAware
                 }
             }
 
+            var imagesDto = ProductImages.Select((img, index) => new CreateProductImageDto(
+                Url: img.FileName,
+                DisplayOrder: index,
+                IsMain: img.IsMain,
+                OptionName: img.SelectedTag?.OptionName,
+                OptionValue: img.SelectedTag?.OptionValue
+            )).ToList();
+
             var command = new CreateProductCommand(
                 Name: Name,
                 BaseSku: BaseSku,
@@ -376,7 +506,7 @@ public partial class CreateProductViewModel : ObservableObject, INavigationAware
                 Options: optionsDto,
                 Specifications: specsDictionary,
                 Variants: variantsDto,
-                Images: Images.ToList(),
+                Images: imagesDto,
                 Tags: Tags.Where(t => !string.IsNullOrWhiteSpace(t)).ToList()
             );
 
@@ -457,4 +587,9 @@ public partial class VariantDraftModel : ObservableObject
     
     private int _stockOnHand;
     public int StockOnHand { get => _stockOnHand; set => SetProperty(ref _stockOnHand, value); }
+}
+
+public record ImageOptionTag(string OptionName, string OptionValue)
+{
+    public string DisplayLabel => $"{OptionName}: {OptionValue}";
 }

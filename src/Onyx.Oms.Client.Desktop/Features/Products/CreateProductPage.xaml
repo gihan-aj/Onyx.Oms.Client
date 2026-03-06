@@ -16,6 +16,7 @@
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converters:BoolToVisibilityConverter x:Key="InvertedBoolToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible" />
+        <converters:EmptyCollectionToObjectConverter x:Key="EmptyListToVisibiltyConverter" EmptyValue="Visible" NotEmptyValue="Collapsed" />
         <sharedConverters:DecimalToDoubleConverter x:Key="DecimalToDoubleConverter" />
         <sharedConverters:StringListConverter x:Key="StringListConverter" />
         <sharedConverters:StringToBoolConverter x:Key="StringToBoolConverter" />
@@ -75,11 +76,12 @@
         </Grid>
 
         <!-- Scrollable Body -->
-        <ScrollViewer Grid.Row="1" Padding="24" VerticalScrollBarVisibility="Auto">
-            <StackPanel MaxWidth="1200" HorizontalAlignment="Stretch" Spacing="24">
+        <ScrollViewer Grid.Row="1" Padding="12" VerticalScrollBarVisibility="Auto">
+
+            <StackPanel Grid.Column="1" MaxWidth="1200" HorizontalAlignment="Stretch" Spacing="12">
                 
                 <!-- Section 2: Split View -->
-                <Grid ColumnSpacing="24">
+                <Grid ColumnSpacing="12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1*" MinWidth="350" />
                         <ColumnDefinition Width="1.2*" MinWidth="350" />
@@ -269,10 +271,137 @@
                         
                     </StackPanel>
                 </StackPanel>
-                
+
+                <StackPanel Style="{StaticResource CardStackStyle}">
+
+                    <Grid>
+                        <StackPanel>
+                            <TextBlock Text="Product Media &amp; Tagging" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <TextBlock Text="Upload product images and select the corresponding variant option. The first image is automatically set as the main display." 
+                                       Style="{StaticResource CaptionTextBlockStyle}" 
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+
+                        <Button HorizontalAlignment="Right" VerticalAlignment="Top"
+                                Style="{StaticResource DefaultButtonStyle}"
+                                Command="{x:Bind ViewModel.UploadImageCommand}">
+                            <Button.Content>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE898;" FontSize="16"/>
+                                    <TextBlock Text="Upload Image" />
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+                    </Grid>
+
+                    <ListView ItemsSource="{x:Bind ViewModel.ProductImages, Mode=OneWay}"
+                              SelectionMode="None"
+                              Margin="0,16,0,0">
+
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="Margin" Value="0,0,0,16" />
+                                <Setter Property="Padding" Value="0" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="local:ImagePreviewModel">
+
+                                <Grid CornerRadius="8" BorderThickness="1"
+                                      BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" 
+                                      Background="{ThemeResource LayerFillColorAltBrush}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="180"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Grid Grid.Column="0" Background="{ThemeResource SolidBackgroundFillColorBaseBrush}">
+                                        <Image Source="{x:Bind ImageSource}" Stretch="UniformToFill" Margin="1" MinHeight="180" HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+                                        <Border HorizontalAlignment="Left" VerticalAlignment="Top"
+                                                Margin="8" Padding="8,4" CornerRadius="4"
+                                                Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                                Visibility="{x:Bind IsMain, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <TextBlock Text="MAIN" FontSize="10" FontWeight="Bold" Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
+                                        </Border>
+                                    </Grid>
+
+                                    <Grid Grid.Column="1" Padding="20">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+
+                                        <Grid Grid.Row="0" Margin="0,0,0,16">
+                                            <RadioButton Content="Set as Main Image" 
+                                                         IsChecked="{x:Bind IsMain, Mode=OneWay}"
+                                                         Command="{Binding ElementName=RootPage, Path=ViewModel.SetMainImageCommand}"
+                                                         CommandParameter="{x:Bind}"
+                                                         Margin="0" />
+
+                                            <Button HorizontalAlignment="Right"
+                                                    Style="{StaticResource SubtleButtonStyle}" 
+                                                    Foreground="{ThemeResource SystemFillColorCriticalBrush}" 
+                                                    ToolTipService.ToolTip="Delete Image"
+                                                    Command="{Binding ElementName=RootPage, Path=ViewModel.DeleteImageCommand}"
+                                                    CommandParameter="{x:Bind}">
+                                                <Button.Content>
+                                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                                        <FontIcon Glyph="&#xE74D;" FontSize="14" />
+                                                        <TextBlock Text="Remove" />
+                                                    </StackPanel>
+                                                </Button.Content>
+                                            </Button>
+                                        </Grid>
+
+                                        <TextBlock Grid.Row="1" Text="Link to a Variant Option:"
+                                                   Style="{StaticResource CaptionTextBlockStyle}" 
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                   Margin="0,0,0,8"/>
+
+                                        <ItemsControl Grid.Row="2" ItemsSource="{x:Bind AvailableTags, Mode=OneWay}" Margin="0,0,0,8">
+
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <labs:WrapPanel Orientation="Horizontal" HorizontalSpacing="8" VerticalSpacing="8" />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="local:SelectableTagViewModel">
+
+                                                    <ToggleButton Content="{x:Bind Tag.DisplayLabel}" 
+                                                                  IsChecked="{x:Bind IsSelected, Mode=TwoWay}"
+                                                                  CornerRadius="16"
+                                                                  Padding="16,6" />
+
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </Grid>
+
+                                </Grid>
+
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+
+                    </ListView>
+
+                    <StackPanel HorizontalAlignment="Center" Margin="0,32,0,32" Spacing="12"
+                                Visibility="{x:Bind ViewModel.GetEmptyStateVisibility(ViewModel.ProductImages.Count), Mode=OneWay}">
+                        <FontIcon Glyph="&#xE8B9;" FontSize="48" Foreground="{ThemeResource SurfaceStrokeColorDefaultBrush}" />
+                        <TextBlock Text="No images uploaded yet." Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+                    
+                </StackPanel>
+
                 <!-- Bottom Spacer -->
                 <Rectangle Height="64" />
             </StackPanel>
+
         </ScrollViewer>
     </Grid>
 </Page>
