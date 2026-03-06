@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
@@ -545,7 +546,7 @@ public partial class CreateProductViewModel : ObservableObject, INavigationAware
     }
 
     // Delegate for Category Picker
-    public async Task<PagedResult<ProductCategoryDto>> FetchCategoriesAsync(string searchTerm, int page, int pageSize)
+    public async Task<PagedResult<ProductCategoryDto>> FetchCategoriesAsync(string searchTerm, int page, int pageSize, CancellationToken token = default)
     {
         try
         {

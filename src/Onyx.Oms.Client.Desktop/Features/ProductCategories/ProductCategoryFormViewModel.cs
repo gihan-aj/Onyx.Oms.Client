@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Onyx.Oms.Client.Desktop.Features.ProductCategories;
@@ -173,7 +174,7 @@ public partial class ProductCategoryFormViewModel : ObservableObject, INavigatio
 
     public IReadOnlyList<SpecType> AvailableSpecTypes { get; } = Enum.GetValues<SpecType>();
 
-    public Func<string, int, int, Task<PagedResult<ProductCategoryDto>>> FetchParentCategories => async (searchTerm, page, pageSize) =>
+    public Func<string, int, int, CancellationToken, Task<PagedResult<ProductCategoryDto>>> FetchParentCategories => async (searchTerm, page, pageSize, token) =>
     {
         var result = await _api.SearchCategories(page, pageSize, searchTerm: searchTerm, isValidParent: true, sortColumn: "namePath", sortOrder: "asc");
         

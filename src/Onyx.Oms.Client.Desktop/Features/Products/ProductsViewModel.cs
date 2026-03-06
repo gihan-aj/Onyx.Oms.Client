@@ -6,6 +6,7 @@ using Onyx.Oms.Client.Desktop.Shared.Constants;
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Onyx.Oms.Client.Desktop.Features.Products;
 
@@ -354,7 +355,7 @@ public partial class ProductsViewModel : ObservableObject, INavigationAware
     }
 
     // --- Delegate for LeafProductCategoryPicker ---
-    public async Task<PagedResult<ProductCategoryDto>> FetchCategoriesAsync(string searchTerm, int page, int pageSize)
+    public async Task<PagedResult<ProductCategoryDto>> FetchCategoriesAsync(string searchTerm, int page, int pageSize, CancellationToken token = default)
     {
         try
         {

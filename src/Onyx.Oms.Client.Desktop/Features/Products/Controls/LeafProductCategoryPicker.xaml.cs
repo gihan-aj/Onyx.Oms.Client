@@ -67,7 +67,7 @@ public sealed partial class LeafProductCategoryPicker : UserControl
     public static readonly DependencyProperty IsLoadingProperty =
         DependencyProperty.Register(nameof(IsLoading), typeof(bool), typeof(LeafProductCategoryPicker), new PropertyMetadata(false));
 
-    public Func<string, int, int, Task<PagedResult<ProductCategoryDto>>>? FetchDataDelegate { get; set; }
+    public Func<string, int, int, CancellationToken, Task<PagedResult<ProductCategoryDto>>>? FetchDataDelegate { get; set; }
 
     private int _currentPage = 1;
     private const int PageSize = 10;
@@ -81,6 +81,9 @@ public sealed partial class LeafProductCategoryPicker : UserControl
 
     private async void Flyout_Opened(object sender, object e)
     {
+        // Make the flyout content width match the button width
+        FlyoutRootGrid.Width = PickerButton.ActualWidth;
+
         SearchBox.Text = string.Empty;
         SearchBox.Focus(FocusState.Programmatic);
         if (Items.Count == 0)
@@ -112,23 +115,24 @@ public sealed partial class LeafProductCategoryPicker : UserControl
         catch (TaskCanceledException) { }
     }
 
-    private async Task LoadPageAsync(int page, string searchTerm)
+    private async Task LoadPageAsync(int page, string searchTerm, CancellationToken token = default)
     {
         if (FetchDataDelegate == null) return;
 
         IsLoading = true;
         _isLoadingNextPage = page > 1;
 
-        if (page == 1)
-        {
-            Items.Clear();
-            _currentPage = 1;
-            _currentSearchTerm = searchTerm;
-        }
-
         try
         {
-            var result = await FetchDataDelegate(searchTerm, page, PageSize);
+            var result = await FetchDataDelegate(searchTerm, page, PageSize, token);
+            if (page == 1)
+            {
+                Items.Clear();
+                _currentPage = 1;
+                _currentSearchTerm = searchTerm;
+
+                _listScrollViewer?.ChangeView(null, 0, null);
+            }
             _hasMore = result.HasNextPage;
             _currentPage = result.Page;
 

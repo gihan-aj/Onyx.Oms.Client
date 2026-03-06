@@ -35,7 +35,7 @@
                 <Flyout Placement="Bottom" 
                         Opened="Flyout_Opened" 
                         Closed="Flyout_Closed">
-                    <Grid Width="350" MaxHeight="200">
+                    <Grid x:Name="FlyoutRootGrid" MaxHeight="300">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
@@ -58,7 +58,15 @@
                                   Unloaded="ItemsListView_Unloaded">
                             <ListView.ItemTemplate>
                                 <DataTemplate x:DataType="products:ProductCategoryDto">
-                                    <TextBlock Text="{x:Bind NamePath, TargetNullValue='Unnamed Category'}" TextTrimming="CharacterEllipsis" Margin="0,8"/>
+                                    <StackPanel Margin="0,8" ToolTipService.ToolTip="{x:Bind NamePath}">
+                                        <TextBlock Text="{x:Bind Name, TargetNullValue='Unnamed'}" 
+                                                   FontWeight="SemiBold" 
+                                                   TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Text="{x:Bind NamePath, TargetNullValue=''}" 
+                                                   FontSize="12" 
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" 
+                                                   TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>
