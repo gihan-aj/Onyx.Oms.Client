@@ -142,13 +142,10 @@ Returns a `PagedResult<ProductDto>`.
       "baseSku": "PROD-0004",
       "categoryId": "20b2fbe8-3c35-46ee-bc00-dc21d51a6575",
       "categoryName": "T-Shirts",
-      "categoryPath": "Clothing/T-Shirts",
       "basePriceAmount": 2500.00,
       "basePriceCurrency": "LKR",
       "mainImageUrl": "https://example.com/image.jpg",
       "hasVariants": true,
-      "stockOnHand": 0,
-      "availableQuantity": 0,
       "isActive": true,
       "createdOnUtc": "2026-02-28T08:00:00.0000000+00:00",
       "lastModifiedOnUtc": null
@@ -161,3 +158,104 @@ Returns a `PagedResult<ProductDto>`.
   "hasPreviousPage": false
 }
 ```
+
+---
+
+## 3. Get Product by ID
+
+Retrieves the detailed information of a specific product by its ID, including its specifications, variants, options, and images.
+
+*   **URL:** `/api/v1/products/{id}`
+*   **Method:** `GET`
+*   **Tags:** `Products`
+*   **Permissions Required:** `Permissions.Products.View`
+
+### 3.1 Path Parameters
+
+| Parameter | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | Guid | Yes | The unique identifier of the product. |
+
+### 3.2 Response Body
+
+Returns a `ProductDetailsDto` containing the full product aggregate. Note that for products without variants, `variants` will be empty, and the default variant's inventory will map directly to `stockOnHand` and `reservedQuantity` on the root object.
+
+```json
+{
+  "id": "e7bfa51a-d0ba-4ffb-8217-08dcd37c95a0",
+  "name": "Classic T-Shirt",
+  "baseSku": "PROD-0004",
+  "description": "A comfortable classic t-shirt.",
+  "categoryId": "20b2fbe8-3c35-46ee-bc00-dc21d51a6575",
+  "categoryName": "T-Shirts",
+  "categoryPath": "/20b2fbe8-3c35-46ee-bc00-dc21d51a6575/",
+  "specifications": [
+    {
+      "key": "Material",
+      "label": "Material",
+      "value": "Cotton"
+    },
+    {
+      "key": "Fit",
+      "label": "Fit",
+      "value": "Regular"
+    }
+  ],
+  "baseCostAmount": 1500.00,
+  "baseCostCurrency": "LKR",
+  "basePriceAmount": 2500.00,
+  "basePriceCurrency": "LKR",
+  "baseWeightAmount": 0.2,
+  "baseWeightCurrency": "kg",
+  "hasVariants": true,
+  "stockOnHand": 150,
+  "reservedQuantity": 10,
+  "options": [
+    {
+      "name": "Color",
+      "dispalyOrder": 1,
+      "values": [
+        "Red",
+        "Blue"
+      ]
+    }
+  ],
+  "variants": [
+    {
+      "id": "12345678-1234-1234-1234-123456789012",
+      "sku": "PROD-0004-RED",
+      "attributes": [
+        {
+          "name": "Color",
+          "value": "Red"
+        }
+      ],
+      "costAmount": 1500.00,
+      "costCurrency": "LKR",
+      "priceAmount": 2500.00,
+      "priceCurrency": "LKR",
+      "weightAmount": 0.2,
+      "weightCurrency": "kg",
+      "stockOnHand": 80,
+      "reservedQuantity": 5,
+      "isActive": true
+    }
+  ],
+  "images": [
+    {
+      "id": "87654321-4321-4321-4321-210987654321",
+      "url": "https://example.com/image.jpg",
+      "displayOrder": 1,
+      "isMain": true,
+      "optionName": "Color",
+      "optionValue": "Red"
+    }
+  ],
+  "isActive": true
+}
+```
+
+### 3.3 Status Codes
+
+*   `200 OK`: Product found and returned.
+*   `404 Not Found`: Product with the specified `id` does not exist.

@@ -89,9 +89,7 @@ public sealed partial class ProductsPage : Page
     {
         if (sender is FrameworkElement { DataContext: ProductDto product })
         {
-            // TODO: Implement View Product Details Dialog
-            // var dialog = new ProductDetailsDialog(product);
-            // _ = dialog.ShowAsync();
+            ViewModel.ViewDetailsCommand.Execute(product);
         }
     }
 

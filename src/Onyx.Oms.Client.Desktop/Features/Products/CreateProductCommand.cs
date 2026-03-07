@@ -8,38 +8,38 @@ public record CreateProductCommand(
     string? BaseSku,
     string? Description,
     Guid CategoryId,
-    MoneyDto BaseCost,
-    MoneyDto BasePrice,
-    WeightDto? BaseWeight,
+    CreateMoneyDto BaseCost,
+    CreateMoneyDto BasePrice,
+    CreateWeightDto? BaseWeight,
     bool HasVariants,
     int? BaseStockOnHand,
-    List<ProductOptionDto>? Options,
+    List<CreateProductOptionDto>? Options,
     Dictionary<string, string>? Specifications,
     List<CreateProductVariantDto>? Variants,
     List<CreateProductImageDto>? Images,
     List<string>? Tags
 );
 
-public record MoneyDto(decimal Amount, string Currency);
+public record CreateMoneyDto(decimal Amount, string Currency);
 
-public record WeightDto(decimal Value, string Unit);
+public record CreateWeightDto(decimal Value, string Unit);
 
-public record ProductOptionDto(
+public record CreateProductOptionDto(
     string Name,
     List<string> Values
 );
 
-public record VariantAttributeDto(
+public record CreateVariantAttributeDto(
     string Name,
     string Value
 );
 
 public record CreateProductVariantDto(
     string? Sku,
-    List<VariantAttributeDto> Attributes,
-    MoneyDto? Cost,
-    MoneyDto? Price,
-    WeightDto? Weight,
+    List<CreateVariantAttributeDto> Attributes,
+    CreateMoneyDto? Cost,
+    CreateMoneyDto? Price,
+    CreateWeightDto? Weight,
     int StockOnHand
 );
 

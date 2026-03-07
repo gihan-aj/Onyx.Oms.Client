@@ -303,29 +303,29 @@ public partial class CreateProductViewModel : ObservableObject, INavigationAware
     }
 
     // Helper to generate cartesian product of N lists
-    private List<List<VariantAttributeDto>> GetCombinations(List<ProductOptionModel> options)
+    private List<List<CreateVariantAttributeDto>> GetCombinations(List<ProductOptionModel> options)
     {
-        var result = new List<List<VariantAttributeDto>>();
+        var result = new List<List<CreateVariantAttributeDto>>();
         if (options.Count == 0) return result;
 
-        void Permute(int depth, List<VariantAttributeDto> current)
+        void Permute(int depth, List<CreateVariantAttributeDto> current)
         {
             if (depth == options.Count)
             {
-                result.Add(new List<VariantAttributeDto>(current));
+                result.Add(new List<CreateVariantAttributeDto>(current));
                 return;
             }
 
             var currentOption = options[depth];
             foreach (var value in currentOption.Values)
             {
-                current.Add(new VariantAttributeDto(currentOption.Name, value));
+                current.Add(new CreateVariantAttributeDto(currentOption.Name, value));
                 Permute(depth + 1, current);
                 current.RemoveAt(current.Count - 1);
             }
         }
 
-        Permute(0, new List<VariantAttributeDto>());
+        Permute(0, new List<CreateVariantAttributeDto>());
         return result;
     }
 
@@ -457,16 +457,16 @@ public partial class CreateProductViewModel : ObservableObject, INavigationAware
             int? stockOnHand = HasVariants ? null : BaseStockOnHand;
             
             var optionsDto = HasVariants && ProductOptions.Any() 
-                ? ProductOptions.Select(o => new ProductOptionDto(o.Name, o.Values)).ToList() 
+                ? ProductOptions.Select(o => new CreateProductOptionDto(o.Name, o.Values)).ToList() 
                 : null;
 
             var variantsDto = HasVariants && VariantDrafts.Any()
                 ? VariantDrafts.Select(v => new CreateProductVariantDto(
                     Sku: v.Sku,
                     Attributes: v.Attributes,
-                    Cost: new MoneyDto(v.CostAmount,BaseCurrency),
-                    Price: new MoneyDto(v.PriceAmount, BaseCurrency),
-                    Weight: new WeightDto(v.WeightValue, BaseWeightUnit),
+                    Cost: new CreateMoneyDto(v.CostAmount,BaseCurrency),
+                    Price: new CreateMoneyDto(v.PriceAmount, BaseCurrency),
+                    Weight: new CreateWeightDto(v.WeightValue, BaseWeightUnit),
                     StockOnHand: v.StockOnHand
                 )).ToList()
                 : null;
@@ -499,9 +499,9 @@ public partial class CreateProductViewModel : ObservableObject, INavigationAware
                 BaseSku: BaseSku,
                 Description: Description,
                 CategoryId: SelectedCategory.Id,
-                BaseCost: new MoneyDto(BaseCostAmount, BaseCurrency),
-                BasePrice: new MoneyDto(BasePriceAmount, BaseCurrency),
-                BaseWeight: IsPhysicalProduct ? new WeightDto(BaseWeightValue, BaseWeightUnit) : null, // Ensure weight is 0 if digital
+                BaseCost: new CreateMoneyDto(BaseCostAmount, BaseCurrency),
+                BasePrice: new CreateMoneyDto(BasePriceAmount, BaseCurrency),
+                BaseWeight: IsPhysicalProduct ? new CreateWeightDto(BaseWeightValue, BaseWeightUnit) : null, // Ensure weight is 0 if digital
                 HasVariants: HasVariants,
                 BaseStockOnHand: stockOnHand,
                 Options: optionsDto,
@@ -571,7 +571,7 @@ public partial class ProductOptionModel : ObservableObject
 
 public partial class VariantDraftModel : ObservableObject
 {
-    public List<VariantAttributeDto> Attributes { get; init; } = new();
+    public List<CreateVariantAttributeDto> Attributes { get; init; } = new();
     public string DisplayAttributes { get; init; } = string.Empty;
     
     private string? _sku;

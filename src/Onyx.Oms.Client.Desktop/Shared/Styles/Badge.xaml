@@ -1,7 +1,12 @@
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:converters="using:CommunityToolkit.WinUI.Converters">
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
+    xmlns:sharedconverters="using:Onyx.Oms.Client.Desktop.Shared.Converters">
+
+    <sharedconverters:StockLevelToBackgroundConverter x:Key="StockBackgroundConverter" />
+    <sharedconverters:StockLevelToForegroundConverter x:Key="StockForegroundConverter" />
+    <sharedconverters:StockLevelToIconConverter x:Key="StockIconConverter" />
 
     <converters:BoolToObjectConverter x:Key="StatusBackgroundConverter" 
                                       TrueValue="{ThemeResource SystemFillColorSuccessBackgroundBrush}" 

@@ -158,6 +158,7 @@ public partial class ProductsViewModel : ObservableObject, INavigationAware
     public IAsyncRelayCommand RefreshCommand { get; }
     public IAsyncRelayCommand ClearFiltersCommand { get; }
     public IRelayCommand NewProductCommand { get; }
+    public IRelayCommand<ProductDto> ViewDetailsCommand { get; }
 
     public ProductsViewModel(
         IProductApi productApi,
@@ -182,6 +183,7 @@ public partial class ProductsViewModel : ObservableObject, INavigationAware
         RefreshCommand = new AsyncRelayCommand(RefreshAsync);
         ClearFiltersCommand = new AsyncRelayCommand(ClearFiltersAsync);
         NewProductCommand = new RelayCommand(NavigateToNewProduct);
+        ViewDetailsCommand = new RelayCommand<ProductDto>(ViewProductDetails);
     }
 
     public async void OnNavigatedTo(object? parameter)
@@ -331,6 +333,14 @@ public partial class ProductsViewModel : ObservableObject, INavigationAware
     private void NavigateToNewProduct()
     {
          _navigationService.NavigateTo(typeof(CreateProductViewModel).FullName!);
+    }
+
+    private void ViewProductDetails(ProductDto? product)
+    {
+        if (product != null)
+        {
+            _navigationService.NavigateTo(typeof(ProductDetailsViewModel).FullName!, product.Id);
+        }
     }
 
     public async Task ActivateProductAsync(ProductDto product)

@@ -169,27 +169,17 @@
                             <DataTemplate x:DataType="local:ProductDto">
                                 <StackPanel VerticalAlignment="Center" Margin="12,4">
                                     
-                                    <!-- Out of Stock -->
-                                    <StackPanel Orientation="Horizontal" Spacing="6" Visibility="{x:Bind IsOutOfStock, Converter={StaticResource BoolToVisibilityConverter}}">
-                                        <FontIcon Glyph="&#xE814;" Foreground="{ThemeResource SystemFillColorCriticalBrush}" FontSize="12"/>
-                                        <TextBlock Text="Out of Stock" Foreground="{ThemeResource SystemFillColorCriticalBrush}" FontWeight="SemiBold" FontSize="12" />
-                                    </StackPanel>
-
-                                    <!-- Low Stock -->
-                                    <StackPanel Orientation="Horizontal" Spacing="6" Visibility="{x:Bind IsLowStock, Converter={StaticResource BoolToVisibilityConverter}}">
-                                        <FontIcon Glyph="&#xE814;" Foreground="{ThemeResource SystemFillColorCautionBrush}" FontSize="12"/>
-                                        <TextBlock Text="{x:Bind AvailableQuantity}" Foreground="{ThemeResource SystemFillColorCautionBrush}" FontWeight="SemiBold" FontSize="12" />
-                                        <TextBlock Text="Available" Foreground="{ThemeResource SystemFillColorCautionBrush}" FontSize="12" />
-                                    </StackPanel>
-
-                                    <!-- In Stock -->
-                                    <StackPanel Orientation="Horizontal" Spacing="6" Visibility="{x:Bind IsInStock, Converter={StaticResource BoolToVisibilityConverter}}">
-                                        <FontIcon Glyph="&#xE814;" Foreground="{ThemeResource SystemFillColorSuccessBrush}" FontSize="12"/>
-                                        <TextBlock Text="{x:Bind AvailableQuantity}" Foreground="{ThemeResource SystemFillColorSuccessBrush}" FontWeight="SemiBold" FontSize="12" />
-                                        <TextBlock Text="Available" Foreground="{ThemeResource SystemFillColorSuccessBrush}" FontSize="12" />
-                                    </StackPanel>
-
-                                    <TextBlock Foreground="{ThemeResource TextFillColorTertiaryBrush}" FontSize="12" Margin="0,2,0,0">
+                                    <Border Style="{StaticResource StatusBadgeStyle}" Background="{x:Bind AvailableQuantity, Mode=OneWay, Converter={StaticResource StockBackgroundConverter}}" HorizontalAlignment="Left" Margin="0,0,0,4">
+                                        <StackPanel Orientation="Horizontal" Spacing="6" Padding="4,2">
+                                             <FontIcon Glyph="{x:Bind AvailableQuantity, Mode=OneWay, Converter={StaticResource StockIconConverter}}" FontSize="12" Foreground="{x:Bind AvailableQuantity, Mode=OneWay, Converter={StaticResource StockForegroundConverter}}"/>
+                                             <TextBlock Style="{StaticResource StatusBadgeTextStyle}" Foreground="{x:Bind AvailableQuantity, Mode=OneWay, Converter={StaticResource StockForegroundConverter}}">
+                                                  <Run Text="{x:Bind AvailableQuantity, Mode=OneWay}" />
+                                                  <Run Text=" Available" />
+                                             </TextBlock>
+                                        </StackPanel>
+                                    </Border>
+                                    
+                                    <TextBlock Foreground="{ThemeResource TextFillColorTertiaryBrush}" FontSize="12" Margin="4,2,0,0">
                                         <Run Text="{x:Bind StockOnHand}" />
                                         <Run Text=" On Hand" />
                                     </TextBlock>
