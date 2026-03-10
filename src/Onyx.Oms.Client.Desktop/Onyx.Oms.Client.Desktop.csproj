@@ -20,6 +20,7 @@
     <None Remove="Features\Dashboard\DashboardPage.xaml" />
     <None Remove="Features\Fulfillment\FulfillmentPage.xaml" />
     <None Remove="Features\ProductCategories\ProductCategoriesPage.xaml" />
+    <None Remove="Features\Products\EditProductPage.xaml" />
     <None Remove="Features\Products\ProductsPage.xaml" />
     <None Remove="Features\ProductVariants\ProductVariantsPage.xaml" />
     <None Remove="Features\Roles\RoleFormPage.xaml" />
@@ -89,6 +90,11 @@
   <ItemGroup>
     <Folder Include="Shared\Components\" />
     <Folder Include="Shared\Shell\Navigation\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Features\Products\EditProductPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Shared\Styles\CardStyles.xaml">

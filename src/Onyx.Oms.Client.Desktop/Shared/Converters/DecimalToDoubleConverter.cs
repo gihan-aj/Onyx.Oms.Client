@@ -3,7 +3,7 @@ using System;
 
 namespace Onyx.Oms.Client.Desktop.Shared.Converters;
 
-public class DecimalToDoubleConverter : IValueConverter
+public partial class DecimalToDoubleConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
@@ -18,6 +18,10 @@ public class DecimalToDoubleConverter : IValueConverter
     {
         if (value is double doubleValue)
         {
+            if (double.IsNaN(doubleValue))
+            {
+                return 0m;
+            }
             return (decimal)doubleValue;
         }
         if (value is int intValue)

@@ -156,7 +156,37 @@ namespace Onyx.Oms.Client.Desktop
                     .AddHttpMessageHandler<AuthHeaderHandler>()
                     .AddHttpMessageHandler<ProblemDetailsHandler>();
 
-            services.AddRefitClient<IProductApi>()
+            services.AddRefitClient<IGetProductsApi>()
+                    .ConfigureHttpClient((sp, c) => 
+                    {
+                        var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
+                        c.BaseAddress = new Uri(options.BaseUrl);
+                    })
+                    .AddHttpMessageHandler<HttpLoggingHandler>()
+                    .AddHttpMessageHandler<AuthHeaderHandler>()
+                    .AddHttpMessageHandler<ProblemDetailsHandler>();
+            
+            services.AddRefitClient<IGetProductDetailsApi>()
+                    .ConfigureHttpClient((sp, c) => 
+                    {
+                        var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
+                        c.BaseAddress = new Uri(options.BaseUrl);
+                    })
+                    .AddHttpMessageHandler<HttpLoggingHandler>()
+                    .AddHttpMessageHandler<AuthHeaderHandler>()
+                    .AddHttpMessageHandler<ProblemDetailsHandler>();
+
+            services.AddRefitClient<ICreateProductApi>()
+                    .ConfigureHttpClient((sp, c) => 
+                    {
+                        var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
+                        c.BaseAddress = new Uri(options.BaseUrl);
+                    })
+                    .AddHttpMessageHandler<HttpLoggingHandler>()
+                    .AddHttpMessageHandler<AuthHeaderHandler>()
+                    .AddHttpMessageHandler<ProblemDetailsHandler>();
+
+            services.AddRefitClient<IUpdateProductApi>()
                     .ConfigureHttpClient((sp, c) => 
                     {
                         var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
@@ -244,6 +274,8 @@ namespace Onyx.Oms.Client.Desktop
             services.AddTransient<Features.Products.CreateProductViewModel>();
             services.AddTransient<Features.Products.ProductDetailsPage>();
             services.AddTransient<Features.Products.ProductDetailsViewModel>();
+            services.AddTransient<Features.Products.EditProductPage>();
+            services.AddTransient<Features.Products.EditProductViewModel>();
             services.AddTransient<Features.ProductVariants.ProductVariantsPage>();
             services.AddTransient<Features.Couriers.CouriersPage>();
             services.AddTransient<Features.Couriers.CourierFormPage>();
@@ -273,6 +305,7 @@ namespace Onyx.Oms.Client.Desktop
             pageService.Configure(typeof(Features.Products.ProductsPage).FullName!, typeof(Features.Products.ProductsPage));
             pageService.Configure(typeof(Features.Products.CreateProductViewModel).FullName!, typeof(Features.Products.CreateProductPage));
             pageService.Configure(typeof(Features.Products.ProductDetailsViewModel).FullName!, typeof(Features.Products.ProductDetailsPage));
+            pageService.Configure(typeof(Features.Products.EditProductViewModel).FullName!, typeof(Features.Products.EditProductPage));
             pageService.Configure(typeof(Features.ProductVariants.ProductVariantsPage).FullName!, typeof(Features.ProductVariants.ProductVariantsPage));
             pageService.Configure(typeof(Features.Couriers.CouriersPage).FullName!, typeof(Features.Couriers.CouriersPage));
             pageService.Configure(typeof(Features.Couriers.CourierFormViewModel).FullName!, typeof(Features.Couriers.CourierFormPage));

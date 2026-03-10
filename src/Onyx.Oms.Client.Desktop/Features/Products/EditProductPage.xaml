@@ -1,0 +1,712 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Name="RootPage"
+    x:Class="Onyx.Oms.Client.Desktop.Features.Products.EditProductPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Onyx.Oms.Client.Desktop.Features.Products"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:labs="using:CommunityToolkit.WinUI.Controls"
+    xmlns:controls="using:Onyx.Oms.Client.Desktop.Features.Products.Controls"
+    xmlns:sharedConverters="using:Onyx.Oms.Client.Desktop.Shared.Converters"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:BoolToVisibilityConverter x:Key="InvertedBoolToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible" />
+        <converters:EmptyObjectToObjectConverter x:Key="NullToVisibilityConverter" EmptyValue="Collapsed" NotEmptyValue="Visible" />
+        <converters:EmptyCollectionToObjectConverter x:Key="EmptyListToVisibiltyConverter" EmptyValue="Visible" NotEmptyValue="Collapsed" />
+        <sharedConverters:DecimalToDoubleConverter x:Key="DecimalToDoubleConverter" />
+        <sharedConverters:StringListConverter x:Key="StringListConverter" />
+        <sharedConverters:StringToBoolConverter x:Key="StringToBoolConverter" />
+
+        <DataTemplate x:Key="TextSpecTemplate" x:DataType="local:SpecFieldViewModel">
+            <TextBox Header="{x:Bind Label}" 
+                     Text="{x:Bind Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                     PlaceholderText="Enter value..." 
+                     Margin="0,0,0,12" />
+        </DataTemplate>
+
+        <DataTemplate x:Key="SelectSpecTemplate" x:DataType="local:SpecFieldViewModel">
+            <ComboBox Header="{x:Bind Label}" 
+                      ItemsSource="{x:Bind Options}" 
+                      SelectedItem="{x:Bind Value, Mode=TwoWay}"
+                      HorizontalAlignment="Stretch" 
+                      Margin="0,0,0,12" />
+        </DataTemplate>
+
+        <DataTemplate x:Key="ToggleSpecTemplate" x:DataType="local:SpecFieldViewModel">
+            <CheckBox Content="{x:Bind Label}" 
+                      IsChecked="{x:Bind Value, Mode=TwoWay, Converter={StaticResource StringToBoolConverter}}" 
+                      Margin="0,0,0,12" />
+        </DataTemplate>
+
+        <local:FormTemplateSelector x:Key="SpecSelector"
+                                    TextTemplate="{StaticResource TextSpecTemplate}"
+                                    ComboBoxTemplate="{StaticResource SelectSpecTemplate}"
+                                    ToggleTemplate="{StaticResource ToggleSpecTemplate}" />
+    </Page.Resources>
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Sticky Header with Back Button -->
+        <Grid Grid.Row="0" Padding="24,16" BorderThickness="0,0,0,1" 
+              BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" 
+              Background="{ThemeResource LayerFillColorDefaultBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0" Command="{x:Bind ViewModel.GoBackCommand}" Style="{StaticResource SubtleButtonStyle}" Margin="0,0,16,0">
+                <FontIcon Glyph="&#xE72B;" FontSize="14" />
+            </Button>
+
+            <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" 
+               Style="{StaticResource SubtitleTextBlockStyle}" FontWeight="SemiBold" VerticalAlignment="Center" />
+        </Grid>
+
+        <ProgressBar Grid.Row="0" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" 
+             IsIndeterminate="True" 
+             Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" 
+             Canvas.ZIndex="100" />
+
+        <!-- Scrollable Body -->
+        <ScrollViewer Grid.Row="1" Padding="12" VerticalScrollBarVisibility="Auto">
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="10000*" MaxWidth="1200" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="1" HorizontalAlignment="Stretch" Spacing="12">
+
+                    <!-- Section 2: Split View -->
+                    <Grid ColumnSpacing="12">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" MinWidth="350" />
+                            <ColumnDefinition Width="1.2*" MinWidth="350" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Left Column -->
+                        <StackPanel Grid.Column="0" Orientation="Vertical" Spacing="12">
+
+                            <!-- Basic Information Section -->
+                            <StackPanel Style="{StaticResource CardStackStyle}">
+                                <Grid Margin="0,0,0,16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Basic Information" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                        <TextBlock Text="Product name, description, category, and base SKU." 
+                                                   Style="{StaticResource CaptionTextBlockStyle}" 
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                    </StackPanel>
+
+                                    <!-- Actions -->
+                                    <Button Grid.Column="1" Content="Edit" Command="{x:Bind ViewModel.EditBasicInfoCommand}" 
+                                            Style="{StaticResource DefaultButtonStyle}"
+                                            Visibility="{x:Bind ViewModel.IsEditingBasicInfo, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}" />
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" 
+                                    Visibility="{x:Bind ViewModel.IsEditingBasicInfo, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <Button Content="Cancel" Command="{x:Bind ViewModel.CancelBasicInfoCommand}" />
+                                        <Button Content="Save" Command="{x:Bind ViewModel.SaveBasicInfoCommand}" Style="{StaticResource AccentButtonStyle}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- READONLY MODE -->
+                                <StackPanel Spacing="12" Visibility="{x:Bind ViewModel.IsEditingBasicInfo, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}">
+                                    <Grid ColumnSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="1*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="Product Name" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
+                                            <TextBlock Text="{x:Bind ViewModel.Product.Name, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" />
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="Base SKU" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
+                                            <TextBlock Text="{x:Bind ViewModel.Product.BaseSku, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" />
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <StackPanel>
+                                        <TextBlock Text="Category" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
+                                        <TextBlock Text="{x:Bind ViewModel.Product.CategoryPath, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" />
+                                    </StackPanel>
+
+                                    <StackPanel>
+                                        <TextBlock Text="Description" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
+                                        <TextBlock Text="{x:Bind ViewModel.Product.Description, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <!-- EDIT MODE -->
+                                <StackPanel Spacing="12" Visibility="{x:Bind ViewModel.IsEditingBasicInfo, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <Grid ColumnSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="1*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBox Grid.Column="0" Header="Product Name *" Text="{x:Bind ViewModel.DraftName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBox Grid.Column="1" Header="Base SKU" Text="{x:Bind ViewModel.DraftBaseSku, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    </Grid>
+
+                                    <StackPanel>
+                                        <TextBlock Text="Category *" Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,4"/>
+                                        <controls:LeafProductCategoryPicker x:Name="CategoryPicker"
+                                                                            SelectedCategory="{x:Bind ViewModel.DraftCategory, Mode=TwoWay}"/>
+                                    </StackPanel>
+
+                                    <TextBox Header="Description" 
+                                             Text="{x:Bind ViewModel.DraftDescription, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                             AcceptsReturn="True" 
+                                             TextWrapping="Wrap" 
+                                             Height="100" />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Specifications Section -->
+                            <StackPanel Style="{StaticResource CardStackStyle}">
+                                <Grid Margin="0,0,0,16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Specifications" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                        <TextBlock Text="Product attributes specific to its category." 
+                                                   Style="{StaticResource CaptionTextBlockStyle}" 
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                    </StackPanel>
+
+                                    <!-- Actions -->
+                                    <Button Grid.Column="1" Content="Edit" Command="{x:Bind ViewModel.EditSpecificationsCommand}" 
+                                            Style="{StaticResource DefaultButtonStyle}"
+                                            Visibility="{x:Bind ViewModel.IsEditingSpecifications, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}" />
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" 
+                                                Visibility="{x:Bind ViewModel.IsEditingSpecifications, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <Button Content="Cancel" Command="{x:Bind ViewModel.CancelSpecificationsCommand}" />
+                                        <Button Content="Save" Command="{x:Bind ViewModel.SaveSpecificationsCommand}" Style="{StaticResource AccentButtonStyle}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- READONLY MODE -->
+                                <ItemsRepeater ItemsSource="{x:Bind ViewModel.Product.Specifications, Mode=OneWay}" 
+                                                Visibility="{x:Bind ViewModel.IsEditingSpecifications, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}">
+                                    <ItemsRepeater.ItemTemplate>
+                                        <DataTemplate x:DataType="local:ProductSpecificationDto">
+                                            <Grid Margin="0,0,0,12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="200" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0" Text="{x:Bind Label}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
+                                                <TextBlock Grid.Column="1" Text="{x:Bind Value}" VerticalAlignment="Center" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsRepeater.ItemTemplate>
+                                </ItemsRepeater>
+
+                                <!-- EDIT MODE -->
+                                <ItemsControl ItemsSource="{x:Bind ViewModel.DraftSpecs, Mode=OneWay}"
+                                              ItemTemplateSelector="{StaticResource SpecSelector}"
+                                              Margin="0,0,0,12"
+                                              Visibility="{x:Bind ViewModel.IsEditingSpecifications, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Spacing="12" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                </ItemsControl>
+                            </StackPanel>
+
+                        </StackPanel>
+
+                        <!-- Right Column -->
+                        <StackPanel Grid.Column="1" Orientation="Vertical" Spacing="12">
+
+                            <!-- Base Logistics Section -->
+                            <StackPanel Style="{StaticResource CardStackStyle}">
+
+                                <Grid Margin="0,0,0,16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Base Logistics" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                        <TextBlock Text="Fallback pricing and physical weight." 
+                                                   Style="{StaticResource CaptionTextBlockStyle}" 
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                    </StackPanel>
+
+                                    <!-- Actions -->
+                                    <Button Grid.Column="1" Content="Edit" Command="{x:Bind ViewModel.EditBaseLogisticsCommand}" 
+                                            Style="{StaticResource DefaultButtonStyle}"
+                                            Visibility="{x:Bind ViewModel.IsEditingBaseLogistics, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}" />
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" 
+                                                Visibility="{x:Bind ViewModel.IsEditingBaseLogistics, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <Button Content="Cancel" Command="{x:Bind ViewModel.CancelBaseLogisticsCommand}" />
+                                        <Button Content="Save" Command="{x:Bind ViewModel.SaveBaseLogisticsCommand}" Style="{StaticResource AccentButtonStyle}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- READONLY MODE -->
+                                <StackPanel Visibility="{x:Bind ViewModel.IsEditingBaseLogistics, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}" Spacing="12">
+                                    <Grid ColumnSpacing="16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="200" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Base Cost:" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.Product.BaseCostAmount, Mode=OneWay}" VerticalAlignment="Center" />
+                                    </Grid>
+                                    <Grid ColumnSpacing="16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="200" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Base Price:" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.Product.BasePriceAmount, Mode=OneWay}" VerticalAlignment="Center" />
+                                    </Grid>
+                                    <Grid ColumnSpacing="16" Visibility="{x:Bind ViewModel.Product.BaseWeightAmount, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="200" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Base Weight:" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.Product.BaseWeightAmount, Mode=OneWay}" VerticalAlignment="Center" />
+                                    </Grid>
+                                </StackPanel>
+
+                                <!-- EDIT MODE -->
+                                <StackPanel Visibility="{x:Bind ViewModel.IsEditingBaseLogistics, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" Spacing="12">
+
+                                    <Grid ColumnSpacing="12" Margin="0,0,0,16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="1*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="Base Cost" Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,4"/>
+                                            <NumberBox Value="{x:Bind ViewModel.DraftBaseCostAmount, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}" Minimum="0" />
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="Base Price *" Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,4"/>
+                                            <NumberBox Value="{x:Bind ViewModel.DraftBasePriceAmount, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}" Minimum="0" />
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <CheckBox Content="This is a physical product (requires shipping)" IsChecked="{x:Bind ViewModel.DraftIsPhysicalProduct, Mode=TwoWay}" Margin="0,0,0,8" />
+
+                                    <StackPanel Visibility="{x:Bind ViewModel.DraftIsPhysicalProduct, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" Margin="0,0,0,16">
+                                        <TextBlock Text="Base Weight" Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,4"/>
+                                        <NumberBox Value="{x:Bind ViewModel.DraftBaseWeightValue, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}" Minimum="0" />
+                                    </StackPanel>
+                                </StackPanel>
+
+                            </StackPanel>
+
+                            <!-- Tags Section -->
+                            <StackPanel Style="{StaticResource CardStackStyle}">
+
+                                <Grid Margin="0,0,0,16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Tags" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                        <TextBlock Text="Keywords for search index and grouping." 
+                                                   Style="{StaticResource CaptionTextBlockStyle}" 
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                    </StackPanel>
+
+                                    <!-- Actions -->
+                                    <Button Grid.Column="1" Content="Edit" Command="{x:Bind ViewModel.EditTagsCommand}" 
+                                            Style="{StaticResource DefaultButtonStyle}"
+                                            Visibility="{x:Bind ViewModel.IsEditingTags, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}" />
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" 
+                                                Visibility="{x:Bind ViewModel.IsEditingTags, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <Button Content="Cancel" Command="{x:Bind ViewModel.CancelTagsCommand}" />
+                                        <Button Content="Save" Command="{x:Bind ViewModel.SaveTagsCommand}" Style="{StaticResource AccentButtonStyle}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- READONLY MODE -->
+                                <ItemsControl ItemsSource="{x:Bind ViewModel.Product.Tags, Mode=OneWay}"
+                                              Visibility="{x:Bind ViewModel.IsEditingTags, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <VariableSizedWrapGrid Orientation="Horizontal" MaximumRowsOrColumns="15" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="x:String">
+                                            <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}" 
+                                                    BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" 
+                                                    BorderThickness="1" 
+                                                    CornerRadius="14" 
+                                                    Padding="12,4"
+                                                    Margin="0,0,8,8">
+                                                <TextBlock Text="{x:Bind}" FontSize="12" VerticalAlignment="Center" />
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <!-- EDIT MODE -->
+                                <labs:TokenizingTextBox Visibility="{x:Bind ViewModel.IsEditingTags, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                        Header="Tags (Type and press Enter)"
+                                                        ItemsSource="{x:Bind ViewModel.DraftTags, Mode=OneWay}"
+                                                        TokenDelimiter="&#13;"
+                                                        PlaceholderText="e.g., Summer, Sale, New Arrival" />
+
+                            </StackPanel>
+
+                        </StackPanel>
+
+                    </Grid>
+
+                    <!-- Product Type Card (Variant Toggle) -->
+                    <StackPanel Style="{StaticResource CardStackStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Product Variations" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                <TextBlock Text="Does this product come in multiple options like size or color?" 
+                                           Style="{StaticResource CaptionTextBlockStyle}" 
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </StackPanel>
+                            
+                            <ToggleSwitch Grid.Column="1" 
+                                          IsOn="{x:Bind ViewModel.Product.HasVariants, Mode=OneWay}" 
+                                          Toggled="HasVariantsToggle_Toggled"
+                                          OnContent="Has Variations" 
+                                          OffContent="Single Product" />
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Default Variant Logistics Card (Shown when HasVariants is false) -->
+                    <StackPanel Style="{StaticResource CardStackStyle}" Visibility="{x:Bind ViewModel.Product.HasVariants, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}">
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Inventory &amp; Pricing" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                <TextBlock Text="Manage stock and pricing overrides for this single-product item." 
+                                           Style="{StaticResource CaptionTextBlockStyle}" 
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </StackPanel>
+
+                            <!-- Actions -->
+                            <Button Grid.Column="1" Content="Edit" Command="{x:Bind ViewModel.EditDefaultVariantLogisticsCommand}" 
+                                    Style="{StaticResource DefaultButtonStyle}"
+                                    Visibility="{x:Bind ViewModel.IsEditingDefaultVariantLogistics, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}" />
+
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" 
+                                        Visibility="{x:Bind ViewModel.IsEditingDefaultVariantLogistics, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <Button Content="Cancel" Command="{x:Bind ViewModel.CancelDefaultVariantLogisticsCommand}" />
+                                        <Button Content="Save" Command="{x:Bind ViewModel.SaveDefaultVariantLogisticsCommand}" Style="{StaticResource AccentButtonStyle}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- READONLY MODE -->
+                        <StackPanel Visibility="{x:Bind ViewModel.IsEditingDefaultVariantLogistics, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}" Spacing="12">
+                            <!-- We assume the first item in the variants list holds the default variant data, else show base data -->
+                            <Grid ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="200" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="SKU:" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.DraftDefaultVariantSku, Mode=OneWay}" VerticalAlignment="Center" />
+                            </Grid>
+                            <Grid ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="200" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Available Stock:" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.DraftDefaultVariantStockOnHand, Mode=OneWay}" VerticalAlignment="Center" />
+                            </Grid>
+                            <Grid ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="200" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Cost override:" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.DraftDefaultVariantCostAmount, Mode=OneWay}" VerticalAlignment="Center" />
+                            </Grid>
+                            <Grid ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="200" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Price override:" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.DraftDefaultVariantPriceAmount, Mode=OneWay}" VerticalAlignment="Center" />
+                            </Grid>
+                            <Grid ColumnSpacing="16" Visibility="{x:Bind ViewModel.Product.BaseWeightAmount, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="200" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Weight override:" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.DraftDefaultVariantWeightValue, Mode=OneWay}" VerticalAlignment="Center" />
+                            </Grid>
+                        </StackPanel>
+
+                        <!-- EDIT MODE -->
+                        <StackPanel Visibility="{x:Bind ViewModel.IsEditingDefaultVariantLogistics, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" Spacing="12">
+                            <Grid ColumnSpacing="12" Margin="0,0,0,16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Initial Stock Available" Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,4"/>
+                                    <NumberBox Minimum="0" Value="{x:Bind ViewModel.DraftDefaultVariantStockOnHand, Mode=TwoWay}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="Product SKU" Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,4"/>
+                                    <TextBox Text="{x:Bind ViewModel.DraftDefaultVariantSku, Mode=TwoWay}" />
+                                </StackPanel>
+                            </Grid>
+
+                            <Grid ColumnSpacing="12" Margin="0,0,0,16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Cost Limit (Optional)" Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,4"/>
+                                    <NumberBox Value="{x:Bind ViewModel.DraftDefaultVariantCostAmount, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}" Minimum="0" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="Price Amount *" Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,4"/>
+                                    <NumberBox Value="{x:Bind ViewModel.DraftDefaultVariantPriceAmount, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}" Minimum="0" />
+                                </StackPanel>
+                            </Grid>
+
+                            <StackPanel Visibility="{x:Bind ViewModel.DraftIsPhysicalProduct, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" Margin="0,0,0,16">
+                                <TextBlock Text="Total Weight" Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,4"/>
+                                <NumberBox Value="{x:Bind ViewModel.DraftDefaultVariantWeightValue, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}" Minimum="0" />
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Section 3: Variation Options Card -->
+                    <StackPanel Style="{StaticResource CardStackStyle}" Visibility="{x:Bind ViewModel.Product.HasVariants, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Variation Options" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                <TextBlock Text="Define dynamic option axes like size, color, or material." 
+                                           Style="{StaticResource CaptionTextBlockStyle}" 
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </StackPanel>
+                            
+                            <!-- Actions -->
+                            <Button Grid.Column="1" Content="Edit" Command="{x:Bind ViewModel.EditOptionsCommand}" 
+                                    Style="{StaticResource DefaultButtonStyle}"
+                                    Visibility="{x:Bind ViewModel.IsEditingOptions, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}" />
+                                    
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" 
+                                        Visibility="{x:Bind ViewModel.IsEditingOptions, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <Button Content="Cancel" Command="{x:Bind ViewModel.CancelOptionsCommand}" />
+                                <Button Content="Save" Command="{x:Bind ViewModel.SaveOptionsCommand}" Style="{StaticResource AccentButtonStyle}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- READONLY MODE -->
+                        <StackPanel Visibility="{x:Bind ViewModel.IsEditingOptions, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}">
+                            <!-- Empty State -->
+                            <TextBlock Text="No options configured for this product." 
+                                       FontStyle="Italic" Foreground="{ThemeResource TextFillColorDisabledBrush}"
+                                       Visibility="{x:Bind ViewModel.Product.Options, Mode=OneWay, Converter={StaticResource EmptyListToVisibiltyConverter}}" />
+                                       
+                            <ItemsRepeater ItemsSource="{x:Bind ViewModel.Product.Options, Mode=OneWay}">
+                                <ItemsRepeater.ItemTemplate>
+                                    <DataTemplate x:DataType="local:ProductOptionDetailsDto">
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="200" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="{x:Bind Name}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
+                                            <TextBlock Grid.Column="1" Text="{x:Bind Values, Converter={StaticResource StringListConverter}}" VerticalAlignment="Center" TextWrapping="Wrap" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsRepeater.ItemTemplate>
+                            </ItemsRepeater>
+                        </StackPanel>
+
+                        <!-- EDIT MODE -->
+                        <StackPanel Visibility="{x:Bind ViewModel.IsEditingOptions, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <TextBlock Text="1. Define Option Axes" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,0,0,12" />
+
+                            <Grid ColumnSpacing="12" Margin="0,0,0,16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="2*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBox Grid.Column="0" Header="Option Name" PlaceholderText="e.g., Color" Text="{x:Bind ViewModel.DraftOptionName, Mode=TwoWay}" />
+                                <StackPanel Grid.Column="1" Spacing="4">
+                                    <labs:TokenizingTextBox 
+                                    Header="Values (Type and press Enter)"
+                                    ItemsSource="{x:Bind ViewModel.DraftOptionValues, Mode=OneWay}"
+                                    TokenDelimiter="&#13;"
+                                    PlaceholderText="e.g., Red, Blue" />
+                                </StackPanel>
+
+                                <Button Grid.Column="2" Content="Add Option" VerticalAlignment="Bottom" 
+                                    Command="{x:Bind ViewModel.AddOptionCommand}" Style="{StaticResource DefaultButtonStyle}" />
+                            </Grid>
+
+                            <ItemsRepeater ItemsSource="{x:Bind ViewModel.DraftOptions, Mode=OneWay}" Margin="0,0,0,16">
+                                <ItemsRepeater.ItemTemplate>
+                                    <DataTemplate x:DataType="local:ProductOptionModel">
+                                        <Grid Padding="12" Background="{ThemeResource LayerFillColorAltBrush}" CornerRadius="4" Margin="0,0,0,8" BorderThickness="1" BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="150" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="{x:Bind Name}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                            <TextBlock Grid.Column="1" Text="{x:Bind Values, Converter={StaticResource StringListConverter}}" VerticalAlignment="Center" TextWrapping="Wrap" />
+                                            <Button Grid.Column="2" Content="&#xE74D;" FontFamily="Segoe MDL2 Assets" 
+                                                Style="{StaticResource SubtleButtonStyle}" Foreground="{ThemeResource SystemFillColorCriticalBrush}" ToolTipService.ToolTip="Remove Option"
+                                                Command="{Binding ElementName=RootPage, Path=ViewModel.RemoveOptionCommand}"
+                                                CommandParameter="{x:Bind}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsRepeater.ItemTemplate>
+                            </ItemsRepeater>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Section 4: Variant Matrix Card -->
+                    <StackPanel Style="{StaticResource CardStackStyle}" Visibility="{x:Bind ViewModel.Product.HasVariants, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Variant Matrix" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                <TextBlock Text="Manage individual SKUs, pricing, weight, and stock for each variation." 
+                                           Style="{StaticResource CaptionTextBlockStyle}" 
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </StackPanel>
+                            
+                            <!-- Actions -->
+                            <Button Grid.Column="1" Content="Edit" Command="{x:Bind ViewModel.EditVariantsCommand}" 
+                                    Style="{StaticResource DefaultButtonStyle}"
+                                    Visibility="{x:Bind ViewModel.IsEditingVariants, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}" />
+                                    
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" 
+                                        Visibility="{x:Bind ViewModel.IsEditingVariants, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <Button Content="Cancel" Command="{x:Bind ViewModel.CancelVariantsCommand}" />
+                                <Button Content="Save" Command="{x:Bind ViewModel.SaveVariantsCommand}" Style="{StaticResource AccentButtonStyle}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- READONLY MODE -->
+                        <StackPanel Visibility="{x:Bind ViewModel.IsEditingVariants, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}">
+                            <toolkit:DataGrid ItemsSource="{x:Bind ViewModel.Product.Variants, Mode=OneWay}" 
+                                          AutoGenerateColumns="False"
+                                          BorderThickness="1" 
+                                          BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
+                                          GridLinesVisibility="Horizontal" 
+                                          RowBackground="{ThemeResource LayerFillColorAltBrush}"
+                                          AlternatingRowBackground="{ThemeResource LayerFillColorDefaultBrush}"
+                                          IsReadOnly="True"
+                                          MinHeight="100"
+                                          MaxHeight="500">
+                                <toolkit:DataGrid.Columns>
+                                    <toolkit:DataGridTextColumn Header="SKU" Binding="{Binding Sku}" Width="2*" />
+                                    <toolkit:DataGridTextColumn Header="Price" Binding="{Binding PriceAmount}" Width="130" HeaderStyle="{StaticResource RightAlignedHeaderStyle}" ElementStyle="{StaticResource RightAlignedCellStyle}"/>
+                                    <toolkit:DataGridTextColumn Header="Cost" Binding="{Binding CostAmount}" Width="130" HeaderStyle="{StaticResource RightAlignedHeaderStyle}" ElementStyle="{StaticResource RightAlignedCellStyle}"/>
+                                    <toolkit:DataGridTextColumn Header="Stock" Binding="{Binding StockOnHand}" Width="130" HeaderStyle="{StaticResource RightAlignedHeaderStyle}" ElementStyle="{StaticResource RightAlignedCellStyle}"/>
+                                    <toolkit:DataGridCheckBoxColumn Header="Active" Binding="{Binding IsActive}" Width="80" />
+                                </toolkit:DataGrid.Columns>
+                            </toolkit:DataGrid>
+                        </StackPanel>
+
+                        <!-- EDIT MODE -->
+                        <StackPanel Visibility="{x:Bind ViewModel.IsEditingVariants, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <toolkit:DataGrid ItemsSource="{x:Bind ViewModel.DraftVariants, Mode=OneWay}" 
+                                          AutoGenerateColumns="False"
+                                          BorderThickness="1" 
+                                          BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
+                                          GridLinesVisibility="Horizontal" 
+                                          RowBackground="Transparent"
+                                          AlternatingRowBackground="{ThemeResource LayerFillColorDefaultBrush}"
+                                          MinHeight="200"
+                                          MaxHeight="600">
+                                <toolkit:DataGrid.Columns>
+                                    <toolkit:DataGridTextColumn Header="Variant Attributes" Binding="{Binding DisplayAttributes}" IsReadOnly="True" Width="*" />
+                                    <toolkit:DataGridCheckBoxColumn Header="Active" Binding="{Binding IsActive, Mode=TwoWay}" Width="80" />
+                                    <toolkit:DataGridTextColumn Header="SKU Override" Binding="{Binding Sku, Mode=TwoWay}" Width="1.5*" />
+                                    <toolkit:DataGridTextColumn Header="Price" Binding="{Binding PriceAmount, Mode=TwoWay}" Width="100" HeaderStyle="{StaticResource RightAlignedHeaderStyle}" ElementStyle="{StaticResource RightAlignedCellStyle}"/>
+                                    <toolkit:DataGridTextColumn Header="Cost" Binding="{Binding CostAmount, Mode=TwoWay}" Width="100" HeaderStyle="{StaticResource RightAlignedHeaderStyle}" ElementStyle="{StaticResource RightAlignedCellStyle}"/>
+                                    <toolkit:DataGridTextColumn Header="Weight" Binding="{Binding WeightValue, Mode=TwoWay}" Width="100" HeaderStyle="{StaticResource RightAlignedHeaderStyle}" ElementStyle="{StaticResource RightAlignedCellStyle}"/>
+                                    <toolkit:DataGridTextColumn Header="Stock" Binding="{Binding StockOnHand, Mode=TwoWay}" Width="120" HeaderStyle="{StaticResource RightAlignedHeaderStyle}" ElementStyle="{StaticResource RightAlignedCellStyle}"/>
+                                </toolkit:DataGrid.Columns>
+                            </toolkit:DataGrid>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Section 5: Images Card -->
+                    <StackPanel Style="{StaticResource CardStackStyle}">
+                        
+                        
+                       
+                    </StackPanel>
+
+                </StackPanel>
+
+            </Grid>
+            
+        </ScrollViewer>
+
+    </Grid>
+</Page>

@@ -12,13 +12,13 @@ namespace Onyx.Oms.Client.Desktop.Features.Products;
 
 public partial class ProductDetailsViewModel : ObservableObject, INavigationAware
 {
-    private readonly IProductApi _productApi;
+    private readonly IGetProductDetailsApi _productApi;
     private readonly ILogger<ProductDetailsViewModel> _logger;
     private readonly INavigationService _navigationService;
     private readonly IFileService _fileService;
 
     public ProductDetailsViewModel(
-        IProductApi productApi,
+        IGetProductDetailsApi productApi,
         ILogger<ProductDetailsViewModel> logger,
         INavigationService navigationService,
         IFileService fileService)

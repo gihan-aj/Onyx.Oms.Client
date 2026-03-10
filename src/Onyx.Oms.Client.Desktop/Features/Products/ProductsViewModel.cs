@@ -13,7 +13,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Products;
 
 public partial class ProductsViewModel : ObservableObject, INavigationAware
 {
-    private readonly IProductApi _productApi;
+    private readonly IGetProductsApi _productApi;
     private readonly IProductCategoryLookupApi _productCategoryLookupApi;
     private readonly IPermissionService _permissionService;
     private readonly IToastService _toastService;
@@ -159,9 +159,10 @@ public partial class ProductsViewModel : ObservableObject, INavigationAware
     public IAsyncRelayCommand ClearFiltersCommand { get; }
     public IRelayCommand NewProductCommand { get; }
     public IRelayCommand<ProductDto> ViewDetailsCommand { get; }
+    public IRelayCommand<ProductDto> EditDetailsCommand { get; }
 
     public ProductsViewModel(
-        IProductApi productApi,
+        IGetProductsApi productApi,
         IProductCategoryLookupApi productCategoryLookupApi,
         IPermissionService permissionService,
         IToastService toastService,
@@ -184,6 +185,7 @@ public partial class ProductsViewModel : ObservableObject, INavigationAware
         ClearFiltersCommand = new AsyncRelayCommand(ClearFiltersAsync);
         NewProductCommand = new RelayCommand(NavigateToNewProduct);
         ViewDetailsCommand = new RelayCommand<ProductDto>(ViewProductDetails);
+        EditDetailsCommand = new RelayCommand<ProductDto>(EditProductDetails);
     }
 
     public async void OnNavigatedTo(object? parameter)
@@ -340,6 +342,14 @@ public partial class ProductsViewModel : ObservableObject, INavigationAware
         if (product != null)
         {
             _navigationService.NavigateTo(typeof(ProductDetailsViewModel).FullName!, product.Id);
+        }
+    }
+
+    private void EditProductDetails(ProductDto? product)
+    {
+        if (product != null)
+        {
+            _navigationService.NavigateTo(typeof(EditProductViewModel).FullName!, product.Id);
         }
     }
 

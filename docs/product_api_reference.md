@@ -259,3 +259,144 @@ Returns a `ProductDetailsDto` containing the full product aggregate. Note that f
 
 *   `200 OK`: Product found and returned.
 *   `404 Not Found`: Product with the specified `id` does not exist.
+
+---
+
+## 4. Edit Product (Atomic Slices)
+
+The product edit functionality follows a Vertical Slice Architecture, providing atomic endpoints for different sections of the product data. This ensures safer concurrent edits and better performance.
+
+### 4.1 Update Basic Info
+Updates top-level details of a product.
+
+*   **URL:** `/api/v1/products/{id}/basic-info`
+*   **Method:** `PUT`
+*   **Payload (`UpdateProductBasicInfoCommand`):**
+    ```json
+    {
+      "id": "guid",
+      "name": "string",
+      "description": "string",
+      "baseSku": "string",
+      "categoryId": "guid",
+      "tags": [ "string" ]
+    }
+    ```
+
+### 4.2 Update Base Logistics
+Updates the fallback pricing and weight for the product matrix.
+
+*   **URL:** `/api/v1/products/{id}/base-logistics`
+*   **Method:** `PUT`
+*   **Payload (`UpdateProductBaseLogisticsCommand`):**
+    ```json
+    {
+      "id": "guid",
+      "baseCost": { "amount": 0, "currency": "LKR" },
+      "basePrice": { "amount": 0, "currency": "LKR" },
+      "baseWeight": { "value": 0, "unit": "kg" }
+    }
+    ```
+
+### 4.3 Update Specifications
+Updates the dynamic category-based specifications.
+
+*   **URL:** `/api/v1/products/{id}/specifications`
+*   **Method:** `PUT`
+*   **Payload (`UpdateProductSpecificationsCommand`):**
+    ```json
+    {
+      "id": "guid",
+      "specifications": { "Color": "Red", "Material": "Cotton" }
+    }
+    ```
+
+### 4.4 Update Options Matrix
+Updates the root options (Axes) for the product variant matrix.
+**Note on Safe Deletion:** Removing an option value (e.g., "Red") from this array will automatically trigger a soft-delete for any existing `ProductVariant` that relies on that value.
+
+*   **URL:** `/api/v1/products/{id}/options`
+*   **Method:** `PUT`
+*   **Payload (`UpdateProductOptionsCommand`):**
+    ```json
+    {
+      "id": "guid",
+      "options": [
+        { "name": "Color", "values": ["Red", "Blue"] }
+      ]
+    }
+    ```
+
+### 4.5 Toggle Product Variants (HasVariants)
+Transitions a product between Variant Matrix mode and Variant-less mode.
+
+*   **URL:** `/api/v1/products/{id}/toggle-variants`
+*   **Method:** `PUT`
+*   **Payload (`ToggleProductVariantsCommand`):**
+    ```json
+    {
+      "id": "guid",
+      "hasVariants": true
+    }
+    ```
+**Behavior:**
+*   **`true` -> `false`:** The system will soft-delete all existing variants in the matrix, clear the `options` array, and automatically create a single "Default Variant" (with empty attributes) to track logistics.
+*   **`false` -> `true`:** The system will soft-delete the existing "Default Variant". The client must subsequently call the `Update Options Matrix` endpoint to define the new axes.
+
+### 4.6 Default Variant Logistics (Variant-less Products)
+Updates inventory and pricing for a product where `hasVariants` is `false`.
+
+*   **URL:** `/api/v1/products/{id}/default-variant-logistics`
+*   **Method:** `PUT`
+*   **Payload (`UpdateDefaultVariantLogisticsCommand`):**
+    ```json
+    {
+      "productId": "guid",
+      "sku": "string",
+      "cost": { "amount": 0, "currency": "LKR" },
+      "price": { "amount": 0, "currency": "LKR" },
+      "weight": { "value": 0, "unit": "kg" },
+      "stockOnHand": 0
+    }
+    ```
+
+### 4.7 Update Variant Logistics (Matrix Products)
+Updates logistics for a specific variant within the matrix.
+
+*   **URL:** `/api/v1/products/{productId}/variants/{variantId}/logistics`
+*   **Method:** `PUT`
+*   **Payload (`UpdateProductVariantLogisticsCommand`):**
+    ```json
+    {
+      "productId": "guid",
+      "variantId": "guid",
+      "cost": { "amount": 0, "currency": "LKR" },
+      "price": { "amount": 0, "currency": "LKR" },
+      "weight": { "value": 0, "unit": "kg" },
+      "stockOnHand": 0
+    }
+    ```
+
+### 4.8 Add Product Variant
+Adds a new variant to an existing matrix product. Properties must match the defined options.
+
+*   **URL:** `/api/v1/products/{productId}/variants`
+*   **Method:** `POST`
+*   **Payload (`AddProductVariantCommand`):**
+    ```json
+    {
+      "productId": "guid",
+      "sku": "string",
+      "attributes": [ { "name": "Color", "value": "Green" } ],
+      "cost": { "amount": 0, "currency": "LKR" },
+      "price": { "amount": 0, "currency": "LKR" },
+      "weight": { "value": 0, "unit": "kg" },
+      "stockOnHand": 0
+    }
+    ```
+
+### 4.9 Delete Product Variant
+Soft-deletes a specific variant from the matrix.
+
+*   **URL:** `/api/v1/products/{productId}/variants/{variantId}`
+*   **Method:** `DELETE`

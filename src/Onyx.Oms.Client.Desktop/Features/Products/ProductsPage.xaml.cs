@@ -97,8 +97,7 @@ public sealed partial class ProductsPage : Page
     {
         if (sender is FrameworkElement { DataContext: ProductDto product })
         {
-            // TODO: Implement Product Edit Form Page
-            // _navigationService.NavigateTo("ProductFormPage", product.Id);
+            ViewModel.EditDetailsCommand.Execute(product);
         }
     }
 }

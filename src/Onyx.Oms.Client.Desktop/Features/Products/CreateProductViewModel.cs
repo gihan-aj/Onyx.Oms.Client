@@ -17,7 +17,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Products;
 
 public partial class CreateProductViewModel : ObservableObject, INavigationAware
 {
-    private readonly IProductApi _productApi;
+    private readonly ICreateProductApi _productApi;
     private readonly IProductCategoryLookupApi _productCategoryLookupApi;
     private readonly ITenantProfileService _tenantProfileService;
     private readonly IDialogService _dialogService;
@@ -26,7 +26,7 @@ public partial class CreateProductViewModel : ObservableObject, INavigationAware
     private readonly IFileService _fileService;
 
     public CreateProductViewModel(
-        IProductApi productApi,
+        ICreateProductApi productApi,
         IProductCategoryLookupApi productCategoryLookupApi,
         ITenantProfileService tenantProfileService,
         IDialogService dialogService,
@@ -243,7 +243,11 @@ public partial class CreateProductViewModel : ObservableObject, INavigationAware
             return;
         }
 
-        ProductOptions.Add(new ProductOptionModel { Name = DraftOptionName, Values = valuesList });
+        var optionModel = new ProductOptionModel { Name = DraftOptionName };
+        foreach(var v in valuesList)
+            optionModel.Values.Add(v);
+
+        ProductOptions.Add(optionModel);
         HasUnsavedChanges = true;
         
         DraftOptionName = string.Empty;
@@ -292,9 +296,9 @@ public partial class CreateProductViewModel : ObservableObject, INavigationAware
                 Attributes = combo,
                 DisplayAttributes = display,
                 Sku = overrideSku,
-                CostAmount = BaseCostAmount,
-                PriceAmount = BasePriceAmount,
-                WeightValue = BaseWeightValue,
+                CostAmount = (double)BaseCostAmount,
+                PriceAmount = (double)BasePriceAmount,
+                WeightValue = (double)BaseWeightValue,
                 StockOnHand = 0
             });
         }
@@ -457,16 +461,16 @@ public partial class CreateProductViewModel : ObservableObject, INavigationAware
             int? stockOnHand = HasVariants ? null : BaseStockOnHand;
             
             var optionsDto = HasVariants && ProductOptions.Any() 
-                ? ProductOptions.Select(o => new CreateProductOptionDto(o.Name, o.Values)).ToList() 
+                ? ProductOptions.Select(o => new CreateProductOptionDto(o.Name, o.Values.ToList())).ToList() 
                 : null;
 
             var variantsDto = HasVariants && VariantDrafts.Any()
                 ? VariantDrafts.Select(v => new CreateProductVariantDto(
                     Sku: v.Sku,
                     Attributes: v.Attributes,
-                    Cost: new CreateMoneyDto(v.CostAmount,BaseCurrency),
-                    Price: new CreateMoneyDto(v.PriceAmount, BaseCurrency),
-                    Weight: new CreateWeightDto(v.WeightValue, BaseWeightUnit),
+                    Cost: new CreateMoneyDto((decimal)v.CostAmount,BaseCurrency),
+                    Price: new CreateMoneyDto((decimal)v.PriceAmount, BaseCurrency),
+                    Weight: new CreateWeightDto((decimal)v.WeightValue, BaseWeightUnit),
                     StockOnHand: v.StockOnHand
                 )).ToList()
                 : null;
@@ -565,8 +569,8 @@ public partial class ProductOptionModel : ObservableObject
     private string _name = string.Empty;
     public string Name { get => _name; set => SetProperty(ref _name, value); }
     
-    private List<string> _values = new();
-    public List<string> Values { get => _values; set => SetProperty(ref _values, value); }
+    private ObservableCollection<string> _values = new();
+    public ObservableCollection<string> Values { get => _values; set => SetProperty(ref _values, value); }
 }
 
 public partial class VariantDraftModel : ObservableObject
@@ -577,14 +581,14 @@ public partial class VariantDraftModel : ObservableObject
     private string? _sku;
     public string? Sku { get => _sku; set => SetProperty(ref _sku, value); }
     
-    private decimal _costAmount;
-    public decimal CostAmount { get => _costAmount; set => SetProperty(ref _costAmount, value); }
+    private double _costAmount;
+    public double CostAmount { get => _costAmount; set => SetProperty(ref _costAmount, value); }
     
-    private decimal _priceAmount;
-    public decimal PriceAmount { get => _priceAmount; set => SetProperty(ref _priceAmount, value); }
+    private double _priceAmount;
+    public double PriceAmount { get => _priceAmount; set => SetProperty(ref _priceAmount, value); }
     
-    private decimal _weightValue;
-    public decimal WeightValue { get => _weightValue; set => SetProperty(ref _weightValue, value); }
+    private double _weightValue;
+    public double WeightValue { get => _weightValue; set => SetProperty(ref _weightValue, value); }
     
     private int _stockOnHand;
     public int StockOnHand { get => _stockOnHand; set => SetProperty(ref _stockOnHand, value); }

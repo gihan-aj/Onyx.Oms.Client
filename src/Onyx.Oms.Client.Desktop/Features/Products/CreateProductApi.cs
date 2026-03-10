@@ -1,7 +1,15 @@
+using Refit;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Onyx.Oms.Client.Desktop.Features.Products;
+
+public interface ICreateProductApi
+{
+    [Post("/api/v1/products")]
+    Task<Guid> CreateProduct([Body] CreateProductCommand command);
+}
 
 public record CreateProductCommand(
     string Name,
