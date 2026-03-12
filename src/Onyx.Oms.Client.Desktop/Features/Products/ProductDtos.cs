@@ -102,11 +102,11 @@ public class ProductDetailsVariantDto
     public string Sku { get; set; } = string.Empty;
     public List<ProductVariantAttributeDto> Attributes { get; set; } = new();
     public decimal CostAmount { get; set; }
-    public string CostCurrency { get; set; } = string.Empty;
+    public string CostCurrency { get; set; } = "LKR";
     public decimal PriceAmount { get; set; }
-    public string PriceCurrency { get; set; } = string.Empty;
+    public string PriceCurrency { get; set; } = "LKR";
     public decimal WeightAmount { get; set; }
-    public string WeightCurrency { get; set; } = string.Empty;
+    public string WeightCurrency { get; set; } = "kg";
     public int StockOnHand { get; set; }
     public int ReservedQuantity { get; set; }
     public bool IsActive { get; set; }
@@ -141,6 +141,7 @@ public class ProductDetailsDto
     public bool HasVariants { get; set; }
     public int StockOnHand { get; set; }
     public int ReservedQuantity { get; set; }
+    public List<string> Tags { get; set; } = new();
     public List<ProductDetailsOptionDto> Options { get; set; } = new();
     public List<ProductDetailsVariantDto> Variants { get; set; } = new();
     public List<ProductDetailsImageDto> Images { get; set; } = new();

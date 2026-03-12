@@ -21,6 +21,7 @@
     <None Remove="Features\Fulfillment\FulfillmentPage.xaml" />
     <None Remove="Features\ProductCategories\ProductCategoriesPage.xaml" />
     <None Remove="Features\Products\Controls\ProductCategoryPicker.xaml" />
+    <None Remove="Features\Products\Details\ProductDetailsPage.xaml" />
     <None Remove="Features\Products\List\ProductsPage.xaml" />
     <None Remove="Features\ProductVariants\ProductVariantsPage.xaml" />
     <None Remove="Features\Roles\RoleFormPage.xaml" />
@@ -90,6 +91,11 @@
   <ItemGroup>
     <Folder Include="Shared\Components\" />
     <Folder Include="Shared\Shell\Navigation\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Features\Products\Details\ProductDetailsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Features\Products\Controls\ProductCategoryPicker.xaml">

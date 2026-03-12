@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Onyx.Oms.Client.Desktop.Features.Products.Details;
 using Onyx.Oms.Client.Desktop.Shared.Constants;
 using Onyx.Oms.Client.Desktop.Shared.Models;
 using Onyx.Oms.Client.Desktop.Shared.Services;
@@ -19,6 +20,7 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
     private readonly IFileService _fileService;
     private readonly IDialogService _dialogService;
     private readonly IToastService _toastService;
+    private readonly INavigationService _navigationService;
 
     // -- Filtering --
     private string _searchTerm = string.Empty;
@@ -83,7 +85,8 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
         IProductCategoryLookupApi categoryLookupApi,
         IFileService fileService,
         IDialogService dialogService,
-        IToastService toastService)
+        IToastService toastService,
+        INavigationService navigationService)
     {
         _productsApi = productsApi;
         _permissionService = permissionService;
@@ -91,6 +94,7 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
         _fileService = fileService;
         _dialogService = dialogService;
         _toastService = toastService;
+        _navigationService = navigationService;
 
         ClearFiltersCommand = new AsyncRelayCommand(ClearFlitersAsync);
         NewProductCommand = new RelayCommand(NavigateToNewProduct);
@@ -202,7 +206,7 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
     {
         if(product != null)
         {
-
+            _navigationService.NavigateTo(typeof(ProductDetailsViewModel).FullName!, product.Id);
         }
     }
 

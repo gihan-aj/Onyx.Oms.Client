@@ -272,8 +272,8 @@ namespace Onyx.Oms.Client.Desktop
             services.AddTransient<Features.Products.List.ProductsViewModel>();
             //services.AddTransient<Features.Products.CreateProductPage>();
             //services.AddTransient<Features.Products.CreateProductViewModel>();
-            //services.AddTransient<Features.Products.ProductDetailsPage>();
-            //services.AddTransient<Features.Products.ProductDetailsViewModel>();
+            services.AddTransient<Features.Products.Details.ProductDetailsPage>();
+            services.AddTransient<Features.Products.Details.ProductDetailsViewModel>();
             //services.AddTransient<Features.Products.EditProductPage>();
             //services.AddTransient<Features.Products.EditProductViewModel>();
             services.AddTransient<Features.ProductVariants.ProductVariantsPage>();
@@ -304,7 +304,7 @@ namespace Onyx.Oms.Client.Desktop
             pageService.Configure(typeof(Features.ProductCategories.ProductCategoryFormViewModel).FullName!, typeof(Features.ProductCategories.ProductCategoryFormPage));
             pageService.Configure(typeof(Features.Products.List.ProductsPage).FullName!, typeof(Features.Products.List.ProductsPage));
             //pageService.Configure(typeof(Features.Products.CreateProductViewModel).FullName!, typeof(Features.Products.CreateProductPage));
-            //pageService.Configure(typeof(Features.Products.ProductDetailsViewModel).FullName!, typeof(Features.Products.ProductDetailsPage));
+            pageService.Configure(typeof(Features.Products.Details.ProductDetailsViewModel).FullName!, typeof(Features.Products.Details.ProductDetailsPage));
             //pageService.Configure(typeof(Features.Products.EditProductViewModel).FullName!, typeof(Features.Products.EditProductPage));
             pageService.Configure(typeof(Features.ProductVariants.ProductVariantsPage).FullName!, typeof(Features.ProductVariants.ProductVariantsPage));
             pageService.Configure(typeof(Features.Couriers.CouriersPage).FullName!, typeof(Features.Couriers.CouriersPage));
