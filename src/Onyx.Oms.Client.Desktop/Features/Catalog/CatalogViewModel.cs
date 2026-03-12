@@ -50,7 +50,7 @@ public partial class CatalogViewModel : ObservableObject
                 Title = "Products",
                 Description = "Manage your core product inventory and details.",
                 IconGlyph = "\xF466", // Box Open
-                TargetPageType = "Onyx.Oms.Client.Desktop.Features.Products.ProductsPage",
+                TargetPageType = "Onyx.Oms.Client.Desktop.Features.Products.List.ProductsPage",
                 MetricValue = "..."
             });
         }

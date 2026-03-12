@@ -74,7 +74,7 @@
                 <NavigationViewItem Icon="Library" Content="Catalog" Tag="Onyx.Oms.Client.Desktop.Features.Catalog.CatalogPage">
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Content="Categories" Tag="Onyx.Oms.Client.Desktop.Features.ProductCategories.ProductCategoriesPage" />
-                        <NavigationViewItem Content="Products" Tag="Onyx.Oms.Client.Desktop.Features.Products.ProductsPage" />
+                        <NavigationViewItem Content="Products" Tag="Onyx.Oms.Client.Desktop.Features.Products.List.ProductsPage" />
                         <NavigationViewItem Content="Variants" Tag="Onyx.Oms.Client.Desktop.Features.ProductVariants.ProductVariantsPage" />
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>

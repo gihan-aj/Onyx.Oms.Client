@@ -5,7 +5,7 @@ using Microsoft.UI.Xaml;
 using Onyx.Oms.Client.Desktop.Features.Catalog;
 using Onyx.Oms.Client.Desktop.Features.Couriers;
 using Onyx.Oms.Client.Desktop.Features.Customers;
-//using Onyx.Oms.Client.Desktop.Features.Products;
+using Onyx.Oms.Client.Desktop.Features.Products;
 using Onyx.Oms.Client.Desktop.Features.ProductCategories;
 using Onyx.Oms.Client.Desktop.Features.Roles;
 using Onyx.Oms.Client.Desktop.Features.Settings.Services;
@@ -156,16 +156,16 @@ namespace Onyx.Oms.Client.Desktop
                     .AddHttpMessageHandler<AuthHeaderHandler>()
                     .AddHttpMessageHandler<ProblemDetailsHandler>();
 
-            //services.AddRefitClient<IGetProductsApi>()
-            //        .ConfigureHttpClient((sp, c) => 
-            //        {
-            //            var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
-            //            c.BaseAddress = new Uri(options.BaseUrl);
-            //        })
-            //        .AddHttpMessageHandler<HttpLoggingHandler>()
-            //        .AddHttpMessageHandler<AuthHeaderHandler>()
-            //        .AddHttpMessageHandler<ProblemDetailsHandler>();
-            
+            services.AddRefitClient<IProductsApi>()
+                    .ConfigureHttpClient((sp, c) =>
+                    {
+                        var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
+                        c.BaseAddress = new Uri(options.BaseUrl);
+                    })
+                    .AddHttpMessageHandler<HttpLoggingHandler>()
+                    .AddHttpMessageHandler<AuthHeaderHandler>()
+                    .AddHttpMessageHandler<ProblemDetailsHandler>();
+
             //services.AddRefitClient<IGetProductDetailsApi>()
             //        .ConfigureHttpClient((sp, c) => 
             //        {
@@ -195,16 +195,16 @@ namespace Onyx.Oms.Client.Desktop
             //        .AddHttpMessageHandler<HttpLoggingHandler>()
             //        .AddHttpMessageHandler<AuthHeaderHandler>()
             //        .AddHttpMessageHandler<ProblemDetailsHandler>();
-            
-            //services.AddRefitClient<IProductCategoryLookupApi>()
-            //        .ConfigureHttpClient((sp, c) => 
-            //        {
-            //            var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
-            //            c.BaseAddress = new Uri(options.BaseUrl);
-            //        })
-            //        .AddHttpMessageHandler<HttpLoggingHandler>()
-            //        .AddHttpMessageHandler<AuthHeaderHandler>()
-            //        .AddHttpMessageHandler<ProblemDetailsHandler>();
+
+            services.AddRefitClient<IProductCategoryLookupApi>()
+                    .ConfigureHttpClient((sp, c) =>
+                    {
+                        var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
+                        c.BaseAddress = new Uri(options.BaseUrl);
+                    })
+                    .AddHttpMessageHandler<HttpLoggingHandler>()
+                    .AddHttpMessageHandler<AuthHeaderHandler>()
+                    .AddHttpMessageHandler<ProblemDetailsHandler>();
 
             services.AddRefitClient<ICatalogApi>()
                     .ConfigureHttpClient((sp, c) => 
@@ -241,7 +241,7 @@ namespace Onyx.Oms.Client.Desktop
             // services.AddTransient<IActivationHandler, SomeSpecificHandler>();
 
             // Default Handler
-            services.AddTransient<ActivationHandler<LaunchActivatedEventArgs>, DefaultActivationHandler>(); // We need to create this
+            services.AddTransient<ActivationHandler<LaunchActivatedEventArgs>, DefaultActivationHandler>();
 
             // Views and ViewModels
             services.AddTransient<Shared.Shell.MainWindow>();
@@ -268,8 +268,8 @@ namespace Onyx.Oms.Client.Desktop
             services.AddTransient<Features.ProductCategories.ProductCategoriesViewModel>();
             services.AddTransient<Features.ProductCategories.ProductCategoryFormPage>();
             services.AddTransient<Features.ProductCategories.ProductCategoryFormViewModel>();
-            //services.AddTransient<Features.Products.ProductsPage>();
-            //services.AddTransient<Features.Products.ProductsViewModel>();
+            services.AddTransient<Features.Products.List.ProductsPage>();
+            services.AddTransient<Features.Products.List.ProductsViewModel>();
             //services.AddTransient<Features.Products.CreateProductPage>();
             //services.AddTransient<Features.Products.CreateProductViewModel>();
             //services.AddTransient<Features.Products.ProductDetailsPage>();
@@ -302,7 +302,7 @@ namespace Onyx.Oms.Client.Desktop
             pageService.Configure(typeof(Features.Catalog.CatalogPage).FullName!, typeof(Features.Catalog.CatalogPage));
             pageService.Configure(typeof(Features.ProductCategories.ProductCategoriesPage).FullName!, typeof(Features.ProductCategories.ProductCategoriesPage));
             pageService.Configure(typeof(Features.ProductCategories.ProductCategoryFormViewModel).FullName!, typeof(Features.ProductCategories.ProductCategoryFormPage));
-            //pageService.Configure(typeof(Features.Products.ProductsPage).FullName!, typeof(Features.Products.ProductsPage));
+            pageService.Configure(typeof(Features.Products.List.ProductsPage).FullName!, typeof(Features.Products.List.ProductsPage));
             //pageService.Configure(typeof(Features.Products.CreateProductViewModel).FullName!, typeof(Features.Products.CreateProductPage));
             //pageService.Configure(typeof(Features.Products.ProductDetailsViewModel).FullName!, typeof(Features.Products.ProductDetailsPage));
             //pageService.Configure(typeof(Features.Products.EditProductViewModel).FullName!, typeof(Features.Products.EditProductPage));
