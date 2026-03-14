@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Onyx.Oms.Client.Desktop.Features.Products.Create;
 using Onyx.Oms.Client.Desktop.Features.Products.Details;
 using Onyx.Oms.Client.Desktop.Shared.Constants;
 using Onyx.Oms.Client.Desktop.Shared.Models;
@@ -9,6 +10,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
+using static Onyx.Oms.Client.Desktop.Shared.Constants.Permissions;
 
 namespace Onyx.Oms.Client.Desktop.Features.Products.List;
 
@@ -199,7 +201,7 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
 
     private void NavigateToNewProduct()
     {
-
+        _navigationService.NavigateTo(typeof(CreateProductViewModel).FullName!);
     }
 
     private void ViewProductDetails(ProductGridItem? product)

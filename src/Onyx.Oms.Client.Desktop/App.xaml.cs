@@ -270,8 +270,8 @@ namespace Onyx.Oms.Client.Desktop
             services.AddTransient<Features.ProductCategories.ProductCategoryFormViewModel>();
             services.AddTransient<Features.Products.List.ProductsPage>();
             services.AddTransient<Features.Products.List.ProductsViewModel>();
-            //services.AddTransient<Features.Products.CreateProductPage>();
-            //services.AddTransient<Features.Products.CreateProductViewModel>();
+            services.AddTransient<Features.Products.Create.CreateProductPage>();
+            services.AddTransient<Features.Products.Create.CreateProductViewModel>();
             services.AddTransient<Features.Products.Details.ProductDetailsPage>();
             services.AddTransient<Features.Products.Details.ProductDetailsViewModel>();
             //services.AddTransient<Features.Products.EditProductPage>();
@@ -303,7 +303,7 @@ namespace Onyx.Oms.Client.Desktop
             pageService.Configure(typeof(Features.ProductCategories.ProductCategoriesPage).FullName!, typeof(Features.ProductCategories.ProductCategoriesPage));
             pageService.Configure(typeof(Features.ProductCategories.ProductCategoryFormViewModel).FullName!, typeof(Features.ProductCategories.ProductCategoryFormPage));
             pageService.Configure(typeof(Features.Products.List.ProductsPage).FullName!, typeof(Features.Products.List.ProductsPage));
-            //pageService.Configure(typeof(Features.Products.CreateProductViewModel).FullName!, typeof(Features.Products.CreateProductPage));
+            pageService.Configure(typeof(Features.Products.Create.CreateProductViewModel).FullName!, typeof(Features.Products.Create.CreateProductPage));
             pageService.Configure(typeof(Features.Products.Details.ProductDetailsViewModel).FullName!, typeof(Features.Products.Details.ProductDetailsPage));
             //pageService.Configure(typeof(Features.Products.EditProductViewModel).FullName!, typeof(Features.Products.EditProductPage));
             pageService.Configure(typeof(Features.ProductVariants.ProductVariantsPage).FullName!, typeof(Features.ProductVariants.ProductVariantsPage));

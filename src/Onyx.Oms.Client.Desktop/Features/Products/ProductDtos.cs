@@ -42,7 +42,7 @@ public class CreateProductVariantDto
     public List<ProductVariantAttributeDto> Attributes { get; set; } = new();
     public MoneyDto Cost { get; set; } = new();
     public MoneyDto Price { get; set; } = new();
-    public WeightDto Weight { get; set; } = new();
+    public WeightDto? Weight { get; set; } = new();
     public int StockOnHand { get; set; }
 }
 
@@ -54,8 +54,9 @@ public class CreateProductDto
     public Guid CategoryId { get; set; }
     public MoneyDto BaseCost { get; set; } = new();
     public MoneyDto BasePrice { get; set; } = new();
-    public WeightDto BaseWeight { get; set; } = new();
+    public WeightDto? BaseWeight { get; set; } = new();
     public int? BaseStockOnHand { get; set; }
+    public bool HasVariants { get; set; }
     public List<ProductOptionDto> Options { get; set; } = new();
     public Dictionary<string, string> Specifications { get; set; } = new();
     public List<CreateProductVariantDto> Variants { get; set; } = new();
