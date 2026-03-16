@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Onyx.Oms.Client.Desktop.Features.Products.Create;
 using Onyx.Oms.Client.Desktop.Features.Products.Details;
+using Onyx.Oms.Client.Desktop.Features.Products.Edit;
 using Onyx.Oms.Client.Desktop.Shared.Constants;
 using Onyx.Oms.Client.Desktop.Shared.Models;
 using Onyx.Oms.Client.Desktop.Shared.Services;
@@ -216,7 +217,7 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
     {
         if(product != null)
         {
-
+            _navigationService.NavigateTo(typeof(EditProductViewModel).FullName!, product.Id);
         }
     }
 
