@@ -275,6 +275,76 @@
                             </StackPanel>
                         </StackPanel>
 
+                        <StackPanel Grid.Column="1" Orientation="Vertical" Spacing="12">
+                            <!-- Specifications Section -->
+                            <StackPanel Style="{StaticResource CardStackStyle}">
+                                <Grid Margin="0,0,0,16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Specifications" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                        <TextBlock Text="Product attributes specific to its category." 
+                                                   Style="{StaticResource CaptionTextBlockStyle}" 
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                    </StackPanel>
+
+                                    <CommandBar Grid.Column="1" 
+                                                Background="Transparent" 
+                                                IsOpen="False" 
+                                                DefaultLabelPosition="Right" 
+                                                IsSticky="True">
+                                        <AppBarButton Icon="Edit" Label="Edit" 
+                                                      Visibility="{x:Bind ViewModel.Specifications.IsReadonly, Mode=OneWay}"
+                                                      Command="{x:Bind ViewModel.Specifications.BeginEditCommand, Mode=OneWay}" />
+
+                                        <AppBarButton Icon="Save" Label="Save" 
+                                                      Visibility="{x:Bind ViewModel.Specifications.IsEditing, Mode=OneWay}"
+                                                      Command="{x:Bind ViewModel.SaveSpecificationsCommand}" />
+
+                                        <AppBarButton Icon="Cancel" Label="Cancel" 
+                                                      Visibility="{x:Bind ViewModel.Specifications.IsEditing, Mode=OneWay}"
+                                                      Command="{x:Bind ViewModel.Specifications.CancelEditCommand, Mode=OneWay}" />
+
+                                    </CommandBar>
+                                </Grid>
+
+                                <!-- READONLY MODE -->
+                                <ItemsRepeater ItemsSource="{x:Bind ViewModel.Specifications.SpecFields, Mode=OneWay}"
+                                               Visibility="{x:Bind ViewModel.Specifications.IsReadonly, Mode=OneWay}">
+                                    <ItemsRepeater.ItemTemplate>
+                                        <DataTemplate x:DataType="parent:SpecFieldViewItem">
+                                            <Grid Margin="0,0,0,12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="200" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0" Text="{x:Bind Label}" 
+                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" 
+                                                           VerticalAlignment="Center" />
+                                                <TextBlock Grid.Column="1" Text="{x:Bind Value}" 
+                                                           VerticalAlignment="Center" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsRepeater.ItemTemplate>
+                                </ItemsRepeater>
+
+                                <!-- EDIT MODE -->
+                                <ItemsControl ItemsSource="{x:Bind ViewModel.Specifications.SpecFields, Mode=OneWay}"
+                                              ItemTemplateSelector="{StaticResource SpecSelector}"
+                                              Margin="0,0,0,12"
+                                              Visibility="{x:Bind ViewModel.Specifications.IsEditing, Mode=OneWay}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Spacing="12" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                </ItemsControl>
+                            </StackPanel>
+                            
+                        </StackPanel>
                     </Grid>
                 </StackPanel>
             </Grid>

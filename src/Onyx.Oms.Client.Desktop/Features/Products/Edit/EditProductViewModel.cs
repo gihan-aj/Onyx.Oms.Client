@@ -24,6 +24,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
         private readonly ILogger<EditProductViewModel> _logger;
 
         private ProductDetailsDto? _productDetails;
+        private List<SpecDefinition>? _categorySpecDefinitions;
 
         private bool _isBusy;
         public bool IsBusy
@@ -54,9 +55,17 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
             set => SetProperty(ref _tags, value);
         }
 
+        private EditProductSpecificationsViewModel? _specifications;
+        public EditProductSpecificationsViewModel? Specifications
+        {
+            get => _specifications;
+            set => SetProperty(ref _specifications, value);
+        }
+
         public IRelayCommand GoBackCommand { get; }
         public IAsyncRelayCommand SaveBasicInfoCommand { get; }
         public IAsyncRelayCommand SaveTagsCommand { get; }
+        public IAsyncRelayCommand SaveSpecificationsCommand { get; }
 
         public EditProductViewModel(
             IProductsApi productsApi,
@@ -80,6 +89,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
             GoBackCommand = new RelayCommand(GoBack);
             SaveBasicInfoCommand = new AsyncRelayCommand(SaveBasicInfoAsync);
             SaveTagsCommand = new AsyncRelayCommand(SaveTagsAsync);
+            SaveSpecificationsCommand = new AsyncRelayCommand(SaveSpecificationsAsync);
         }
 
         public async void OnNavigatedFrom()
@@ -119,6 +129,11 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
                 PageTitle = $"Edit {_productDetails.Name}";
                 BasicInfo = new EditProductBasicInfoViewModel(_productDetails, OnCategoryChanged, _dialogService);
                 Tags = new EditProductTagsViewModel(_productDetails);
+                _categorySpecDefinitions = await LoadCategorySpecificationsAsync(_productDetails.CategoryId);
+                if(_categorySpecDefinitions != null )
+                {
+                    Specifications = new EditProductSpecificationsViewModel(_categorySpecDefinitions, _productDetails.Specifications, _dialogService);
+                }
             }
 
         }
@@ -162,29 +177,22 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
 
         private async void OnCategoryChanged(ProductCategoryDto category)
         {
-            var response = await LoadCategorySpecificationsAsync(category.Id);
+            _categorySpecDefinitions = await LoadCategorySpecificationsAsync(category.Id);
+            if(Specifications != null)
+                Specifications.RebuildFields(_categorySpecDefinitions);           
         }
 
-        private async Task<ObservableCollection<SpecFieldViewItem>> LoadCategorySpecificationsAsync(Guid categoryId)
+        private async Task<List<SpecDefinition>> LoadCategorySpecificationsAsync(Guid categoryId)
         {
-            var specifications = new ObservableCollection<SpecFieldViewItem>();
+            var specifications = new List<SpecDefinition>();
             try
             {
                 IsBusy = true;
                 var response = await _productCategoryLookupApi.GetCategoryById(categoryId, includeParentSpecs: true);
 
-                //DynamicSpecs.Clear();
                 foreach (var spec in response.AllSpecifications)
                 {
-                    var vi = new SpecFieldViewItem
-                    {
-                        Key = spec.Key,
-                        Label = spec.Label,
-                        Type = spec.Type,
-                        IsRequired = spec.IsRequired,
-                        Options = new ObservableCollection<string>(spec.Options)
-                    };
-                    specifications.Add(vi);
+                    specifications.Add(spec);
                 }
             }
             catch (Exception ex)
@@ -239,6 +247,33 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
             {
                 IsBusy = true;
                 await _productsApi.UpdateProductBasicInfo(_productDetails.Id, tagsDto);
+
+                await InitializeAsync(_productDetails.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to update tags.");
+            }
+            finally
+            {
+                IsBusy = false; 
+            }
+
+        }
+
+        private async Task SaveSpecificationsAsync()
+        {
+            if (Specifications == null || _productDetails == null)
+                return;
+
+            var specsDto = await Specifications.GetUpdateDto(_productDetails.CategoryId);
+            if (specsDto == null)
+                return;
+
+            try
+            {
+                IsBusy = true;
+                await _productsApi.UpdateProductSpecifications(_productDetails.Id, specsDto);
 
                 await InitializeAsync(_productDetails.Id);
             }
