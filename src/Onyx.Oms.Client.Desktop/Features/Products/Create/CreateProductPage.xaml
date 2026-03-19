@@ -176,13 +176,13 @@
                                                    Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,4"/>
                                         <Grid ColumnSpacing="8">
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" />
                                                 <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{x:Bind ViewModel.BaseCurrency, Mode=OneWay}"
+                                                       VerticalAlignment="Center" Grid.Column="0"/>
                                             <NumberBox Value="{x:Bind ViewModel.Draft.BaseCostAmount, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}"
-                                                       Minimum="0" Grid.Column="0"/>
-                                            <TextBlock Text="{x:Bind ViewModel.BaseCurrency, Mode=OneTime}"
-                                                       VerticalAlignment="Center" Grid.Column="1"/>
+                                                       Minimum="0" Grid.Column="1"/>
                                         </Grid>
                                     </StackPanel>
                                     
@@ -191,13 +191,13 @@
                                                    Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,4"/>
                                         <Grid ColumnSpacing="8">
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" />
                                                 <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{x:Bind ViewModel.BaseCurrency, Mode=OneWay}"
+                                                       VerticalAlignment="Center" Grid.Column="0"/>
                                             <NumberBox Value="{x:Bind ViewModel.Draft.BasePriceAmount, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}"
-                                                       Minimum="0" Grid.Column="0"/>
-                                            <TextBlock Text="{x:Bind ViewModel.BaseCurrency, Mode=OneTime}"
-                                                       VerticalAlignment="Center" Grid.Column="1"/>
+                                                       Minimum="0" Grid.Column="1"/>
                                         </Grid>
                                     </StackPanel>
                                 </Grid>
@@ -224,7 +224,7 @@
                                             </Grid.ColumnDefinitions>
                                             <NumberBox Value="{x:Bind ViewModel.Draft.BaseWeightAmount, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}"
                                                        Minimum="0" Grid.Column="0"/>
-                                            <TextBlock Text="{x:Bind ViewModel.BaseWeightUnit, Mode=OneTime}"
+                                            <TextBlock Text="{x:Bind ViewModel.BaseWeightUnit, Mode=OneWay}"
                                                        VerticalAlignment="Center" Grid.Column="1"/>
                                         </Grid>
                                     </StackPanel>

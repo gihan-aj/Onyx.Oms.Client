@@ -154,5 +154,25 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
 
             IsEditing = false;
         }
+
+        public void AcceptChanges()
+        {
+            _originalProductSpecs.Clear();
+
+            foreach (var field in SpecFields)
+            {
+                if (!string.IsNullOrWhiteSpace(field.Value))
+                {
+                    _originalProductSpecs.Add(new ProductSpecificationDto
+                    {
+                        Key = field.Key,
+                        Label = field.Label,
+                        Value = field.Value
+                    });
+                }
+            }
+
+            IsEditing = false;
+        }
     }
 }

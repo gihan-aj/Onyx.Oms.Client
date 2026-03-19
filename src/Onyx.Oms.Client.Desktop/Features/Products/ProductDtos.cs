@@ -107,7 +107,7 @@ public class ProductDetailsVariantDto
     public decimal PriceAmount { get; set; }
     public string PriceCurrency { get; set; } = "LKR";
     public decimal WeightAmount { get; set; }
-    public string WeightCurrency { get; set; } = "kg";
+    public string WeightUnit { get; set; } = "kg";
     public int StockOnHand { get; set; }
     public int ReservedQuantity { get; set; }
     public bool IsActive { get; set; }
@@ -138,7 +138,7 @@ public class ProductDetailsDto
     public decimal BasePriceAmount { get; set; }
     public string BasePriceCurrency { get; set; } = string.Empty;
     public decimal BaseWeightAmount { get; set; }
-    public string BaseWeightCurrency { get; set; } = string.Empty;
+    public string BaseWeightUnit { get; set; } = string.Empty;
     public bool HasVariants { get; set; }
     public int StockOnHand { get; set; }
     public int ReservedQuantity { get; set; }
@@ -164,7 +164,7 @@ public class UpdateProductBaseLogisticsDto
     public Guid Id { get; set; }
     public MoneyDto BaseCost { get; set; } = new();
     public MoneyDto BasePrice { get; set; } = new();
-    public WeightDto BaseWeight { get; set; } = new();
+    public WeightDto? BaseWeight { get; set; } = new();
 }
 
 public class UpdateProductSpecificationsDto
@@ -191,7 +191,7 @@ public class UpdateDefaultVariantLogisticsDto
     public string Sku { get; set; } = string.Empty;
     public MoneyDto Cost { get; set; } = new();
     public MoneyDto Price { get; set; } = new();
-    public WeightDto Weight { get; set; } = new();
+    public WeightDto? Weight { get; set; } = new();
     public int StockOnHand { get; set; }
 }
 

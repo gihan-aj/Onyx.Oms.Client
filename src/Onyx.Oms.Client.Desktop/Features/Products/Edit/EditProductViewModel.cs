@@ -4,11 +4,9 @@ using Microsoft.Extensions.Logging;
 using Onyx.Oms.Client.Desktop.Shared.Models;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using System;
-using System.ComponentModel;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 
 namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
 {
@@ -62,10 +60,33 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
             set => SetProperty(ref _specifications, value);
         }
 
+        private bool _hasVariants;
+        public bool HasVariants
+        {
+            get => _hasVariants;
+            set
+            {
+                if(SetProperty(ref _hasVariants, value))
+                {
+                    if(BaseLogistics != null)
+                        BaseLogistics.HasVariants = value;
+                }
+            }
+        }
+
+        private EditProductBaseLogisticsViewModel? _baseLogistics;
+        public EditProductBaseLogisticsViewModel? BaseLogistics
+        {
+            get => _baseLogistics;
+            set => SetProperty(ref _baseLogistics, value);
+        }
+
         public IRelayCommand GoBackCommand { get; }
         public IAsyncRelayCommand SaveBasicInfoCommand { get; }
         public IAsyncRelayCommand SaveTagsCommand { get; }
         public IAsyncRelayCommand SaveSpecificationsCommand { get; }
+        public IAsyncRelayCommand ToggleVariantsCommand { get; }
+        public IAsyncRelayCommand SaveBaseLogisticsCommand { get; }
 
         public EditProductViewModel(
             IProductsApi productsApi,
@@ -90,6 +111,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
             SaveBasicInfoCommand = new AsyncRelayCommand(SaveBasicInfoAsync);
             SaveTagsCommand = new AsyncRelayCommand(SaveTagsAsync);
             SaveSpecificationsCommand = new AsyncRelayCommand(SaveSpecificationsAsync);
+            ToggleVariantsCommand = new AsyncRelayCommand<bool>(ToggleVariantsAsync);
+            SaveBaseLogisticsCommand = new AsyncRelayCommand(SaveBaseLogisticsAsync);
         }
 
         public async void OnNavigatedFrom()
@@ -134,6 +157,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
                 {
                     Specifications = new EditProductSpecificationsViewModel(_categorySpecDefinitions, _productDetails.Specifications, _dialogService);
                 }
+                HasVariants = _productDetails.HasVariants;
+                BaseLogistics = new EditProductBaseLogisticsViewModel(_productDetails, _tenantProfileService);
             }
 
         }
@@ -286,6 +311,103 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
                 IsBusy = false; 
             }
 
+        }
+
+        private async Task ToggleVariantsAsync(bool newHasVariantsState)
+        {
+            if (_productDetails == null || IsBusy)
+                return;
+            if (HasVariants == newHasVariantsState)
+                return;
+
+            bool isConfirmed = false;
+
+            if (newHasVariantsState)
+            {
+                // Turning ON variations
+                isConfirmed = await _dialogService.ShowConfirmationAsync(
+                    "Enable Variations?",
+                    "This will convert the product to use a Variant Matrix. You will need to define Option Axes (like Size or Color) and generate variants. The current stock-on-hand tied to the base product will be managed by the variants instead.",
+                    "Yes, enable variations",
+                    "Cancel");
+            }
+            else
+            {
+                // Turning OFF variations
+                isConfirmed = await _dialogService.ShowConfirmationAsync(
+                    "Disable Variations?",
+                    "Turning off variations will permanently delete all existing Options and generated Variants for this product. You will return to managing a single stock value for the base product. Are you sure you want to proceed?",
+                    "Yes, delete variations",
+                    "Cancel");
+            }
+
+            if (!isConfirmed)
+            {
+                OnPropertyChanged(nameof(HasVariants));
+                return;
+            }
+
+            try
+            {
+                IsBusy = true;
+                var toggleDto = new ToggleProductVariantsDto
+                {
+                    Id = _productDetails.Id,
+                    HasVariants = newHasVariantsState,
+                };
+                await _productsApi.ToggleProductVariants(_productDetails.Id, toggleDto);
+                await InitializeAsync(_productDetails.Id);
+
+                if (newHasVariantsState)
+                {
+                    _toastService.ShowSuccess("Variations Enabled", "You can now add Options and generate the Variant Matrix.");
+                    // Ensure options list is visually reset if needed
+                    //DraftOptions.Clear();
+                }
+                else
+                {
+                    _toastService.ShowSuccess("Variations Disabled", "All variations and options have been removed.");
+                    // Ensure options and variants lists are visually cleared
+                    //DraftOptions.Clear();
+                    //DraftVariants.Clear();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to toggle variant status.");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+        private async Task SaveBaseLogisticsAsync()
+        {
+            if (_productDetails == null || BaseLogistics == null || IsBusy)
+                return;
+
+            try
+            {
+                IsBusy = true;
+                var (defaultVariantDto, baseLogisticsDto) = BaseLogistics.GetUpdateDtos();
+                await _productsApi.UpdateProductBaseLogistics(_productDetails.Id, baseLogisticsDto);
+                if(!HasVariants && defaultVariantDto != null)
+                {
+                    await _productsApi.UpdateDefaultVariantLogistics(_productDetails.Id, defaultVariantDto);
+                }
+                await InitializeAsync(_productDetails.Id);
+
+                _toastService.ShowSuccess("Logistics Updated", "Product logistics and settings were updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to update product logistics and settings.");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
         }
     }
 }

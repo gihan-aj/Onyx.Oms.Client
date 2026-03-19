@@ -126,6 +126,7 @@
                                                       Command="{x:Bind ViewModel.BasicInfo.BeginEditCommand, Mode=OneWay}" />
 
                                         <AppBarButton Icon="Save" Label="Save" 
+                                                      AllowFocusOnInteraction="True"
                                                       Visibility="{x:Bind ViewModel.BasicInfo.IsEditing, Mode=OneWay}"
                                                       Command="{x:Bind ViewModel.SaveBasicInfoCommand}" />
 
@@ -233,6 +234,7 @@
                                                       Command="{x:Bind ViewModel.Tags.BeginEditCommand, Mode=OneWay}" />
 
                                         <AppBarButton Icon="Save" Label="Save" 
+                                                      AllowFocusOnInteraction="True"
                                                       Visibility="{x:Bind ViewModel.Tags.IsEditing, Mode=OneWay}"
                                                       Command="{x:Bind ViewModel.SaveTagsCommand}" />
 
@@ -275,7 +277,181 @@
                             </StackPanel>
                         </StackPanel>
 
+                        <!-- Right Column -->
                         <StackPanel Grid.Column="1" Orientation="Vertical" Spacing="12">
+                            <!-- Base Logistics Section -->
+                            <StackPanel Style="{StaticResource CardStackStyle}">
+                                <Grid Margin="0,0,0,16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Base Logistics" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                        <TextBlock Text="Fallback pricing and physical weight." 
+                                                   Style="{StaticResource CaptionTextBlockStyle}" 
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                    </StackPanel>
+
+                                    <CommandBar Grid.Column="1" 
+                                                Background="Transparent" 
+                                                IsOpen="False" 
+                                                DefaultLabelPosition="Right" 
+                                                IsSticky="True">
+                                        <AppBarButton Icon="Edit" Label="Edit" 
+                                                      Visibility="{x:Bind ViewModel.BaseLogistics.IsReadonly, Mode=OneWay}"
+                                                      Command="{x:Bind ViewModel.BaseLogistics.BeginEditCommand, Mode=OneWay}" />
+
+                                        <AppBarButton Icon="Save" Label="Save" 
+                                                      AllowFocusOnInteraction="True"
+                                                      Visibility="{x:Bind ViewModel.BaseLogistics.IsEditing, Mode=OneWay}"
+                                                      Command="{x:Bind ViewModel.SaveBaseLogisticsCommand}" />
+
+                                        <AppBarButton Icon="Cancel" Label="Cancel" 
+                                                      Visibility="{x:Bind ViewModel.BaseLogistics.IsEditing, Mode=OneWay}"
+                                                      Command="{x:Bind ViewModel.BaseLogistics.CancelEditCommand, Mode=OneWay}" />
+
+                                    </CommandBar>
+                                </Grid>
+
+                                <!-- READONLY MODE -->
+                                <StackPanel Visibility="{x:Bind ViewModel.BaseLogistics.IsReadonly, Mode=OneWay}" Spacing="12">
+                                    <Grid ColumnSpacing="16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="200" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Base Cost:" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                                            <TextBlock Text="{x:Bind ViewModel.BaseLogistics.BaseCostCurrency, Mode=OneWay}"
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       VerticalAlignment="Center" />
+                                            <TextBlock Text="{x:Bind ViewModel.BaseLogistics.BaseCostAmount, Mode=OneWay}" 
+                                                       VerticalAlignment="Center" />
+                                        </StackPanel>
+                                    </Grid>
+                                    <Grid ColumnSpacing="16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="200" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Base Price:" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                                            <TextBlock Text="{x:Bind ViewModel.BaseLogistics.BasePriceCurrency, Mode=OneWay}" 
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       VerticalAlignment="Center" />
+                                            <TextBlock Text="{x:Bind ViewModel.BaseLogistics.BasePriceAmount, Mode=OneWay}" 
+                                                       VerticalAlignment="Center" />
+                                        </StackPanel>
+                                    </Grid>
+                                    <Grid ColumnSpacing="16" Visibility="{x:Bind ViewModel.BaseLogistics.IsPhysycalProduct, Mode=OneWay}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="200" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Base Weight:" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                                            <TextBlock Text="{x:Bind ViewModel.BaseLogistics.BaseWeightAmount, Mode=OneWay}" VerticalAlignment="Center" />
+                                            <TextBlock Text="{x:Bind ViewModel.BaseLogistics.BaseWeightUnit, Mode=OneWay}" 
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       VerticalAlignment="Center" />
+                                        </StackPanel>
+                                    </Grid>
+                                    <Grid ColumnSpacing="16" Visibility="{x:Bind ViewModel.BaseLogistics.ShowStockFields, Mode=OneWay}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="200" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Stock On Hand:" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.BaseLogistics.StockOnHand, Mode=OneWay}" VerticalAlignment="Center" />
+                                    </Grid>
+                                </StackPanel>
+
+                                <!-- EDIT MODE -->
+                                <StackPanel Visibility="{x:Bind ViewModel.BaseLogistics.IsEditing, Mode=OneWay}" Spacing="12">
+                                    <Grid ColumnSpacing="12" Margin="0,0,0,16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="1*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="Base Cost"
+                                                       Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,4"/>
+                                            <Grid ColumnSpacing="8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{x:Bind ViewModel.BaseLogistics.BaseCostCurrency, Mode=OneTime}"
+                                                           VerticalAlignment="Center" Grid.Column="0"/>
+                                                <NumberBox Value="{x:Bind ViewModel.BaseLogistics.BaseCostAmount, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}"
+                                                           Minimum="0" Grid.Column="1"/>
+                                            </Grid>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="Base Price"
+                                                       Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,4"/>
+                                            <Grid ColumnSpacing="8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{x:Bind ViewModel.BaseLogistics.BasePriceCurrency, Mode=OneTime}"
+                                                            VerticalAlignment="Center" Grid.Column="0"/>
+                                                <NumberBox Value="{x:Bind ViewModel.BaseLogistics.BasePriceAmount, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}"
+                                                           Minimum="0" Grid.Column="1"/>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <CheckBox Content="This is a physical product (requires shipping)" 
+                                              IsChecked="{x:Bind ViewModel.BaseLogistics.IsPhysycalProduct, Mode=TwoWay}"
+                                              Margin="0,0,0,8"/>
+
+                                    <Grid ColumnSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="1*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Weight field (hidden if digital) -->
+                                        <StackPanel Grid.Column="0"
+                                                    Visibility="{x:Bind ViewModel.BaseLogistics.IsPhysycalProduct, Mode=OneWay}">
+                                            <TextBlock Text="Base Weight"
+                                                       Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,4"/>
+                                            <Grid ColumnSpacing="8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <NumberBox Value="{x:Bind ViewModel.BaseLogistics.BaseWeightAmount, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}"
+                                                           Minimum="0" Grid.Column="0"/>
+                                                <TextBlock Text="{x:Bind ViewModel.BaseLogistics.BaseWeightUnit, Mode=OneWay}"
+                                                           VerticalAlignment="Center" Grid.Column="1"/>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <Grid ColumnSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="1*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Stock (hidden if has variants) -->
+                                        <NumberBox Header="Stock On Hand"
+                                                   Value="{x:Bind ViewModel.BaseLogistics.StockOnHand, Mode=TwoWay}"
+                                                   Visibility="{x:Bind ViewModel.BaseLogistics.ShowStockFields, Mode=OneWay}"
+                                                   Minimum="0" Grid.Column="0"/>
+
+                                    </Grid>
+                                </StackPanel>
+
+                            </StackPanel>
+                            
                             <!-- Specifications Section -->
                             <StackPanel Style="{StaticResource CardStackStyle}">
                                 <Grid Margin="0,0,0,16">
@@ -301,6 +477,7 @@
                                                       Command="{x:Bind ViewModel.Specifications.BeginEditCommand, Mode=OneWay}" />
 
                                         <AppBarButton Icon="Save" Label="Save" 
+                                                      AllowFocusOnInteraction="True"
                                                       Visibility="{x:Bind ViewModel.Specifications.IsEditing, Mode=OneWay}"
                                                       Command="{x:Bind ViewModel.SaveSpecificationsCommand}" />
 
@@ -346,6 +523,29 @@
                             
                         </StackPanel>
                     </Grid>
+
+                    <StackPanel Style="{StaticResource CardStackStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Product Variations" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                <TextBlock Text="Does this product come in multiple options like size or color?" 
+                                           Style="{StaticResource CaptionTextBlockStyle}" 
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </StackPanel>
+
+                            <ToggleSwitch x:Name="HasVariantsToggleSwitch" 
+                                          Grid.Column="1"
+                                          IsOn="{x:Bind ViewModel.HasVariants, Mode=OneWay}"
+                                          Toggled="HasVariantsToggleSwitch_Toggled"
+                                          OnContent="Has Variants"
+                                          OffContent="Single Product"/>
+                        </Grid>
+                    </StackPanel>
                 </StackPanel>
             </Grid>
         </ScrollViewer>

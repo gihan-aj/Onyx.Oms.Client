@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 
@@ -42,6 +43,17 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
         {
             base.OnNavigatedFrom(e);
             ViewModel.OnNavigatedFrom();
+        }
+
+        private async void HasVariantsToggleSwitch_Toggled(object sender, RoutedEventArgs e)
+        {
+            if(sender is ToggleSwitch toggleSwitch && ViewModel.BasicInfo != null)
+            {
+                if (ViewModel.HasVariants == toggleSwitch.IsOn)
+                    return;
+
+                await ViewModel.ToggleVariantsCommand.ExecuteAsync(toggleSwitch.IsOn);
+            }
         }
     }
 }
