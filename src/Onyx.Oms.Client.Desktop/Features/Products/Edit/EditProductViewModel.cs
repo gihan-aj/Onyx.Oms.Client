@@ -391,14 +391,28 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
             {
                 IsBusy = true;
                 var (defaultVariantDto, baseLogisticsDto) = BaseLogistics.GetUpdateDtos();
-                await _productsApi.UpdateProductBaseLogistics(_productDetails.Id, baseLogisticsDto);
+                if(baseLogisticsDto != null)
+                {
+                    await _productsApi.UpdateProductBaseLogistics(_productDetails.Id, baseLogisticsDto);
+                }
                 if(!HasVariants && defaultVariantDto != null)
                 {
                     await _productsApi.UpdateDefaultVariantLogistics(_productDetails.Id, defaultVariantDto);
                 }
                 await InitializeAsync(_productDetails.Id);
 
-                _toastService.ShowSuccess("Logistics Updated", "Product logistics and settings were updated successfully.");
+                if(defaultVariantDto != null && baseLogisticsDto != null)
+                {
+                    _toastService.ShowSuccess("Logistics Updated", "Product logistics and stock were updated successfully.");
+                }
+                else if(baseLogisticsDto != null)
+                {
+                    _toastService.ShowSuccess("Base Logistics Updated", "Product base logistics were updated successfully.");
+                }
+                else if(defaultVariantDto != null)
+                {
+                    _toastService.ShowSuccess("Default Variant Logistics Updated", "Stock is updated successfully.");
+                }
             }
             catch (Exception ex)
             {

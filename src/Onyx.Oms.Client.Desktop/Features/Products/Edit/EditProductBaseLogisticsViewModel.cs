@@ -98,6 +98,53 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
             }
         }
 
+        public bool HasChanges
+        {
+            get
+            {
+                if (BaseCostAmount != _originalBaseLogisticsDetails.BaseCost.Amount ||
+                    BaseCostCurrency != _originalBaseLogisticsDetails.BaseCost.Currency ||
+                    BasePriceAmount != _originalBaseLogisticsDetails.BasePrice.Amount ||
+                    BasePriceCurrency != _originalBaseLogisticsDetails.BasePrice.Currency ||
+                    BaseWeightAmount != _originalBaseLogisticsDetails.BaseWeight?.Value ||
+                    BaseWeightUnit != _originalBaseLogisticsDetails.BaseWeight?.Unit)
+                {
+                    return true;
+                }
+                if (!HasVariants && _originalDefaultVariantLogisticsDetails != null)
+                {
+                    if (StockOnHand != _originalDefaultVariantLogisticsDetails.StockOnHand)
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
+        public bool HasChangesInBaseLogistics
+        {
+            get
+            {
+                return BaseCostAmount != _originalBaseLogisticsDetails.BaseCost.Amount ||
+                    BaseCostCurrency != _originalBaseLogisticsDetails.BaseCost.Currency ||
+                    BasePriceAmount != _originalBaseLogisticsDetails.BasePrice.Amount ||
+                    BasePriceCurrency != _originalBaseLogisticsDetails.BasePrice.Currency ||
+                    BaseWeightAmount != _originalBaseLogisticsDetails.BaseWeight?.Value ||
+                    BaseWeightUnit != _originalBaseLogisticsDetails.BaseWeight?.Unit;
+            }
+        }
+
+        public bool HasChangesInDefaultVariantLogistics
+        {
+            get
+            {
+                if (HasVariants || _originalDefaultVariantLogisticsDetails == null)
+                    return false;
+                return StockOnHand != _originalDefaultVariantLogisticsDetails.StockOnHand;
+            }
+        }
+
         public bool IsReadonly => !IsEditing;
 
         public IRelayCommand BeginEditCommand { get; }
@@ -166,21 +213,27 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
             IsEditing = false;
         }
 
-        public (UpdateDefaultVariantLogisticsDto? defaultVariantLogistics, UpdateProductBaseLogisticsDto baseLogistics) GetUpdateDtos()
+        public (UpdateDefaultVariantLogisticsDto? defaultVariantLogistics, UpdateProductBaseLogisticsDto? baseLogistics) GetUpdateDtos()
         {
             var weightDto = IsPhysycalProduct
                 ? new WeightDto { Value = BaseWeightAmount.HasValue? BaseWeightAmount.Value : 0, Unit = BaseWeightUnit ?? "kg" }
                 : null;
 
-            var baseLogistics = new UpdateProductBaseLogisticsDto
+            // CHeck if base logistics has changes
+            UpdateProductBaseLogisticsDto? baseLogistics = null;
+            if (HasChangesInBaseLogistics)
             {
-                Id = _originalBaseLogisticsDetails.Id,
-                BaseCost = new MoneyDto { Amount = BaseCostAmount, Currency = BaseCostCurrency },
-                BasePrice = new MoneyDto { Amount = BasePriceAmount, Currency = BasePriceCurrency },
-                BaseWeight = weightDto
-            };
+                baseLogistics = new UpdateProductBaseLogisticsDto
+                {
+                    Id = _originalBaseLogisticsDetails.Id,
+                    BaseCost = new MoneyDto { Amount = BaseCostAmount, Currency = BaseCostCurrency },
+                    BasePrice = new MoneyDto { Amount = BasePriceAmount, Currency = BasePriceCurrency },
+                    BaseWeight = weightDto
+                };
+            }
+            
             UpdateDefaultVariantLogisticsDto? defaultVariantLogistics = null;
-            if (!HasVariants)
+            if (HasChangesInDefaultVariantLogistics)
             {
                 defaultVariantLogistics = new UpdateDefaultVariantLogisticsDto
                 {
