@@ -66,10 +66,17 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
             get => _hasVariants;
             set
             {
-                if(SetProperty(ref _hasVariants, value))
+                if (SetProperty(ref _hasVariants, value))
                 {
-                    if(BaseLogistics != null)
-                        BaseLogistics.HasVariants = value;
+                    if (BaseLogistics != null)
+                    {
+                        BaseLogistics.HasVariants = value;                    
+                    }
+
+                    if(Options != null)
+                    {
+                        Options.HasVariants = value;
+                    }
                 }
             }
         }
@@ -81,12 +88,20 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
             set => SetProperty(ref _baseLogistics, value);
         }
 
+        private EditProductOptionsViewModel? _options;
+        public EditProductOptionsViewModel? Options
+        {
+            get => _options;
+            set => SetProperty(ref _options, value);
+        }
+
         public IRelayCommand GoBackCommand { get; }
         public IAsyncRelayCommand SaveBasicInfoCommand { get; }
         public IAsyncRelayCommand SaveTagsCommand { get; }
         public IAsyncRelayCommand SaveSpecificationsCommand { get; }
         public IAsyncRelayCommand ToggleVariantsCommand { get; }
         public IAsyncRelayCommand SaveBaseLogisticsCommand { get; }
+        public IAsyncRelayCommand SaveOptionsCommand { get; }
 
         public EditProductViewModel(
             IProductsApi productsApi,
@@ -113,11 +128,12 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
             SaveSpecificationsCommand = new AsyncRelayCommand(SaveSpecificationsAsync);
             ToggleVariantsCommand = new AsyncRelayCommand<bool>(ToggleVariantsAsync);
             SaveBaseLogisticsCommand = new AsyncRelayCommand(SaveBaseLogisticsAsync);
+            SaveOptionsCommand = new AsyncRelayCommand(SaveOptionsAsync);
         }
 
         public async void OnNavigatedFrom()
         {
-            
+
         }
 
         public async void OnNavigatedTo(object parameter)
@@ -147,18 +163,19 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
         private async Task InitializeAsync(Guid productId)
         {
             await LoadProductAsync(productId);
-            if(_productDetails != null)
+            if (_productDetails != null)
             {
                 PageTitle = $"Edit {_productDetails.Name}";
                 BasicInfo = new EditProductBasicInfoViewModel(_productDetails, OnCategoryChanged, _dialogService);
                 Tags = new EditProductTagsViewModel(_productDetails);
                 _categorySpecDefinitions = await LoadCategorySpecificationsAsync(_productDetails.CategoryId);
-                if(_categorySpecDefinitions != null )
+                if (_categorySpecDefinitions != null)
                 {
                     Specifications = new EditProductSpecificationsViewModel(_categorySpecDefinitions, _productDetails.Specifications, _dialogService);
                 }
                 HasVariants = _productDetails.HasVariants;
                 BaseLogistics = new EditProductBaseLogisticsViewModel(_productDetails, _tenantProfileService);
+                Options = new EditProductOptionsViewModel(_productDetails, _toastService, _dialogService);
             }
 
         }
@@ -203,8 +220,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
         private async void OnCategoryChanged(ProductCategoryDto category)
         {
             _categorySpecDefinitions = await LoadCategorySpecificationsAsync(category.Id);
-            if(Specifications != null)
-                Specifications.RebuildFields(_categorySpecDefinitions);           
+            if (Specifications != null)
+                Specifications.RebuildFields(_categorySpecDefinitions);
         }
 
         private async Task<List<SpecDefinition>> LoadCategorySpecificationsAsync(Guid categoryId)
@@ -254,7 +271,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
             }
             finally
             {
-                IsBusy = false; 
+                IsBusy = false;
             }
 
         }
@@ -281,7 +298,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
             }
             finally
             {
-                IsBusy = false; 
+                IsBusy = false;
             }
 
         }
@@ -308,7 +325,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
             }
             finally
             {
-                IsBusy = false; 
+                IsBusy = false;
             }
 
         }
@@ -391,25 +408,25 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
             {
                 IsBusy = true;
                 var (defaultVariantDto, baseLogisticsDto) = BaseLogistics.GetUpdateDtos();
-                if(baseLogisticsDto != null)
+                if (baseLogisticsDto != null)
                 {
                     await _productsApi.UpdateProductBaseLogistics(_productDetails.Id, baseLogisticsDto);
                 }
-                if(!HasVariants && defaultVariantDto != null)
+                if (!HasVariants && defaultVariantDto != null)
                 {
                     await _productsApi.UpdateDefaultVariantLogistics(_productDetails.Id, defaultVariantDto);
                 }
                 await InitializeAsync(_productDetails.Id);
 
-                if(defaultVariantDto != null && baseLogisticsDto != null)
+                if (defaultVariantDto != null && baseLogisticsDto != null)
                 {
                     _toastService.ShowSuccess("Logistics Updated", "Product logistics and stock were updated successfully.");
                 }
-                else if(baseLogisticsDto != null)
+                else if (baseLogisticsDto != null)
                 {
                     _toastService.ShowSuccess("Base Logistics Updated", "Product base logistics were updated successfully.");
                 }
-                else if(defaultVariantDto != null)
+                else if (defaultVariantDto != null)
                 {
                     _toastService.ShowSuccess("Default Variant Logistics Updated", "Stock is updated successfully.");
                 }
@@ -417,6 +434,31 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to update product logistics and settings.");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+        private async Task SaveOptionsAsync()
+        {
+            if (Options == null || _productDetails == null || IsBusy)
+                return;
+            try
+            {
+                IsBusy = true;
+                var optionsDto = await Options.GetUpdateDto();
+                if (optionsDto != null)
+                {
+                    await _productsApi.UpdateProductOptions(_productDetails.Id, optionsDto);
+                    await InitializeAsync(_productDetails.Id);
+                    _toastService.ShowSuccess("Options Updated", "Product options were updated successfully.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to update product options.");
             }
             finally
             {

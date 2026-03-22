@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Page
+    x:Name="RootPage"
     x:Class="Onyx.Oms.Client.Desktop.Features.Products.Edit.EditProductPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -546,6 +547,180 @@
                                           OffContent="Single Product"/>
                         </Grid>
                     </StackPanel>
+
+                    <!-- Options Section -->
+                    <StackPanel Style="{StaticResource CardStackStyle}" Visibility="{x:Bind ViewModel.HasVariants, Mode=OneWay}">
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Product Options" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                <TextBlock Text="Define dynamic options like size, color, or material to generate unique variant SKUs." 
+                                           Style="{StaticResource CaptionTextBlockStyle}" 
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </StackPanel>
+
+                            <CommandBar Grid.Column="1" 
+                                        Background="Transparent" 
+                                        IsOpen="False" 
+                                        DefaultLabelPosition="Right" 
+                                        IsSticky="True">
+                                <AppBarButton Icon="Edit" Label="Edit" 
+                                              Visibility="{x:Bind ViewModel.Options.IsReadonly, Mode=OneWay}"
+                                              Command="{x:Bind ViewModel.Options.BeginEditCommand, Mode=OneWay}" />
+
+                                <AppBarButton Icon="Save" Label="Save" 
+                                              AllowFocusOnInteraction="True"
+                                              Visibility="{x:Bind ViewModel.Options.IsEditing, Mode=OneWay}"
+                                              Command="{x:Bind ViewModel.SaveOptionsCommand}" />
+
+                                <AppBarButton Icon="Cancel" Label="Cancel" 
+                                              Visibility="{x:Bind ViewModel.Options.IsEditing, Mode=OneWay}"
+                                              Command="{x:Bind ViewModel.Options.CancelEditCommand, Mode=OneWay}" />
+
+                            </CommandBar>
+                        </Grid>
+
+                        <!-- READONLY MODE -->
+                        <StackPanel Visibility="{x:Bind ViewModel.Options.IsReadonly, Mode=OneWay}" Spacing="16">
+
+                            <ItemsControl ItemsSource="{x:Bind ViewModel.Options.Options, Mode=OneWay}">
+
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Spacing="12" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="local:EditProductOptionViewModel">
+                                        <Grid ColumnSpacing="16">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="200" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock Text="{x:Bind Name, Mode=OneWay}" 
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" 
+                                                       VerticalAlignment="Top" 
+                                                       Margin="0,6,0,0"/>
+
+                                            <ItemsControl Grid.Column="1" ItemsSource="{x:Bind Values, Mode=OneWay}">
+
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <labs:WrapPanel Orientation="Horizontal" 
+                                                                        HorizontalSpacing="8" 
+                                                                        VerticalSpacing="8" />
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate x:DataType="x:String">
+                                                        <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                                                                CornerRadius="14"
+                                                                Padding="12,4">
+                                                            <TextBlock Text="{x:Bind}" 
+                                                                       FontFamily="Consolas" 
+                                                                       FontSize="12"
+                                                                       VerticalAlignment="Center"/>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+
+                                            </ItemsControl>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <TextBlock Text="No options defined yet. Click Edit to add options like Size or Color."
+                                       FontStyle="Italic"
+                                       Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                       Visibility="{x:Bind ViewModel.Options.Options, Mode=OneWay, Converter={StaticResource EmptyListToVisibiltyConverter}}" />
+
+                        </StackPanel>
+
+                        <!-- EDIT MODE -->
+                        <StackPanel Visibility="{x:Bind ViewModel.Options.IsEditing, Mode=OneWay}" Spacing="16">
+                            <Grid ColumnSpacing="12" 
+                                  Background="{ThemeResource LayerFillColorAltBrush}" 
+                                  Padding="12" 
+                                  CornerRadius="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="200" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBox Grid.Column="0"
+                                         Header="New Option Name"
+                                         PlaceholderText="e.g., Material"
+                                         Text="{x:Bind ViewModel.Options.DraftOptionName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <StackPanel Grid.Column="1">
+                                    <labs:TokenizingTextBox Header="Values (Type and press Enter)"
+                                                            ItemsSource="{x:Bind ViewModel.Options.DraftOptionValues, Mode=OneWay}"
+                                                            TokenDelimiter="&#13;"
+                                                            PlaceholderText="e.g., Cotton, Wool"/>
+                                </StackPanel>
+
+                                <Button Grid.Column="2" 
+                                        Content="Add Option" 
+                                        VerticalAlignment="Bottom"
+                                        Style="{StaticResource DefaultButtonStyle}"
+                                        Command="{x:Bind ViewModel.Options.AddOptionCommand, Mode=OneWay}"/>
+                            </Grid>
+
+                            <MenuFlyoutSeparator />
+
+                            <TextBlock Text="Current Options" Style="{StaticResource BodyStrongTextBlockStyle}" />
+
+                            <ItemsControl ItemsSource="{x:Bind ViewModel.Options.Options, Mode=OneWay}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Spacing="12" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="local:EditProductOptionViewModel">
+                                        <Grid ColumnSpacing="12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="200" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBox Grid.Column="0" 
+                                                     Text="{x:Bind Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                     VerticalAlignment="Center" Margin="0,8,0,0"/>
+
+                                            <labs:TokenizingTextBox Grid.Column="1"
+                                                                    ItemsSource="{x:Bind Values, Mode=OneWay}"
+                                                                    TokenDelimiter="&#13;"
+                                                                    VerticalAlignment="Center"/>
+
+                                            <Button Grid.Column="2" 
+                                                    Content="&#xE74D;" 
+                                                    FontFamily="Segoe MDL2 Assets" 
+                                                    Style="{StaticResource SubtleButtonStyle}" 
+                                                    Foreground="{ThemeResource SystemFillColorCriticalBrush}" 
+                                                    ToolTipService.ToolTip="Remove Entire Option"
+                                                    VerticalAlignment="Center"
+                                                    Command="{Binding ElementName=RootPage, Path=ViewModel.Options.RemoveOptionCommand}"
+                                                    CommandParameter="{x:Bind}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+
+                    </StackPanel>
+                    
                 </StackPanel>
             </Grid>
         </ScrollViewer>
