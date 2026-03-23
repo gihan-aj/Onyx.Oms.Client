@@ -106,8 +106,8 @@ public class ProductDetailsVariantDto
     public string CostCurrency { get; set; } = "LKR";
     public decimal PriceAmount { get; set; }
     public string PriceCurrency { get; set; } = "LKR";
-    public decimal WeightAmount { get; set; }
-    public string WeightUnit { get; set; } = "kg";
+    public decimal? WeightAmount { get; set; }
+    public string? WeightUnit { get; set; } = "kg";
     public int StockOnHand { get; set; }
     public int ReservedQuantity { get; set; }
     public bool IsActive { get; set; }

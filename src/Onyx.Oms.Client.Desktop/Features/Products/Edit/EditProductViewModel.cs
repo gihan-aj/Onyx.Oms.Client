@@ -5,6 +5,7 @@ using Onyx.Oms.Client.Desktop.Shared.Models;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -77,6 +78,11 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
                     {
                         Options.HasVariants = value;
                     }
+
+                    if(Variants != null)
+                    {
+                        Variants.HasVariants = value;
+                    }
                 }
             }
         }
@@ -95,6 +101,13 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
             set => SetProperty(ref _options, value);
         }
 
+        private EditProductVariantsViewModel? _variants;
+        public EditProductVariantsViewModel? Variants
+        {
+            get => _variants;
+            set => SetProperty(ref _variants, value);
+        }
+
         public IRelayCommand GoBackCommand { get; }
         public IAsyncRelayCommand SaveBasicInfoCommand { get; }
         public IAsyncRelayCommand SaveTagsCommand { get; }
@@ -102,6 +115,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
         public IAsyncRelayCommand ToggleVariantsCommand { get; }
         public IAsyncRelayCommand SaveBaseLogisticsCommand { get; }
         public IAsyncRelayCommand SaveOptionsCommand { get; }
+        public IAsyncRelayCommand SaveVariantsCommand { get; }
 
         public EditProductViewModel(
             IProductsApi productsApi,
@@ -129,6 +143,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
             ToggleVariantsCommand = new AsyncRelayCommand<bool>(ToggleVariantsAsync);
             SaveBaseLogisticsCommand = new AsyncRelayCommand(SaveBaseLogisticsAsync);
             SaveOptionsCommand = new AsyncRelayCommand(SaveOptionsAsync);
+            SaveVariantsCommand = new AsyncRelayCommand(SaveVariantsAsync);
         }
 
         public async void OnNavigatedFrom()
@@ -176,6 +191,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
                 HasVariants = _productDetails.HasVariants;
                 BaseLogistics = new EditProductBaseLogisticsViewModel(_productDetails, _tenantProfileService);
                 Options = new EditProductOptionsViewModel(_productDetails, _toastService, _dialogService);
+                Variants = new EditProductVariantsViewModel(_productDetails, _tenantProfileService);
             }
 
         }
@@ -463,6 +479,36 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
             finally
             {
                 IsBusy = false;
+            }
+        }
+
+        private async Task SaveVariantsAsync()
+        {
+            if(_productDetails == null || Variants == null) 
+                return;
+
+            var updateDtos = Variants.GetUpdateDtos(_productDetails.Id);
+
+            if (updateDtos.Any())
+            {
+                try
+                {
+                    IsBusy = true;
+                    foreach (var dto in updateDtos) 
+                        await _productsApi.UpdateProductVariantLogistics(_productDetails.Id, dto.VariantId, dto);
+
+                    await InitializeAsync(_productDetails.Id);
+                    _toastService.ShowSuccess("Varinats Updated", "Product variants were updated successfully.");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to update product variants.");
+                }
+                finally
+                {
+                    IsBusy = false;
+                }
+
             }
         }
     }

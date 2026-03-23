@@ -373,9 +373,12 @@
                                 <toolkit:DataGrid.Columns>
                                     <toolkit:DataGridTextColumn Header="Variant" Binding="{Binding DisplayAttributes}" IsReadOnly="True" MinWidth="180" Width="Auto" />
                                     <toolkit:DataGridTextColumn Header="SKU Override" Binding="{Binding Sku, Mode=TwoWay}" Width="*" />
+                                    <toolkit:DataGridTextColumn Binding="{Binding ElementName=RootPage, Path=ViewModel.BaseCurrency}" Width="50" />
                                     <toolkit:DataGridTextColumn Header="Price" Binding="{Binding PriceAmount, Mode=TwoWay}" MinWidth="100" Width="Auto" HeaderStyle="{StaticResource RightAlignedHeaderStyle}" ElementStyle="{StaticResource RightAlignedCellStyle}"/>
+                                    <toolkit:DataGridTextColumn Binding="{Binding ElementName=RootPage, Path=ViewModel.BaseCurrency}" Width="50" />
                                     <toolkit:DataGridTextColumn Header="Cost" Binding="{Binding CostAmount, Mode=TwoWay}" MinWidth="100" Width="Auto" HeaderStyle="{StaticResource RightAlignedHeaderStyle}" ElementStyle="{StaticResource RightAlignedCellStyle}"/>
                                     <toolkit:DataGridTextColumn Header="Weight" Binding="{Binding WeightValue, Mode=TwoWay}" MinWidth="100" Width="Auto" HeaderStyle="{StaticResource RightAlignedHeaderStyle}" ElementStyle="{StaticResource RightAlignedCellStyle}"/>
+                                    <toolkit:DataGridTextColumn Binding="{Binding ElementName=RootPage, Path=ViewModel.BaseWeightUnit}" Width="50" />
                                     <toolkit:DataGridTextColumn Header="Initial Stock" Binding="{Binding StockOnHand, Mode=TwoWay}" MinWidth="120" Width="Auto" HeaderStyle="{StaticResource RightAlignedHeaderStyle}" ElementStyle="{StaticResource RightAlignedCellStyle}"/>
                                 </toolkit:DataGrid.Columns>
                             </toolkit:DataGrid>

@@ -720,7 +720,74 @@
                         </StackPanel>
 
                     </StackPanel>
-                    
+
+                    <!-- Variants -->
+                    <StackPanel Style="{StaticResource CardStackStyle}" Visibility="{x:Bind ViewModel.HasVariants, Mode=OneWay}">
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Variant Logistics" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                <TextBlock Text="Manage individual pricing, weight, and stock levels for each variation." 
+                                           Style="{StaticResource CaptionTextBlockStyle}" 
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </StackPanel>
+
+                            <CommandBar Grid.Column="1" 
+                                        Background="Transparent" 
+                                        IsOpen="False" 
+                                        DefaultLabelPosition="Right" 
+                                        IsSticky="True">
+
+                                <AppBarButton Icon="Edit" Label="Edit" 
+                                              Visibility="{x:Bind ViewModel.Variants.IsReadonly, Mode=OneWay}"
+                                              Command="{x:Bind ViewModel.Variants.BeginEditCommand, Mode=OneWay}" />
+
+                                <AppBarButton Icon="Save" Label="Save" 
+                                              AllowFocusOnInteraction="True"
+                                              Visibility="{x:Bind ViewModel.Variants.IsEditing, Mode=OneWay}"
+                                              Command="{x:Bind ViewModel.SaveVariantsCommand}" />
+
+                                <AppBarButton Icon="Cancel" Label="Cancel" 
+                                              Visibility="{x:Bind ViewModel.Variants.IsEditing, Mode=OneWay}"
+                                              Command="{x:Bind ViewModel.Variants.CancelEditCommand, Mode=OneWay}" />
+                            </CommandBar>
+                        </Grid>
+
+                        <toolkit:DataGrid ItemsSource="{x:Bind ViewModel.Variants.Variants, Mode=OneWay}"
+                                          IsReadOnly="{x:Bind ViewModel.Variants.IsReadonly, Mode=OneWay}"
+                                          AutoGenerateColumns="False"
+                                          RowBackground="Transparent"
+                                          AlternatingRowBackground="{ThemeResource LayerFillColorDefaultBrush}"
+                                          MinHeight="200"
+                                          MaxHeight="500"
+                                          HorizontalScrollBarVisibility="Auto"
+                                          VerticalScrollBarVisibility="Auto">
+
+                            <toolkit:DataGrid.Columns>
+                                <toolkit:DataGridTextColumn Header="Variant" Binding="{Binding DisplayAttributes}" IsReadOnly="True" MinWidth="150" Width="Auto" />
+                                <toolkit:DataGridTextColumn Header="SKU" Binding="{Binding Sku, Mode=TwoWay}" MinWidth="150" Width="*" />
+
+                                <toolkit:DataGridTextColumn IsReadOnly="True" Binding="{Binding PriceCurrency, Mode=OneWay}" MinWidth="50" Width="Auto" ElementStyle="{StaticResource LeftAlignedCellStyle}"/>
+                                <toolkit:DataGridTextColumn Header="Price" Binding="{Binding PriceAmount, Mode=TwoWay}" MinWidth="100" Width="Auto" HeaderStyle="{StaticResource RightAlignedHeaderStyle}" ElementStyle="{StaticResource RightAlignedCellStyle}"/>
+                                <toolkit:DataGridTextColumn IsReadOnly="True" Binding="{Binding CostCurrency, Mode=OneWay}" MinWidth="50" Width="Auto" ElementStyle="{StaticResource LeftAlignedCellStyle}"/>
+                                <toolkit:DataGridTextColumn Header="Cost" Binding="{Binding CostAmount, Mode=TwoWay}" MinWidth="100" Width="Auto" HeaderStyle="{StaticResource RightAlignedHeaderStyle}" ElementStyle="{StaticResource RightAlignedCellStyle}"/>
+                                <toolkit:DataGridTextColumn Header="Weight" Binding="{Binding WeightAmount, Mode=TwoWay}" MinWidth="100" Width="Auto" HeaderStyle="{StaticResource RightAlignedHeaderStyle}" ElementStyle="{StaticResource RightAlignedCellStyle}"/>
+                                <toolkit:DataGridTextColumn IsReadOnly="True" Binding="{Binding WeightUnit, Mode=OneWay}" MinWidth="50" Width="Auto" ElementStyle="{StaticResource LeftAlignedCellStyle}"/>
+                                <toolkit:DataGridTextColumn Header="Stock" Binding="{Binding StockOnHand, Mode=TwoWay}" MinWidth="100" Width="Auto" HeaderStyle="{StaticResource RightAlignedHeaderStyle}" ElementStyle="{StaticResource RightAlignedCellStyle}"/>
+                            </toolkit:DataGrid.Columns>
+                        </toolkit:DataGrid>
+
+                        <TextBlock Text="No variants defined yet. Add options and save to generate variants."
+                                   FontStyle="Italic"
+                                   Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                   Visibility="{x:Bind ViewModel.Variants.Variants, Mode=OneWay, Converter={StaticResource EmptyListToVisibiltyConverter}}" />
+
+                    </StackPanel>
+
                 </StackPanel>
             </Grid>
         </ScrollViewer>
