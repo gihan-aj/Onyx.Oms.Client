@@ -108,6 +108,13 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
             set => SetProperty(ref _variants, value);
         }
 
+        private EditProductImagesViewModel? _images;
+        public EditProductImagesViewModel? Images
+        {
+            get => _images;
+            set => SetProperty(ref _images, value);
+        }
+
         public IRelayCommand GoBackCommand { get; }
         public IAsyncRelayCommand SaveBasicInfoCommand { get; }
         public IAsyncRelayCommand SaveTagsCommand { get; }
@@ -116,6 +123,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
         public IAsyncRelayCommand SaveBaseLogisticsCommand { get; }
         public IAsyncRelayCommand SaveOptionsCommand { get; }
         public IAsyncRelayCommand SaveVariantsCommand { get; }
+        public IAsyncRelayCommand SaveImagesCommand { get; }
 
         public EditProductViewModel(
             IProductsApi productsApi,
@@ -144,6 +152,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
             SaveBaseLogisticsCommand = new AsyncRelayCommand(SaveBaseLogisticsAsync);
             SaveOptionsCommand = new AsyncRelayCommand(SaveOptionsAsync);
             SaveVariantsCommand = new AsyncRelayCommand(SaveVariantsAsync);
+            SaveImagesCommand = new AsyncRelayCommand(SaveImagesAsync);
         }
 
         public async void OnNavigatedFrom()
@@ -192,6 +201,10 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
                 BaseLogistics = new EditProductBaseLogisticsViewModel(_productDetails, _tenantProfileService);
                 Options = new EditProductOptionsViewModel(_productDetails, _toastService, _dialogService);
                 Variants = new EditProductVariantsViewModel(_productDetails, _tenantProfileService);
+                Images = new EditProductImagesViewModel(_productDetails, _fileService, _toastService);
+                Images.RefreshAvailableImageTags(_productDetails.Options);
+                await Images.InitializeAsync(_productDetails.Images);
+                Images.RefreshAvailableImageTags(_productDetails.Options);
             }
 
         }
@@ -509,6 +522,35 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
                     IsBusy = false;
                 }
 
+            }
+        }
+
+        private async Task SaveImagesAsync()
+        {
+            if (_productDetails == null || Images == null)
+                return;
+
+            var updateDto = Images.GetUpdateDto();
+            if (updateDto.Any())
+            {
+                try
+                {
+                    IsBusy = true;
+
+                    var payload = new UpdateProducImagesDto { ProductId = _productDetails.Id , Images = updateDto};
+                    await _productsApi.UpdateProductImages(_productDetails.Id, payload);
+                    await Images.AcceptChangesAsync();
+                    await InitializeAsync(_productDetails.Id);
+                    _toastService.ShowSuccess("Varinats Updated", "Product variants were updated successfully.");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to update product variants.");
+                }
+                finally
+                {
+                    IsBusy = false;
+                }
             }
         }
     }

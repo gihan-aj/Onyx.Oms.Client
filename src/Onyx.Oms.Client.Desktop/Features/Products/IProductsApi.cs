@@ -51,6 +51,9 @@ public interface IProductsApi
     [Delete("/api/v1/products/{productId}/variants/{variantId}")]
     Task DeleteProductVariant(Guid productId, Guid variantId);
 
+    [Put("/api/v1/products/{productId}/images")]
+    Task UpdateProductImages(Guid productId, [Body] UpdateProducImagesDto dto);
+
     [Put("/api/v1/products/{id}/activate")]
     Task ActivateProduct(Guid id);
 

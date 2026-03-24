@@ -55,5 +55,10 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
                 await ViewModel.ToggleVariantsCommand.ExecuteAsync(toggleSwitch.IsOn);
             }
         }
+
+        public Visibility GetImagesEmptyState(int count)
+        {
+            return count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
     }
 }

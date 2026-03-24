@@ -215,3 +215,19 @@ public class AddProductVariantDto
     public WeightDto Weight { get; set; } = new();
     public int StockOnHand { get; set; }
 }
+
+public class UpdateProducImagesDto
+{
+    public Guid ProductId { get; set; }
+    public List<UpdateProductImageDto> Images { get; set; } = new();
+}
+
+public class UpdateProductImageDto
+{
+    public Guid Id { get; set; } = Guid.Empty;
+    public string Url { get; set; } = string.Empty;
+    public int DisplayOrder { get; set; }
+    public bool IsMain { get; set; }
+    public string? OptionName { get; set; }
+    public string? OptionValue { get; set; }
+}
