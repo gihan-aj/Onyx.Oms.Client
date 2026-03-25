@@ -1,6 +1,7 @@
 using Onyx.Oms.Client.Desktop.Shared.Models;
 using Refit;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Onyx.Oms.Client.Desktop.Features.Products;
@@ -51,12 +52,15 @@ public interface IProductsApi
     [Delete("/api/v1/products/{productId}/variants/{variantId}")]
     Task DeleteProductVariant(Guid productId, Guid variantId);
 
+    [Put("/api/v1/products/{productId}/variants")]
+    Task UpdateProductVariants(Guid productId, [Body]UpdateProductVariantsDto variants);
+
     [Put("/api/v1/products/{productId}/images")]
     Task UpdateProductImages(Guid productId, [Body] UpdateProducImagesDto dto);
 
-    [Put("/api/v1/products/{id}/activate")]
+    [Patch("/api/v1/products/{id}/activate")]
     Task ActivateProduct(Guid id);
 
-    [Put("/api/v1/products/{id}/deactivate")]
+    [Patch("/api/v1/products/{id}/deactivate")]
     Task DeactivateProduct(Guid id);
 }

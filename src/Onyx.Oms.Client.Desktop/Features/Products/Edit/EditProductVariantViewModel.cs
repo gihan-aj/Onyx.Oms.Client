@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 
@@ -65,6 +66,48 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
         {
             get => _stockOnHand;
             set => SetProperty(ref _stockOnHand, value);
+        }
+
+        private bool _isActive;
+        public bool IsActive
+        {
+            get => _isActive;
+            set
+            {
+                if(SetProperty(ref _isActive, value))
+                {
+                    OnPropertyChanged(nameof(IsInactive));
+                }
+            }
+        }
+
+        public bool IsInactive => !IsActive;
+
+        private bool _isEditing;
+        public bool IsEditing
+        {
+            get => _isEditing;
+            set
+            {
+                if (SetProperty(ref _isEditing, value))
+                {
+                    OnPropertyChanged(nameof(IsReadonly));
+                }
+            }
+        }
+
+        public bool IsReadonly => !IsEditing;
+
+        public IRelayCommand ToggleStatusCommand {  get; }
+
+        public EditProductVariantViewModel()
+        {
+            ToggleStatusCommand = new RelayCommand(ToggleStatus);
+        }
+
+        private void ToggleStatus()
+        {
+            IsActive = !IsActive;
         }
     }
 }

@@ -205,6 +205,24 @@ public class UpdateProductVariantLogisticsDto
     public int StockOnHand { get; set; }
 }
 
+public class UpdateProductVariantDto
+{
+    public Guid Id { get; set; }
+    public Guid ProductId { get; set; }
+    public string? Sku { get; set; }
+    public MoneyDto Cost { get; set; } = new();
+    public MoneyDto Price { get; set; } = new();
+    public WeightDto Weight { get; set; } = new();
+    public int StockOnHand { get; set; }
+    public bool IsActive { get; set; }
+}
+
+public class UpdateProductVariantsDto
+{
+    public Guid ProductId { get; set; }
+    public List<UpdateProductVariantDto> Variants { get; set; } = new();
+}
+
 public class AddProductVariantDto
 {
     public Guid ProductId { get; set; }

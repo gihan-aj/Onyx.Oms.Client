@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using System;
@@ -81,7 +81,9 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
                     PriceCurrency = v.CostCurrency,
                     WeightAmount = v.WeightAmount.HasValue ? (double)v.WeightAmount : null,
                     WeightUnit = v.WeightUnit,
-                    StockOnHand = v.StockOnHand
+                    StockOnHand = v.StockOnHand,
+                    IsActive  = v.IsActive,
+                    IsEditing = false
                 });
             }
         }
@@ -93,6 +95,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
                 v.CostCurrency = _currency;
                 v.PriceCurrency = _currency;
                 v.WeightUnit = _weightUnit;
+                v.IsEditing = true;
             }
             IsEditing = true;
             
@@ -118,15 +121,17 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
                     PriceCurrency= v.PriceCurrency,
                     WeightAmount = v.WeightAmount.HasValue ? (double)v.WeightAmount : null,
                     WeightUnit = v.WeightUnit,
-                    StockOnHand = v.StockOnHand
+                    StockOnHand = v.StockOnHand,
+                    IsActive = v.IsActive,
+                    IsEditing = false
                 });
             }
             IsEditing = false;
         }
 
-        public List<UpdateProductVariantLogisticsDto> GetUpdateDtos(Guid productId)
+        public List<UpdateProductVariantDto> GetUpdateDtos(Guid productId)
         {
-            var updates = new List<UpdateProductVariantLogisticsDto>();
+            var updates = new List<UpdateProductVariantDto>();
 
             if (!HasVariants)
                 return updates;
@@ -140,16 +145,20 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
                    (original.CostAmount != (decimal)vm.CostAmount ||
                     original.PriceAmount != (decimal)vm.PriceAmount ||
                     original.WeightAmount != (decimal)(vm.WeightAmount ?? 0) ||
+                    original.Sku != vm.Sku ||
+                    original.IsActive != vm.IsActive ||
                     original.StockOnHand != vm.StockOnHand))
                 {
-                    updates.Add(new UpdateProductVariantLogisticsDto
+                    updates.Add(new UpdateProductVariantDto
                     {
+                        Id = vm.Id,
                         ProductId = productId,
-                        VariantId = vm.Id,
+                        Sku = vm.Sku,
                         Cost = new MoneyDto { Amount = (decimal)vm.CostAmount, Currency = vm.CostCurrency },
                         Price = new MoneyDto { Amount = (decimal)vm.PriceAmount, Currency = vm.PriceCurrency },
                         Weight = new WeightDto { Value = (decimal)(vm.WeightAmount ?? 0), Unit = vm.WeightUnit ?? "kg" },
-                        StockOnHand = vm.StockOnHand
+                        StockOnHand = vm.StockOnHand,
+                        IsActive = vm.IsActive
                     });
                 }
             }

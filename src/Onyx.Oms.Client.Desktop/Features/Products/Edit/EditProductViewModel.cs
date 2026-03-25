@@ -507,8 +507,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
                 try
                 {
                     IsBusy = true;
-                    foreach (var dto in updateDtos) 
-                        await _productsApi.UpdateProductVariantLogistics(_productDetails.Id, dto.VariantId, dto);
+                    var payload = new UpdateProductVariantsDto { ProductId = _productDetails.Id , Variants = updateDtos};
+                    await _productsApi.UpdateProductVariants(_productDetails.Id, payload);
 
                     await InitializeAsync(_productDetails.Id);
                     _toastService.ShowSuccess("Varinats Updated", "Product variants were updated successfully.");

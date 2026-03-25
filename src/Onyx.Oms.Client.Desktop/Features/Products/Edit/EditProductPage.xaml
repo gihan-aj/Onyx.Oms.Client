@@ -778,6 +778,52 @@
                                 <toolkit:DataGridTextColumn Header="Weight" Binding="{Binding WeightAmount, Mode=TwoWay}" MinWidth="100" Width="Auto" HeaderStyle="{StaticResource RightAlignedHeaderStyle}" ElementStyle="{StaticResource RightAlignedCellStyle}"/>
                                 <toolkit:DataGridTextColumn IsReadOnly="True" Binding="{Binding WeightUnit, Mode=OneWay}" MinWidth="50" Width="Auto" ElementStyle="{StaticResource LeftAlignedCellStyle}"/>
                                 <toolkit:DataGridTextColumn Header="Stock" Binding="{Binding StockOnHand, Mode=TwoWay}" MinWidth="100" Width="Auto" HeaderStyle="{StaticResource RightAlignedHeaderStyle}" ElementStyle="{StaticResource RightAlignedCellStyle}"/>
+
+                                <toolkit:DataGridTemplateColumn Header="Status" HeaderStyle="{StaticResource CenteredHeaderStyle}" IsReadOnly="True" MinWidth="140" Width="Auto">
+                                    <toolkit:DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate x:DataType="local:EditProductVariantViewModel">
+                                            <Grid Margin="12,0">
+
+                                                <Border Style="{StaticResource StatusBadgeStyle}"
+                                                        Background="{x:Bind IsActive, Mode=OneWay, Converter={StaticResource StatusBackgroundConverter}}"
+                                                        Visibility="{x:Bind IsReadonly, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <TextBlock Style="{StaticResource StatusBadgeTextStyle}"
+                                                               Text="{x:Bind IsActive, Mode=OneWay, Converter={StaticResource StatusTextConverter}}"
+                                                               Foreground="{x:Bind IsActive, Mode=OneWay, Converter={StaticResource StatusForegroundConverter}}" />
+                                                </Border>
+
+                                                <StackPanel Orientation="Horizontal" 
+                                                            Visibility="{x:Bind IsEditing, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                            HorizontalAlignment="Center" 
+                                                            VerticalAlignment="Center">
+
+                                                    <Button Style="{StaticResource SubtleButtonStyle}"
+                                                            Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                                                            Command="{x:Bind ToggleStatusCommand}"
+                                                            Visibility="{x:Bind IsInactive, Mode=OneWay}"
+                                                            ToolTipService.ToolTip="Activate Variant">
+                                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                                            <FontIcon Glyph="&#xE73E;" FontSize="14" />
+                                                            <TextBlock Text="Activate" FontSize="12" />
+                                                        </StackPanel>
+                                                    </Button>
+
+                                                    <Button Style="{StaticResource SubtleButtonStyle}"
+                                                            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                                            Command="{x:Bind ToggleStatusCommand}"
+                                                            Visibility="{x:Bind IsActive, Mode=OneWay}"
+                                                            ToolTipService.ToolTip="Deactivate Variant">
+                                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                                            <FontIcon Glyph="&#xE711;" FontSize="14" />
+                                                            <TextBlock Text="Deactivate" FontSize="12" />
+                                                        </StackPanel>
+                                                    </Button>
+
+                                                </StackPanel>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </toolkit:DataGridTemplateColumn.CellTemplate>
+                                </toolkit:DataGridTemplateColumn>
                             </toolkit:DataGrid.Columns>
                         </toolkit:DataGrid>
 
