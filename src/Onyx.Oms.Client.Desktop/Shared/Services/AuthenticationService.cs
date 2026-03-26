@@ -16,8 +16,8 @@ public class AuthenticationService : IAuthenticationService
     private readonly ILogger<AuthenticationService> _logger;
     private readonly AuthenticationOptions _options;
     private OidcClient? _oidcClient;
-    
     public event EventHandler<bool>? AuthenticationChanged;
+    public event EventHandler<bool>? AuthenticationProcessStateChanged;
 
     public bool IsAuthenticated => User?.Identity?.IsAuthenticated ?? false;
 
@@ -112,11 +112,13 @@ public class AuthenticationService : IAuthenticationService
     {
         try
         {
+            AuthenticationProcessStateChanged?.Invoke(this, true);
             var loginResult = await _oidcClient!.LoginAsync(new LoginRequest());
 
             if (loginResult.IsError)
             {
                 _logger.LogError("Login Error: {Error}", loginResult.Error);
+                AuthenticationProcessStateChanged?.Invoke(this, false);
                 return false;
             }
 
@@ -133,6 +135,7 @@ public class AuthenticationService : IAuthenticationService
 
             // Set User
             User = loginResult.User;
+            AuthenticationProcessStateChanged?.Invoke(this, false);
             AuthenticationChanged?.Invoke(this, true);
 
             return true;
@@ -140,6 +143,7 @@ public class AuthenticationService : IAuthenticationService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Login Exception");
+            AuthenticationProcessStateChanged?.Invoke(this, false);
             return false;
         }
     }
@@ -148,12 +152,14 @@ public class AuthenticationService : IAuthenticationService
     {
         try
         {
+            AuthenticationProcessStateChanged?.Invoke(this, true);
             var result = await _oidcClient!.RefreshTokenAsync(refreshToken);
 
             if (result.IsError)
             {
                  // Token refresh failed (expired or revoked), clear tokens
                  _logger.LogWarning("Token refresh failed: {Error}", result.Error);
+                 AuthenticationProcessStateChanged?.Invoke(this, false);
                  await LogoutAsync();
                  return;
             }
@@ -173,6 +179,7 @@ public class AuthenticationService : IAuthenticationService
             if (userInfoResult.IsError)
             {
                 _logger.LogError("UserInfo Error during refresh: {Error}", userInfoResult.Error);
+                AuthenticationProcessStateChanged?.Invoke(this, false);
                 await LogoutAsync();
                 return;
             }
@@ -180,11 +187,13 @@ public class AuthenticationService : IAuthenticationService
             var identity = new ClaimsIdentity(userInfoResult.Claims, "OIDC", "name", "role");
             User = new ClaimsPrincipal(identity);
             
+            AuthenticationProcessStateChanged?.Invoke(this, false);
             AuthenticationChanged?.Invoke(this, true);
         }
         catch(Exception ex)
         {
             _logger.LogError(ex, "RefreshToken Exception");
+            AuthenticationProcessStateChanged?.Invoke(this, false);
             await LogoutAsync();
         }
     }

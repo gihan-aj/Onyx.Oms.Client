@@ -56,6 +56,7 @@ public sealed partial class MainWindow : Window
         // Setup Auth UI
         CheckLoginStatus();
         _authenticationService.AuthenticationChanged += OnAuthenticationChanged;
+        _authenticationService.AuthenticationProcessStateChanged += OnAuthenticationProcessStateChanged;
         LoginView.LoginRequested += OnLoginRequested;
 
         // Ensure app shuts down when window is closed
@@ -63,6 +64,7 @@ public sealed partial class MainWindow : Window
         {
              // Unsubscribe to prevent memory leak (Singleton holding ref to MainWindow)
              _authenticationService.AuthenticationChanged -= OnAuthenticationChanged;
+             _authenticationService.AuthenticationProcessStateChanged -= OnAuthenticationProcessStateChanged;
              LoginView.LoginRequested -= OnLoginRequested;
 
              // Make sure to dispose settings or services if needed
@@ -110,6 +112,20 @@ public sealed partial class MainWindow : Window
         });
     }
 
+    private void OnAuthenticationProcessStateChanged(object? sender, bool isAuthenticating)
+    {
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            LoginView.SetLoading(isAuthenticating);
+            
+            // If authentication finished and we are NOT authenticated, restore the login button
+            if (!isAuthenticating && !_authenticationService.IsAuthenticated)
+            {
+                LoginView.UpdateLoginButtonVisibility(false);
+            }
+        });
+    }
+
     private async void OnLoginRequested(object? sender, EventArgs e)
     {
          await _authenticationService.LoginAsync();
@@ -123,6 +139,8 @@ public sealed partial class MainWindow : Window
 
     private void UpdateAuthenticationUI()
     {
+        LoginView.UpdateLoginButtonVisibility(_authenticationService.IsAuthenticated);
+
         if (_authenticationService.IsAuthenticated)
         {
             // Authenticated State
