@@ -202,9 +202,11 @@ public class AuthenticationService : IAuthenticationService
     {
         try 
         {
-            // Optional: Call IdP logout if needed
-            // await _oidcClient.LogoutAsync(new LogoutRequest { IdTokenHint = ... });
-            
+            var (_, _, idToken) = await _tokenStorageService.GetTokensAsync();
+            if (_oidcClient != null)
+            {
+                await _oidcClient.LogoutAsync(new LogoutRequest { IdTokenHint = idToken });
+            }
             
             await _tokenStorageService.ClearTokensAsync();
             User = new ClaimsPrincipal(new ClaimsIdentity());
