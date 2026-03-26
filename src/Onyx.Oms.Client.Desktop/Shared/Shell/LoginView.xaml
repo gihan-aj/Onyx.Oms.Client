@@ -13,7 +13,7 @@
             <SolidColorBrush Color="Transparent" />
         </Grid.Background>
 
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="24">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
             <!-- Logo area -->
             <Image Source="/Assets/StoreLogo.png" Width="120" Height="120" />
             
@@ -59,6 +59,14 @@
                        HorizontalAlignment="Center"
                        Visibility="Collapsed"
                        MaxWidth="300" />
+                       
+            <!-- Create Account Button -->
+            <Button x:Name="RegisterButton" 
+                    Content="Create an Account" 
+                    Style="{StaticResource SubtleButtonStyle}"
+                    HorizontalAlignment="Center" 
+                    Margin="0,8,0,0"
+                    Click="RegisterButton_Click"/>
         </StackPanel>
     </Grid>
 </UserControl>

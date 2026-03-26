@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Onyx.Oms.Client.Desktop.Shared.Shell"
+    xmlns:onboarding="using:Onyx.Oms.Client.Desktop.Features.Users.UserOnboarding"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
@@ -94,6 +95,13 @@
                          Grid.RowSpan="2"
                          Visibility="Visible"
                          Canvas.ZIndex="10" />
+
+        <!-- User Onboarding Overlay -->
+        <onboarding:UserOnboarding x:Name="UserOnboardingView"
+                                   Grid.Row="1"
+                                   Grid.RowSpan="2"
+                                   Visibility="Collapsed"
+                                   Canvas.ZIndex="11" />
 
         <!-- Notification Overlay -->
         <InfoBar x:Name="ShellInfoBar"

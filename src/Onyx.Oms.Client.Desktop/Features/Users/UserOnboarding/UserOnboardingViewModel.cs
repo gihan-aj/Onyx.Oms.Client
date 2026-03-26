@@ -111,7 +111,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Users.UserOnboarding
             try
             {
                 IsLoading = true;
-                var result = await _subscriptionPlansApi.GetSubscriptionsPlanAsync();
+                var result = await _subscriptionPlansApi.GetSubscriptionsPlanAsync(new GetSubsriptionPlansRequest());
                 foreach (var subscriptionPlanDto in result)
                 {
                     SubscriptionPlans.Add(subscriptionPlanDto);

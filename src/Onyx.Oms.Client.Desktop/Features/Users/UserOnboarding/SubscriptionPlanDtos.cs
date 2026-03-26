@@ -2,6 +2,8 @@
 
 namespace Onyx.Oms.Client.Desktop.Features.Users.UserOnboarding
 {
+    public record GetSubsriptionPlansRequest(bool IsActive = true);
+
     public class SubscriptionPlanDto
     {
         public Guid Id { get; set; }

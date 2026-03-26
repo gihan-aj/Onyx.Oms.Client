@@ -59,6 +59,7 @@ public sealed partial class MainWindow : Window
         _authenticationService.AuthenticationChanged += OnAuthenticationChanged;
         _authenticationService.AuthenticationProcessStateChanged += OnAuthenticationProcessStateChanged;
         LoginView.LoginRequested += OnLoginRequested;
+        LoginView.RegisterRequested += OnRegisterRequested;
 
         // Ensure app shuts down when window is closed
         Closed += (s, e) => 
@@ -67,6 +68,7 @@ public sealed partial class MainWindow : Window
              _authenticationService.AuthenticationChanged -= OnAuthenticationChanged;
              _authenticationService.AuthenticationProcessStateChanged -= OnAuthenticationProcessStateChanged;
              LoginView.LoginRequested -= OnLoginRequested;
+             LoginView.RegisterRequested -= OnRegisterRequested;
 
              // Make sure to dispose settings or services if needed
              Microsoft.UI.Xaml.Application.Current.Exit();
@@ -126,6 +128,12 @@ public sealed partial class MainWindow : Window
         });
     }
 
+    private void OnRegisterRequested(object? sender, EventArgs e)
+    {
+        LoginView.Visibility = Visibility.Collapsed;
+        UserOnboardingView.Visibility = Visibility.Visible;
+    }
+
     private void OnAuthenticationProcessStateChanged(object? sender, bool isAuthenticating)
     {
         DispatcherQueue.TryEnqueue(() =>
@@ -159,6 +167,7 @@ public sealed partial class MainWindow : Window
         {
             // Authenticated State
             LoginView.Visibility = Visibility.Collapsed;
+            UserOnboardingView.Visibility = Visibility.Collapsed;
             NavView.Visibility = Visibility.Visible;
             
             SignInBtn.Visibility = Visibility.Collapsed;
@@ -222,9 +231,13 @@ public sealed partial class MainWindow : Window
             ContentFrame.ForwardStack.Clear();
 
             // Animate Transition
-            LoginView.Visibility = Visibility.Visible;
+            if (UserOnboardingView.Visibility != Visibility.Visible)
+            {
+                LoginView.Visibility = Visibility.Visible;
+                AnimateOpacity(LoginView, 0, 1);
+            }
             NavView.Visibility = Visibility.Collapsed;
-            AnimateOpacity(LoginView, 0, 1);
+            UserOnboardingView.Visibility = Visibility.Collapsed;
             AnimateOpacity(NavView, 1, 0, () => NavView.Visibility = Visibility.Collapsed);
         }
     }

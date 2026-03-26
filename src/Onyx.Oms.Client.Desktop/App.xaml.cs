@@ -16,6 +16,7 @@ using Refit;
 using Serilog;
 using System;
 using Onyx.Oms.Client.Desktop.Features.Users.UserOnboarding;
+using Onyx.Oms.Client.Desktop.Features.Users;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -167,7 +168,7 @@ namespace Onyx.Oms.Client.Desktop
                     .AddHttpMessageHandler<AuthHeaderHandler>()
                     .AddHttpMessageHandler<ProblemDetailsHandler>();
 
-            services.AddRefitClient<IUserApi>()
+            services.AddRefitClient<IUsersApi>()
                     .ConfigureHttpClient((sp, c) =>
                     {
                         var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
@@ -286,6 +287,7 @@ namespace Onyx.Oms.Client.Desktop
             services.AddTransient<Features.Roles.RoleFormPage>();
             services.AddTransient<Features.Settings.SettingsPage>();
             services.AddTransient<Features.Settings.SettingsViewModel>();
+            services.AddTransient<Features.Users.UserOnboarding.UserOnboardingViewModel>();
             // Add other pages
 
             // Configuration
