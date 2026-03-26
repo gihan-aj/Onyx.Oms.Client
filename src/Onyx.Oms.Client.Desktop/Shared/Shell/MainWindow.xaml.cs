@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using System;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Onyx.Oms.Client.Desktop.Shared.Shell;
 
@@ -96,8 +97,21 @@ public sealed partial class MainWindow : Window
         {
             // Block UI update until permissions and tenant profile are fetched.
             // The user will see exactly what they saw during login (the splash/loading state)
-            await _permissionService.InitializeAsync();
-            await _tenantProfileService.InitializeAsync();
+            var pTask = _permissionService.InitializeAsync();
+            var tTask = _tenantProfileService.InitializeAsync();
+            
+            await Task.WhenAll(pTask, tTask);
+
+            if (!pTask.Result || !tTask.Result)
+            {
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    LoginView.ShowError("Initialization Failed: Could not load user session details. Please try again.");
+                });
+
+                await _authenticationService.LogoutAsync();
+                return;
+            }
         }
         else
         {

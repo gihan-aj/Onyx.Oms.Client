@@ -18,7 +18,7 @@ public class PermissionService : IPermissionService
         _logger = logger;
     }
 
-    public async Task InitializeAsync()
+    public async Task<bool> InitializeAsync()
     {
         try
         {
@@ -32,11 +32,13 @@ public class PermissionService : IPermissionService
             }
             
             _logger.LogInformation("Loaded {Count} permissions.", _permissions.Count);
+            return true;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to load user permissions.");
             _permissions.Clear();
+            return false;
         }
     }
 

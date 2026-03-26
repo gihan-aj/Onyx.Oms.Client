@@ -7,6 +7,6 @@ public interface IPermissionService
     bool CanNavigateTo(string pageKey);
     bool CanExecute(string permissionKey);
     bool HasFeatureAccess(string featurePrefix);
-    Task InitializeAsync();
+    Task<bool> InitializeAsync();
     void ClearPermissions();
 }

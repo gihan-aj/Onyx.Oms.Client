@@ -19,18 +19,20 @@ public class TenantProfileService : ITenantProfileService
         _logger = logger;
     }
 
-    public async Task InitializeAsync()
+    public async Task<bool> InitializeAsync()
     {
         try
         {
             _logger.LogInformation("Fetching tenant profile...");
             Profile = await _tenantProfileApi.GetTenantProfile();
             _logger.LogInformation("Loaded tenant profile for {StoreName}.", Profile?.StoreName);
+            return true;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to load tenant profile.");
             Profile = null;
+            return false;
         }
     }
 

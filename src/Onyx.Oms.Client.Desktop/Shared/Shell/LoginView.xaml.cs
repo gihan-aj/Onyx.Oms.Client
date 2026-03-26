@@ -15,6 +15,7 @@ public sealed partial class LoginView : UserControl
 
     private void LoginButton_Click(object sender, RoutedEventArgs e)
     {
+        ErrorMessageText.Visibility = Visibility.Collapsed;
         LoginRequested?.Invoke(this, EventArgs.Empty);
     }
 
@@ -40,5 +41,11 @@ public sealed partial class LoginView : UserControl
     {
         LoginText.Visibility = isAuthenticated ? Visibility.Collapsed : Visibility.Visible;
         LoginButton.Visibility = isAuthenticated ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    public void ShowError(string message)
+    {
+        ErrorMessageText.Text = message;
+        ErrorMessageText.Visibility = Visibility.Visible;
     }
 }

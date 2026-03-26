@@ -7,7 +7,7 @@ public interface ITenantProfileService
 {
     TenantProfileDto? Profile { get; }
     
-    Task InitializeAsync();
+    Task<bool> InitializeAsync();
     
     void ClearProfile();
 }
