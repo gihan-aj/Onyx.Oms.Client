@@ -15,6 +15,7 @@ using Onyx.Oms.Client.Desktop.Shared.Services.Http;
 using Refit;
 using Serilog;
 using System;
+using Onyx.Oms.Client.Desktop.Features.Users.UserOnboarding;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -166,25 +167,25 @@ namespace Onyx.Oms.Client.Desktop
                     .AddHttpMessageHandler<AuthHeaderHandler>()
                     .AddHttpMessageHandler<ProblemDetailsHandler>();
 
-            //services.AddRefitClient<IGetProductDetailsApi>()
-            //        .ConfigureHttpClient((sp, c) => 
-            //        {
-            //            var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
-            //            c.BaseAddress = new Uri(options.BaseUrl);
-            //        })
-            //        .AddHttpMessageHandler<HttpLoggingHandler>()
-            //        .AddHttpMessageHandler<AuthHeaderHandler>()
-            //        .AddHttpMessageHandler<ProblemDetailsHandler>();
+            services.AddRefitClient<IUserApi>()
+                    .ConfigureHttpClient((sp, c) =>
+                    {
+                        var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
+                        c.BaseAddress = new Uri(options.BaseUrl);
+                    })
+                    .AddHttpMessageHandler<HttpLoggingHandler>()
+                    .AddHttpMessageHandler<AuthHeaderHandler>()
+                    .AddHttpMessageHandler<ProblemDetailsHandler>();
 
-            //services.AddRefitClient<ICreateProductApi>()
-            //        .ConfigureHttpClient((sp, c) => 
-            //        {
-            //            var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
-            //            c.BaseAddress = new Uri(options.BaseUrl);
-            //        })
-            //        .AddHttpMessageHandler<HttpLoggingHandler>()
-            //        .AddHttpMessageHandler<AuthHeaderHandler>()
-            //        .AddHttpMessageHandler<ProblemDetailsHandler>();
+            services.AddRefitClient<ISubscriptionPlansApi>()
+                    .ConfigureHttpClient((sp, c) =>
+                    {
+                        var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
+                        c.BaseAddress = new Uri(options.BaseUrl);
+                    })
+                    .AddHttpMessageHandler<HttpLoggingHandler>()
+                    .AddHttpMessageHandler<AuthHeaderHandler>()
+                    .AddHttpMessageHandler<ProblemDetailsHandler>();
 
             //services.AddRefitClient<IUpdateProductApi>()
             //        .ConfigureHttpClient((sp, c) => 

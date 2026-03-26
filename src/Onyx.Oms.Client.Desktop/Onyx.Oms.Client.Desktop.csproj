@@ -27,6 +27,7 @@
     <None Remove="Features\Products\List\ProductsPage.xaml" />
     <None Remove="Features\ProductVariants\ProductVariantsPage.xaml" />
     <None Remove="Features\Roles\RoleFormPage.xaml" />
+    <None Remove="Features\Users\UserOnboarding\UserOnboarding.xaml" />
     <None Remove="Features\Users\UsersPage.xaml" />
     <None Remove="Shared\Styles\Grid.xaml" />
     <None Remove="Shared\Styles\GridViewItem.xaml" />
@@ -93,6 +94,11 @@
   <ItemGroup>
     <Folder Include="Shared\Components\" />
     <Folder Include="Shared\Shell\Navigation\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Features\Users\UserOnboarding\UserOnboarding.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Features\Products\Edit\EditProductPage.xaml">
