@@ -22,8 +22,7 @@
         <TitleBar x:Name="AppTitleBar"
                   Title="ONYX OMS"
                   Grid.Row="0"
-                  IsBackButtonVisible="{x:Bind ContentFrame.CanGoBack, Mode=OneWay}"
-                  IsPaneToggleButtonVisible="True"
+                  IsPaneToggleButtonVisible="False"
                   BackRequested="AppTitleBar_BackRequested"
                   PaneToggleRequested="AppTitleBar_PaneToggleRequested"
                   Canvas.ZIndex="0">
@@ -40,10 +39,10 @@
                                    Width="32" 
                                    DisplayName="John Doe" 
                                    Initials="JD" 
-                                   Visibility="Visible" />
+                                   Visibility="Collapsed" />
 
                     <!-- Sign In / Sign Out Buttons -->
-                    <Button x:Name="SignInBtn" Content="Sign In" Click="SignInBtn_Click" Style="{StaticResource AccentButtonStyle}" />
+                    <Button x:Name="SignInBtn" Content="Sign In" Click="SignInBtn_Click" Visibility="Collapsed" Style="{StaticResource AccentButtonStyle}" />
                     <Button x:Name="SignOutBtn" Content="Sign Out" Click="SignOutBtn_Click" Visibility="Collapsed" Style="{StaticResource SubtleButtonStyle}" />
                     
                 </StackPanel>
@@ -55,6 +54,7 @@
             x:Name="NavView"
             Grid.Row="1"
             Grid.RowSpan="2"
+            Visibility="Collapsed"
             IsBackButtonVisible="Collapsed"
             IsPaneToggleButtonVisible="False"
             PaneDisplayMode="Left"
@@ -92,7 +92,7 @@
         <local:LoginView x:Name="LoginView"
                          Grid.Row="1"
                          Grid.RowSpan="2"
-                         Visibility="Collapsed"
+                         Visibility="Visible"
                          Canvas.ZIndex="10" />
 
         <!-- Notification Overlay -->

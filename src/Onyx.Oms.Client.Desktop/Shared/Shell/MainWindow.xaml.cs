@@ -191,6 +191,7 @@ public sealed partial class MainWindow : Window
 
             // Animate Transition
             LoginView.Visibility = Visibility.Visible;
+            NavView.Visibility = Visibility.Collapsed;
             AnimateOpacity(LoginView, 0, 1);
             AnimateOpacity(NavView, 1, 0, () => NavView.Visibility = Visibility.Collapsed);
         }
