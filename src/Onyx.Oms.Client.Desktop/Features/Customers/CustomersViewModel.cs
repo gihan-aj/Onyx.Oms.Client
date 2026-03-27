@@ -40,6 +40,22 @@ public partial class CustomersViewModel : ObservableObject, INavigationAware
         set => SetProperty(ref _isBusy, value);
     }
 
+    private string _selectedStatus = "Active";
+    public string SelectedStatus
+    {
+        get => _selectedStatus;
+        set
+        {
+            if (SetProperty(ref _selectedStatus, value))
+            {
+                Page = 1;
+                LoadDataCommand.ExecuteAsync(null);
+            }
+        }
+    }
+
+    public ObservableCollection<string> StatusOptions { get; } = new(new[] { "Active", "Inactive", "All" });
+
     private int _page = 1;
     public int Page
     {
@@ -126,6 +142,7 @@ public partial class CustomersViewModel : ObservableObject, INavigationAware
     public IAsyncRelayCommand NextPageCommand { get; }
     public IAsyncRelayCommand PreviousPageCommand { get; }
     public IAsyncRelayCommand RefreshCommand { get; }
+    public IAsyncRelayCommand ClearFiltersCommand { get; }
     public IAsyncRelayCommand<string> SearchCommand { get; }
     public IAsyncRelayCommand<CustomerDto> DeleteCommand { get; }
     public IAsyncRelayCommand<CustomerDto> ActivateCommand { get; }
@@ -152,6 +169,7 @@ public partial class CustomersViewModel : ObservableObject, INavigationAware
         NextPageCommand = new AsyncRelayCommand(OnNextPage);
         PreviousPageCommand = new AsyncRelayCommand(OnPreviousPage);
         RefreshCommand = new AsyncRelayCommand(OnRefresh);
+        ClearFiltersCommand = new AsyncRelayCommand(ClearFlitersAsync);
         SearchCommand = new AsyncRelayCommand<string>(OnSearch);
         DeleteCommand = new AsyncRelayCommand<CustomerDto>(DeleteCustomer);
         ActivateCommand = new AsyncRelayCommand<CustomerDto>(ActivateCustomer);
@@ -195,7 +213,14 @@ public partial class CustomersViewModel : ObservableObject, INavigationAware
             IsListLoading = true;
             HasNoData = false;
 
-            var result = await _customerApi.SearchCustomers(Page, PageSize, SearchTerm, SortColumn, SortDirection);
+            bool? activeFilter = SelectedStatus switch
+            {
+                "Active" => true,
+                "Inactive" => false,
+                _ => null,
+            };
+
+            var result = await _customerApi.SearchCustomers(Page, PageSize, SearchTerm, SortColumn, SortDirection, activeFilter);
             
             // Evaluate permissions once
             var canEdit = _permissionService.CanExecute(Shared.Constants.Permissions.Customers.Edit);
@@ -257,6 +282,17 @@ public partial class CustomersViewModel : ObservableObject, INavigationAware
     {
         Page = 1;
         SearchTerm = null;
+        SortColumn = null;
+        SortDirection = null;
+        SelectedStatus = "Active";
+        await LoadDataAsync();
+    }
+
+    private async Task ClearFlitersAsync()
+    {
+        SearchTerm = string.Empty;
+        SelectedStatus = "All";
+        Page = 1;
         SortColumn = null;
         SortDirection = null;
         await LoadDataAsync();
