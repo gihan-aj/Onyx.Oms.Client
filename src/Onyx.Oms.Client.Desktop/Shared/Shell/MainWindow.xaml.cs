@@ -60,6 +60,8 @@ public sealed partial class MainWindow : Window
         _authenticationService.AuthenticationProcessStateChanged += OnAuthenticationProcessStateChanged;
         LoginView.LoginRequested += OnLoginRequested;
         LoginView.RegisterRequested += OnRegisterRequested;
+        UserOnboardingView.ViewModel.OnboardingCanceled += OnOnboardingCanceled;
+        UserOnboardingView.ViewModel.RegistrationCompleted += OnRegistrationCompleted;
 
         // Ensure app shuts down when window is closed
         Closed += (s, e) => 
@@ -69,6 +71,8 @@ public sealed partial class MainWindow : Window
              _authenticationService.AuthenticationProcessStateChanged -= OnAuthenticationProcessStateChanged;
              LoginView.LoginRequested -= OnLoginRequested;
              LoginView.RegisterRequested -= OnRegisterRequested;
+             UserOnboardingView.ViewModel.OnboardingCanceled -= OnOnboardingCanceled;
+             UserOnboardingView.ViewModel.RegistrationCompleted -= OnRegistrationCompleted;
 
              // Make sure to dispose settings or services if needed
              Microsoft.UI.Xaml.Application.Current.Exit();
@@ -132,6 +136,20 @@ public sealed partial class MainWindow : Window
     {
         LoginView.Visibility = Visibility.Collapsed;
         UserOnboardingView.Visibility = Visibility.Visible;
+    }
+
+    private void OnOnboardingCanceled(object? sender, EventArgs e)
+    {
+        UserOnboardingView.Visibility = Visibility.Collapsed;
+        LoginView.Visibility = Visibility.Visible;
+    }
+
+    private void OnRegistrationCompleted(object? sender, EventArgs e)
+    {
+        UserOnboardingView.Visibility = Visibility.Collapsed;
+        LoginView.Visibility = Visibility.Visible;
+
+        // Refresh plans or state if necessary here
     }
 
     private void OnAuthenticationProcessStateChanged(object? sender, bool isAuthenticating)

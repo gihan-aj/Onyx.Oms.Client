@@ -6,7 +6,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Users
 {
     public interface IUsersApi
     {
-        [Post("/api/v1/users")]
+        [Post("/api/v1/users/register")]
         Task<Guid> RegisterUserAsync([Body]RegisterUserRequest request);
     }
 }

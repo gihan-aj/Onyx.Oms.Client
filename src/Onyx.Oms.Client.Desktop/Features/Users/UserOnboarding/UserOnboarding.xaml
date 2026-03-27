@@ -4,11 +4,217 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Onyx.Oms.Client.Desktop.Features.Users.UserOnboarding"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid>
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    </UserControl.Resources>
 
+    <Grid>
+        <!-- Background is Transparent to let Window's MicaBackdrop show through if any -->
+        <Grid.Background>
+            <SolidColorBrush Color="Transparent" />
+        </Grid.Background>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" HorizontalAlignment="Center" Spacing="24">
+                <StackPanel HorizontalAlignment="Center" Spacing="8">
+                    <TextBlock Text="Register Your Workspace" 
+                               Style="{StaticResource TitleTextBlockStyle}" 
+                               HorizontalAlignment="Center"
+                               Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
+                    <TextBlock Text="Set up a new Onyx OMS environment for your organization." 
+                               Style="{StaticResource BodyTextBlockStyle}" 
+                               HorizontalAlignment="Center"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Text="Invited by a teammate? Please use the link in your invitation email to join an existing workspace." 
+                               Style="{StaticResource CaptionTextBlockStyle}" 
+                               HorizontalAlignment="Center"
+                               Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                               Margin="0,4,0,0" />
+
+                    <!-- Loading Bar -->
+                    <ProgressBar IsIndeterminate="True" VerticalAlignment="Top" HorizontalAlignment="Stretch"
+                             Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                </StackPanel>
+            </StackPanel>
+
+            <StackPanel Grid.Row="0" HorizontalAlignment="Left">
+                <Button Grid.Column="0"
+                        Command="{x:Bind ViewModel.CancelCommand}" 
+                        Style="{StaticResource SubtleButtonStyle}" Margin="16,0,16,0">
+                    <FontIcon Glyph="&#xE72B;" FontSize="14" />
+                </Button>
+            </StackPanel>
+
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="24">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="24" MaxWidth="800" Width="600">
+
+                    <!-- Step 1: User Profile -->
+                    <StackPanel Style="{StaticResource CardStackStyle}" 
+                                Visibility="{x:Bind ViewModel.IsStep1Visible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+
+                        <StackPanel Margin="0,0,0,16">
+                            <TextBlock Text="1. Prime Administrator Profile" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <TextBlock Text="This account will be designated as the workspace owner." 
+                                       Style="{StaticResource CaptionTextBlockStyle}" 
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+
+                        <Grid ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" Header="First Name" Text="{x:Bind ViewModel.FirstName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+                            <TextBox Grid.Column="1" Header="Last Name" Text="{x:Bind ViewModel.LastName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+                        </Grid>
+
+                        
+                        <TextBox Header="Email Address" Text="{x:Bind ViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+
+                        <PasswordBox Header="Password" Password="{x:Bind ViewModel.Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+                        <PasswordBox Header="Confirm Password" Password="{x:Bind ViewModel.ConfirmPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16" />
+
+                        <Grid>
+                            <Button Content="Back to Login" Style="{StaticResource SubtleButtonStyle}" 
+                                    Command="{x:Bind ViewModel.CancelCommand}" HorizontalAlignment="Left" />
+                            <Button Content="Next" Style="{StaticResource AccentButtonStyle}" 
+                                    Command="{x:Bind ViewModel.NextCommand}" HorizontalAlignment="Right" />
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Step 2: Company Details -->
+                    <StackPanel Style="{StaticResource CardStackStyle}" 
+                                Visibility="{x:Bind ViewModel.IsStep2Visible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+
+                        <StackPanel Margin="0,0,0,16">
+                            <TextBlock Text="2. Organization Information" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <TextBlock Text="Details about your business to help provision your environment." 
+                                       Style="{StaticResource CaptionTextBlockStyle}" 
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+
+                        <TextBox Header="Company Name" Text="{x:Bind ViewModel.CompanyName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+                        <TextBox Header="Contact Email" Text="{x:Bind ViewModel.ContactEmail, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16" />
+
+                        <Grid>
+                            <Button Content="Back" Style="{StaticResource DefaultButtonStyle}" 
+                                    Command="{x:Bind ViewModel.BackCommand}" HorizontalAlignment="Left" />
+                            <Button Content="Next" Style="{StaticResource AccentButtonStyle}" 
+                                    Command="{x:Bind ViewModel.NextCommand}" HorizontalAlignment="Right" />
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Step 3: Subscription Plan -->
+                    <StackPanel Style="{StaticResource CardStackStyle}" 
+                                Visibility="{x:Bind ViewModel.IsStep3Visible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+
+                        <StackPanel Margin="0,0,0,16">
+                            <TextBlock Text="3. Select a Subscription" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <TextBlock Text="Choose a tier that fits your scale. You can adjust this later." 
+                                       Style="{StaticResource CaptionTextBlockStyle}" 
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+
+                        <ListView ItemsSource="{x:Bind ViewModel.SubscriptionPlans, Mode=OneWay}"
+                                  SelectedItem="{x:Bind ViewModel.SelectedSubscriptionPlan, Mode=TwoWay}"
+                                  SelectionMode="Single"
+                                  Margin="0,0,0,16"
+                                  MaxHeight="350">
+                            <!-- Stretch ItemContainer to allow full-width cards -->
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    <Setter Property="Margin" Value="0,0,0,8" />
+                                    <Setter Property="Padding" Value="4" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType="local:SubscriptionPlanDto">
+                                    <Grid Padding="16" CornerRadius="8" 
+                                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                                          Background="{ThemeResource LayerFillColorAltBrush}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Grid.Column="0" Spacing="8">
+                                            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                                <TextBlock Text="{x:Bind Name}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                                <Border Background="{ThemeResource SystemFillColorSuccessBrush}"
+                                                        CornerRadius="4" Padding="6,2" VerticalAlignment="Center"
+                                                        Visibility="{x:Bind IsActive, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <TextBlock Text="AVAILABLE" FontSize="10" FontWeight="Bold" Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
+                                                </Border>
+                                            </StackPanel>
+
+                                            <Grid ColumnSpacing="24">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                                    <FontIcon Glyph="&#xE716;" FontSize="14" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                    <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center">
+                                                        <Run Text="{x:Bind MaxUsersAllowed}" />
+                                                        <Run Text=" Users" />
+                                                    </TextBlock>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                                    <FontIcon Glyph="&#xE8D5;" FontSize="14" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                    <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center">
+                                                        <Run Text="{x:Bind MaxOrdersAllowed}" />
+                                                        <Run Text=" Orders/mo" />
+                                                    </TextBlock>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                                    <FontIcon Glyph="&#xE787;" FontSize="14" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                    <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center">
+                                                        <Run Text="{x:Bind TrialPeriodInDays}" />
+                                                        <Run Text=" Days Trial" />
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Spacing="2">
+                                                <TextBlock Text="{x:Bind MonthleyPrice.Currency}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,2,2" VerticalAlignment="Bottom"/>
+                                                <TextBlock Text="{x:Bind MonthleyPrice.Amount}" Style="{StaticResource TitleTextBlockStyle}" FontWeight="Bold" />
+                                                <TextBlock Text="/mo" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,2" VerticalAlignment="Bottom"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+
+                        <Grid>
+                            <Button Content="Back" Style="{StaticResource DefaultButtonStyle}" 
+                                    Command="{x:Bind ViewModel.BackCommand}" HorizontalAlignment="Left" />
+                            <Button Content="Complete Sign Up" Style="{StaticResource AccentButtonStyle}" 
+                                    Command="{x:Bind ViewModel.RegisterCommand}" HorizontalAlignment="Right" />
+                        </Grid>
+                    </StackPanel>
+
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        
     </Grid>
 </UserControl>

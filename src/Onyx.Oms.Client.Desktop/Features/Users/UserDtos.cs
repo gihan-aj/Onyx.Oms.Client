@@ -20,7 +20,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Users
 
     public record RegisterComapnyDetailsDto
     {
-        public string Name { get; init; } = string.Empty;
+        public string CompanyName { get; init; } = string.Empty;
         public string ContactEmail { get; init; } = string.Empty;
     }
 

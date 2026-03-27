@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using Onyx.Oms.Client.Desktop.Shared.Services;
@@ -10,6 +10,9 @@ namespace Onyx.Oms.Client.Desktop.Features.Users.UserOnboarding
 {
     public partial class UserOnboardingViewModel : ObservableObject
     {
+        public event EventHandler? OnboardingCanceled;
+        public event EventHandler? RegistrationCompleted;
+
         private readonly ISubscriptionPlansApi _subscriptionPlansApi;
         private readonly IUsersApi _usersApi;
         private readonly IToastService _toastService;
@@ -22,6 +25,25 @@ namespace Onyx.Oms.Client.Desktop.Features.Users.UserOnboarding
             get => _isLoading;
             set => SetProperty(ref _isLoading, value);
         }
+
+        private int _currentStep = 1;
+        public int CurrentStep
+        {
+            get => _currentStep;
+            set
+            {
+                if (SetProperty(ref _currentStep, value))
+                {
+                    OnPropertyChanged(nameof(IsStep1Visible));
+                    OnPropertyChanged(nameof(IsStep2Visible));
+                    OnPropertyChanged(nameof(IsStep3Visible));
+                }
+            }
+        }
+
+        public bool IsStep1Visible => CurrentStep == 1;
+        public bool IsStep2Visible => CurrentStep == 2;
+        public bool IsStep3Visible => CurrentStep == 3;
 
         // User details
         private string _firstName = string.Empty;
@@ -75,16 +97,20 @@ namespace Onyx.Oms.Client.Desktop.Features.Users.UserOnboarding
         }
 
         // Subscription plan
-        private string _selectedSubscriptionPlanId = string.Empty;
-        public string SelectedSubscriptionPlanId
+        private SubscriptionPlanDto? _selectedSubscriptionPlan;
+        public SubscriptionPlanDto? SelectedSubscriptionPlan
         {
-            get => _selectedSubscriptionPlanId;
-            set => SetProperty(ref _selectedSubscriptionPlanId, value);
+            get => _selectedSubscriptionPlan;
+            set => SetProperty(ref _selectedSubscriptionPlan, value);
         }
 
         public ObservableCollection<SubscriptionPlanDto> SubscriptionPlans = new();
 
         public IAsyncRelayCommand LoadSubscriptionPlansCommand { get; }
+        public IRelayCommand NextCommand { get; }
+        public IRelayCommand BackCommand { get; }
+        public IRelayCommand CancelCommand { get; }
+        public IAsyncRelayCommand RegisterCommand { get; }
 
         public UserOnboardingViewModel(
             ISubscriptionPlansApi subscriptionPlansApi, 
@@ -100,7 +126,12 @@ namespace Onyx.Oms.Client.Desktop.Features.Users.UserOnboarding
             _logger = logger;
 
             LoadSubscriptionPlansCommand = new AsyncRelayCommand(GetSubscriptionPlansAsync);
+            NextCommand = new RelayCommand(Next);
+            BackCommand = new RelayCommand(Back);
+            CancelCommand = new RelayCommand(() => OnboardingCanceled?.Invoke(this, EventArgs.Empty));
+            RegisterCommand = new AsyncRelayCommand(RegisterAsync);
 
+            // Fetch plans silently in background so they are ready by step 3
             LoadSubscriptionPlansCommand.ExecuteAsync(null);
         }
 
@@ -120,6 +151,88 @@ namespace Onyx.Oms.Client.Desktop.Features.Users.UserOnboarding
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error loading subscription plans");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        private void Next()
+        {
+            if (CurrentStep == 1)
+            {
+                if (string.IsNullOrWhiteSpace(FirstName) || string.IsNullOrWhiteSpace(LastName) || string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
+                {
+                    _toastService.ShowError("Validation Error", "Please fill in all user details.");
+                    return;
+                }
+                if (Password != ConfirmPassword)
+                {
+                    _toastService.ShowError("Validation Error", "Passwords do not match.");
+                    return;
+                }
+                CurrentStep++;
+            }
+            else if (CurrentStep == 2)
+            {
+                if (string.IsNullOrWhiteSpace(CompanyName) || string.IsNullOrWhiteSpace(ContactEmail))
+                {
+                    _toastService.ShowError("Validation Error", "Please fill in all company details.");
+                    return;
+                }
+                CurrentStep++;
+            }
+        }
+
+        private void Back()
+        {
+            if (CurrentStep > 1)
+            {
+                CurrentStep--;
+            }
+        }
+
+        private async Task RegisterAsync()
+        {
+            if (SelectedSubscriptionPlan == null)
+            {
+                _toastService.ShowError("Validation Error", "Please select a subscription plan.");
+                return;
+            }
+
+            try
+            {
+                IsLoading = true;
+                var request = new RegisterUserRequest
+                {
+                    UserDetails = new RegisterUserDetailsDto
+                    {
+                        FirstName = FirstName,
+                        LastName = LastName,
+                        Email = Email,
+                        Password = Password,
+                        ConfirmPassword = ConfirmPassword
+                    },
+                    CompanyDetails = new RegisterComapnyDetailsDto
+                    {
+                        CompanyName = CompanyName,
+                        ContactEmail = ContactEmail
+                    },
+                    SubscriptionDetails = new RegisterSubscriptionPlanDetailsDto
+                    {
+                        SubscriptionId = SelectedSubscriptionPlan.Id
+                    }
+                };
+
+                var newUserId = await _usersApi.RegisterUserAsync(request);
+                _toastService.ShowSuccess("Registration Successful", "You can now log in with your new account.");
+                RegistrationCompleted?.Invoke(this, EventArgs.Empty);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error registering user");
+                //_toastService.ShowError("Registration Failed", "An error occurred during registration. Please try again.");
             }
             finally
             {
