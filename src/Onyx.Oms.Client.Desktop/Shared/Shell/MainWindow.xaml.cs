@@ -18,14 +18,17 @@ public sealed partial class MainWindow : Window
     private readonly IDialogService _dialogService;
     private readonly IToastService _toastService;
 
+    private readonly BackgroundProcessService _backgroundServices;
+
     public MainWindow(
-        INavigationService navigationService, 
-        INavigationViewService navigationViewService, 
+        INavigationService navigationService,
+        INavigationViewService navigationViewService,
         IAuthenticationService authenticationService,
         IPermissionService permissionService,
         ITenantProfileService tenantProfileService,
         IDialogService dialogService,
-        IToastService toastService)
+        IToastService toastService,
+        BackgroundProcessService backgroundServices)
     {
         InitializeComponent();
 
@@ -36,6 +39,7 @@ public sealed partial class MainWindow : Window
         _tenantProfileService = tenantProfileService;
         _dialogService = dialogService;
         _toastService = toastService;
+        _backgroundServices = backgroundServices;
 
         // Setup Custom TitleBar
         ExtendsContentIntoTitleBar = true;
@@ -44,7 +48,7 @@ public sealed partial class MainWindow : Window
         // Initialize Services
         _navigationService.Frame = ContentFrame;
         _navigationViewService.Initialize(NavView);
-        
+
         // Register InfoBar (Can be done here as object exists)
         if (_toastService is ToastService ts) ts.RegisterInfoBar(ShellInfoBar);
 
@@ -64,18 +68,20 @@ public sealed partial class MainWindow : Window
         UserOnboardingView.ViewModel.RegistrationCompleted += OnRegistrationCompleted;
 
         // Ensure app shuts down when window is closed
-        Closed += (s, e) => 
+        Closed += (s, e) =>
         {
-             // Unsubscribe to prevent memory leak (Singleton holding ref to MainWindow)
-             _authenticationService.AuthenticationChanged -= OnAuthenticationChanged;
-             _authenticationService.AuthenticationProcessStateChanged -= OnAuthenticationProcessStateChanged;
-             LoginView.LoginRequested -= OnLoginRequested;
-             LoginView.RegisterRequested -= OnRegisterRequested;
-             UserOnboardingView.ViewModel.OnboardingCanceled -= OnOnboardingCanceled;
-             UserOnboardingView.ViewModel.RegistrationCompleted -= OnRegistrationCompleted;
+            // Unsubscribe to prevent memory leak (Singleton holding ref to MainWindow)
+            _authenticationService.AuthenticationChanged -= OnAuthenticationChanged;
+            _authenticationService.AuthenticationProcessStateChanged -= OnAuthenticationProcessStateChanged;
+            LoginView.LoginRequested -= OnLoginRequested;
+            LoginView.RegisterRequested -= OnRegisterRequested;
+            UserOnboardingView.ViewModel.OnboardingCanceled -= OnOnboardingCanceled;
+            UserOnboardingView.ViewModel.RegistrationCompleted -= OnRegistrationCompleted;
 
-             // Make sure to dispose settings or services if needed
-             Microsoft.UI.Xaml.Application.Current.Exit();
+            _backgroundServices.Dispose();
+
+            // Make sure to dispose settings or services if needed
+            Microsoft.UI.Xaml.Application.Current.Exit();
         };
     }
 

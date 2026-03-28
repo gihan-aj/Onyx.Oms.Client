@@ -45,10 +45,14 @@ public class AuthenticationService : IAuthenticationService
             ClientId = _options.ClientId,
             RedirectUri = _options.RedirectUri,
             Scope = _options.Scope,
-            Browser = new SystemBrowser(), // Required: We need a system browser implementation
+            Browser = new SystemBrowser(),
             Policy = new Policy
             {
-                 RequireAccessTokenHash = false // Sometimes needed depending on IdP
+                 RequireAccessTokenHash = false,
+                 Discovery = new Duende.IdentityModel.Client.DiscoveryPolicy
+                 {
+                     RequireHttps = false,
+                 }
             } 
         };
 

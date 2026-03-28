@@ -1,22 +1,23 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using CommunityToolkit.WinUI.Animations;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.UI.Xaml;
 using Onyx.Oms.Client.Desktop.Features.Catalog;
 using Onyx.Oms.Client.Desktop.Features.Couriers;
 using Onyx.Oms.Client.Desktop.Features.Customers;
-using Onyx.Oms.Client.Desktop.Features.Products;
 using Onyx.Oms.Client.Desktop.Features.ProductCategories;
+using Onyx.Oms.Client.Desktop.Features.Products;
 using Onyx.Oms.Client.Desktop.Features.Roles;
 using Onyx.Oms.Client.Desktop.Features.Settings.Services;
+using Onyx.Oms.Client.Desktop.Features.Users;
+using Onyx.Oms.Client.Desktop.Features.Users.UserOnboarding;
 using Onyx.Oms.Client.Desktop.Shared.Models.Configuration;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using Onyx.Oms.Client.Desktop.Shared.Services.Http;
 using Refit;
 using Serilog;
 using System;
-using Onyx.Oms.Client.Desktop.Features.Users.UserOnboarding;
-using Onyx.Oms.Client.Desktop.Features.Users;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -71,7 +72,7 @@ namespace Onyx.Oms.Client.Desktop
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
 #if DEBUG
-            builder.AddJsonFile("appsettings.development.json", optional: true, reloadOnChange: true);
+            builder.AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true);
 #endif
 
             var configuration = builder.Build();
@@ -106,6 +107,9 @@ namespace Onyx.Oms.Client.Desktop
             services.AddTransient<HttpLoggingHandler>();
             services.AddTransient<AuthHeaderHandler>();
             services.AddTransient<ProblemDetailsHandler>();
+
+            // Wireup Backend Services
+            services.AddSingleton<BackgroundProcessService>();
 
             // API Clients
             services.AddRefitClient<ICourierApi>()
@@ -327,7 +331,18 @@ namespace Onyx.Oms.Client.Desktop
         protected override async void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
             base.OnLaunched(args);
-            
+
+            // Start Background APIs
+            var backgroundServices = Services.GetRequiredService<BackgroundProcessService>();
+            try
+            {
+                backgroundServices.StartBackendServices();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to start APIs: {ex.Message}");
+            }
+
             // Activate the service
             var activationService = Services.GetRequiredService<IActivationService>();
             await activationService.ActivateAsync(args);
