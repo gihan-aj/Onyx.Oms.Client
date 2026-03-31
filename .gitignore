@@ -361,3 +361,11 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Ignore bundled backend binaries for MSIX packaging
+src/Onyx.Oms.Client.Desktop/BackendServices/IdP/*
+src/Onyx.Oms.Client.Desktop/BackendServices/API/*
+
+# (Optional) Keep the empty folders in source control
+!src/Onyx.Oms.Client.Desktop/BackendServices/IdP/.keep
+!src/Onyx.Oms.Client.Desktop/BackendServices/API/.keep

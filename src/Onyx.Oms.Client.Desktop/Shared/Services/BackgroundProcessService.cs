@@ -1,54 +1,79 @@
-﻿using System;
+﻿using Serilog;
+using System;
 using System.Diagnostics;
 using System.IO;
 
 namespace Onyx.Oms.Client.Desktop.Shared.Services
 {
-    public class BackgroundProcessService : IDisposable
+    public class BackgroundProcessService
     {
         private Process? _idpProcess;
         private Process? _apiProcess;
 
         public void StartBackendServices()
         {
-            var basePath = AppContext.BaseDirectory;
+            try
+            {
+                Log.Information("Starting background services from MSIX payload...");
 
-            var idpPath = Path.Combine(basePath, "IdP", "Onyx.IdP.Web.exe");
-            var apiPath = Path.Combine(basePath, "API", "Onyx.Oms.Web.exe");
+                // In a packaged app, BaseDirectory is the root of the installed package
+                string basePath = AppDomain.CurrentDomain.BaseDirectory;
 
-            _idpProcess = LaunchProcess(idpPath);
-            _apiProcess = LaunchProcess(apiPath);
+                // Build the paths to the executables inside your BackendServices folder
+                string idpPath = Path.Combine(basePath, "BackendServices", "IdP", "Onyx.IdP.Web.exe");
+                string apiPath = Path.Combine(basePath, "BackendServices", "API", "Onyx.Oms.Web.exe");
+
+                if (!File.Exists(idpPath)) Log.Error($"IdP executable not found at: {idpPath}");
+                if (!File.Exists(apiPath)) Log.Error($"API executable not found at: {apiPath}");
+
+                _idpProcess = LaunchHiddenProcess(idpPath);
+                _apiProcess = LaunchHiddenProcess(apiPath);
+
+                Log.Information("Background services started successfully.");
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Failed to start background services.");
+            }
         }
 
-        private Process? LaunchProcess(string executablePath)
+        private Process? LaunchHiddenProcess(string executablePath)
         {
-            if (!File.Exists(executablePath))
-                return null;
+            if (!File.Exists(executablePath)) return null;
 
             var startInfo = new ProcessStartInfo
             {
                 FileName = executablePath,
-                WorkingDirectory = Path.GetDirectoryName(executablePath),
-                UseShellExecute = false, // Required to hide the window
-                CreateNoWindow = true, // Hide the console window completely
+                UseShellExecute = false,   // Must be false to hide the window
+                CreateNoWindow = true,     // Do not create a console window
+                WindowStyle = ProcessWindowStyle.Hidden
             };
 
             return Process.Start(startInfo);
         }
 
-        public void Dispose()
+        public void StopBackendServices()
         {
-            // Endure background processes are killed when the App closes
-            if (_idpProcess != null && !_idpProcess.HasExited)
-            {
-                _idpProcess.Kill();
-                _idpProcess.Dispose();
-            }
+            Log.Information("Shutting down background services...");
 
-            if (_apiProcess != null && !_apiProcess.HasExited)
+            SafelyKillProcess(_idpProcess, "IdP");
+            SafelyKillProcess(_apiProcess, "API");
+        }
+
+        private void SafelyKillProcess(Process? process, string name)
+        {
+            if (process != null && !process.HasExited)
             {
-                _apiProcess.Kill();
-                _apiProcess.Dispose();
+                try
+                {
+                    process.Kill(entireProcessTree: true); // Ensures child processes die too
+                    process.Dispose();
+                    Log.Information($"{name} process terminated successfully.");
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, $"Error terminating {name} process.");
+                }
             }
         }
     }

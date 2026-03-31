@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Onyx.Oms.Client.Desktop.Shared.Converters;
 
-public class StringListConverter : IValueConverter
+public partial class StringListConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {

@@ -3,7 +3,7 @@ using System;
 
 namespace Onyx.Oms.Client.Desktop.Shared.Converters;
 
-public class StringToBoolConverter : IValueConverter
+public partial class StringToBoolConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {

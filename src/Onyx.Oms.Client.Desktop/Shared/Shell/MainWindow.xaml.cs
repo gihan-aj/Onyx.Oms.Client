@@ -78,7 +78,7 @@ public sealed partial class MainWindow : Window
             UserOnboardingView.ViewModel.OnboardingCanceled -= OnOnboardingCanceled;
             UserOnboardingView.ViewModel.RegistrationCompleted -= OnRegistrationCompleted;
 
-            _backgroundServices.Dispose();
+            _backgroundServices.StopBackendServices();
 
             // Make sure to dispose settings or services if needed
             Microsoft.UI.Xaml.Application.Current.Exit();
