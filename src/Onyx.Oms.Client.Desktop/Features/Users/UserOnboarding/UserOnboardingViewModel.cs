@@ -111,12 +111,13 @@ namespace Onyx.Oms.Client.Desktop.Features.Users.UserOnboarding
         public IRelayCommand BackCommand { get; }
         public IRelayCommand CancelCommand { get; }
         public IAsyncRelayCommand RegisterCommand { get; }
+        public IAsyncRelayCommand RefreshCommand { get; }
 
         public UserOnboardingViewModel(
-            ISubscriptionPlansApi subscriptionPlansApi, 
-            IUsersApi usersApi, 
-            IToastService toastService, 
-            IDialogService dialogService, 
+            ISubscriptionPlansApi subscriptionPlansApi,
+            IUsersApi usersApi,
+            IToastService toastService,
+            IDialogService dialogService,
             ILogger<UserOnboardingViewModel> logger)
         {
             _subscriptionPlansApi = subscriptionPlansApi;
@@ -130,15 +131,14 @@ namespace Onyx.Oms.Client.Desktop.Features.Users.UserOnboarding
             BackCommand = new RelayCommand(Back);
             CancelCommand = new RelayCommand(() => OnboardingCanceled?.Invoke(this, EventArgs.Empty));
             RegisterCommand = new AsyncRelayCommand(RegisterAsync);
+            RefreshCommand = new AsyncRelayCommand(GetSubscriptionPlansAsync);
 
             // Fetch plans silently in background so they are ready by step 3
-            LoadSubscriptionPlansCommand.ExecuteAsync(null);
+            //LoadSubscriptionPlansCommand.ExecuteAsync(null);
         }
 
-        private async Task GetSubscriptionPlansAsync()
+        public async Task GetSubscriptionPlansAsync()
         {
-            if(IsLoading) return;
-
             try
             {
                 IsLoading = true;

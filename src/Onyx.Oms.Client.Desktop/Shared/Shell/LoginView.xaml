@@ -26,7 +26,7 @@
                        Style="{StaticResource BodyTextBlockStyle}" 
                        HorizontalAlignment="Center" 
                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-            
+
             <TextBlock x:Name="LoadingText" Text="Authenticating..." 
                        Style="{StaticResource BodyTextBlockStyle}" 
                        HorizontalAlignment="Center" 
@@ -59,7 +59,7 @@
                        HorizontalAlignment="Center"
                        Visibility="Collapsed"
                        MaxWidth="300" />
-                       
+
             <!-- Create Account Button -->
             <Button x:Name="RegisterButton" 
                     Content="Create an Account" 

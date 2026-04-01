@@ -6,6 +6,8 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using Onyx.Oms.Client.Desktop.Shared.Services;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -26,6 +28,34 @@ namespace Onyx.Oms.Client.Desktop.Features.Users.UserOnboarding
         {
             ViewModel = App.Current.Services.GetRequiredService<UserOnboardingViewModel>();
             InitializeComponent();
+        }
+
+        private async void UserControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            ViewModel.IsLoading = true;
+
+            try
+            {
+                // Wait for the API to actually be listening on port 5001
+                var backgroundService = App.Current.Services.GetService<BackgroundProcessService>();
+                if(backgroundService == null)
+                {
+                    Log.Error("BackgroundProcessService is not registered in the service container.");
+                    return;
+                }
+                await backgroundService.WaitForApiToWakeUpAsync();
+
+                // NOW it is safe to make Refit calls!
+                await ViewModel.GetSubscriptionPlansAsync();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Failed to load onboarding data.");
+            }
+            finally
+            {
+                ViewModel.IsLoading = false;
+            }
         }
     }
 }
