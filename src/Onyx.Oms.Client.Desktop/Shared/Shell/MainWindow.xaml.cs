@@ -60,6 +60,13 @@ public sealed partial class MainWindow : Window
 
         // Setup Auth UI
         CheckLoginStatus();
+        
+        // Show loading state immediately for startup sequence
+        LoginView.SetLoading(true, "Starting background services. This may take a moment...");
+        
+        // Hook into Loaded to start sequence
+        RootGrid.Loaded += RootGrid_Loaded;
+
         _authenticationService.AuthenticationChanged += OnAuthenticationChanged;
         _authenticationService.AuthenticationProcessStateChanged += OnAuthenticationProcessStateChanged;
         LoginView.LoginRequested += OnLoginRequested;
@@ -71,6 +78,7 @@ public sealed partial class MainWindow : Window
         Closed += (s, e) =>
         {
             // Unsubscribe to prevent memory leak (Singleton holding ref to MainWindow)
+            RootGrid.Loaded -= RootGrid_Loaded;
             _authenticationService.AuthenticationChanged -= OnAuthenticationChanged;
             _authenticationService.AuthenticationProcessStateChanged -= OnAuthenticationProcessStateChanged;
             LoginView.LoginRequested -= OnLoginRequested;
@@ -83,6 +91,36 @@ public sealed partial class MainWindow : Window
             // Make sure to dispose settings or services if needed
             Microsoft.UI.Xaml.Application.Current.Exit();
         };
+    }
+
+    private async void RootGrid_Loaded(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            await _backgroundServices.WaitForApiToWakeUpAsync();
+        }
+        catch (Exception)
+        {
+            DispatcherQueue.TryEnqueue(() => 
+            {
+                LoginView.SetLoading(false);
+                LoginView.ShowError("Could not start background services. Please check the logs and restart the app.");
+            });
+            return;
+        }
+
+        DispatcherQueue.TryEnqueue(() => LoginView.SetLoading(true, "Checking authentication..."));
+        
+        await _authenticationService.InitializeAsync();
+
+        DispatcherQueue.TryEnqueue(() => 
+        {
+            if (!_authenticationService.IsAuthenticated)
+            {
+                LoginView.SetLoading(false);
+                UpdateAuthenticationUI();
+            }
+        });
     }
 
     private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
@@ -138,10 +176,16 @@ public sealed partial class MainWindow : Window
         });
     }
 
-    private void OnRegisterRequested(object? sender, EventArgs e)
+    private async void OnRegisterRequested(object? sender, EventArgs e)
     {
         LoginView.Visibility = Visibility.Collapsed;
         UserOnboardingView.Visibility = Visibility.Visible;
+
+        // Fetch plans only once when the user navigates directly to the onboarding view
+        if (UserOnboardingView.ViewModel.SubscriptionPlans.Count == 0)
+        {
+            await UserOnboardingView.ViewModel.GetSubscriptionPlansAsync();
+        }
     }
 
     private void OnOnboardingCanceled(object? sender, EventArgs e)

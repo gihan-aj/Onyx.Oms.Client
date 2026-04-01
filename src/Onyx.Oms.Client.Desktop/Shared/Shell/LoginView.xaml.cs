@@ -27,13 +27,14 @@ public sealed partial class LoginView : UserControl
         RegisterRequested?.Invoke(this, EventArgs.Empty);
     }
 
-    public void SetLoading(bool isLoading)
+    public void SetLoading(bool isLoading, string message = "Authenticating...")
     {
         if (isLoading)
         {
             LoginButton.Visibility = Visibility.Collapsed;
             RegisterButton.Visibility = Visibility.Collapsed;
             LoginText.Visibility = Visibility.Collapsed;
+            LoadingText.Text = message;
             LoadingText.Visibility = Visibility.Visible;
             LoadingSpinner.Visibility = Visibility.Visible;
             LoadingSpinner.IsActive = true;

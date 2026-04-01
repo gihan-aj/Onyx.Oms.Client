@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.WinUI.Animations;
+using CommunityToolkit.WinUI.Animations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -351,9 +351,8 @@ namespace Onyx.Oms.Client.Desktop
             var themeSelector = Services.GetRequiredService<IThemeSelectorService>();
             await ((ThemeSelectorService)themeSelector).InitializeAsync();
 
-            // Initialize Authentication
-            var authService = Services.GetRequiredService<IAuthenticationService>();
-            await authService.InitializeAsync();
+            // Authentication initialization is now handled by MainWindow.xaml.cs during RootGrid.Loaded
+            // to allow showing a loading state on the UI.
         }
     }
 }

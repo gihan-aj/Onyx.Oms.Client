@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 using Onyx.Oms.Client.Desktop.Shared.Models.Configuration;
 using Serilog;
 using System;
@@ -67,8 +67,12 @@ namespace Onyx.Oms.Client.Desktop.Shared.Services
             return Process.Start(startInfo);
         }
 
+        public bool IsReady { get; private set; }
+
         public async Task WaitForApiToWakeUpAsync()
         {
+            if (IsReady) return;
+
             Log.Information("Waiting for background APIs to become responsive...");
 
             using var client = new HttpClient();
@@ -84,6 +88,8 @@ namespace Onyx.Oms.Client.Desktop.Shared.Services
                     var idpPing = client.GetAsync(_authenticationOptions.Authority + "/.well-known/openid-configuration");
 
                     var response = await Task.WhenAll(apiPing, idpPing);
+
+                    IsReady = true;
 
                     Log.Information("Background APIs are online and responding!");
                     return;
