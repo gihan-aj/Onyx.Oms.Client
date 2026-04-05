@@ -26,7 +26,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     private string _originalStoreAddressJson = string.Empty;
     private string _originalRegionalSettingsJson = string.Empty;
 
-    public bool CanEditTenantSettings => _permissionService.CanExecute(Onyx.Oms.Client.Desktop.Shared.Constants.Permissions.TenantSettings.Edit);
+    public bool CanEditTenantSettings => _permissionService.CanExecute(Onyx.Oms.Client.Desktop.Shared.Constants.Permissions.Tenants.Edit);
     public bool CanEditAppSequences => _permissionService.CanExecute(Onyx.Oms.Client.Desktop.Shared.Constants.Permissions.AppSequences.Edit);
 
     private bool _isEditingStoreInfo;
