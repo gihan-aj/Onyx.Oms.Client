@@ -57,6 +57,15 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.List
             await ViewModel.SortByAsync(tag, sortOrder);
         }
 
+        private void OnActionButtonTapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
+        {
+            e.Handled = true;
+            if (sender is Button btn && btn.Flyout != null)
+            {
+                btn.Flyout.ShowAt(btn);
+            }
+        }
+
         private void ViewMenuItem_Click(object sender, RoutedEventArgs e)
         {
             if (sender is FrameworkElement { DataContext: ProductGridItem product })
