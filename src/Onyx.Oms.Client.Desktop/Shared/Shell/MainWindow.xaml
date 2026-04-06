@@ -81,9 +81,9 @@
                 </NavigationViewItem>
                 <NavigationViewItem Icon="Send" Content="Couriers" Tag="Onyx.Oms.Client.Desktop.Features.Couriers.CouriersPage" />
                 
-                <NavigationViewItemHeader Content="Administration" />
+                <!--<NavigationViewItemHeader Content="Administration" />
                 <NavigationViewItem Icon="ContactInfo" Content="Users" Tag="Onyx.Oms.Client.Desktop.Features.Users.UsersPage" />
-                <NavigationViewItem Icon="People" Content="Roles" Tag="Onyx.Oms.Client.Desktop.Features.Roles.RolesPage" />
+                <NavigationViewItem Icon="People" Content="Roles" Tag="Onyx.Oms.Client.Desktop.Features.Roles.RolesPage" />-->
             </NavigationView.MenuItems>
 
             <Frame x:Name="ContentFrame" ScrollViewer.VerticalScrollBarVisibility="Disabled" />

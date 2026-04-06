@@ -71,12 +71,12 @@ public class PermissionService : IPermissionService
         if (pageKey == typeof(Features.Roles.RolesPage).FullName ||
             pageKey == typeof(Features.Roles.RoleFormPage).FullName)
         {
-            return HasFeatureAccess("Permissions.Roles.");
+            return HasFeatureAccess("tenant:roles:");
         }
         
         if (pageKey == typeof(Features.Couriers.CouriersPage).FullName)
         {
-            return HasFeatureAccess("Permissions.Couriers.");
+            return HasFeatureAccess("tenant:couriers:");
         }
 
         // Add other restricted pages here
