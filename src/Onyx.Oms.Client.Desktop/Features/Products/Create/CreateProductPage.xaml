@@ -59,14 +59,24 @@
         </Grid.RowDefinitions>
 
         <!--Header-->
-        <Grid Grid.Row="0" Padding="16,12" Background="{ThemeResource LayerFillColorDefaultBrush}">
-            <TextBlock Text="Create New Product" 
+        <Grid Grid.Row="0" Padding="16,12" Background="{ThemeResource LayerFillColorDefaultBrush}" ColumnSpacing="8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                <Button Style="{StaticResource SubtleButtonStyle}"
+                        Command="{x:Bind ViewModel.CancelCommand}">
+                    <FontIcon Glyph="&#xE72B;" FontSize="14" />
+                </Button>
+            </StackPanel>
+            
+            <TextBlock Text="Create New Product" Grid.Column="1"
                        Style="{StaticResource SubtitleTextBlockStyle}" 
                        FontWeight="SemiBold" VerticalAlignment="Center"/>
 
-            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Spacing="8">
-                <Button Content="Cancel" Style="{StaticResource DefaultButtonStyle}"
-                        Command="{x:Bind ViewModel.CancelCommand}"/>
+            <StackPanel Grid.Column="2" HorizontalAlignment="Right" Orientation="Horizontal" Spacing="8">
                 <Button Content="Save Product" Style="{StaticResource AccentButtonStyle}"
                         Command="{x:Bind ViewModel.SaveCommand}"/>
             </StackPanel>
