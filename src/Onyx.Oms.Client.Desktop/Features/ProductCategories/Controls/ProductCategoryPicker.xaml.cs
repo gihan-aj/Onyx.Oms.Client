@@ -18,6 +18,7 @@ public sealed partial class ProductCategoryPicker : UserControl
     {
         InitializeComponent();
         Items = new ObservableCollection<ProductCategoryDto>();
+        Loaded += (s, e) => UpdateDisplayMember();
     }
 
     public ObservableCollection<ProductCategoryDto> Items

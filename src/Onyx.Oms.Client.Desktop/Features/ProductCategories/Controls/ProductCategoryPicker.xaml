@@ -21,7 +21,7 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <TextBlock x:Name="HeaderButtonText" 
-                               Text="{x:Bind PlaceholderText, Mode=OneWay}" 
+                               Text="Select category" 
                                TextTrimming="CharacterEllipsis"/>
                     <FontIcon Grid.Column="1" 
                               FontFamily="Segoe MDL2 Assets" 
