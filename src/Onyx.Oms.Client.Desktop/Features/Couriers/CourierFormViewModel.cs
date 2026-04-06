@@ -14,8 +14,11 @@ public partial class CourierFormViewModel : ObservableObject, INavigationAware
     private readonly ILogger<CourierFormViewModel> _logger;
     private readonly INavigationService _navigationService;
 
-    public bool IsEditMode { get; private set; }
-    public Guid? CourierId { get; private set; }
+    private bool _isEditMode;
+    public bool IsEditMode { get => _isEditMode; private set => SetProperty(ref _isEditMode, value); }
+    
+    private Guid? _courierId;
+    public Guid? CourierId { get => _courierId; private set => SetProperty(ref _courierId, value); }
 
     private string _title = "Create Courier";
     public string Title
@@ -79,6 +82,13 @@ public partial class CourierFormViewModel : ObservableObject, INavigationAware
     {
         get => _isLoading;
         set => SetProperty(ref _isLoading, value);
+    }
+
+    private bool _isBusy;
+    public bool IsBusy
+    {
+        get => _isBusy;
+        set => SetProperty(ref _isBusy, value);
     }
 
     public IAsyncRelayCommand SaveCommand { get; }
@@ -154,7 +164,7 @@ public partial class CourierFormViewModel : ObservableObject, INavigationAware
 
     public async Task<bool> SaveAsync()
     {
-        IsLoading = true;
+        IsBusy = true;
         NameError = null;
 
         try
@@ -215,7 +225,7 @@ public partial class CourierFormViewModel : ObservableObject, INavigationAware
         }
         finally
         {
-            IsLoading = false;
+            IsBusy = false;
         }
     }
 
