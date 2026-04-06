@@ -64,6 +64,18 @@ public sealed partial class CustomersPage : Page
         await ViewModel.Sort(column, direction);
     }
 
+    private void OnActionButtonTapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
+    {
+        // 1. Stop the DataGrid from stealing this click to select the row
+        e.Handled = true;
+
+        // 2. Manually trigger the flyout
+        if (sender is Button btn && btn.Flyout != null)
+        {
+            btn.Flyout.ShowAt(btn);
+        }
+    }
+
     private async void OnViewClick(object sender, RoutedEventArgs e)
     {
         if ((sender as FrameworkElement)?.DataContext is CustomerDto customer)
