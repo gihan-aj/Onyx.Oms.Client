@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 
@@ -14,8 +15,11 @@ public partial class CustomerFormViewModel : ObservableObject, INavigationAware
     private readonly ILogger<CustomerFormViewModel> _logger;
     private readonly INavigationService _navigationService;
 
-    public bool IsEditMode { get; private set; }
-    public Guid? CustomerId { get; private set; }
+    private bool _isEditMode;
+    public bool IsEditMode { get => _isEditMode; private set => SetProperty(ref _isEditMode, value); }
+    
+    private Guid? _customerId;
+    public Guid? CustomerId { get => _customerId; private set => SetProperty(ref _customerId, value); }
 
     private bool _isReadOnly;
     public bool IsReadOnly
@@ -62,7 +66,62 @@ public partial class CustomerFormViewModel : ObservableObject, INavigationAware
     public string City { get => _city; set => SetProperty(ref _city, value); }
 
     private string _state = string.Empty;
-    public string State { get => _state; set => SetProperty(ref _state, value); }
+    public string State 
+    { 
+        get => _state; 
+        set 
+        {
+            if (SetProperty(ref _state, value))
+            {
+                UpdateDistricts(value);
+            }
+        }
+    }
+
+    private string _district = string.Empty;
+    public string District { get => _district; set => SetProperty(ref _district, value); }
+
+    private string[] _districts = Array.Empty<string>();
+    public string[] Districts 
+    { 
+        get => _districts; 
+        private set => SetProperty(ref _districts, value); 
+    }
+
+    public IReadOnlyList<string> Provinces { get; } = new[]
+    {
+        "Central", "Eastern", "North Central", "Northern", "North Western", "Sabaragamuwa", "Southern", "Uva", "Western"
+    };
+
+    private readonly Dictionary<string, string[]> _districtsByProvince = new(StringComparer.OrdinalIgnoreCase)
+    {
+        { "Central", new[] { "Kandy", "Matale", "Nuwara Eliya" } },
+        { "Eastern", new[] { "Ampara", "Batticaloa", "Trincomalee" } },
+        { "North Central", new[] { "Anuradhapura", "Polonnaruwa" } },
+        { "Northern", new[] { "Jaffna", "Kilinochchi", "Mannar", "Mullaitivu", "Vavuniya" } },
+        { "North Western", new[] { "Kurunegala", "Puttalam" } },
+        { "Sabaragamuwa", new[] { "Kegalle", "Ratnapura" } },
+        { "Southern", new[] { "Galle", "Hambantota", "Matara" } },
+        { "Uva", new[] { "Badulla", "Monaragala" } },
+        { "Western", new[] { "Colombo", "Gampaha", "Kalutara" } }
+    };
+
+    private void UpdateDistricts(string province)
+    {
+        if (string.IsNullOrWhiteSpace(province) || !_districtsByProvince.TryGetValue(province, out var districts))
+        {
+            Districts = Array.Empty<string>();
+        }
+        else
+        {
+            Districts = districts;
+        }
+
+        if (!string.IsNullOrWhiteSpace(District) && Array.IndexOf(Districts, District) == -1)
+        {
+            District = string.Empty;
+        }
+    }
 
     private string _postalCode = string.Empty;
     public string PostalCode { get => _postalCode; set => SetProperty(ref _postalCode, value); }
@@ -74,7 +133,14 @@ public partial class CustomerFormViewModel : ObservableObject, INavigationAware
     public string? Notes { get => _notes; set => SetProperty(ref _notes, value); }
 
     private bool _isLoading = true;
-    public bool IsLoading { get => _isLoading; set => SetProperty(ref _isLoading, value); }
+    public bool IsLoading 
+    { 
+        get => _isLoading;
+        set => SetProperty(ref _isLoading, value);
+    }
+
+    private bool _isBusy = false;
+    public bool IsBusy { get => _isBusy; set => SetProperty(ref _isBusy, value); }
 
     public IAsyncRelayCommand SaveCommand { get; }
     public IRelayCommand CancelCommand { get; }
@@ -115,6 +181,7 @@ public partial class CustomerFormViewModel : ObservableObject, INavigationAware
                     Street = customerToEdit.Address.Street;
                     City = customerToEdit.Address.City;
                     State = customerToEdit.Address.State;
+                    District = customerToEdit.Address.District;
                     PostalCode = customerToEdit.Address.PostalCode;
                     Country = customerToEdit.Address.Country;
                 }
@@ -152,7 +219,7 @@ public partial class CustomerFormViewModel : ObservableObject, INavigationAware
 
     public async Task<bool> SaveAsync()
     {
-        IsLoading = true;
+        IsBusy = true;
         NameError = null;
         EmailError = null;
         PrimaryPhoneError = null;
@@ -171,6 +238,7 @@ public partial class CustomerFormViewModel : ObservableObject, INavigationAware
                     Street = Street,
                     City = City,
                     State = State,
+                    District = District,
                     PostalCode = PostalCode,
                     Country = Country,
                     Notes = Notes
@@ -189,6 +257,7 @@ public partial class CustomerFormViewModel : ObservableObject, INavigationAware
                     Street = Street,
                     City = City,
                     State = State,
+                    District = District,
                     PostalCode = PostalCode,
                     Country = Country,
                     Notes = Notes
@@ -233,7 +302,7 @@ public partial class CustomerFormViewModel : ObservableObject, INavigationAware
         }
         finally
         {
-            IsLoading = false;
+            IsBusy = false;
         }
     }
 

@@ -80,7 +80,7 @@
 
         </Grid>
 
-        <Grid Grid.Row="1" Background="{ThemeResource LayerFillColorAltBrush}">
+        <Grid Grid.Row="1">
 
             <toolkit:DataGrid x:Name="CustomersDataGrid"
                               ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}"
@@ -188,7 +188,7 @@
 
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="16"
                         Visibility="{x:Bind ViewModel.HasNoData, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                <FontIcon Glyph="&#xE721;" FontSize="48" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                <FontIcon Glyph="&#xE780;" FontSize="48" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
                 <TextBlock Text="No customers found matching your search." 
                            Style="{StaticResource SubtitleTextBlockStyle}" 
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -202,8 +202,7 @@
         </Grid>
 
         <Grid Grid.Row="2" 
-              Background="{ThemeResource LayerFillColorDefaultBrush}" 
-              BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" BorderThickness="0,1,0,0" 
+              Background="{ThemeResource LayerFillColorDefaultBrush}"
               Padding="16,8">
 
             <Grid.ColumnDefinitions>
