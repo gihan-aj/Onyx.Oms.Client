@@ -76,6 +76,18 @@ public sealed partial class CouriersPage : Page
         _ = ViewModel.Sort(sortColumn, direction);
     }
 
+    private void OnActionButtonTapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
+    {
+        // 1. Stop the DataGrid from stealing this click to select the row
+        e.Handled = true;
+
+        // 2. Manually trigger the flyout
+        if (sender is Button btn && btn.Flyout != null)
+        {
+            btn.Flyout.ShowAt(btn);
+        }
+    }
+
     private async void OnNewClick(object sender, RoutedEventArgs e)
     {
         var navigationService = App.Current.Services.GetRequiredService<Shared.Services.INavigationService>();

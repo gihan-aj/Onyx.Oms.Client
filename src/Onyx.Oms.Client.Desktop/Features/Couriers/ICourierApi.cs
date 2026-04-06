@@ -13,7 +13,8 @@ public interface ICourierApi
         [AliasAs("PageSize")] int pageSize, 
         [AliasAs("SearchTerm")] string? searchTerm = null, 
         [AliasAs("SortColumn")] string? sortColumn = null, 
-        [AliasAs("SortOrder")] string? sortOrder = null);
+        [AliasAs("SortOrder")] string? sortOrder = null,
+        [AliasAs("IsActive")] bool? isActive = null);
 
     [Get("/api/v1/couriers/{id}")]
     Task<CourierDto> GetCourier(Guid id);

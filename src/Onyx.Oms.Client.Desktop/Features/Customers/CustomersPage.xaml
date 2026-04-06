@@ -193,7 +193,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="16"
                         Visibility="{x:Bind ViewModel.HasNoData, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                 <FontIcon Glyph="&#xE780;" FontSize="48" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
-                <TextBlock Text="No customers found matching your search." 
+                <TextBlock Text="No customers found." 
                            Style="{StaticResource SubtitleTextBlockStyle}" 
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                            HorizontalAlignment="Center"/>

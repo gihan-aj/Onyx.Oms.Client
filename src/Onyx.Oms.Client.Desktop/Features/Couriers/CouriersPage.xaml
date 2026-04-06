@@ -16,61 +16,83 @@
         <converters:BoolToVisibilityConverter x:Key="InvertedBoolToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible" />
     </Page.Resources>
 
-    <Grid Padding="24">
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <TextBlock Grid.Row="0" Text="Couriers" Style="{StaticResource TitleTextBlockStyle}" Margin="0,0,0,24" />
+        <!-- Header and Filters -->
+        <Grid Grid.Row="0" Padding="16,12" 
+              Background="{ThemeResource LayerFillColorDefaultBrush}" 
+              ColumnSpacing="8" RowSpacing="12">
 
-        <!-- Toolbar -->
-        <Grid Grid.Row="1" Margin="0,0,0,16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Search Box -->
-            <AutoSuggestBox PlaceholderText="Search couriers..."
+            <!-- Top Row: Title, Search, Actions -->
+            <TextBlock Grid.Row="0" Grid.Column="0" 
+                       Text="Couriers" 
+                       Style="{StaticResource SubtitleTextBlockStyle}" 
+                       VerticalAlignment="Center" FontWeight="SemiBold" Margin="0,0,16,0"/>
+
+            <AutoSuggestBox Grid.Row="0" Grid.Column="1" 
+                            PlaceholderText="Search couriers..."
                             QueryIcon="Find"
-                            Width="300"
-                            HorizontalAlignment="Left"
+                            Width="320"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
                             Text="{x:Bind ViewModel.SearchTerm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             QuerySubmitted="OnQuerySubmitted" />
 
-            <!-- Actions -->
-            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-                <Button Click="OnRefreshClick">
-                    <Button.Content>
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <SymbolIcon Symbol="Refresh" />
-                            <TextBlock Text="Refresh" />
-                        </StackPanel>
-                    </Button.Content>
+            <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" Spacing="8">
+                <Button Click="OnRefreshClick" Style="{StaticResource SubtleButtonStyle}" ToolTipService.ToolTip="Refresh Data">
+                    <FontIcon Glyph="&#xE72C;" FontSize="16"/>
                 </Button>
+
+                <AppBarSeparator />
+
                 <Button x:Name="NewCourierButton" Style="{StaticResource AccentButtonStyle}" Click="OnNewClick">
-                    <Button.Content>
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <SymbolIcon Symbol="Add" />
-                            <TextBlock Text="New" />
-                        </StackPanel>
-                    </Button.Content>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE710;" FontSize="14" />
+                        <TextBlock Text="New Courier" />
+                    </StackPanel>
                 </Button>
             </StackPanel>
+
+            <!-- Filters -->
+            <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" Spacing="16">
+                <ComboBox ItemsSource="{x:Bind ViewModel.StatusOptions}"
+                          SelectedItem="{x:Bind ViewModel.SelectedStatus, Mode=TwoWay}"
+                          PlaceholderText="Status"
+                          Width="120"/>
+
+                <Button Content="Clear Filters" Style="{StaticResource SubtleButtonStyle}"
+                        Command="{x:Bind ViewModel.ClearFiltersCommand}"/>
+            </StackPanel>
+
         </Grid>
 
         <!-- DataGrid -->
         <toolkit:DataGrid x:Name="CouriersDataGrid"
-                          Grid.Row="2"
+                          Grid.Row="1"
                           ItemsSource="{x:Bind ViewModel.Couriers, Mode=OneWay}"
                           AutoGenerateColumns="False"
                           IsReadOnly="True"
                           SelectionMode="Single"
-                          GridLinesVisibility="Horizontal"
+                          GridLinesVisibility="None"
+                          BorderThickness="0"
+                          RowBackground="Transparent"
+                          AlternatingRowBackground="{ThemeResource LayerFillColorDefaultBrush}"
                           HeadersVisibility="Column"
                           CanUserSortColumns="True"
                           Sorting="OnDataGridSorting"
@@ -95,55 +117,68 @@
                     </toolkit:DataGridTemplateColumn.CellTemplate>
                 </toolkit:DataGridTemplateColumn>
 
-                <toolkit:DataGridTemplateColumn Header="Actions" Width="200" MinWidth="200" HeaderStyle="{StaticResource CenteredHeaderStyle}">
+                <toolkit:DataGridTemplateColumn Width="80" MinWidth="80" HeaderStyle="{StaticResource CenteredHeaderStyle}">
                     <toolkit:DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Center">
-                                <Button Content="&#xE73E;" FontFamily="Segoe MDL2 Assets" ToolTipService.ToolTip="Activate" Style="{StaticResource SubtleButtonStyle}" Click="OnActivateClick"
-                                        IsEnabled="{Binding CanToggleStatus, Mode=OneTime}"
-                                        Visibility="{Binding IsActive, Converter={StaticResource InvertedBoolToVisibilityConverter}}" />
-                                <Button Content="&#xE711;" FontFamily="Segoe MDL2 Assets" ToolTipService.ToolTip="Deactivate" Style="{StaticResource SubtleButtonStyle}" Click="OnDeactivateClick"
-                                        IsEnabled="{Binding CanToggleStatus, Mode=OneTime}"
-                                        Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}}" />
-                                <AppBarSeparator />
-                                <Button Content="&#xE890;" FontFamily="Segoe MDL2 Assets" ToolTipService.ToolTip="View" Style="{StaticResource SubtleButtonStyle}" Click="OnViewClick" 
-                                        IsEnabled="{Binding CanView, Mode=OneTime}" />
-                                <AppBarSeparator />
-                                <Button Content="&#xE70F;" FontFamily="Segoe MDL2 Assets" ToolTipService.ToolTip="Edit" Style="{StaticResource SubtleButtonStyle}" Click="OnEditClick" 
-                                        IsEnabled="{Binding CanEdit, Mode=OneTime}" />
-                                <AppBarSeparator />
-                                <Button Content="&#xE74D;" FontFamily="Segoe MDL2 Assets" ToolTipService.ToolTip="Delete" Style="{StaticResource SubtleButtonStyle}" Foreground="Red" Click="OnDeleteClick" 
-                                        IsEnabled="{Binding CanDelete, Mode=OneTime}" />
-                            </StackPanel>
+                        <DataTemplate x:DataType="local:CourierDto">
+                            <Button Style="{StaticResource SubtleButtonStyle}" 
+                                    Background="Transparent"
+                                    HorizontalAlignment="Stretch" 
+                                    VerticalAlignment="Stretch"
+                                    ToolTipService.ToolTip="Actions"
+                                    Tapped="OnActionButtonTapped">
+
+                                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE712;" />
+
+                                <Button.Flyout>
+                                    <MenuFlyout>
+                                        <MenuFlyoutItem Text="View Details" Icon="ContactInfo" Click="OnViewClick" IsEnabled="{Binding CanView, Mode=OneTime}" />
+                                        
+                                        <MenuFlyoutSeparator />
+                                        
+                                        <MenuFlyoutItem Text="Edit" Icon="Edit" Click="OnEditClick" IsEnabled="{Binding CanEdit, Mode=OneTime}" />
+                                        <MenuFlyoutItem Text="Activate" Icon="Play" Click="OnActivateClick" 
+                                                        IsEnabled="{Binding CanToggleStatus, Mode=OneTime}"
+                                                        Visibility="{Binding IsActive, Converter={StaticResource InvertedBoolToVisibilityConverter}}" />
+                                        <MenuFlyoutItem Text="Deactivate" Icon="Pause" Click="OnDeactivateClick" 
+                                                        IsEnabled="{Binding CanToggleStatus, Mode=OneTime}"
+                                                        Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                        
+                                        <MenuFlyoutSeparator />
+                                        
+                                        <MenuFlyoutItem Text="Delete" Icon="Delete" Foreground="Red" Click="OnDeleteClick" IsEnabled="{Binding CanDelete, Mode=OneTime}" />
+                                    </MenuFlyout>
+                                </Button.Flyout>
+                            </Button>
                         </DataTemplate>
                     </toolkit:DataGridTemplateColumn.CellTemplate>
                 </toolkit:DataGridTemplateColumn>
             </toolkit:DataGrid.Columns>
         </toolkit:DataGrid>
 
+        <!-- Loading Indicator -->
+        <Grid Grid.Row="1" Background="{ThemeResource LayerFillColorAltBrush}" Opacity="0.8" 
+              Visibility="{x:Bind ViewModel.IsListLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+            <ProgressRing IsActive="True" Width="48" Height="48" />
+        </Grid>
+
         <!-- No Data Message -->
-        <StackPanel Grid.Row="2"
+        <StackPanel Grid.Row="1"
                     VerticalAlignment="Center" 
                     HorizontalAlignment="Center"
                     Spacing="16"
                     Visibility="{x:Bind ViewModel.HasNoData, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-            <SymbolIcon Symbol="Library" RenderTransformOrigin="0.5,0.5">
-                <SymbolIcon.RenderTransform>
-                    <ScaleTransform ScaleX="2" ScaleY="2" />
-                </SymbolIcon.RenderTransform>
-            </SymbolIcon>
+            <FontIcon Glyph="&#xF163;" FontSize="48" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
             <TextBlock HorizontalAlignment="Center" Text="No couriers found." Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-            <TextBlock HorizontalAlignment="Center" Text="Try adjusting your search or add a new courier." Style="{StaticResource BodyTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+            <Button Content="Clear Search" 
+                    Command="{x:Bind ViewModel.RefreshCommand}" 
+                    Style="{StaticResource DefaultButtonStyle}" 
+                    HorizontalAlignment="Center"/>
         </StackPanel>
 
-        <!-- Loading Indicator -->
-        <ProgressRing Grid.Row="2" 
-                      IsActive="{x:Bind ViewModel.IsListLoading, Mode=OneWay}" 
-                      Width="50" Height="50" 
-                      HorizontalAlignment="Center" VerticalAlignment="Center" />
-
         <!-- Pagination -->
-        <Grid Grid.Row="3" Margin="0,16,0,0">
+        <Grid Grid.Row="2" 
+              Background="{ThemeResource LayerFillColorDefaultBrush}"
+              Padding="16,8">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
@@ -152,10 +187,12 @@
 
             <!-- Rows Per Page (Left) -->
             <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                <TextBlock Text="Rows per page:" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" />
+                <TextBlock Text="Rows per page:" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                 <ComboBox ItemsSource="{x:Bind ViewModel.PageSizes}" 
                           SelectedItem="{x:Bind ViewModel.PageSize, Mode=TwoWay}"
-                          Width="80" />
+                          Style="{StaticResource DefaultComboBoxStyle}"
+                          MinWidth="80" 
+                          VerticalAlignment="Center" />
             </StackPanel>
 
             <!-- Page Summary (Center) -->
@@ -163,12 +200,17 @@
                        Text="{x:Bind ViewModel.PageSummary, Mode=OneWay}" 
                        VerticalAlignment="Center" 
                        HorizontalAlignment="Center" 
-                       Style="{StaticResource CaptionTextBlockStyle}" />
+                       Style="{StaticResource CaptionTextBlockStyle}" 
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
 
             <!-- Navigation Buttons (Right) -->
-            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="16">
-                <Button Content="Previous" Command="{x:Bind ViewModel.PreviousPageCommand}" IsEnabled="{x:Bind ViewModel.HasPreviousPage, Mode=OneWay}" />
-                <Button Content="Next" Command="{x:Bind ViewModel.NextPageCommand}" IsEnabled="{x:Bind ViewModel.HasNextPage, Mode=OneWay}" />
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
+                <Button Style="{StaticResource SubtleButtonStyle}" Command="{x:Bind ViewModel.PreviousPageCommand}" IsEnabled="{x:Bind ViewModel.HasPreviousPage, Mode=OneWay}" ToolTipService.ToolTip="Previous Page">
+                    <FontIcon Glyph="&#xE76B;" FontSize="12" />
+                </Button>
+                <Button Style="{StaticResource SubtleButtonStyle}" Command="{x:Bind ViewModel.NextPageCommand}" IsEnabled="{x:Bind ViewModel.HasNextPage, Mode=OneWay}" ToolTipService.ToolTip="Next Page">
+                    <FontIcon Glyph="&#xE76C;" FontSize="12" />
+                </Button>
             </StackPanel>
         </Grid>
     </Grid>

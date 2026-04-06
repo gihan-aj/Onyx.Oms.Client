@@ -44,6 +44,22 @@ public partial class CouriersViewModel : ObservableObject, INavigationAware
         }
     }
 
+    private string _selectedStatus = "Active";
+    public string SelectedStatus
+    {
+        get => _selectedStatus;
+        set
+        {
+            if (SetProperty(ref _selectedStatus, value))
+            {
+                Page = 1;
+                LoadDataCommand.ExecuteAsync(null);
+            }
+        }
+    }
+
+    public ObservableCollection<string> StatusOptions { get; } = new(new[] { "Active", "Inactive", "All" });
+
     private int _page = 1;
     public int Page
     {
@@ -130,6 +146,7 @@ public partial class CouriersViewModel : ObservableObject, INavigationAware
     public IAsyncRelayCommand NextPageCommand { get; }
     public IAsyncRelayCommand PreviousPageCommand { get; }
     public IAsyncRelayCommand RefreshCommand { get; }
+    public IAsyncRelayCommand ClearFiltersCommand { get; }
     public IAsyncRelayCommand<string> SearchCommand { get; }
     public IAsyncRelayCommand<CourierDto> DeleteCommand { get; }
     public IAsyncRelayCommand<CourierDto> ActivateCommand { get; }
@@ -152,6 +169,7 @@ public partial class CouriersViewModel : ObservableObject, INavigationAware
         NextPageCommand = new AsyncRelayCommand(OnNextPage);
         PreviousPageCommand = new AsyncRelayCommand(OnPreviousPage);
         RefreshCommand = new AsyncRelayCommand(OnRefresh);
+        ClearFiltersCommand = new AsyncRelayCommand(ClearFlitersAsync);
         SearchCommand = new AsyncRelayCommand<string>(OnSearch);
         DeleteCommand = new AsyncRelayCommand<CourierDto>(DeleteCourier);
         ActivateCommand = new AsyncRelayCommand<CourierDto>(ActivateCourier);
@@ -167,7 +185,14 @@ public partial class CouriersViewModel : ObservableObject, INavigationAware
             IsListLoading = true;
             HasNoData = false;
             
-            var result = await _courierApi.SearchCouriers(Page, PageSize, SearchTerm, SortColumn, SortDirection);
+            bool? activeFilter = SelectedStatus switch
+            {
+                "Active" => true,
+                "Inactive" => false,
+                _ => null,
+            };
+
+            var result = await _courierApi.SearchCouriers(Page, PageSize, SearchTerm, SortColumn, SortDirection, activeFilter);
             
             var canView = _permissionService.CanExecute(Shared.Constants.Permissions.Couriers.View);
             var canEdit = _permissionService.CanExecute(Shared.Constants.Permissions.Couriers.Edit);
@@ -292,6 +317,17 @@ public partial class CouriersViewModel : ObservableObject, INavigationAware
     {
         Page = 1;
         SearchTerm = null;
+        SortColumn = null;
+        SortDirection = null;
+        SelectedStatus = "Active";
+        await LoadDataAsync();
+    }
+
+    private async Task ClearFlitersAsync()
+    {
+        SearchTerm = string.Empty;
+        SelectedStatus = "All";
+        Page = 1;
         SortColumn = null;
         SortDirection = null;
         await LoadDataAsync();
