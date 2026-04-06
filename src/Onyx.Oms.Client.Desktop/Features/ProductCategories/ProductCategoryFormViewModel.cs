@@ -89,8 +89,11 @@ public partial class ProductCategoryFormViewModel : ObservableObject, INavigatio
     private readonly ILogger<ProductCategoryFormViewModel> _logger;
     private readonly INavigationService _navigationService;
 
-    public bool IsEditMode { get; private set; }
-    public Guid? CategoryId { get; private set; }
+    private bool _isEditMode;
+    public bool IsEditMode { get => _isEditMode; private set => SetProperty(ref _isEditMode, value); }
+    
+    private Guid? _categoryId;
+    public Guid? CategoryId { get => _categoryId; private set => SetProperty(ref _categoryId, value); }
 
     private string _title = "Create Category";
     public string Title
@@ -131,8 +134,50 @@ public partial class ProductCategoryFormViewModel : ObservableObject, INavigatio
     public string? Color
     {
         get => _color;
-        set => SetProperty(ref _color, value);
+        set
+        {
+            if (SetProperty(ref _color, value))
+            {
+                OnPropertyChanged(nameof(SelectedColor));
+            }
+        }
     }
+
+    public Windows.UI.Color SelectedColor
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(_color)) return Windows.UI.Color.FromArgb(255, 0, 0, 0);
+            try
+            {
+                string hex = _color.StartsWith("#") ? _color.Substring(1) : _color;
+                if (hex.Length == 6)
+                {
+                    return Windows.UI.Color.FromArgb(255,
+                        Convert.ToByte(hex.Substring(0, 2), 16),
+                        Convert.ToByte(hex.Substring(2, 2), 16),
+                        Convert.ToByte(hex.Substring(4, 2), 16));
+                }
+                else if (hex.Length == 8)
+                {
+                    return Windows.UI.Color.FromArgb(
+                        Convert.ToByte(hex.Substring(0, 2), 16),
+                        Convert.ToByte(hex.Substring(2, 2), 16),
+                        Convert.ToByte(hex.Substring(4, 2), 16),
+                        Convert.ToByte(hex.Substring(6, 2), 16));
+                }
+            }
+            catch { }
+            return Windows.UI.Color.FromArgb(255, 0, 0, 0);
+        }
+        set
+        {
+            Color = $"#{value.A:X2}{value.R:X2}{value.G:X2}{value.B:X2}";
+        }
+    }
+
+    private bool _isActive = true;
+    public bool IsActive { get => _isActive; set => SetProperty(ref _isActive, value); }
 
     private ProductCategoryDto? _selectedParentCategory;
     public ProductCategoryDto? SelectedParentCategory
@@ -147,6 +192,9 @@ public partial class ProductCategoryFormViewModel : ObservableObject, INavigatio
         get => _isLoading;
         set => SetProperty(ref _isLoading, value);
     }
+
+    private bool _isBusy = false;
+    public bool IsBusy { get => _isBusy; set => SetProperty(ref _isBusy, value); }
 
     private string? _nameError;
     public string? NameError
@@ -254,6 +302,7 @@ public partial class ProductCategoryFormViewModel : ObservableObject, INavigatio
                     DisplayOrder = fullCategory.DisplayOrder;
                     IconUrl = fullCategory.IconUrl;
                     Color = fullCategory.Color;
+                    IsActive = fullCategory.IsActive;
                     SelectedParentCategory = allCategories.FirstOrDefault(p => p.Id == fullCategory.ParentCategoryId);
                     Title = $"Edit Category ({Name})";
                     HasProducts = fullCategory.HasProducts;
@@ -308,7 +357,7 @@ public partial class ProductCategoryFormViewModel : ObservableObject, INavigatio
 
     public async Task<bool> SaveAsync()
     {
-        IsLoading = true;
+        IsBusy = true;
         NameError = null;
 
         try
@@ -389,7 +438,7 @@ public partial class ProductCategoryFormViewModel : ObservableObject, INavigatio
         }
         finally
         {
-            IsLoading = false;
+            IsBusy = false;
         }
     }
 
