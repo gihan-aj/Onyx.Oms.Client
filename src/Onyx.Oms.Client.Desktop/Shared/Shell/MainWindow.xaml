@@ -76,7 +76,7 @@
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Content="Categories" Tag="Onyx.Oms.Client.Desktop.Features.ProductCategories.ProductCategoriesPage" />
                         <NavigationViewItem Content="Products" Tag="Onyx.Oms.Client.Desktop.Features.Products.List.ProductsPage" />
-                        <NavigationViewItem Content="Variants" Tag="Onyx.Oms.Client.Desktop.Features.ProductVariants.ProductVariantsPage" />
+                        <!--<NavigationViewItem Content="Variants" Tag="Onyx.Oms.Client.Desktop.Features.ProductVariants.ProductVariantsPage" />-->
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
                 <NavigationViewItem Icon="Send" Content="Couriers" Tag="Onyx.Oms.Client.Desktop.Features.Couriers.CouriersPage" />

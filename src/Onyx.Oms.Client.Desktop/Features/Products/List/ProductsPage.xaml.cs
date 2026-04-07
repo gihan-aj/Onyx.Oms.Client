@@ -70,24 +70,36 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.List
         {
             if (sender is FrameworkElement { DataContext: ProductGridItem product })
                 ViewModel.ViewDetailsCommand.Execute(product);
+
+            else if (sender is MenuFlyoutItem item && item.DataContext is ProductGridItem selectedProduct)
+                ViewModel.ViewDetailsCommand.Execute(selectedProduct);
         }
 
         private void EditMenuItem_Click(object sender, RoutedEventArgs e)
         {
             if (sender is FrameworkElement { DataContext: ProductGridItem product })
                 ViewModel.EditDetailsCommand.Execute(product);
+
+            else if (sender is MenuFlyoutItem item && item.DataContext is ProductGridItem selectedProduct)
+                ViewModel.EditDetailsCommand.Execute(selectedProduct);
         }
 
         private async void ActivateMenuItem_Click(object sender, RoutedEventArgs e)
         {
             if(sender is FrameworkElement { DataContext: ProductGridItem product })
                 await ViewModel.ActivateProductAsync(product);
+
+            else if (sender is MenuFlyoutItem item && item.DataContext is ProductGridItem selectedProduct)
+                await ViewModel.ActivateProductAsync(selectedProduct);
         }
 
         private async void DeactivateMenuItem_Click(object sender, RoutedEventArgs e)
         {
             if (sender is FrameworkElement { DataContext: ProductGridItem product })
                 await ViewModel.DeactivateProductAsync(product);
+
+            else if (sender is MenuFlyoutItem item && item.DataContext is ProductGridItem selectedProduct)
+                await ViewModel.DeactivateProductAsync(selectedProduct);
         }
     }
 }

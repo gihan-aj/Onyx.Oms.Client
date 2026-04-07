@@ -31,25 +31,25 @@ public partial class CatalogViewModel : ObservableObject
         CatalogItems.Clear();
 
         // Check Permissions before adding cards
-        if (_permissionService.HasFeatureAccess("Permissions.ProductCategories."))
+        if (_permissionService.HasFeatureAccess("tenant:productcategories:"))
         {
             CatalogItems.Add(new CatalogCardItem
             {
                 Title = "Categories",
                 Description = "Organize products into hierarchical groups.",
-                IconGlyph = "\xF07B", // Folder
+                IconGlyph = "\uF168", // Folder
                 TargetPageType = typeof(ProductCategories.ProductCategoriesPage).FullName!,
                 MetricValue = "..."
             });
         }
 
-        if (_permissionService.HasFeatureAccess("Permissions.Products."))
+        if (_permissionService.HasFeatureAccess("tenant:products:"))
         {
             CatalogItems.Add(new CatalogCardItem
             {
                 Title = "Products",
                 Description = "Manage your core product inventory and details.",
-                IconGlyph = "\xF466", // Box Open
+                IconGlyph = "\uE719", // Box Open
                 TargetPageType = "Onyx.Oms.Client.Desktop.Features.Products.List.ProductsPage",
                 MetricValue = "..."
             });

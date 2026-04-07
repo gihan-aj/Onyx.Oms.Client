@@ -91,21 +91,54 @@
             </StackPanel>
         </Grid>
 
-        <!-- DataGrid -->
-        <Grid Grid.Row="1">
-            <toolkit:DataGrid x:Name="ProductsDataGrid"
-                              ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}"
-                              AutoGenerateColumns="False"
-                              IsReadOnly="True"
-                              SelectionMode="Single"
-                              HeadersVisibility="Column"
-                              CanUserSortColumns="True"
-                              Sorting="ProductsDataGrid_Sorting"
-                              VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Auto"
-                              BorderThickness="0"
-                              RowBackground="Transparent"
-                              AlternatingRowBackground="{ThemeResource LayerFillColorDefaultBrush}">
+        <!-- DataGrid Constraints Wrapper -->
+        <Grid Grid.Row="1" x:Name="TableContainer">
+
+            <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                          HorizontalScrollMode="Enabled"
+                          VerticalScrollBarVisibility="Disabled"
+                          VerticalScrollMode="Disabled">
+                          
+                <toolkit:DataGrid x:Name="ProductsDataGrid"
+                                  Width="{Binding ActualWidth, ElementName=TableContainer}"
+                                  MinWidth="1150"
+                                  ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  SelectionMode="Single"
+                                  HeadersVisibility="Column"
+                                  CanUserSortColumns="True"
+                                  Sorting="ProductsDataGrid_Sorting"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Hidden"
+                                  BorderThickness="0"
+                                  RowBackground="Transparent"
+                                  AlternatingRowBackground="{ThemeResource LayerFillColorDefaultBrush}">
+
+                    <toolkit:DataGrid.RowStyle>
+                        <Style TargetType="toolkit:DataGridRow">
+                            <Setter Property="ContextFlyout">
+                                <Setter.Value>
+                                    <MenuFlyout>
+                                        <MenuFlyoutItem Text="View Details" Icon="View" Click="ViewMenuItem_Click" />
+                                        
+                                        <MenuFlyoutSeparator />
+
+                                        <MenuFlyoutItem Text="Edit" Icon="Edit" Click="EditMenuItem_Click"
+                                                        IsEnabled="{Binding CanEdit}" />
+
+                                        <MenuFlyoutItem Text="Activate" Icon="Play" Click="ActivateMenuItem_Click" 
+                                                        Visibility="{Binding IsActive, Converter={StaticResource InvertedBoolToVisibilityConverter}}"
+                                                        IsEnabled="{Binding CanActivate}" />
+
+                                        <MenuFlyoutItem Text="Deactivate" Icon="Pause" Click="DeactivateMenuItem_Click"
+                                                        Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                        IsEnabled="{Binding CanDeactivate}" />
+                                    </MenuFlyout>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </toolkit:DataGrid.RowStyle>
 
                 <toolkit:DataGrid.Columns>
 
@@ -258,6 +291,7 @@
                 </toolkit:DataGrid.Columns>
                 
             </toolkit:DataGrid>
+            </ScrollViewer>
 
             <!-- Loading Indicator -->
             <Grid Opacity="0.8" 

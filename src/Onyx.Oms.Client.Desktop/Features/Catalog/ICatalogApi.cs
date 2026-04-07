@@ -3,12 +3,13 @@ using System.Threading.Tasks;
 
 namespace Onyx.Oms.Client.Desktop.Features.Catalog;
 
-public class CatalogSummaryDto
-{
-    public int TotalCategories { get; set; }
-    public int TotalProducts { get; set; }
-    public int TotalVariants { get; set; }
-}
+public record CatalogSummaryDto(
+        int TotalCategories,
+        int TotalProducts,
+        int ActiveProducts,
+        int TotalActiveVariants,
+        int OutOfStockVariants,
+        int LowStockVariants);
 
 public interface ICatalogApi
 {

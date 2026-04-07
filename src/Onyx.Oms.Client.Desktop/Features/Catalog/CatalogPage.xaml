@@ -68,7 +68,7 @@
                                 Background="{ThemeResource AccentFillColorDefaultBrush}" 
                                 VerticalAlignment="Center" 
                                 Margin="0,0,16,0">
-                            <FontIcon FontFamily="ms-appx:///Assets/Fonts/fa-solid-900.ttf#Font Awesome 6 Free" 
+                            <FontIcon FontFamily="Segoe Fluent Icons" 
                                       Glyph="{x:Bind IconGlyph}" 
                                       Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" 
                                       FontSize="20"/>
