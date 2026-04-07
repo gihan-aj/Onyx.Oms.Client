@@ -31,17 +31,9 @@ public sealed partial class CatalogPage : Page
         _navigationService = App.Current.Services.GetRequiredService<INavigationService>();
     }
 
-    protected override async void OnNavigatedTo(NavigationEventArgs e)
+    protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
-        await ViewModel.InitializeAsync();
-    }
-
-    private void CatalogGridView_ItemClick(object sender, ItemClickEventArgs e)
-    {
-        if (e.ClickedItem is CatalogCardItem item && !string.IsNullOrEmpty(item.TargetPageType))
-        {
-            _navigationService.NavigateTo(item.TargetPageType);
-        }
+        ViewModel.OnNavigatedTo(e.Parameter);
     }
 }
