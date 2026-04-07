@@ -1,9 +1,10 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Onyx.Oms.Client.Desktop.Shared.Services;
+using System;
+using System.Threading.Tasks;
+using static Onyx.Oms.Client.Desktop.Shared.Constants.Permissions;
 
 namespace Onyx.Oms.Client.Desktop.Features.Customers;
 
@@ -118,6 +119,57 @@ public sealed partial class CustomersPage : Page
         if ((sender as FrameworkElement)?.DataContext is CustomerDto customer)
         {
             await ViewModel.DeleteCommand.ExecuteAsync(customer);
+        }
+    }
+
+    private async void OnContextViewClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is MenuFlyoutItem item && item.DataContext is CustomerDto selectedCustomer)
+        {
+            var dialog = new CustomerDetailsDialog(selectedCustomer);
+            if (dialog != null)
+            {
+                dialog.XamlRoot = this.XamlRoot;
+                await dialog.ShowAsync();
+            }
+        }
+    }
+
+    private void OnContextEditClick(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (sender is MenuFlyoutItem item)
+        {
+            if (item.DataContext is CustomerDto selectedCustomer)
+            {
+                ViewModel.EditCustomerCommand.Execute(selectedCustomer);
+            }
+        }
+    }
+
+    private void OnContextActivateClick(object sender, RoutedEventArgs e)
+    {
+        if(sender is MenuFlyoutItem item)
+        {
+            if(item.DataContext is CustomerDto selectedCustomer)
+            {
+                ViewModel.ActivateCommand.Execute(selectedCustomer);
+            }
+        }
+    }
+
+    private void OnContextDeactivateClick(object sender, RoutedEventArgs e)
+    {
+        if(sender is MenuFlyoutItem item && item.DataContext is CustomerDto selectedCustomer)
+        {
+            ViewModel.DeactivateCommand.Execute(selectedCustomer);
+        }
+    }
+
+    private void OnContextDeleteClick(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (sender is MenuFlyoutItem item && item.DataContext is CustomerDto selectedCustomer)
+        {
+            ViewModel.DeleteCommand.Execute(selectedCustomer);
         }
     }
 }

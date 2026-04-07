@@ -80,110 +80,149 @@
 
         </Grid>
 
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="1" x:Name="TableContainer">
 
-            <toolkit:DataGrid x:Name="CustomersDataGrid"
-                              ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}"
-                              AutoGenerateColumns="False"
-                              IsReadOnly="True"
-                              SelectionMode="Single"
-                              HeadersVisibility="Column"
-                              CanUserSortColumns="True"
-                              Sorting="OnDataGridSorting"
-                              VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Auto"
-                              BorderThickness="0"
-                              RowBackground="Transparent"
-                              AlternatingRowBackground="{ThemeResource LayerFillColorDefaultBrush}">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                          HorizontalScrollMode="Enabled"
+                          VerticalScrollBarVisibility="Disabled"
+                          VerticalScrollMode="Disabled">
+                
+                <toolkit:DataGrid x:Name="CustomersDataGrid"
+                                  Width="{Binding ActualWidth, ElementName=TableContainer}"
+                                  MinWidth="960"
+                                  ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  SelectionMode="Single"
+                                  HeadersVisibility="Column"
+                                  CanUserSortColumns="True"
+                                  Sorting="OnDataGridSorting"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Hidden"
+                                  BorderThickness="0"
+                                  RowBackground="Transparent"
+                                  AlternatingRowBackground="{ThemeResource LayerFillColorDefaultBrush}">
 
-                <toolkit:DataGrid.Columns>
+                    <toolkit:DataGrid.RowStyle>
+                        <Style TargetType="toolkit:DataGridRow">
+                            <Setter Property="ContextFlyout">
+                                <Setter.Value>
+                                    <MenuFlyout>
+                                        <MenuFlyoutItem Text="View Details" Icon="ContactInfo" Click="OnContextViewClick" />
 
-                    <toolkit:DataGridTextColumn Header="Name" 
-                                                Binding="{Binding Name}" 
-                                                Width="*" MinWidth="180"
-                                                HeaderStyle="{StaticResource LeftAlignedHeaderStyle}"
-                                                ElementStyle="{StaticResource LeftAlignedCellStyle}"
-                                                FontWeight="SemiBold" />
+                                        <MenuFlyoutSeparator />
 
-                    <toolkit:DataGridTextColumn Header="Email" 
-                                                Binding="{Binding Email}" 
-                                                Width="220"
-                                                HeaderStyle="{StaticResource LeftAlignedHeaderStyle}"
-                                                ElementStyle="{StaticResource LeftAlignedCellStyle}" />
+                                        <MenuFlyoutItem Text="Edit" Icon="Edit" Click="OnContextEditClick" 
+                                                        IsEnabled="{Binding CanEdit}" />
 
-                    <toolkit:DataGridTextColumn Header="Phone" 
-                                                Binding="{Binding PrimaryPhone}" 
-                                                Width="160"
-                                                FontFamily="Consolas"
-                                                HeaderStyle="{StaticResource RightAlignedHeaderStyle}"
-                                                ElementStyle="{StaticResource RightAlignedCellStyle}" />
+                                        <MenuFlyoutItem Text="Activate" Icon="Play" Click="OnContextActivateClick" 
+                                                        Visibility="{Binding IsActive, Converter={StaticResource InvertedBoolToVisibilityConverter}}"
+                                                        IsEnabled="{Binding CanEdit}" />
 
-                    <toolkit:DataGridTextColumn Header="Location" 
-                                                Binding="{Binding Address}" 
-                                                Width="200"
-                                                HeaderStyle="{StaticResource LeftAlignedHeaderStyle}"
-                                                ElementStyle="{StaticResource LeftAlignedCellStyle}" />
+                                        <MenuFlyoutItem Text="Deactivate" Icon="Pause" Click="OnContextDeactivateClick" 
+                                                        Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                        IsEnabled="{Binding CanEdit}" />
 
-                    <toolkit:DataGridTemplateColumn Header="Status" 
-                                                    Width="120" 
-                                                    HeaderStyle="{StaticResource CenteredHeaderStyle}">
-                        <toolkit:DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Border Style="{StaticResource StatusBadgeStyle}" 
-                                        HorizontalAlignment="Center"
-                                        Background="{Binding IsActive, Converter={StaticResource StatusBackgroundConverter}}">
-                                    <TextBlock Text="{Binding IsActive, Converter={StaticResource StatusTextConverter}}"
-                                               Style="{StaticResource StatusBadgeTextStyle}"
-                                               Foreground="{Binding IsActive, Converter={StaticResource StatusForegroundConverter}}" />
-                                </Border>
-                            </DataTemplate>
-                        </toolkit:DataGridTemplateColumn.CellTemplate>
-                    </toolkit:DataGridTemplateColumn>
+                                        <MenuFlyoutSeparator />
 
-                    <toolkit:DataGridTemplateColumn 
-                                                    Width="80"
-                                                    HeaderStyle="{StaticResource CenteredHeaderStyle}">
-                        <toolkit:DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate x:DataType="local:CustomerDto">
-                                <Button Style="{StaticResource SubtleButtonStyle}" 
-                                        Background="Transparent"
-                                        HorizontalAlignment="Stretch" 
-                                        VerticalAlignment="Stretch"
-                                        ToolTipService.ToolTip="Actions"
-                                        Tapped="OnActionButtonTapped">
+                                        <MenuFlyoutItem Text="Delete" Icon="Delete" Foreground="Red" Click="OnContextDeleteClick" 
+                                                        IsEnabled="{Binding CanDelete}" />
+                                    </MenuFlyout>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </toolkit:DataGrid.RowStyle>
 
-                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE712;" />
+                    <toolkit:DataGrid.Columns>
 
-                                    <Button.Flyout>
-                                        <MenuFlyout>
-                                            <MenuFlyoutItem Text="View Details" Icon="ContactInfo" Click="OnViewClick" />
+                        <toolkit:DataGridTextColumn Header="Name" 
+                                                    Binding="{Binding Name}" 
+                                                    Width="*" MinWidth="180"
+                                                    HeaderStyle="{StaticResource LeftAlignedHeaderStyle}"
+                                                    ElementStyle="{StaticResource LeftAlignedCellStyle}"
+                                                    FontWeight="SemiBold" />
 
-                                            <MenuFlyoutSeparator />
+                        <toolkit:DataGridTextColumn Header="Email" 
+                                                    Binding="{Binding Email}" 
+                                                    Width="220"
+                                                    HeaderStyle="{StaticResource LeftAlignedHeaderStyle}"
+                                                    ElementStyle="{StaticResource LeftAlignedCellStyle}" />
 
-                                            <MenuFlyoutItem Text="Edit" Icon="Edit" Click="OnEditClick" 
-                                                            IsEnabled="{x:Bind CanEdit}" />
+                        <toolkit:DataGridTextColumn Header="Phone" 
+                                                    Binding="{Binding PrimaryPhone}" 
+                                                    Width="160"
+                                                    FontFamily="Consolas"
+                                                    HeaderStyle="{StaticResource RightAlignedHeaderStyle}"
+                                                    ElementStyle="{StaticResource RightAlignedCellStyle}" />
 
-                                            <MenuFlyoutItem Text="Activate" Icon="Play" Click="OnActivateClick" 
-                                                            Visibility="{x:Bind IsActive, Converter={StaticResource InvertedBoolToVisibilityConverter}}"
-                                                            IsEnabled="{x:Bind CanEdit}" />
+                        <toolkit:DataGridTextColumn Header="Location" 
+                                                    Binding="{Binding Address}" 
+                                                    Width="200"
+                                                    HeaderStyle="{StaticResource LeftAlignedHeaderStyle}"
+                                                    ElementStyle="{StaticResource LeftAlignedCellStyle}" />
 
-                                            <MenuFlyoutItem Text="Deactivate" Icon="Pause" Click="OnDeactivateClick" 
-                                                            Visibility="{x:Bind IsActive, Converter={StaticResource BoolToVisibilityConverter}}"
-                                                            IsEnabled="{x:Bind CanEdit}" />
+                        <toolkit:DataGridTemplateColumn Header="Status" 
+                                                        Width="120" 
+                                                        HeaderStyle="{StaticResource CenteredHeaderStyle}">
+                            <toolkit:DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource StatusBadgeStyle}" 
+                                            HorizontalAlignment="Center"
+                                            Background="{Binding IsActive, Converter={StaticResource StatusBackgroundConverter}}">
+                                        <TextBlock Text="{Binding IsActive, Converter={StaticResource StatusTextConverter}}"
+                                                   Style="{StaticResource StatusBadgeTextStyle}"
+                                                   Foreground="{Binding IsActive, Converter={StaticResource StatusForegroundConverter}}" />
+                                    </Border>
+                                </DataTemplate>
+                            </toolkit:DataGridTemplateColumn.CellTemplate>
+                        </toolkit:DataGridTemplateColumn>
 
-                                            <MenuFlyoutSeparator />
+                        <toolkit:DataGridTemplateColumn 
+                                                        Width="80"
+                                                        HeaderStyle="{StaticResource CenteredHeaderStyle}">
+                            <toolkit:DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="local:CustomerDto">
+                                    <Button Style="{StaticResource SubtleButtonStyle}" 
+                                            Background="Transparent"
+                                            HorizontalAlignment="Stretch" 
+                                            VerticalAlignment="Stretch"
+                                            ToolTipService.ToolTip="Actions"
+                                            Tapped="OnActionButtonTapped">
 
-                                            <MenuFlyoutItem Text="Delete" Icon="Delete" Foreground="Red" Click="OnDeleteClick" 
-                                                            IsEnabled="{x:Bind CanDelete}" />
-                                        </MenuFlyout>
-                                    </Button.Flyout>
-                                </Button>
-                            </DataTemplate>
-                        </toolkit:DataGridTemplateColumn.CellTemplate>
-                    </toolkit:DataGridTemplateColumn>
+                                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE712;" />
 
-                </toolkit:DataGrid.Columns>
-            </toolkit:DataGrid>
+                                        <Button.Flyout>
+                                            <MenuFlyout>
+                                                <MenuFlyoutItem Text="View Details" Icon="ContactInfo" Click="OnViewClick" />
+
+                                                <MenuFlyoutSeparator />
+
+                                                <MenuFlyoutItem Text="Edit" Icon="Edit" Click="OnEditClick" 
+                                                                IsEnabled="{x:Bind CanEdit}" />
+
+                                                <MenuFlyoutItem Text="Activate" Icon="Play" Click="OnActivateClick" 
+                                                                Visibility="{x:Bind IsActive, Converter={StaticResource InvertedBoolToVisibilityConverter}}"
+                                                                IsEnabled="{x:Bind CanEdit}" />
+
+                                                <MenuFlyoutItem Text="Deactivate" Icon="Pause" Click="OnDeactivateClick" 
+                                                                Visibility="{x:Bind IsActive, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                                IsEnabled="{x:Bind CanEdit}" />
+
+                                                <MenuFlyoutSeparator />
+
+                                                <MenuFlyoutItem Text="Delete" Icon="Delete" Foreground="Red" Click="OnDeleteClick" 
+                                                                IsEnabled="{x:Bind CanDelete}" />
+                                            </MenuFlyout>
+                                        </Button.Flyout>
+                                    </Button>
+                                </DataTemplate>
+                            </toolkit:DataGridTemplateColumn.CellTemplate>
+                        </toolkit:DataGridTemplateColumn>
+
+                    </toolkit:DataGrid.Columns>
+                </toolkit:DataGrid>
+            </ScrollViewer>
+
 
             <Grid Background="{ThemeResource LayerFillColorAltBrush}" Opacity="0.8" 
                   Visibility="{x:Bind ViewModel.IsListLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
