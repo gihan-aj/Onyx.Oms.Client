@@ -30,6 +30,10 @@ The main content area displays tabular data via standard `DataGrid`.
     *   `IsReadOnly="True"`, `SelectionMode="Single"`.
     *   Bind `ItemsSource` securely.
     *   Configure `Sorting` event attached to ViewModel properties.
+    *   **Horizontal Scroll Constraints (Critical):** WinUI DataGrid column layouts can overflow and distort without explicit width bounds. 
+        Wrap the `DataGrid` in a `ScrollViewer` granting horizontal scroll capability. 
+        Bind the `DataGrid`'s width upward: `Width="{Binding ActualWidth, ElementName=TableContainer}"`, disable native horizontal scrolling `HorizontalScrollBarVisibility="Hidden"`, and hardcode the table's absolute sum `MinWidth` (e.g., `880`).
+    *   **Row-Level Context Menu:** Map standard actions to `ContextFlyout` onto `<toolkit:DataGrid.RowStyle>` triggering contextual capabilities upon right-click.
 *   **Actions Column Pattern (Critical)**:
     *   To prevent row selection conflicts and improve touch/mouse hit-testing, employ a single "More" button containing a `MenuFlyout` for row-level actions (View, Edit, Activate/Deactivate, Delete).
     *   **XAML Signature**:

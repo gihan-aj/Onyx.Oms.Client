@@ -168,4 +168,74 @@ public sealed partial class CouriersPage : Page
             await ViewModel.DeactivateCourier(courier);
         }
     }
+
+    private async void OnContextViewClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is MenuFlyoutItem item && item.DataContext is CourierDto courier)
+        {
+            var dialog = new CourierDetailsDialog(courier) { XamlRoot = this.XamlRoot };
+            await dialog.ShowAsync();
+        }
+    }
+
+    private void OnContextEditClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is MenuFlyoutItem item && item.DataContext is CourierDto courier)
+        {
+            var navigationService = App.Current.Services.GetRequiredService<Shared.Services.INavigationService>();
+            navigationService.NavigateTo(typeof(CourierFormViewModel).FullName!, courier);
+        }
+    }
+
+    private async void OnContextActivateClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is MenuFlyoutItem item && item.DataContext is CourierDto courier)
+        {
+            await ViewModel.ActivateCourier(courier);
+        }
+    }
+
+    private async void OnContextDeactivateClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is MenuFlyoutItem item && item.DataContext is CourierDto courier)
+        {
+            var dialog = new ContentDialog
+            {
+                Title = "Deactivate Courier",
+                Content = $"Are you sure you want to deactivate {courier.Name}?",
+                PrimaryButtonText = "Deactivate",
+                CloseButtonText = "Cancel",
+                DefaultButton = ContentDialogButton.Close,
+                XamlRoot = this.XamlRoot
+            };
+
+            var result = await dialog.ShowAsync();
+            if (result == ContentDialogResult.Primary)
+            {
+                await ViewModel.DeactivateCourier(courier);
+            }
+        }
+    }
+
+    private async void OnContextDeleteClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is MenuFlyoutItem item && item.DataContext is CourierDto courier)
+        {
+            var dialog = new ContentDialog
+            {
+                Title = "Delete Courier",
+                Content = $"Are you sure you want to delete {courier.Name}?",
+                PrimaryButtonText = "Delete",
+                CloseButtonText = "Cancel",
+                DefaultButton = ContentDialogButton.Close,
+                XamlRoot = this.XamlRoot
+            };
+
+            var result = await dialog.ShowAsync();
+            if (result == ContentDialogResult.Primary)
+            {
+                await ViewModel.DeleteCourier(courier);
+            }
+        }
+    }
 }
