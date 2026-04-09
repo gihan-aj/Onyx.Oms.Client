@@ -1,6 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
+using Onyx.Oms.Client.Desktop.Features.ProductCategories;
+using Onyx.Oms.Client.Desktop.Features.Products;
+using Onyx.Oms.Client.Desktop.Features.Products.List;
 using Onyx.Oms.Client.Desktop.Shared.Constants;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using System;
@@ -44,6 +47,12 @@ public partial class CatalogViewModel : ObservableObject, INavigationAware
 
     public ObservableCollection<CatalogNavigationItem> NavigationItems { get; } = new();
 
+    public IRelayCommand NavigateToOutOfStockCommand { get; }
+    public IRelayCommand NavigateToLowStockCommand { get; }
+    public IRelayCommand NavigateToProductsCommand { get; }
+    public IRelayCommand NavigateToCategoriesCommand { get; }
+    public IRelayCommand NavigateToInStockCommand { get; }
+
     public CatalogViewModel(
         IPermissionService permissionService,
         ICatalogApi catalogApi,
@@ -54,6 +63,12 @@ public partial class CatalogViewModel : ObservableObject, INavigationAware
         _catalogApi = catalogApi;
         _logger = logger;
         _navigationService = navigationService;
+
+        NavigateToOutOfStockCommand = new RelayCommand(NavigateToOutOfStock);
+        NavigateToLowStockCommand = new RelayCommand(NavigateToLowStock);
+        NavigateToProductsCommand = new RelayCommand(NavigateToProducts);
+        NavigateToCategoriesCommand = new RelayCommand(NavigateToCategories);
+        NavigateToInStockCommand = new RelayCommand(NavigateToInStock);
 
         // Setup the navigation cards
         NavigationItems.Add(new CatalogNavigationItem(
@@ -96,12 +111,27 @@ public partial class CatalogViewModel : ObservableObject, INavigationAware
 
     private void NavigateToProducts()
     {
-        _navigationService.NavigateTo("Onyx.Oms.Client.Desktop.Features.Products.List.ProductsPage");
+        _navigationService.NavigateTo(typeof(ProductsPage).FullName!);
     }
 
     private void NavigateToCategories()
     {
-        _navigationService.NavigateTo("Onyx.Oms.Client.Desktop.Features.ProductCategories.ProductCategoriesPage");
+        _navigationService.NavigateTo(typeof(ProductCategoriesPage).FullName!);
+    }
+
+    private void NavigateToOutOfStock()
+    {
+        _navigationService.NavigateTo(typeof(ProductsPage).FullName!, StockFilterStatus.OutOfStock);
+    }
+
+    private void NavigateToLowStock()
+    {
+        _navigationService.NavigateTo(typeof(ProductsPage).FullName!, StockFilterStatus.LowStock);
+    }
+
+    private void NavigateToInStock()
+    {
+        _navigationService.NavigateTo(typeof(ProductsPage).FullName!, StockFilterStatus.InStock);
     }
 
     public void OnNavigatedFrom()

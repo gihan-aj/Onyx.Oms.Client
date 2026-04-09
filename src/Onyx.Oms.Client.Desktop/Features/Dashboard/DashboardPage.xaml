@@ -72,24 +72,24 @@
                 <ScrollViewer x:Name="QuickActionsScrollViewer" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" ViewChanged="QuickActionsScrollViewer_ViewChanged">
                     <StackPanel x:Name="QuickActionsStack" Orientation="Horizontal" Spacing="16" Padding="0,0,40,0">
                     <!-- Action 1 -->
-                    <HyperlinkButton Padding="0" BorderThickness="0" CornerRadius="8" Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
-                        <HyperlinkButton.Resources>
+                        <HyperlinkButton Padding="0" BorderThickness="0" CornerRadius="8" Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
+                            <HyperlinkButton.Resources>
                                 <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="{ThemeResource AcrylicBackgroundFillColorBase}" />
-                            <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="{ThemeResource AcrylicBackgroundFillColorBase}" />
-                        </HyperlinkButton.Resources>
-                        <Grid Width="240" Height="120" Padding="16" CornerRadius="8">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                            <FontIcon Grid.Row="0" FontFamily="Segoe Fluent Icons" Glyph="&#xE710;" Foreground="{ThemeResource AccentFillColorDefaultBrush}" FontSize="32" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                            <TextBlock Grid.Row="1" Text="New Order" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,12,0,4"/>
-                            <TextBlock Grid.Row="2" Text="Create a new customer order" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        </Grid>
-                    </HyperlinkButton>
+                                <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="{ThemeResource AcrylicBackgroundFillColorBase}" />
+                            </HyperlinkButton.Resources>
+                            <Grid Width="240" Height="120" Padding="16" CornerRadius="8">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <FontIcon Grid.Row="0" FontFamily="Segoe Fluent Icons" Glyph="&#xE710;" Foreground="{ThemeResource AccentFillColorDefaultBrush}" FontSize="32" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                <TextBlock Grid.Row="1" Text="New Order" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,12,0,4"/>
+                                <TextBlock Grid.Row="2" Text="Create a new customer order" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </Grid>
+                        </HyperlinkButton>
 
-                    <!-- Action 2 -->
+                        <!-- Action 2 -->
                     <HyperlinkButton Padding="0" BorderThickness="0" CornerRadius="8" Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
                         <HyperlinkButton.Resources>
                             <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="{ThemeResource AcrylicBackgroundFillColorBase}" />

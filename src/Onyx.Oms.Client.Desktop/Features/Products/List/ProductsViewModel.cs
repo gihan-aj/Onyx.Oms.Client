@@ -9,6 +9,7 @@ using Onyx.Oms.Client.Desktop.Shared.Services;
 using Onyx.Oms.Client.Desktop.Shared.ViewModels;
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using static Onyx.Oms.Client.Desktop.Shared.Constants.Permissions;
@@ -138,7 +139,21 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
 
     public async void OnNavigatedTo(object parameter)
     {
-        await LoadDataAsync();
+        bool triggeredReload = false;
+        if (parameter is StockFilterStatus statusFilter)
+        {
+            var option = StockStatusOptions.FirstOrDefault(x => x.Value == statusFilter);
+            if (option != null && _selectedStockStatus != option)
+            {
+                SelectedStockStatus = option;
+                triggeredReload = true;
+            }
+        }
+
+        if (!triggeredReload)
+        {
+            await LoadDataAsync();
+        }
     }
 
     protected override async Task LoadDataAsync()
@@ -256,6 +271,7 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
             {
                 IsListLoading = true;
                 await _productsApi.ActivateProduct(product.Id);
+                IsListLoading = false;
                 _toastService.ShowSuccess("Success", $"Product {product.Name} activated.");
                 await LoadDataAsync();
             }
@@ -285,6 +301,7 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
                 IsListLoading = true;
 
                 await _productsApi.DeactivateProduct(product.Id);
+                IsListLoading = false;
                 _toastService.ShowSuccess("Success", $"Product {product.Name} deactivated.");
                 await LoadDataAsync();
             }

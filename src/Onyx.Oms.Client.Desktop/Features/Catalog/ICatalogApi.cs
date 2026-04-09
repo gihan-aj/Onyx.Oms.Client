@@ -5,11 +5,17 @@ namespace Onyx.Oms.Client.Desktop.Features.Catalog;
 
 public record CatalogSummaryDto(
         int TotalCategories,
+        int TotalLeafCategories,
         int TotalProducts,
         int ActiveProducts,
         int TotalActiveVariants,
         int OutOfStockVariants,
-        int LowStockVariants);
+        int LowStockVariants,
+        int ProductsWithoutImages,
+        int CategoriesWithoutProducts,
+        int InactiveProducts,
+        int TotalStockOnHand,
+        int TotalReservedQuantity);
 
 public interface ICatalogApi
 {

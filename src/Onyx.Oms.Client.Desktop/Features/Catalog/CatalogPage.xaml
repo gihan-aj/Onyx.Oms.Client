@@ -46,65 +46,228 @@
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <StackPanel Padding="24,32" Spacing="32" MaxWidth="1400" HorizontalAlignment="Left">
 
-                <!-- KPI Section -->
-                <Grid ColumnSpacing="24">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
+                <!-- Catalog Overview -->
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Overview" Style="{StaticResource SubtitleTextBlockStyle}" FontWeight="SemiBold" />
+                    <Grid ColumnSpacing="24">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Style="{StaticResource KpiCardStyle}" BorderBrush="{ThemeResource AccentFillColorDefaultBrush}" BorderThickness="0,4,0,0">
-                        <StackPanel Spacing="16">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE719;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                <TextBlock Text="Total Products" Style="{StaticResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <!-- Total Products -->
+                        <Button Grid.Column="0" 
+                                Command="{x:Bind ViewModel.NavigateToProductsCommand}"
+                                Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource AccentFillColorDefaultBrush}" BorderThickness="0,4,0,0"
+                                CornerRadius="8" Padding="20"
+                                ToolTipService.ToolTip="Navigate to Products"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                VerticalAlignment="Stretch" VerticalContentAlignment="Top">
+                            <StackPanel Spacing="16">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE719;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                    <TextBlock Text="Total Products" Style="{StaticResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                </StackPanel>
+                                <TextBlock Text="{x:Bind ViewModel.Summary.TotalProducts, Mode=OneWay, TargetNullValue='--'}" 
+                                           Style="{StaticResource TitleLargeTextBlockStyle}" 
+                                           FontWeight="Bold"/>
+                                <Border Style="{StaticResource StatusBadgeStyle}" Background="{ThemeResource SystemFillColorSuccessBackgroundBrush}" HorizontalAlignment="Left">
+                                    <TextBlock Text="{x:Bind ViewModel.ActiveProductsText, Mode=OneWay}" 
+                                           Style="{StaticResource StatusBadgeTextStyle}" 
+                                           Foreground="{ThemeResource SystemFillColorSuccessBrush}"/>
+                                </Border>
                             </StackPanel>
-                            <TextBlock Text="{x:Bind ViewModel.Summary.TotalProducts, Mode=OneWay, TargetNullValue='--'}" 
-                                       Style="{StaticResource TitleLargeTextBlockStyle}" 
-                                       FontWeight="Bold"/>
-                            <Border Style="{StaticResource StatusBadgeStyle}" Background="{ThemeResource SystemFillColorSuccessBackgroundBrush}" HorizontalAlignment="Left">
-                                <TextBlock Text="{x:Bind ViewModel.ActiveProductsText, Mode=OneWay}" 
-                                       Style="{StaticResource StatusBadgeTextStyle}" 
-                                       Foreground="{ThemeResource SystemFillColorSuccessBrush}"/>
-                            </Border>
-                        </StackPanel>
-                    </Border>
+                        </Button>
 
-                    <Border Grid.Column="1" Style="{StaticResource KpiCardStyle}" BorderBrush="{ThemeResource SystemFillColorCautionBrush}" BorderThickness="0,4,0,0">
-                        <StackPanel Spacing="16">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE81E;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                <TextBlock Text="Total Categories" Style="{StaticResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <!-- Total Categories -->
+                        <Button Grid.Column="1" 
+                                Command="{x:Bind ViewModel.NavigateToCategoriesCommand}"
+                                Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource AccentFillColorDefaultBrush}" BorderThickness="0,4,0,0"
+                                CornerRadius="8" Padding="20"
+                                ToolTipService.ToolTip="Navigate to Categories"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                VerticalAlignment="Stretch" VerticalContentAlignment="Top">
+                            <StackPanel Spacing="16">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE81E;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                    <TextBlock Text="Categories" Style="{StaticResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                </StackPanel>
+                                <TextBlock Text="{x:Bind ViewModel.Summary.TotalCategories, Mode=OneWay, TargetNullValue='--'}" 
+                                           Style="{StaticResource TitleLargeTextBlockStyle}" 
+                                           FontWeight="Bold"/>
+                                <TextBlock Foreground="{ThemeResource TextFillColorTertiaryBrush}" FontSize="12">
+                                    <Run Text="{x:Bind ViewModel.Summary.TotalLeafCategories, Mode=OneWay, TargetNullValue='0'}"/>
+                                    <Run Text=" Leaf Categories"/>
+                                </TextBlock>
                             </StackPanel>
-                            <TextBlock Text="{x:Bind ViewModel.Summary.TotalCategories, Mode=OneWay, TargetNullValue='--'}" 
-                                       Style="{StaticResource TitleLargeTextBlockStyle}" 
-                                       FontWeight="Bold"/>
-                            <TextBlock Text="Organized hierarchies" 
-                                       Style="{StaticResource CaptionTextBlockStyle}" 
-                                       Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
-                        </StackPanel>
-                    </Border>
+                        </Button>
 
-                    <Border Grid.Column="2" Style="{StaticResource KpiCardStyle}" BorderBrush="{ThemeResource SystemFillColorCriticalBrush}" BorderThickness="0,4,0,0">
-                        <StackPanel Spacing="16">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE7BA;" FontSize="16" Foreground="{ThemeResource SystemFillColorCriticalBrush}"/>
-                                <TextBlock Text="Inventory Alerts" Style="{StaticResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource SystemFillColorCriticalBrush}"/>
+                        <!-- Total Stock On Hand -->
+                        <Button Grid.Column="2" 
+                                Command="{x:Bind ViewModel.NavigateToInStockCommand}"
+                                Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource SystemFillColorSolidNeutralBrush}" BorderThickness="0,4,0,0"
+                                CornerRadius="8" Padding="20"
+                                ToolTipService.ToolTip="Navigate to In Stock products"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                VerticalAlignment="Stretch" VerticalContentAlignment="Top">
+                            <StackPanel Spacing="16">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE8F4;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                    <TextBlock Text="Stock On Hand" Style="{StaticResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                </StackPanel>
+                                <TextBlock Text="{x:Bind ViewModel.Summary.TotalStockOnHand, Mode=OneWay, TargetNullValue='--'}" 
+                                           Style="{StaticResource TitleLargeTextBlockStyle}" 
+                                           FontWeight="Bold"/>
+                                <TextBlock Foreground="{ThemeResource TextFillColorTertiaryBrush}" FontSize="12">
+                                    <Run Text="{x:Bind ViewModel.Summary.TotalReservedQuantity, Mode=OneWay, TargetNullValue='0'}"/>
+                                    <Run Text=" Reserved"/>
+                                </TextBlock>
                             </StackPanel>
-                            <TextBlock Text="{x:Bind ViewModel.Summary.OutOfStockVariants, Mode=OneWay, TargetNullValue='--'}" 
-                                       Style="{StaticResource TitleLargeTextBlockStyle}" 
-                                       Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-                                       FontWeight="Bold"/>
-                            <Border Style="{StaticResource StatusBadgeStyle}" Background="{ThemeResource SystemFillColorCriticalBackgroundBrush}" HorizontalAlignment="Left" Visibility="{x:Bind ViewModel.HasLowStockAlert, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                                <TextBlock Text="{x:Bind ViewModel.LowStockText, Mode=OneWay}" 
-                                       Style="{StaticResource StatusBadgeTextStyle}" 
-                                       Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
-                            </Border>
-                        </StackPanel>
-                    </Border>
+                        </Button>
+                    </Grid>
+                </StackPanel>
 
-                </Grid>
+                <!-- Inventory Alerts -->
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Inventory Alerts" Style="{StaticResource SubtitleTextBlockStyle}" FontWeight="SemiBold" />
+                    <Grid ColumnSpacing="24">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Out of Stock -->
+                        <Button Grid.Column="0" 
+                                Command="{x:Bind ViewModel.NavigateToOutOfStockCommand}"
+                                Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource SystemFillColorCriticalBrush}" BorderThickness="0,4,0,0"
+                                CornerRadius="8" Padding="20"
+                                ToolTipService.ToolTip="Navigate to Out of Stock variants"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                VerticalAlignment="Stretch" VerticalContentAlignment="Top">
+                            <StackPanel Spacing="16">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE7BA;" FontSize="16" Foreground="{ThemeResource SystemFillColorCriticalBrush}"/>
+                                    <TextBlock Text="Out of Stock" Style="{StaticResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource SystemFillColorCriticalBrush}"/>
+                                </StackPanel>
+                                <TextBlock Text="{x:Bind ViewModel.Summary.OutOfStockVariants, Mode=OneWay, TargetNullValue='--'}" 
+                                           Style="{StaticResource TitleLargeTextBlockStyle}" 
+                                           Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                           FontWeight="Bold"/>
+                                <TextBlock Text="Variants with 0 stock" 
+                                           Style="{StaticResource CaptionTextBlockStyle}" 
+                                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Low Stock -->
+                        <Button Grid.Column="1" 
+                                Command="{x:Bind ViewModel.NavigateToLowStockCommand}"
+                                Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource SystemFillColorCautionBrush}" BorderThickness="0,4,0,0"
+                                CornerRadius="8" Padding="20"
+                                ToolTipService.ToolTip="Navigate to Low Stock variants"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                VerticalAlignment="Stretch" VerticalContentAlignment="Top">
+                            <StackPanel Spacing="16">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE7BA;" FontSize="16" Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
+                                    <TextBlock Text="Low Stock" Style="{StaticResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
+                                </StackPanel>
+                                <TextBlock Text="{x:Bind ViewModel.Summary.LowStockVariants, Mode=OneWay, TargetNullValue='--'}" 
+                                           Style="{StaticResource TitleLargeTextBlockStyle}" 
+                                           Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                                           FontWeight="Bold"/>
+                                <TextBlock Text="Variants running low" 
+                                           Style="{StaticResource CaptionTextBlockStyle}" 
+                                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </StackPanel>
+
+                <!-- Catalog Health -->
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Catalog Health" Style="{StaticResource SubtitleTextBlockStyle}" FontWeight="SemiBold" />
+                    <Grid ColumnSpacing="24">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Missing Images -->
+                        <Button Grid.Column="0" 
+                                Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource SystemFillColorSolidNeutralBrush}" BorderThickness="0,4,0,0"
+                                CornerRadius="8" Padding="20"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                VerticalAlignment="Stretch" VerticalContentAlignment="Top">
+                            <StackPanel Spacing="16">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE8B9;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                    <TextBlock Text="Missing Images" Style="{StaticResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                </StackPanel>
+                                <TextBlock Text="{x:Bind ViewModel.Summary.ProductsWithoutImages, Mode=OneWay, TargetNullValue='--'}" 
+                                           Style="{StaticResource TitleLargeTextBlockStyle}" 
+                                           FontWeight="Bold"/>
+                                <TextBlock Text="Products missing visuals" 
+                                           Style="{StaticResource CaptionTextBlockStyle}" 
+                                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Empty Categories -->
+                        <Button Grid.Column="1" 
+                                Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource SystemFillColorSolidNeutralBrush}" BorderThickness="0,4,0,0"
+                                CornerRadius="8" Padding="20"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                VerticalAlignment="Stretch" VerticalContentAlignment="Top">
+                            <StackPanel Spacing="16">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE81E;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                    <TextBlock Text="Empty Categories" Style="{StaticResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                </StackPanel>
+                                <TextBlock Text="{x:Bind ViewModel.Summary.CategoriesWithoutProducts, Mode=OneWay, TargetNullValue='--'}" 
+                                           Style="{StaticResource TitleLargeTextBlockStyle}" 
+                                           FontWeight="Bold"/>
+                                <TextBlock Text="Categories with 0 products" 
+                                           Style="{StaticResource CaptionTextBlockStyle}" 
+                                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Inactive/Drafts -->
+                        <Button Grid.Column="2" 
+                                Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource SystemFillColorSolidNeutralBrush}" BorderThickness="0,4,0,0"
+                                CornerRadius="8" Padding="20"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                VerticalAlignment="Stretch" VerticalContentAlignment="Top">
+                            <StackPanel Spacing="16">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE8A5;" FontSize="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                    <TextBlock Text="Draft Products" Style="{StaticResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                </StackPanel>
+                                <TextBlock Text="{x:Bind ViewModel.Summary.InactiveProducts, Mode=OneWay, TargetNullValue='--'}" 
+                                           Style="{StaticResource TitleLargeTextBlockStyle}" 
+                                           FontWeight="Bold"/>
+                                <TextBlock Text="Inactive in system" 
+                                           Style="{StaticResource CaptionTextBlockStyle}" 
+                                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </StackPanel>
 
                 <StackPanel Spacing="16">
                     <TextBlock Text="Manage Catalog" Style="{StaticResource SubtitleTextBlockStyle}" FontWeight="SemiBold" />
@@ -124,10 +287,15 @@
                         <GridView.ItemTemplate>
                             <DataTemplate x:DataType="local:CatalogNavigationItem">
 
-                                <Button Style="{StaticResource NavigationCardButtonStyle}" 
-                                        Width="380" MinHeight="120"
+                                <Button Width="380" MinHeight="120"
                                         Command="{x:Bind Command}"
-                                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="8"
+                                        Padding="16"
+                                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                        VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
 
                                     <Grid ColumnSpacing="16" Padding="8">
                                         <Grid.ColumnDefinitions>
