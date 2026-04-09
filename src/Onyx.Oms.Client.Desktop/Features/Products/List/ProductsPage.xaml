@@ -86,6 +86,12 @@
                           PlaceholderText="Status"
                           Width="120"/>
 
+                <ComboBox ItemsSource="{x:Bind ViewModel.StockStatusOptions}"
+                          SelectedItem="{x:Bind ViewModel.SelectedStockStatus, Mode=TwoWay}"
+                          DisplayMemberPath="DisplayName"
+                          PlaceholderText="Stock Status"
+                          Width="140"/>
+
                 <Button Content="Clear Filters" Style="{StaticResource SubtleButtonStyle}"
                         Command="{x:Bind ViewModel.ClearFiltersCommand}"/>
             </StackPanel>

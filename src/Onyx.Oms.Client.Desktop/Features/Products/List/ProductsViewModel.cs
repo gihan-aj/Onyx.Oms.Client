@@ -32,7 +32,7 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
         get => _searchTerm;
         set
         {
-            if(SetProperty(ref _searchTerm, value))
+            if (SetProperty(ref _searchTerm, value))
             {
                 Page = 1;
                 LoadDataCommand.ExecuteAsync(null);
@@ -46,7 +46,7 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
         get => _selectedProductCategory;
         set
         {
-            if(SetProperty(ref _selectedProductCategory, value))
+            if (SetProperty(ref _selectedProductCategory, value))
             {
                 Page = 1;
                 LoadDataCommand.ExecuteAsync(null);
@@ -60,7 +60,7 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
         get => _selectedStatus;
         set
         {
-            if(SetProperty(ref _selectedStatus, value))
+            if (SetProperty(ref _selectedStatus, value))
             {
                 Page = 1;
                 LoadDataCommand.ExecuteAsync(null);
@@ -69,6 +69,28 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
     }
 
     public ObservableCollection<string> StatusOptions { get; } = new(new[] { "Active", "Inactive", "All" });
+
+    public ObservableCollection<StockStatusOption> StockStatusOptions { get; } = new(new[]
+    {
+        new StockStatusOption("All Stock", StockFilterStatus.All),
+        new StockStatusOption("In Stock", StockFilterStatus.InStock),
+        new StockStatusOption("Low Stock", StockFilterStatus.LowStock),
+        new StockStatusOption("Out of Stock", StockFilterStatus.OutOfStock)
+    });
+
+    private StockStatusOption _selectedStockStatus;
+    public StockStatusOption SelectedStockStatus
+    {
+        get => _selectedStockStatus;
+        set
+        {
+            if (SetProperty(ref _selectedStockStatus, value))
+            {
+                Page = 1;
+                LoadDataCommand.ExecuteAsync(null);
+            }
+        }
+    }
 
     // --- Permissions ---
     public bool CanCreateProducts => _permissionService.CanExecute(Permissions.Products.Create);
@@ -79,8 +101,8 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
     // -- Commands --
     public IAsyncRelayCommand ClearFiltersCommand { get; }
     public IRelayCommand NewProductCommand { get; }
-    public IRelayCommand<ProductGridItem> ViewDetailsCommand {  get; }
-    public IRelayCommand<ProductGridItem> EditDetailsCommand {  get; }
+    public IRelayCommand<ProductGridItem> ViewDetailsCommand { get; }
+    public IRelayCommand<ProductGridItem> EditDetailsCommand { get; }
 
     public ProductsViewModel(
         IProductsApi productsApi,
@@ -99,6 +121,8 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
         _toastService = toastService;
         _navigationService = navigationService;
 
+        _selectedStockStatus = StockStatusOptions[0];
+
         ClearFiltersCommand = new AsyncRelayCommand(ClearFlitersAsync);
         NewProductCommand = new RelayCommand(NavigateToNewProduct);
         ViewDetailsCommand = new RelayCommand<ProductGridItem>(ViewProductDetails);
@@ -109,7 +133,7 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
 
     public void OnNavigatedFrom()
     {
-        
+
     }
 
     public async void OnNavigatedTo(object parameter)
@@ -139,12 +163,13 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
                 searchTerm: string.IsNullOrWhiteSpace(SearchTerm) ? null : SearchTerm,
                 sortColumn: SortColumn,
                 sortOrder: SortOrder,
+                stockFilterStatus: SelectedStockStatus?.Value ?? StockFilterStatus.All,
                 isActive: activeFilter,
                 categoryId: SelectedProductCategory?.Id);
 
             Items.Clear();
 
-            foreach(var item in result.Items)
+            foreach (var item in result.Items)
             {
                 var gridItem = await item.ToGridItem(CanEditProducts, CanActivateProducts, CanDeactivateProducts, _fileService);
                 Items.Add(gridItem);
@@ -170,6 +195,7 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
         SearchTerm = string.Empty;
         SelectedProductCategory = null;
         SelectedStatus = "Active";
+        SelectedStockStatus = StockStatusOptions[0];
         return Task.CompletedTask;
     }
 
@@ -178,6 +204,7 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
         SearchTerm = string.Empty;
         SelectedProductCategory = null;
         SelectedStatus = "All";
+        SelectedStockStatus = StockStatusOptions[0];
         Page = 1;
         await LoadDataAsync();
     }
@@ -207,7 +234,7 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
 
     private void ViewProductDetails(ProductGridItem? product)
     {
-        if(product != null)
+        if (product != null)
         {
             _navigationService.NavigateTo(typeof(ProductDetailsViewModel).FullName!, product.Id);
         }
@@ -215,7 +242,7 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
 
     private void EditProductDetails(ProductGridItem? product)
     {
-        if(product != null)
+        if (product != null)
         {
             _navigationService.NavigateTo(typeof(EditProductViewModel).FullName!, product.Id);
         }
@@ -223,7 +250,7 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
 
     public async Task ActivateProductAsync(ProductGridItem? product)
     {
-        if( product != null)
+        if (product != null)
         {
             try
             {
@@ -244,7 +271,7 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
 
     public async Task DeactivateProductAsync(ProductGridItem? product)
     {
-        if(product != null)
+        if (product != null)
         {
             try
             {
@@ -271,3 +298,5 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
         }
     }
 }
+
+public record StockStatusOption(string DisplayName, StockFilterStatus Value);

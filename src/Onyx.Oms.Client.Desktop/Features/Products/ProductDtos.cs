@@ -249,3 +249,11 @@ public class UpdateProductImageDto
     public string? OptionName { get; set; }
     public string? OptionValue { get; set; }
 }
+
+public enum StockFilterStatus
+{
+    All = 0,
+    InStock = 1,
+    LowStock = 2,
+    OutOfStock = 3,
+}

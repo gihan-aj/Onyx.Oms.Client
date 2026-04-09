@@ -18,6 +18,7 @@ public interface IProductsApi
         [AliasAs("searchTerm")] string? searchTerm = null, 
         [AliasAs("sortColumn")] string? sortColumn = null,
         [AliasAs("sortOrder")] string? sortOrder = null,
+        [AliasAs("stockFilterStatus")] StockFilterStatus stockFilterStatus = StockFilterStatus.All,
         [AliasAs("isActive")] bool? isActive = null,
         [AliasAs("categoryId")] Guid? categoryId = null,
         [AliasAs("hasVariants")] bool? hasVariants = null);
