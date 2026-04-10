@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Onyx.Oms.Client.Desktop.Features.Orders;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -11,8 +12,11 @@ public partial class DashboardItem : ObservableObject
     public string Title { get; init; } = string.Empty;
     public string Subtitle { get; init; } = string.Empty;
     public string Status { get; init; } = string.Empty;
+    public OrderStatus? OrderStatus { get; init; }
     public string IconGlyph { get; init; } = string.Empty;
     public string ItemType { get; init; } = string.Empty; // "Order" or "Task"
+
+    public string StatusDisplay => OrderStatus.HasValue ? OrderStatus.ToString() : Status;
 }
 
 public partial class DashboardViewModel : ObservableObject
@@ -137,10 +141,10 @@ public partial class DashboardViewModel : ObservableObject
 
         if (SelectedFilter == "RecentOrders")
         {
-            DashboardItems.Add(new DashboardItem { Title = "ORD-10042", Subtitle = "Customer: Jane Doe", Status = "Pending", IconGlyph = "\xF07A", ItemType = "Order" }); // Shopping Cart
-            DashboardItems.Add(new DashboardItem { Title = "ORD-10041", Subtitle = "Customer: John Smith", Status = "Processing", IconGlyph = "\xF07A", ItemType = "Order" });
-            DashboardItems.Add(new DashboardItem { Title = "ORD-10040", Subtitle = "Customer: Sarah Connor", Status = "Ready to Pack", IconGlyph = "\xF466", ItemType = "Order" }); // Box
-            DashboardItems.Add(new DashboardItem { Title = "ORD-10039", Subtitle = "Customer: Kyle Reese", Status = "Shipped", IconGlyph = "\xF0D1", ItemType = "Order" }); // Truck
+            DashboardItems.Add(new DashboardItem { Title = "ORD-10042", Subtitle = "Customer: Jane Doe", OrderStatus = Onyx.Oms.Client.Desktop.Features.Orders.OrderStatus.Pending, IconGlyph = "\xF07A", ItemType = "Order" }); // Shopping Cart
+            DashboardItems.Add(new DashboardItem { Title = "ORD-10041", Subtitle = "Customer: John Smith", OrderStatus = Onyx.Oms.Client.Desktop.Features.Orders.OrderStatus.Processing, IconGlyph = "\xF07A", ItemType = "Order" });
+            DashboardItems.Add(new DashboardItem { Title = "ORD-10040", Subtitle = "Customer: Sarah Connor", OrderStatus = Onyx.Oms.Client.Desktop.Features.Orders.OrderStatus.ReadyToPack, IconGlyph = "\xF466", ItemType = "Order" }); // Box
+            DashboardItems.Add(new DashboardItem { Title = "ORD-10039", Subtitle = "Customer: Kyle Reese", OrderStatus = Onyx.Oms.Client.Desktop.Features.Orders.OrderStatus.Shipped, IconGlyph = "\xF0D1", ItemType = "Order" }); // Truck
         }
         else if (SelectedFilter == "PendingTasks")
         {

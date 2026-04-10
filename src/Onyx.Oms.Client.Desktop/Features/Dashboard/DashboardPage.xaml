@@ -122,6 +122,7 @@
                 <RowDefinition Height="Auto"/> <!-- Hero Header -->
                 <RowDefinition Height="Auto"/> <!-- Quick Actions -->
                 <RowDefinition Height="Auto"/> <!-- SelectorBar -->
+                <RowDefinition Height="Auto"/>    <!-- Content Grid -->
                 <RowDefinition Height="*"/>    <!-- Content Grid -->
             </Grid.RowDefinitions>
 
@@ -153,7 +154,11 @@
 
             <!-- 2. Quick Actions -->
             <Grid Grid.Row="1" Margin="40,-60,40,24">
-                <ScrollViewer x:Name="QuickActionsScrollViewer" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" ViewChanged="QuickActionsScrollViewer_ViewChanged">
+                <ScrollViewer x:Name="QuickActionsScrollViewer" 
+                              HorizontalScrollBarVisibility="Hidden" 
+                              VerticalScrollBarVisibility="Disabled" 
+                              ViewChanged="QuickActionsScrollViewer_ViewChanged"
+                              PointerWheelChanged="ScrollViewer_PointerWheelChanged">
                     <ItemsControl ItemsSource="{x:Bind ViewModel.QuickActions, Mode=OneWay}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -228,47 +233,79 @@
             </SelectorBar>
 
             <!-- 4. Content Cards Grid -->
-            <GridView Grid.Row="3" Margin="40,0,40,40"
-                      ItemsSource="{x:Bind ViewModel.DashboardItems, Mode=OneWay}"
-                      SelectionMode="None"
-                      IsItemClickEnabled="True"
-                      ItemContainerStyle="{StaticResource DashboardGridViewItemStyle}">
+            <Grid Grid.Row="3" Margin="40,0,40,40">
+                <ScrollViewer x:Name="DashboardItemsScrollViewer" 
+                              HorizontalScrollBarVisibility="Hidden" 
+                              VerticalScrollBarVisibility="Disabled" 
+                              ViewChanged="DashboardItemsScrollViewer_ViewChanged"
+                              PointerWheelChanged="ScrollViewer_PointerWheelChanged">
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.DashboardItems, Mode=OneWay}" Margin="0,0,40,0">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" Spacing="16" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="local:DashboardItem">
+                                <Button Padding="0" BorderThickness="0" CornerRadius="8" Background="{ThemeResource ControlFillColorDefaultBrush}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
+                                    <Grid Width="300" MinHeight="96" Padding="16"
+                                          Background="Transparent"
+                                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                          BorderThickness="1"
+                                          CornerRadius="8">
+                                        
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Left: Icon representing Item Type -->
+                                        <FontIcon Grid.Column="0" 
+                                                  FontFamily="ms-appx:///Assets/Fonts/fa-solid-900.ttf#Font Awesome 6 Free" 
+                                                  Glyph="{x:Bind IconGlyph}" 
+                                                  Foreground="{ThemeResource SystemAccentColor}"
+                                                  FontSize="28"
+                                                  VerticalAlignment="Center" 
+                                                  Margin="0,0,16,0" />
+
+                                        <!-- Right: Text Stack -->
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
+                                            <TextBlock Text="{x:Bind Title}" Style="{StaticResource BodyStrongTextBlockStyle}" TextTrimming="CharacterEllipsis" HorizontalAlignment="Left" />
+                                            <TextBlock Text="{x:Bind Subtitle}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextTrimming="WordEllipsis" HorizontalAlignment="Left"/>
+                                            
+                                            <Border Background="{ThemeResource SystemControlBackgroundBaseLowBrush}" CornerRadius="4" Padding="4,2" HorizontalAlignment="Left" Margin="0,4,0,0">
+                                                <TextBlock Text="{x:Bind StatusDisplay}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="11" />
+                                            </Border>
+                                        </StackPanel>
+                                    </Grid>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <!-- Scroll Buttons for Content Cards -->
+                <Button x:Name="DashboardItemsScrollLeftButton" 
+                        Click="DashboardItemsScrollLeft_Click"
+                        Visibility="Collapsed"
+                        HorizontalAlignment="Left" VerticalAlignment="Center" 
+                        Width="40" Height="40" CornerRadius="20"
+                        Background="{ThemeResource LayerFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                        Margin="-20,0,0,0" Padding="0">
+                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE76B;" FontSize="14"/>
+                </Button>
                 
-                <GridView.ItemTemplate>
-                    <DataTemplate x:DataType="local:DashboardItem">
-                        <Grid Width="300" MinHeight="96" Padding="16"
-                              Background="{ThemeResource ControlFillColorDefaultBrush}"
-                              BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                              BorderThickness="1"
-                              CornerRadius="8">
-                            
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-
-                            <!-- Left: Icon representing Item Type -->
-                            <FontIcon Grid.Column="0" 
-                                      FontFamily="ms-appx:///Assets/Fonts/fa-solid-900.ttf#Font Awesome 6 Free" 
-                                      Glyph="{x:Bind IconGlyph}" 
-                                      Foreground="{ThemeResource SystemAccentColor}"
-                                      FontSize="28"
-                                      VerticalAlignment="Center" 
-                                      Margin="0,0,16,0" />
-
-                            <!-- Right: Text Stack -->
-                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
-                                <TextBlock Text="{x:Bind Title}" Style="{StaticResource BodyStrongTextBlockStyle}" TextTrimming="CharacterEllipsis" />
-                                <TextBlock Text="{x:Bind Subtitle}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextTrimming="WordEllipsis"/>
-                                
-                                <Border Background="{ThemeResource SystemControlBackgroundBaseLowBrush}" CornerRadius="4" Padding="4,2" HorizontalAlignment="Left" Margin="0,4,0,0">
-                                    <TextBlock Text="{x:Bind Status}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="11" />
-                                </Border>
-                            </StackPanel>
-                        </Grid>
-                    </DataTemplate>
-                </GridView.ItemTemplate>
-            </GridView>
+                <Button x:Name="DashboardItemsScrollRightButton" 
+                        Click="DashboardItemsScrollRight_Click"
+                        HorizontalAlignment="Right" VerticalAlignment="Center" 
+                        Width="40" Height="40" CornerRadius="20"
+                        Background="{ThemeResource LayerFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
+                        Margin="0,0,-20,0" Padding="0">
+                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE76C;" FontSize="14"/>
+                </Button>
+            </Grid>
         </Grid>
     </ScrollViewer>
 </Page>
