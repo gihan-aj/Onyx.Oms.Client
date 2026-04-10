@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -17,6 +18,7 @@ public partial class DashboardItem : ObservableObject
 public partial class DashboardViewModel : ObservableObject
 {
     private readonly IAuthenticationService _authService;
+    private readonly INavigationService _navigationService;
 
     private string _userName = "User";
     public string UserName
@@ -34,9 +36,24 @@ public partial class DashboardViewModel : ObservableObject
 
     public ObservableCollection<DashboardItem> DashboardItems { get; } = new();
 
-    public DashboardViewModel(IAuthenticationService authService)
+    public ObservableCollection<DashboardQuickAction> QuickActions { get; } = new();
+
+    public IRelayCommand NavigateToCreateOrderCommand { get; }
+    public IRelayCommand NavigateToAddCustomerCommand { get; }
+    public IRelayCommand NavigateToCatalogCommand { get; }
+    public IRelayCommand NavigateToFulfillmentCommand { get; }
+    public IRelayCommand NavigateToCreateProductCommand { get; }
+
+    public DashboardViewModel(IAuthenticationService authService, INavigationService navigationService)
     {
         _authService = authService;
+        _navigationService = navigationService;
+
+        NavigateToCreateOrderCommand = new RelayCommand(NavigateToCreateOrder);
+        NavigateToAddCustomerCommand = new RelayCommand(NavigateToAddCustomer);
+        NavigateToCatalogCommand = new RelayCommand(NavigateToCatalog);
+        NavigateToFulfillmentCommand = new RelayCommand(NavigateToFulfillment);
+        NavigateToCreateProductCommand = new RelayCommand(NavigateToCreateProduct);
     }
 
     public void Subscribe()
@@ -76,6 +93,42 @@ public partial class DashboardViewModel : ObservableObject
         }
 
         LoadDummyData();
+        LoadQuickActions();
+    }
+
+    public void LoadQuickActions()
+    {
+        QuickActions.Clear();
+        QuickActions.Add(new DashboardQuickAction("New Order", "Create a new customer order", "\uE710", NavigateToCreateOrderCommand, false, true));
+        QuickActions.Add(new DashboardQuickAction("Add Customer", "Register a new buyer profile", "\uE8FA", NavigateToAddCustomerCommand, true, true));
+        QuickActions.Add(new DashboardQuickAction("View Catalog", "Manage latest products/variants", "\uE81E", NavigateToCatalogCommand, true, true));
+        QuickActions.Add(new DashboardQuickAction("Fulfillment", "View pending task assignments", "\uE9D5", NavigateToFulfillmentCommand, false, true));
+        QuickActions.Add(new DashboardQuickAction("Create Product", "Add a new item to catalog", "\uE719", NavigateToCreateProductCommand, true, true));
+    }
+
+    private void NavigateToCreateOrder()
+    {
+        //_navigationService.NavigateTo(typeof(CreateOrderPage).FullName!);
+    }
+
+    private void NavigateToAddCustomer()
+    {
+        _navigationService.NavigateTo(typeof(Customers.CustomerFormPage).FullName!);
+    }
+
+    private void NavigateToCatalog()
+    {
+        _navigationService.NavigateTo(typeof(Catalog.CatalogPage).FullName!);
+    }
+
+    private void NavigateToFulfillment()
+    {
+        //_navigationService.NavigateTo(typeof(FulfillmentPage).FullName!);
+    }
+
+    private void NavigateToCreateProduct()
+    {
+        _navigationService.NavigateTo(typeof(Products.Create.CreateProductViewModel).FullName!);
     }
 
     public void LoadDummyData()
