@@ -27,12 +27,12 @@ public sealed partial class DashboardPage : Page
         ViewModel.Unsubscribe();
     }
 
-    private void SelectorBar_SelectionChanged(SelectorBar sender, SelectorBarSelectionChangedEventArgs args)
+    private async void SelectorBar_SelectionChanged(SelectorBar sender, SelectorBarSelectionChangedEventArgs args)
     {
         if (sender.SelectedItem?.Tag is string tag)
         {
             ViewModel.SelectedFilter = tag;
-            ViewModel.LoadDummyData();
+            await ViewModel.LoadDashboardItemsAsync();
         }
     }
 

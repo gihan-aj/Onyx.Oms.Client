@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.UI.Xaml;
 using Onyx.Oms.Client.Desktop.Features.Catalog;
 using Onyx.Oms.Client.Desktop.Features.Couriers;
+using Onyx.Oms.Client.Desktop.Features.Dashboard;
 using Onyx.Oms.Client.Desktop.Features.Customers;
 using Onyx.Oms.Client.Desktop.Features.ProductCategories;
 using Onyx.Oms.Client.Desktop.Features.Products;
@@ -213,6 +214,16 @@ namespace Onyx.Oms.Client.Desktop
                     .AddHttpMessageHandler<ProblemDetailsHandler>();
 
             services.AddRefitClient<ICatalogApi>()
+                    .ConfigureHttpClient((sp, c) => 
+                    {
+                        var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
+                        c.BaseAddress = new Uri(options.BaseUrl);
+                    })
+                    .AddHttpMessageHandler<HttpLoggingHandler>()
+                    .AddHttpMessageHandler<AuthHeaderHandler>()
+                    .AddHttpMessageHandler<ProblemDetailsHandler>();
+
+            services.AddRefitClient<IDashboardApi>()
                     .ConfigureHttpClient((sp, c) => 
                     {
                         var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;

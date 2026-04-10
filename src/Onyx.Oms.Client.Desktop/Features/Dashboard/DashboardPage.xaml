@@ -234,6 +234,13 @@
 
             <!-- 4. Content Cards Grid -->
             <Grid Grid.Row="3" Margin="40,0,40,40">
+                
+                <TextBlock Text="No items to display at this time." 
+                           Visibility="{x:Bind ViewModel.EmptyListMessageVisibility, Mode=OneWay}"
+                           Style="{StaticResource BodyTextBlockStyle}" 
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" 
+                           HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,48,0,0" />
+
                 <ScrollViewer x:Name="DashboardItemsScrollViewer" 
                               HorizontalScrollBarVisibility="Hidden" 
                               VerticalScrollBarVisibility="Disabled" 

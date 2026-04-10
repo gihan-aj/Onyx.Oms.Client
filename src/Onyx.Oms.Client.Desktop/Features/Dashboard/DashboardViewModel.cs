@@ -23,6 +23,7 @@ public partial class DashboardViewModel : ObservableObject
 {
     private readonly IAuthenticationService _authService;
     private readonly INavigationService _navigationService;
+    private readonly IDashboardApi _dashboardApi;
 
     private string _userName = "User";
     public string UserName
@@ -40,6 +41,8 @@ public partial class DashboardViewModel : ObservableObject
 
     public ObservableCollection<DashboardItem> DashboardItems { get; } = new();
 
+    public Microsoft.UI.Xaml.Visibility EmptyListMessageVisibility => DashboardItems.Count == 0 ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+
     public ObservableCollection<DashboardQuickAction> QuickActions { get; } = new();
 
     public IRelayCommand NavigateToCreateOrderCommand { get; }
@@ -48,10 +51,11 @@ public partial class DashboardViewModel : ObservableObject
     public IRelayCommand NavigateToFulfillmentCommand { get; }
     public IRelayCommand NavigateToCreateProductCommand { get; }
 
-    public DashboardViewModel(IAuthenticationService authService, INavigationService navigationService)
+    public DashboardViewModel(IAuthenticationService authService, INavigationService navigationService, IDashboardApi dashboardApi)
     {
         _authService = authService;
         _navigationService = navigationService;
+        _dashboardApi = dashboardApi;
 
         NavigateToCreateOrderCommand = new RelayCommand(NavigateToCreateOrder);
         NavigateToAddCustomerCommand = new RelayCommand(NavigateToAddCustomer);
@@ -96,7 +100,7 @@ public partial class DashboardViewModel : ObservableObject
             UserName = currentUser.FirstName ?? currentUser.Email ?? "User";
         }
 
-        LoadDummyData();
+        await LoadDashboardItemsAsync();
         LoadQuickActions();
     }
 
@@ -135,22 +139,38 @@ public partial class DashboardViewModel : ObservableObject
         _navigationService.NavigateTo(typeof(Products.Create.CreateProductViewModel).FullName!);
     }
 
-    public void LoadDummyData()
+    public async Task LoadDashboardItemsAsync()
     {
         DashboardItems.Clear();
 
-        if (SelectedFilter == "RecentOrders")
+        try 
         {
-            DashboardItems.Add(new DashboardItem { Title = "ORD-10042", Subtitle = "Customer: Jane Doe", OrderStatus = Onyx.Oms.Client.Desktop.Features.Orders.OrderStatus.Pending, IconGlyph = "\xF07A", ItemType = "Order" }); // Shopping Cart
-            DashboardItems.Add(new DashboardItem { Title = "ORD-10041", Subtitle = "Customer: John Smith", OrderStatus = Onyx.Oms.Client.Desktop.Features.Orders.OrderStatus.Processing, IconGlyph = "\xF07A", ItemType = "Order" });
-            DashboardItems.Add(new DashboardItem { Title = "ORD-10040", Subtitle = "Customer: Sarah Connor", OrderStatus = Onyx.Oms.Client.Desktop.Features.Orders.OrderStatus.ReadyToPack, IconGlyph = "\xF466", ItemType = "Order" }); // Box
-            DashboardItems.Add(new DashboardItem { Title = "ORD-10039", Subtitle = "Customer: Kyle Reese", OrderStatus = Onyx.Oms.Client.Desktop.Features.Orders.OrderStatus.Shipped, IconGlyph = "\xF0D1", ItemType = "Order" }); // Truck
+            if (SelectedFilter == "RecentOrders")
+            {
+                // Placeholder - Waiting for backend API implementation
+                // var orders = await _dashboardApi.GetRecentOrdersAsync();
+                // foreach (var order in orders)
+                // {
+                //     DashboardItems.Add(order);
+                // }
+            }
+            else if (SelectedFilter == "PendingTasks")
+            {
+                // Placeholder - Waiting for backend API implementation
+                // var tasks = await _dashboardApi.GetPendingTasksAsync();
+                // foreach (var task in tasks)
+                // {
+                //     DashboardItems.Add(task);
+                // }
+            }
         }
-        else if (SelectedFilter == "PendingTasks")
+        catch (System.Exception ex)
         {
-            DashboardItems.Add(new DashboardItem { Title = "Produce: Blue T-Shirt (M)", Subtitle = "For ORD-10041 (Qty: 2)", Status = "To Be Produced", IconGlyph = "\xF015", ItemType = "Task" }); // Home/Factory
-            DashboardItems.Add(new DashboardItem { Title = "Procure: Red Cap", Subtitle = "For ORD-10042 (Qty: 1)", Status = "To Be Procured", IconGlyph = "\xF291", ItemType = "Task" }); // Shopping Basket
-            DashboardItems.Add(new DashboardItem { Title = "Produce: Winter Jacket (L)", Subtitle = "Stock Replenishment", Status = "In Production", IconGlyph = "\xF013", ItemType = "Task" }); // Cog
+            System.Diagnostics.Debug.WriteLine($"Failed to load dashboard items: {ex.Message}");
+        }
+        finally
+        {
+            OnPropertyChanged(nameof(EmptyListMessageVisibility));
         }
     }
 }
