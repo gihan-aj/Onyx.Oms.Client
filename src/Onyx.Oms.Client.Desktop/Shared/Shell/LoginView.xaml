@@ -15,7 +15,7 @@
 
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
             <!-- Logo area -->
-            <Image Source="/Assets/StoreLogo.png" Width="120" Height="120" />
+            <Image Source="/Assets/StoreLogo.scale-400.png" Width="120" Height="120" />
             
             <TextBlock Text="Welcome to Onyx OMS" 
                        Style="{StaticResource TitleTextBlockStyle}" 

@@ -99,8 +99,8 @@ public class AuthenticationService : IAuthenticationService
         var claims = jwtToken.Claims;
 
         var id = claims.FirstOrDefault(c => c.Type == "sub" || c.Type == ClaimTypes.NameIdentifier)?.Value;
-        var firstName = claims.FirstOrDefault(c => c.Type == "given_name" || c.Type == ClaimTypes.GivenName)?.Value;
-        var lastName = claims.FirstOrDefault(c => c.Type == "family_name" || c.Type == ClaimTypes.Surname)?.Value;
+        var firstName = User.FindFirst("given_name")?.Value ?? claims.FirstOrDefault(c => c.Type == "given_name" || c.Type == ClaimTypes.GivenName)?.Value;
+        var lastName = User.FindFirst("family_name")?.Value ?? claims.FirstOrDefault(c => c.Type == "family_name" || c.Type == ClaimTypes.Surname)?.Value;
         var email = claims.FirstOrDefault(c => c.Type == "email" || c.Type == ClaimTypes.Email)?.Value;
 
         var roles = new System.Collections.Generic.List<string>();
