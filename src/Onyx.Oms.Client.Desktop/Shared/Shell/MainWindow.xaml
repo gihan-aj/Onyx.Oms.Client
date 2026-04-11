@@ -96,6 +96,13 @@
                          Visibility="Visible"
                          Canvas.ZIndex="10" />
 
+        <!-- License Validation Overlay -->
+        <local:LicenseValidationView x:Name="LicenseValidation"
+                                     Grid.Row="1"
+                                     Grid.RowSpan="2"
+                                     Visibility="Collapsed"
+                                     Canvas.ZIndex="12" />
+
         <!-- User Onboarding Overlay -->
         <onboarding:UserOnboarding x:Name="UserOnboardingView"
                                    Grid.Row="1"

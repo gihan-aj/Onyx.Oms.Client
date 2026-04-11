@@ -4,6 +4,8 @@ using System;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.Storage;
+using System.IO;
 
 namespace Onyx.Oms.Client.Desktop.Shared.Shell;
 
@@ -14,6 +16,7 @@ public sealed partial class MainWindow : Window
     private readonly IAuthenticationService _authenticationService;
     private readonly IPermissionService _permissionService;
     private readonly ITenantProfileService _tenantProfileService;
+    private readonly ILicenseManagerService _licenseManagerService;
 
     private readonly IDialogService _dialogService;
     private readonly IToastService _toastService;
@@ -28,7 +31,8 @@ public sealed partial class MainWindow : Window
         ITenantProfileService tenantProfileService,
         IDialogService dialogService,
         IToastService toastService,
-        BackgroundProcessService backgroundServices)
+        BackgroundProcessService backgroundServices,
+        ILicenseManagerService licenseManagerService)
     {
         InitializeComponent();
 
@@ -40,6 +44,7 @@ public sealed partial class MainWindow : Window
         _dialogService = dialogService;
         _toastService = toastService;
         _backgroundServices = backgroundServices;
+        _licenseManagerService = licenseManagerService;
 
         // Setup Custom TitleBar
         ExtendsContentIntoTitleBar = true;
@@ -60,10 +65,10 @@ public sealed partial class MainWindow : Window
 
         // Setup Auth UI
         CheckLoginStatus();
-        
+
         // Show loading state immediately for startup sequence
         LoginView.SetLoading(true, "Starting background services. This may take a moment...");
-        
+
         // Hook into Loaded to start sequence
         RootGrid.Loaded += RootGrid_Loaded;
 
@@ -93,7 +98,33 @@ public sealed partial class MainWindow : Window
         };
     }
 
-    private async void RootGrid_Loaded(object sender, RoutedEventArgs e)
+    private void RootGrid_Loaded(object sender, RoutedEventArgs e)
+    {
+        if (!CheckLicenseStatus())
+        {
+            // Suspend startup, wait for valid license
+            LicenseValidation.ParentWindow = this;
+            LicenseValidation.LicenseValidated += LicenseValidationView_LicenseValidated;
+            
+            LoginView.Visibility = Visibility.Collapsed;
+            LicenseValidation.Visibility = Visibility.Visible;
+            return;
+        }
+
+        // License valid, proceed with normal startup
+        _ = StartBackendAndAuthSequenceAsync();
+    }
+
+    private void LicenseValidationView_LicenseValidated(object? sender, EventArgs e)
+    {
+        LicenseValidation.LicenseValidated -= LicenseValidationView_LicenseValidated;
+        LicenseValidation.Visibility = Visibility.Collapsed;
+        LoginView.Visibility = Visibility.Visible;
+        
+        _ = StartBackendAndAuthSequenceAsync();
+    }
+
+    private async Task StartBackendAndAuthSequenceAsync()
     {
         try
         {
@@ -219,6 +250,23 @@ public sealed partial class MainWindow : Window
     private async void OnLoginRequested(object? sender, EventArgs e)
     {
          await _authenticationService.LoginAsync();
+    }
+
+    private bool CheckLicenseStatus()
+    {
+        string localAppData = ApplicationData.Current.LocalFolder.Path;
+        string licensePath = Path.Combine(localAppData, "license.key");
+
+        if(File.Exists(licensePath))
+        {
+            string keyContents = File.ReadAllText(licensePath);
+            if (_licenseManagerService.IsKeyValid(keyContents))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void CheckLoginStatus()

@@ -103,6 +103,7 @@ namespace Onyx.Oms.Client.Desktop
             services.AddSingleton<IToastService, ToastService>();
             services.AddSingleton<IDialogService, DialogService>();
             services.AddSingleton<IPageService, PageService>();
+            services.AddScoped<ILicenseManagerService, LicenseManagerService>();
 
             // HTTP Infrastructure
             services.AddTransient<HttpLoggingHandler>();
