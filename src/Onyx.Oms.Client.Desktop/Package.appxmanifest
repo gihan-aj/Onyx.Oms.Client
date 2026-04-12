@@ -11,12 +11,12 @@
   <Identity
     Name="ebb02faf-4fd6-4df5-a294-dd7fbcf167ae"
     Publisher="CN=Onyx"
-    Version="0.6.4.0" />
+    Version="0.6.6.0" />
 
   <mp:PhoneIdentity PhoneProductId="ebb02faf-4fd6-4df5-a294-dd7fbcf167ae" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>Onyx.Oms.Client.Desktop</DisplayName>
+    <DisplayName>OnyxOMS</DisplayName>
     <PublisherDisplayName>gihan</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
