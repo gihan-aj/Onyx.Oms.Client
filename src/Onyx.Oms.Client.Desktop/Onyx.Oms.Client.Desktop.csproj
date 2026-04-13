@@ -18,6 +18,7 @@
     <None Remove="Assets\StoreLogo.png" />
     <None Remove="Features\Catalog\CatalogPage.xaml" />
     <None Remove="Features\Dashboard\DashboardPage.xaml" />
+    <None Remove="Features\FulfillmentTasks\List\FulfillmentTasksPage.xaml" />
     <None Remove="Features\Fulfillment\FulfillmentPage.xaml" />
     <None Remove="Features\ProductCategories\ProductCategoriesPage.xaml" />
     <None Remove="Features\Products\Controls\ProductCategoryPicker.xaml" />
@@ -187,6 +188,12 @@
 	<Content Include="BackendServices\**\*.*">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Features\FulfillmentTasks\List\FulfillmentTasksPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <!--

@@ -19,6 +19,7 @@ using Onyx.Oms.Client.Desktop.Shared.Services.Http;
 using Refit;
 using Serilog;
 using System;
+using Onyx.Oms.Client.Desktop.Features.FulfillmentTasks;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -174,6 +175,16 @@ namespace Onyx.Oms.Client.Desktop
                     .AddHttpMessageHandler<AuthHeaderHandler>()
                     .AddHttpMessageHandler<ProblemDetailsHandler>();
 
+            services.AddRefitClient<IFulfillmentTasksApi>()
+                    .ConfigureHttpClient((sp, c) =>
+                    {
+                        var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
+                        c.BaseAddress = new Uri(options.BaseUrl);
+                    })
+                    .AddHttpMessageHandler<HttpLoggingHandler>()
+                    .AddHttpMessageHandler<AuthHeaderHandler>()
+                    .AddHttpMessageHandler<ProblemDetailsHandler>();
+
             services.AddRefitClient<IUsersApi>()
                     .ConfigureHttpClient((sp, c) =>
                     {
@@ -279,7 +290,8 @@ namespace Onyx.Oms.Client.Desktop
             services.AddTransient<Features.Dashboard.DashboardViewModel>();
             services.AddTransient<Features.Orders.OrdersPage>();
             services.AddTransient<Features.Customers.CustomersPage>();
-            services.AddTransient<Features.Fulfillment.FulfillmentPage>();
+            services.AddTransient<Features.FulfillmentTasks.List.FulfillmentTasksPage>();
+            services.AddTransient<Features.FulfillmentTasks.List.FulfillmentTasksViewModel>();
             services.AddTransient<Features.Catalog.CatalogPage>();
             services.AddTransient<Features.Catalog.CatalogViewModel>();
             services.AddTransient<Features.ProductCategories.ProductCategoriesPage>();
@@ -317,7 +329,7 @@ namespace Onyx.Oms.Client.Desktop
             pageService.Configure(typeof(Features.Orders.OrdersPage).FullName!, typeof(Features.Orders.OrdersPage));
             pageService.Configure(typeof(Features.Customers.CustomersPage).FullName!, typeof(Features.Customers.CustomersPage));
             pageService.Configure(typeof(Features.Customers.CustomerFormPage).FullName!, typeof(Features.Customers.CustomerFormPage));
-            pageService.Configure(typeof(Features.Fulfillment.FulfillmentPage).FullName!, typeof(Features.Fulfillment.FulfillmentPage));
+            pageService.Configure(typeof(Features.FulfillmentTasks.List.FulfillmentTasksPage).FullName!, typeof(Features.FulfillmentTasks.List.FulfillmentTasksPage));
             pageService.Configure(typeof(Features.Catalog.CatalogPage).FullName!, typeof(Features.Catalog.CatalogPage));
             pageService.Configure(typeof(Features.ProductCategories.ProductCategoriesPage).FullName!, typeof(Features.ProductCategories.ProductCategoriesPage));
             pageService.Configure(typeof(Features.ProductCategories.ProductCategoryFormViewModel).FullName!, typeof(Features.ProductCategories.ProductCategoryFormPage));

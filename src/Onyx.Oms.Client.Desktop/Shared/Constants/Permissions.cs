@@ -55,6 +55,16 @@ public static class Permissions
         public const string Delete = "tenant:products:delete";
     }
 
+    public static class FulfillmentTasks
+    {
+        public const string View = "tenant:fulfillmenttasks:view";
+        public const string Create = "tenant:fulfillmenttasks:create";
+        public const string Edit = "tenant:fulfillmenttasks:edit";
+        public const string Activate = "tenant:fulfillmenttasks:activate";
+        public const string Deactivate = "tenant:fulfillmenttasks:deactivate";
+        public const string Delete = "tenant:fulfillmenttasks:delete";
+    }
+
     public static class Couriers
     {
         public const string View = "tenant:couriers:view";

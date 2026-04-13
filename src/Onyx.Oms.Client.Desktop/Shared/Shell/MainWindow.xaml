@@ -71,7 +71,7 @@
                 <NavigationViewItem Icon="Contact" Content="Customers" Tag="Onyx.Oms.Client.Desktop.Features.Customers.CustomersPage" />
                 
                 <NavigationViewItemHeader Content="Operations" />
-                <NavigationViewItem Icon="List" Content="Fulfillment" Tag="Onyx.Oms.Client.Desktop.Features.Fulfillment.FulfillmentPage" />
+                <NavigationViewItem Icon="List" Content="Fulfillment" Tag="Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List.FulfillmentTasksPage" />
                 <NavigationViewItem Icon="Library" Content="Catalog" Tag="Onyx.Oms.Client.Desktop.Features.Catalog.CatalogPage">
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Content="Categories" Tag="Onyx.Oms.Client.Desktop.Features.ProductCategories.ProductCategoriesPage" />
