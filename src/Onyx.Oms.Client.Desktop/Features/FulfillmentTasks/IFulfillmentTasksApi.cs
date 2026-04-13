@@ -1,6 +1,7 @@
 ﻿using Onyx.Oms.Client.Desktop.Shared.Models;
 using Refit;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks
@@ -18,5 +19,14 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks
             [AliasAs("priority")] TaskPriority? priority = null,
             [AliasAs("expectedCompletionDate")] DateTimeOffset? expectedCompletionDate = null,
             [AliasAs("orderNumber")] string? orderNumber = null);
+
+        [Post("/api/v1/fulfillment-tasks/procurement")]
+        Task<Guid> CreateProcurementTask([Body] CreateProcurementTaskCommand task);
+
+        [Post("/api/v1/fulfillment-tasks/production")]
+        Task<Guid> CreateProductionTask([Body] CreateProductionTaskCommand task);
+
+        [Get("/api/v1/users")]
+        Task<List<UserDto>> GetUsers();
     }
 }

@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.Input;
+using Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.Create;
 using Onyx.Oms.Client.Desktop.Features.Products;
 using Onyx.Oms.Client.Desktop.Features.Products.Create;
 using Onyx.Oms.Client.Desktop.Shared.Constants;
@@ -161,7 +162,7 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
 
         private void NavigateToNewTask()
         {
-            //_navigationService.NavigateTo();
+            _navigationService.NavigateTo(typeof(CreateFulfillmentTaskPage).FullName!);
         }
     }
 }

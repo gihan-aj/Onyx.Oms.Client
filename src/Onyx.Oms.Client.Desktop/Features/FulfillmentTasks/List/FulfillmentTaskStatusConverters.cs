@@ -4,9 +4,9 @@ using System;
 
 namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
 {
-    public class FulfillmentTaskStatusToBackgroundConverter : IValueConverter
+    public partial class FulfillmentTaskStatusToBackgroundConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, string language)
+        public object? Convert(object value, Type targetType, object parameter, string language)
         {
             if (value is FulfillmentTaskStatus status)
             {
@@ -25,9 +25,9 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
         public object ConvertBack(object value, Type targetType, object parameter, string language) => throw new NotImplementedException();
     }
 
-    public class FulfillmentTaskStatusToForegroundConverter : IValueConverter
+    public partial class FulfillmentTaskStatusToForegroundConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, string language)
+        public object? Convert(object value, Type targetType, object parameter, string language)
         {
             if (value is FulfillmentTaskStatus status)
             {

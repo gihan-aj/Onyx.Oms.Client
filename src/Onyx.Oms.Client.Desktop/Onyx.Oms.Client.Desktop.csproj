@@ -18,6 +18,7 @@
     <None Remove="Assets\StoreLogo.png" />
     <None Remove="Features\Catalog\CatalogPage.xaml" />
     <None Remove="Features\Dashboard\DashboardPage.xaml" />
+    <None Remove="Features\FulfillmentTasks\Create\CreateFulfillmentTaskPage.xaml" />
     <None Remove="Features\FulfillmentTasks\List\FulfillmentTasksPage.xaml" />
     <None Remove="Features\Fulfillment\FulfillmentPage.xaml" />
     <None Remove="Features\ProductCategories\ProductCategoriesPage.xaml" />
@@ -71,6 +72,7 @@
     <PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.2.251219" />
     <PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.2.251219" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.2.251219" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" Version="8.2.251219" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.2.251219" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.TokenizingTextBox" Version="8.2.251219" />
     <PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.2.251219" />
@@ -188,6 +190,12 @@
 	<Content Include="BackendServices\**\*.*">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Features\FulfillmentTasks\Create\CreateFulfillmentTaskPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <ItemGroup>

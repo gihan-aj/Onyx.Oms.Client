@@ -292,6 +292,8 @@ namespace Onyx.Oms.Client.Desktop
             services.AddTransient<Features.Customers.CustomersPage>();
             services.AddTransient<Features.FulfillmentTasks.List.FulfillmentTasksPage>();
             services.AddTransient<Features.FulfillmentTasks.List.FulfillmentTasksViewModel>();
+            services.AddTransient<Features.FulfillmentTasks.Create.CreateFulfillmentTaskPage>();
+            services.AddTransient<Features.FulfillmentTasks.Create.CreateFulfillmentTaskViewModel>();
             services.AddTransient<Features.Catalog.CatalogPage>();
             services.AddTransient<Features.Catalog.CatalogViewModel>();
             services.AddTransient<Features.ProductCategories.ProductCategoriesPage>();
@@ -330,6 +332,7 @@ namespace Onyx.Oms.Client.Desktop
             pageService.Configure(typeof(Features.Customers.CustomersPage).FullName!, typeof(Features.Customers.CustomersPage));
             pageService.Configure(typeof(Features.Customers.CustomerFormPage).FullName!, typeof(Features.Customers.CustomerFormPage));
             pageService.Configure(typeof(Features.FulfillmentTasks.List.FulfillmentTasksPage).FullName!, typeof(Features.FulfillmentTasks.List.FulfillmentTasksPage));
+            pageService.Configure(typeof(Features.FulfillmentTasks.Create.CreateFulfillmentTaskPage).FullName!, typeof(Features.FulfillmentTasks.Create.CreateFulfillmentTaskPage));
             pageService.Configure(typeof(Features.Catalog.CatalogPage).FullName!, typeof(Features.Catalog.CatalogPage));
             pageService.Configure(typeof(Features.ProductCategories.ProductCategoriesPage).FullName!, typeof(Features.ProductCategories.ProductCategoriesPage));
             pageService.Configure(typeof(Features.ProductCategories.ProductCategoryFormViewModel).FullName!, typeof(Features.ProductCategories.ProductCategoryFormPage));

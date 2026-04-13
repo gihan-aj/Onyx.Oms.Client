@@ -33,6 +33,29 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks
 
     public record MoneyDto(decimal Amount, string Currency = "LKR");
 
+    public record CreateProcurementTaskCommand(
+        Guid ProductVariantId,
+        int RequestedQuantity,
+        MoneyDto Cost,
+        string PurchaseOrderNumber,
+        string? Notes,
+        DateTimeOffset? ExpectedCompletionDate,
+        TaskPriority Priority);
+
+    public record CreateProductionTaskCommand(
+        Guid ProductVariantId,
+        int RequestedQuantity,
+        Guid? AssignedUserId,
+        string? Notes,
+        DateTimeOffset? ExpectedCompletionDate,
+        TaskPriority Priority);
+
+    public record UserDto(
+        Guid Id,
+        string FirstName,
+        string LastName,
+        string[] Roles);
+
     public enum FulfillmentTaskType
     {
         Production = 0,
