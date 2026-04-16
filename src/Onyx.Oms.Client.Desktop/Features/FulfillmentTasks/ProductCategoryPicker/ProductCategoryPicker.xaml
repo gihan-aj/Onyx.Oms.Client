@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.ProductCategoryPicker.ProductCategoryPicker"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.ProductCategoryPicker"
+    xmlns:dtos="using:Onyx.Oms.Client.Desktop.Features.FulfillmentTasks"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid>
+        <!-- Trigger button -->
+        <Button x:Name="PickerButton"
+                Click="PickerButton_Click"
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Left"
+                ToolTipService.ToolTip="{x:Bind SelectedCategoryPath, Mode=OneWay}">
+            <Button.Content>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBlock x:Name="HeaderButtonText" 
+                               Text="{x:Bind PlaceholderText, Mode=OneWay}"
+                               TextTrimming="CharacterEllipsis"/>
+                    <FontIcon Grid.Column="1" 
+                              FontFamily="Segoe MDL2 Assets" 
+                              Glyph="&#xE70D;" 
+                              FontSize="12" 
+                              Margin="8,0,0,0" />
+                </Grid>
+            </Button.Content>
+
+            <Button.Flyout>
+                <Flyout Placement="Bottom"
+                        Opened="Flyout_Opened"
+                        Closed="Flyout_Closed">
+                    <Flyout.FlyoutPresenterStyle>
+                        <Style TargetType="FlyoutPresenter">
+                            <Setter Property="MaxWidth" Value="10000" />
+                            <Setter Property="CornerRadius" Value="8"/>
+                        </Style>
+                    </Flyout.FlyoutPresenterStyle>
+                    <Grid x:Name="FlyoutRootGrid" MaxHeight="300">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Search Box -->
+                        <TextBox x:Name="SearchBox"
+                                 PlaceholderText="Search categories..."
+                                 TextChanged="SearchBox_TextChanged"
+                                 Margin="0,0,0,8"/>
+
+                        <ProgressBar x:Name="LoadingProgressBar" 
+                                     Grid.Row="1"
+                                     IsIndeterminate="True"/>
+
+                        <!-- List -->
+                        <ListView x:Name="ItemsListView"
+                                  Grid.Row="2"
+                                  ItemsSource="{x:Bind Items, Mode=OneWay}"
+                                  SelectionMode="Single"
+                                  SelectionChanged="ItemsListView_SelectionChanged"
+                                  Loaded="ItemsListView_Loaded"
+                                  Unloaded="ItemsListView_Unloaded">
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType="dtos:ProductCategoryDto">
+                                    <StackPanel Margin="0,8" ToolTipService.ToolTip="{x:Bind NamePath}">
+                                        <TextBlock Text="{x:Bind Name, TargetNullValue='Unnamed'}" 
+                                                   FontWeight="SemiBold" 
+                                                   TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Text="{x:Bind NamePath, TargetNullValue=''}" 
+                                                   FontSize="12" 
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" 
+                                                   TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                        
+                        <!-- No Items -->
+                        <StackPanel x:Name="NoItemsTextBlock" Grid.Row="2" Margin="8,8,16,0">
+                            <TextBlock Text="No categories found." 
+                                       FontSize="14" 
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" 
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </Flyout>
+            </Button.Flyout>
+        </Button>
+
+    </Grid>
+</UserControl>

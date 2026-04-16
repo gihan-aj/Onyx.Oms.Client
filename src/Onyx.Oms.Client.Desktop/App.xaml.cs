@@ -294,6 +294,7 @@ namespace Onyx.Oms.Client.Desktop
             services.AddTransient<Features.FulfillmentTasks.List.FulfillmentTasksViewModel>();
             services.AddTransient<Features.FulfillmentTasks.Create.CreateFulfillmentTaskPage>();
             services.AddTransient<Features.FulfillmentTasks.Create.CreateFulfillmentTaskViewModel>();
+            services.AddTransient<Features.FulfillmentTasks.ProductPicker.ProductPickerViewModel>();
             services.AddTransient<Features.Catalog.CatalogPage>();
             services.AddTransient<Features.Catalog.CatalogViewModel>();
             services.AddTransient<Features.ProductCategories.ProductCategoriesPage>();

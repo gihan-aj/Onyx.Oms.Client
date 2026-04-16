@@ -77,4 +77,71 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks
         High = 2,
         Urgent = 3
     }
+
+    public class ProductDto
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string BaseSku { get; set; } = string.Empty;
+        public Guid CategoryId { get; set; }
+        public string CategoryName { get; set; } = string.Empty;
+        public string CategoryPath { get; set; } = string.Empty;
+        public decimal BasePriceAmount { get; set; }
+        public string BasePriceCurrency { get; set; } = "LKR";
+        public string? MainImageUrl { get; set; }
+        public bool HasVariants { get; set; }
+        public List<ProductOptionDto> Options { get; set; } = new();
+        public List<ProductVariantDto>? Variants { get; set; }
+        public List<ProductImageDto>? Images { get; set; }
+        public int StockOnHand { get; set; }
+        public int AvailableQuantity { get; set; }
+        public bool IsActive { get; set; }
+        public DateTimeOffset CreatedOnUtc { get; set; }
+        public DateTimeOffset? LastModifiedOnUtc { get; set; }
+    }
+
+    public record ProductOptionDto(
+        string Name,
+        int DispalyOrder,
+        List<string> Values);
+
+    public record ProductVariantDto(
+        Guid Id,
+        string Sku,
+        List<VariantAttributeDto> Attributes,
+        decimal CostAmount,
+        string CostCurrency,
+        decimal PriceAmount,
+        string PriceCurrency,
+        decimal? WeightAmount,
+        string? WeightUnit,
+        int StockOnHand,
+        int ReservedQuantity,
+        bool IsActive
+    );
+
+    public record ProductImageDto(
+        Guid Id,
+        string Url,
+        int DisplayOrder,
+        bool IsMain,
+        string? OptionName = null,
+        string? OptionValue = null
+    );
+
+    public class ProductCategoryDto
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public Guid? ParentCategoryId { get; set; }
+        public string? ParentCategoryName { get; set; }
+        public int Level { get; set; }
+        public string Path { get; set; } = string.Empty;
+        public string NamePath { get; set; } = string.Empty;
+        public string? IconUrl { get; set; }
+        public string? Color { get; set; }
+        public int DisplayOrder { get; set; }
+        public bool IsActive { get; set; }
+    }
 }

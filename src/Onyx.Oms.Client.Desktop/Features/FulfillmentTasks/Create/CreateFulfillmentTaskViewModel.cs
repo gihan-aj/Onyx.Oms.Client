@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using Onyx.Oms.Client.Desktop.Shared.Services;
@@ -15,6 +15,8 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.Create
         private readonly IToastService _toastService;
         private readonly ILogger<CreateFulfillmentTaskViewModel> _logger;
         private readonly INavigationService _navigationService;
+        private readonly IFileService _fileService;
+        private readonly ITenantProfileService _tenantProfileService;
 
         public string Title => "Create Fulfillment Task";
 
@@ -75,6 +77,9 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.Create
         private string? _purchaseOrderNumberError;
         public string? PurchaseOrderNumberError { get => _purchaseOrderNumberError; set => SetProperty(ref _purchaseOrderNumberError, value); }
 
+        private string _baseCurrency = "LKR";
+        public string BaseCurrency { get => _baseCurrency; set => SetProperty(ref _baseCurrency, value); }
+
         private double _costAmount = 0;
         public double CostAmount { get => _costAmount; set => SetProperty(ref _costAmount, value); }
         private string? _costAmountError;
@@ -90,20 +95,26 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.Create
 
         public IAsyncRelayCommand SaveCommand { get; }
         public IRelayCommand CancelCommand { get; }
+        public IAsyncRelayCommand ShowProductPickerCommand { get; }
 
         public CreateFulfillmentTaskViewModel(
-            IFulfillmentTasksApi taskApi, 
-            IToastService toastService, 
-            ILogger<CreateFulfillmentTaskViewModel> logger, 
-            INavigationService navigationService)
+            IFulfillmentTasksApi taskApi,
+            IToastService toastService,
+            ILogger<CreateFulfillmentTaskViewModel> logger,
+            INavigationService navigationService,
+            IFileService fileService,
+            ITenantProfileService tenantProfileService)
         {
             _taskApi = taskApi;
             _toastService = toastService;
             _logger = logger;
             _navigationService = navigationService;
+            _fileService = fileService;
+            _tenantProfileService = tenantProfileService;
 
             SaveCommand = new AsyncRelayCommand(OnSaveExecuteAsync);
             CancelCommand = new RelayCommand(OnCancelExecute);
+            ShowProductPickerCommand = new AsyncRelayCommand(OnShowProductPickerExecuteAsync);
         }
 
         public void OnNavigatedFrom()
@@ -134,6 +145,8 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.Create
             {
                 IsLoading = false;
             }
+
+            BaseCurrency = _tenantProfileService.Profile?.BaseCurrency ?? "LKR";
         }
 
         private void OnCancelExecute()
@@ -141,6 +154,20 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.Create
             if (_navigationService.CanGoBack)
             {
                 _navigationService.GoBack();
+            }
+        }
+
+        private async Task OnShowProductPickerExecuteAsync()
+        {
+            var dialog = new ProductPicker.ProductPickerDialog();
+            dialog.XamlRoot = App.MainWindow.Content.XamlRoot;
+            
+            var result = await dialog.ShowAsync();
+            if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary && dialog.ViewModel.SelectedItem != null)
+            {
+                ProductVariantId = dialog.ViewModel.SelectedItem.ResolvedVariant?.Id;
+                ProductVariantName = dialog.ViewModel.SelectedItem.DisplayName;
+                ProductVariantIdError = null;
             }
         }
 
@@ -185,7 +212,7 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.Create
                     var command = new CreateProcurementTaskCommand(
                         ProductVariantId.Value,
                         (int)RequestedQuantity,
-                        new MoneyDto((decimal)CostAmount, "LKR"),
+                        new MoneyDto((decimal)CostAmount, BaseCurrency),
                         PurchaseOrderNumber,
                         Notes,
                         ExpectedCompletionDate,

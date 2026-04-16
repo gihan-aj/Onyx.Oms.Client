@@ -94,7 +94,7 @@
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
                                         <TextBox Text="{x:Bind ViewModel.ProductVariantName, Mode=OneWay}" IsReadOnly="True" PlaceholderText="Select a product..."/>
-                                        <Button Grid.Column="1" Content="..." ToolTipService.ToolTip="Select Product" />
+                                        <Button Grid.Column="1" Content="..." ToolTipService.ToolTip="Select Product" Command="{x:Bind ViewModel.ShowProductPickerCommand}" />
                                     </Grid>
                                     <TextBlock Text="{x:Bind ViewModel.ProductVariantIdError, Mode=OneWay}" Foreground="{ThemeResource SystemFillColorCriticalBrush}"
                                                Visibility="{x:Bind ViewModel.ProductVariantIdError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"
@@ -149,9 +149,19 @@
                                                Style="{StaticResource CaptionTextBlockStyle}" Margin="0,4,0,0" />
                                 </StackPanel>
 
-                                <StackPanel>
-                                    <NumberBox Header="Estimated Cost (LKR)*" Value="{x:Bind ViewModel.CostAmount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                               Minimum="0" SpinButtonPlacementMode="Compact" />
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Estimated Cost*"
+                                               Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,4"/>
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{x:Bind ViewModel.BaseCurrency, Mode=OneWay}"
+                                                   VerticalAlignment="Center" Grid.Column="0"/>
+                                        <NumberBox Value="{x:Bind ViewModel.CostAmount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                   Minimum="0" SpinButtonPlacementMode="Compact" Grid.Column="1" />
+                                    </Grid>
                                     <TextBlock Text="{x:Bind ViewModel.CostAmountError, Mode=OneWay}" Foreground="{ThemeResource SystemFillColorCriticalBrush}"
                                                Visibility="{x:Bind ViewModel.CostAmountError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"
                                                Style="{StaticResource CaptionTextBlockStyle}" Margin="0,4,0,0" />

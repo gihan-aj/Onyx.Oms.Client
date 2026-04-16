@@ -309,7 +309,7 @@
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="16"
                         Visibility="{x:Bind ViewModel.HasNoData, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                 <FontIcon Glyph="&#xE719;" FontSize="48" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
-                <TextBlock HorizontalAlignment="Center" Text="No products found matching your filters." 
+                <TextBlock HorizontalAlignment="Center" Text="No products found." 
                            Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                 <Button Content="Clear Filters" 
                         Command="{x:Bind ViewModel.ClearFiltersCommand}" 
