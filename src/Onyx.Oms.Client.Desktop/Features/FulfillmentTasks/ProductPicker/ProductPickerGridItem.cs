@@ -7,13 +7,14 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Xml.Linq;
-using static Onyx.Oms.Client.Desktop.Shared.Constants.Permissions;
 
 namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.ProductPicker
 {
-    public class ProductPickerGridItem : ProductDto
+    public class ProductPickerGridItem : ProductDto, INotifyPropertyChanged
     {
+        private IFileService? _fileService;
+        private string? _currentImageUrl;
+
         public string DisplayName
         {
             get
@@ -30,7 +31,20 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.ProductPicker
                 return parts[0];
             }
         }
-        public BitmapImage? ImageSource { get; set; }
+
+        private BitmapImage? _imageSource;
+        public BitmapImage? ImageSource 
+        {
+            get => _imageSource;
+            set
+            {
+                if(_imageSource  != value)
+                {
+                    _imageSource = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ImageSource)));
+                }
+            }
+        }
         public ObservableCollection<UiOption> UiOptions { get; set; } = new();
         public Action<ProductPickerGridItem>? OnOptionInteraction {  get; set; }
 
@@ -49,6 +63,11 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.ProductPicker
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        public void InitializeDependencies(IFileService fileService)
+        {
+            _fileService = fileService;
+        }
 
         public void EvaluateResolvedVariant()
         {
@@ -71,6 +90,55 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.ProductPicker
             else
             {
                 ResolvedVariant = null;
+            }
+        }
+
+        public async Task UpdateImageAsync()
+        {
+            if (_fileService == null)
+                return;
+
+            string? targetImageUrl = MainImageUrl;
+
+            if(Images != null && Images.Any())
+            {
+                foreach(var opt in UiOptions)
+                {
+                    if(opt.SelectedValue != null)
+                    {
+                        var matchingImage = Images.FirstOrDefault(i =>
+                            i.OptionName == opt.Name &&
+                            i.OptionValue == opt.SelectedValue.Value);
+
+                        if(matchingImage != null)
+                        {
+                            targetImageUrl = matchingImage.Url;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(targetImageUrl) || targetImageUrl == _currentImageUrl)
+                return;
+
+            try
+            {
+                var imageBytes = await _fileService.ReadFileAsync("ProductImages", targetImageUrl);
+                if (imageBytes != null)
+                {
+                    using var stream = new MemoryStream(imageBytes);
+                    using var randomAccessStream = stream.AsRandomAccessStream();
+                    var bitmap = new BitmapImage();
+                    await bitmap.SetSourceAsync(randomAccessStream);
+
+                    ImageSource = bitmap;
+                    _currentImageUrl = targetImageUrl; // Save state
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error updating image for product {Id}: {ex.Message}");
             }
         }
     }
@@ -103,26 +171,28 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.ProductPicker
                 LastModifiedOnUtc = dto.LastModifiedOnUtc,
             };
 
+            gridItem.InitializeDependencies(fileService);
+
             // Image Logic
-            if (!string.IsNullOrWhiteSpace(dto.MainImageUrl))
-            {
-                try
-                {
-                    var imageBytes = await fileService.ReadFileAsync("ProductImages", dto.MainImageUrl);
-                    if(imageBytes != null)
-                    {
-                        using var stream = new MemoryStream(imageBytes);
-                        using var randomAccessStream = stream.AsRandomAccessStream();
-                        var bitmap = new BitmapImage();
-                        await bitmap.SetSourceAsync(randomAccessStream);
-                        gridItem.ImageSource = bitmap;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Error loading image for product {dto.Id}: {ex.Message}");
-                }
-            }
+            //if (!string.IsNullOrWhiteSpace(dto.MainImageUrl))
+            //{
+            //    try
+            //    {
+            //        var imageBytes = await fileService.ReadFileAsync("ProductImages", dto.MainImageUrl);
+            //        if(imageBytes != null)
+            //        {
+            //            using var stream = new MemoryStream(imageBytes);
+            //            using var randomAccessStream = stream.AsRandomAccessStream();
+            //            var bitmap = new BitmapImage();
+            //            await bitmap.SetSourceAsync(randomAccessStream);
+            //            gridItem.ImageSource = bitmap;
+            //        }
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        System.Diagnostics.Debug.WriteLine($"Error loading image for product {dto.Id}: {ex.Message}");
+            //    }
+            //}
 
             if(dto.HasVariants && dto.Options != null)
             {
@@ -133,12 +203,17 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.ProductPicker
                     uiOption.Values.CollectionChanged += (s, e) => { };
                     foreach (var value in uiOption.Values)
                     {
-                        value.PropertyChanged += (s, e) =>
+                        value.PropertyChanged += async (s, e) =>
                         {
                             if (e.PropertyName == nameof(UiOptionValue.IsSelected))
                             {
                                 gridItem.OnOptionInteraction?.Invoke(gridItem);
                                 gridItem.EvaluateResolvedVariant();
+
+                                if (value.IsSelected)
+                                {
+                                    await gridItem.UpdateImageAsync();
+                                }
                             }
                         };
                     }
@@ -149,6 +224,9 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.ProductPicker
 
             // Evaluate initial state (crucial for products with NO variants)
             gridItem.EvaluateResolvedVariant();
+
+            // Load the initial main image
+            await gridItem.UpdateImageAsync();
 
             return gridItem;
         }
