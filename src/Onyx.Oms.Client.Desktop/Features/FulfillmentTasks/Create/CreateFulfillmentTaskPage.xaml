@@ -69,9 +69,9 @@
                     <StackPanel Style="{StaticResource CardStackStyle}" HorizontalAlignment="Center" Padding="16,12" Background="Transparent" BorderThickness="0">
                         <toolkit:Segmented x:Name="TaskTypeSegmented" 
                                            SelectedIndex="{x:Bind ViewModel.SelectedTaskTypeIndex, Mode=TwoWay}"
-                                           MinHeight="40">
-                            <toolkit:SegmentedItem Content="Internal Production" />
-                            <toolkit:SegmentedItem Content="External Procurement" />
+                                           MinHeight="36">
+                            <toolkit:SegmentedItem Content="Internal Production" FontSize="18"/>
+                            <toolkit:SegmentedItem Content="External Procurement" FontSize="18"/>
                         </toolkit:Segmented>
                     </StackPanel>
 
