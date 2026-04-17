@@ -24,6 +24,10 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks
         public DateTimeOffset? ExpectedCompletionDate { get; set; }
         public TaskPriority Priority { get; set; }
         public FulfillmentTaskStatus Status { get; set; }
+        public DateTimeOffset CreatedOnUtc {  get; set; }
+        public int StartedQuantity { get; set; }
+        public int CompletedQuantity { get; set; }
+        public int ScrappedQuantity { get; set; }
     }
 
     public record VariantAttributeDto(
@@ -36,8 +40,6 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks
     public record CreateProcurementTaskCommand(
         Guid ProductVariantId,
         int RequestedQuantity,
-        MoneyDto Cost,
-        string PurchaseOrderNumber,
         string? Notes,
         DateTimeOffset? ExpectedCompletionDate,
         TaskPriority Priority);
@@ -49,6 +51,45 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks
         string? Notes,
         DateTimeOffset? ExpectedCompletionDate,
         TaskPriority Priority);
+
+    public record CancelProcurementTaskCommand(Guid ProcurementTaskId);
+
+    public record CancelProductionTaskCommand(Guid ProductionTaskId);
+
+    public record CompleteProcurementTaskCommand(Guid ProcurementTaskId, int QuantityToComplete);
+
+    public record CompleteProductionTaskCommand(Guid ProductionTaskId, int QuantityToComplete);
+
+    public record IssuePurchaseOrderCommand(
+        Guid ProcurementTaskId,
+        int IssueQuantity,
+        string PurchaseOrderNumber,
+        MoneyDto Cost);
+
+    public record ScrapProcurementTaskCommand(Guid ProcurementTaskId, int QuantityToScrap);
+
+    public record ScrapProductionTaskCommand(Guid ProductionTaskId, int QuantityToScrap);
+
+    public record StartProductionCommand(
+        Guid ProductionsTaskId,
+        int QuantityToStart);
+
+    public record UpdateProductionTaskCommand(
+        Guid ProductionTaskId,
+        int RequestedQuantity,
+        Guid? AssignedUserId,
+        DateTimeOffset? ExpectedCompletionDate,
+        TaskPriority Priority,
+        string? Notes);
+
+    public record UpdateProcurementTaskCommand(
+        Guid ProcurementTaskId,
+        int RequestedQuantity,
+        string PurchaseOrderNumber,
+        MoneyDto Cost,
+        DateTimeOffset? ExpectedCompletionDate,
+        TaskPriority Priority,
+        string? Notes);
 
     public record UserDto(
         Guid Id,

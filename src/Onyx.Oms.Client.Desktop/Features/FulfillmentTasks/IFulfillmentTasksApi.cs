@@ -19,13 +19,48 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks
             [AliasAs("type")] FulfillmentTaskType? type = null,
             [AliasAs("priority")] TaskPriority? priority = null,
             [AliasAs("expectedCompletionDate")] DateTimeOffset? expectedCompletionDate = null,
-            [AliasAs("orderNumber")] string? orderNumber = null);
+            [AliasAs("orderNumber")] string? orderNumber = null,
+            [AliasAs("showAllStatus")] bool showAllStatus = false,
+            [AliasAs("createdAfter")] DateTimeOffset? createdAfter = null);
 
         [Post("/api/v1/fulfillment-tasks/procurement")]
         Task<Guid> CreateProcurementTask([Body] CreateProcurementTaskCommand task);
 
         [Post("/api/v1/fulfillment-tasks/production")]
         Task<Guid> CreateProductionTask([Body] CreateProductionTaskCommand task);
+
+        [Put("/api/v1/fulfillment-tasks/start-production")]
+        Task StartProduction([Body] StartProductionCommand command);
+
+        [Put("/api/v1/fulfillment-tasks/issue-purchase-order")]
+        Task IssuePurchaseOrder([Body] IssuePurchaseOrderCommand command);
+
+        [Put("/api/v1/fulfillment-tasks/scrap-production")]
+        Task ScrapProduction([Body] ScrapProductionTaskCommand command);
+
+        [Put("/api/v1/fulfillment-tasks/scrap-procurement")]
+        Task ScrapProcurement([Body] ScrapProcurementTaskCommand command);
+
+        [Put("/api/v1/fulfillment-tasks/complete-production")]
+        Task CompleteProduction([Body] CompleteProductionTaskCommand command);
+
+        [Put("/api/v1/fulfillment-tasks/complete-procurement")]
+        Task CompleteProcurementn([Body] CompleteProcurementTaskCommand command);
+
+        [Put("/api/v1/fulfillment-tasks/cancel-production")]
+        Task CancelProduction([Body] CancelProductionTaskCommand command);
+
+        [Put("/api/v1/fulfillment-tasks/cancel-procurement")]
+        Task CancelProcurementn([Body] CancelProcurementTaskCommand command);
+
+        [Put("/api/v1/fulfillment-tasks/update-production")]
+        Task UpdateProduction([Body] UpdateProductionTaskCommand command);
+
+        [Put("/api/v1/fulfillment-tasks/update-procurement")]
+        Task UpdateProcurementn([Body] UpdateProcurementTaskCommand command);
+
+        [Get("/api/v1/fulfillment-tasks/{id}")]
+        Task<FulfillmentTaskDto> GetFulfillmentTaskById(Guid id);
 
         [Get("/api/v1/users")]
         Task<List<UserDto>> GetUsers();

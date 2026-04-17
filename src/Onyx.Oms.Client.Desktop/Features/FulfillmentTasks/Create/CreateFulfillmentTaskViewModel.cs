@@ -212,8 +212,8 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.Create
                     var command = new CreateProcurementTaskCommand(
                         ProductVariantId.Value,
                         (int)RequestedQuantity,
-                        new MoneyDto((decimal)CostAmount, BaseCurrency),
-                        PurchaseOrderNumber,
+                        //new MoneyDto((decimal)CostAmount, BaseCurrency),
+                        //PurchaseOrderNumber,
                         Notes,
                         ExpectedCompletionDate,
                         SelectedPriority
