@@ -2,8 +2,8 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
 {
     public class FulfillmentTaskGridItem : FulfillmentTaskDto
     {
-        public bool IsProductionPending => Type == FulfillmentTaskType.Production && RequestedQuantity > (CompletedQuantity + ScrappedQuantity);
-        public bool IsProcurementPending => Type == FulfillmentTaskType.Procurement && RequestedQuantity > (CompletedQuantity + ScrappedQuantity);
+        public bool IsProductionPending => Type == FulfillmentTaskType.Production && RequestedQuantity > StartedQuantity;
+        public bool IsProcurementPending => Type == FulfillmentTaskType.Procurement && RequestedQuantity > StartedQuantity;
         public bool IsInProgress => Status == FulfillmentTaskStatus.InProgress || Status == FulfillmentTaskStatus.Pending;
         public bool CanBeCancelled => Status == FulfillmentTaskStatus.Pending || Status == FulfillmentTaskStatus.InProgress;
         public bool CanEdit { get; set; }

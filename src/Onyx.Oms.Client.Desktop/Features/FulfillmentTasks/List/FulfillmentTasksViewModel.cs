@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.Input;
+using Onyx.Oms.Client.Desktop.Features.Customers;
 using Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.Create;
 using Onyx.Oms.Client.Desktop.Shared.Constants;
 using Onyx.Oms.Client.Desktop.Shared.Services;
@@ -8,6 +9,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using static Onyx.Oms.Client.Desktop.Shared.Constants.Permissions;
 
 namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
 {
@@ -21,6 +23,7 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
 
         // Drafts
         private readonly Dictionary<Guid, int> _draftMarkReadyQuantities = new();
+        private readonly Dictionary<Guid, int> _draftStartProductionQuantities = new();
 
         // Grouping
         private ObservableCollection<FulfillmentGroup> _groupedTasks = new ();
@@ -189,7 +192,53 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
 
         private async Task StartWorkAsync(FulfillmentTaskGridItem? task)
         {
+            if (task == null || task.Type == FulfillmentTaskType.Procurement)
+                return;
 
+            int remainingToStart = task.RequestedQuantity - task.StartedQuantity;
+            if (remainingToStart <= 0)
+                return;
+
+            int initialValue = _draftStartProductionQuantities.TryGetValue(task.Id, out var draft)
+                ? draft
+                : remainingToStart;
+
+            var dialog = new TaskQuantityActionDialog(
+                        task: task,
+                        actionTitle: "Start Production",
+                        actionMessage: "Enter the quantity of items that is starting production:",
+                        maxAllowedQuantity: remainingToStart,
+                        initialValue: initialValue)
+            {
+                XamlRoot = _dialogService.CurrentXamlRoot,
+            };
+
+            var result = await dialog.ShowAsync();
+
+            if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
+            {
+                int qtyToSubmit = (int)dialog.InputValue;
+                _draftMarkReadyQuantities[task.Id] = qtyToSubmit;
+
+                try
+                {
+                    IsBusy = true;
+
+                    await _api.StartProduction(new StartProductionCommand(task.Id, qtyToSubmit));
+
+                    await LoadDataAsync();
+
+                    _toastService.ShowSuccess("Success", $"Marked {qtyToSubmit} items as being in production.");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error loading products: {ex.Message}");
+                }
+                finally
+                {
+                    IsBusy = false;
+                }
+            }
         }
         private async Task IssuePoAsync(FulfillmentTaskGridItem? task)
         {
@@ -250,7 +299,62 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
         }
         private async Task CancelTaskAsync(FulfillmentTaskGridItem? task)
         {
+            if (IsBusy || task == null)
+                return;
 
+            int inProgressQuantity = task.StartedQuantity - (task.CompletedQuantity + task.ScrappedQuantity);
+            int unstartedQuantity = task.RequestedQuantity - task.StartedQuantity;
+
+            var messageBuilder = new System.Text.StringBuilder();
+            messageBuilder.AppendLine($"Are you sure you want to cancel the '{task.ProductName}' {task.Type} task?");
+            messageBuilder.AppendLine(); // Empty line for spacing
+
+            if (task.CompletedQuantity > 0)
+            {
+                messageBuilder.AppendLine($"• {task.CompletedQuantity} completed items will remain safely in Stock on Hand.");
+            }
+
+            if (inProgressQuantity > 0)
+            {
+                messageBuilder.AppendLine($"• {inProgressQuantity} in-progress items will be halted and removed from Incoming Stock.");
+            }
+
+            if (unstartedQuantity > 0)
+            {
+                messageBuilder.AppendLine($"• {unstartedQuantity} pending items will be discarded.");
+            }
+
+            messageBuilder.AppendLine();
+            messageBuilder.Append("This action cannot be undone.");
+
+            var confirmed = await _dialogService.ShowConfirmationAsync(
+                $"Cancel {task.Type} Task",
+                messageBuilder.ToString(),
+                "Yes, Cancel Task",
+                "Go Back");
+
+            if (confirmed)
+            {
+                try
+                {
+                    IsBusy = true;
+                    if (task.Type == FulfillmentTaskType.Production)
+                        await _api.CancelProduction(new CancelProductionTaskCommand(task.Id));
+                    else if (task.Type == FulfillmentTaskType.Procurement)
+                        await _api.CancelProcurementn(new CancelProcurementTaskCommand(task.Id));
+
+                    _toastService.ShowSuccess("Success", "Task cancelled successfully.");
+                    await LoadDataAsync();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error loading products: {ex.Message}");
+                }
+                finally
+                {
+                    IsBusy = false;
+                }
+            }
         }
     }
 }
