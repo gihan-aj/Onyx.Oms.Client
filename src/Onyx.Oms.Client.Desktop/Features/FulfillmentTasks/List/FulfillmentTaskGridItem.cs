@@ -19,6 +19,7 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
                 Type = dto.Type,
                 ProductVariantId = dto.ProductVariantId,
                 ProductName = dto.ProductName,
+                Sku = dto.Sku,
                 ProductHasVariants = dto.ProductHasVariants,
                 VariantAttributes = dto.VariantAttributes,
                 RequestedQuantity = dto.RequestedQuantity,

@@ -10,6 +10,7 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks
         public FulfillmentTaskType Type { get; set; }
         public Guid ProductVariantId { get; set; }
         public string ProductName { get; set; } = string.Empty;
+        public string Sku { get; set; } = string.Empty;
         public bool ProductHasVariants { get; set; }
         public List<VariantAttributeDto>? VariantAttributes { get; set; }
         public int RequestedQuantity { get; set; }

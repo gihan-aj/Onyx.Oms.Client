@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ContentDialog
-    x:Class="Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List.TaskQuantityActionDialog"
+    x:Class="Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List.IssuePoDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List"
-    Title="{x:Bind ActionTitle}"
-    PrimaryButtonText="Confirm"
+    Title="Issue Purchase Order"
+    PrimaryButtonText="Confirm Order"
     CloseButtonText="Cancel"
     DefaultButton="Primary"
     Style="{StaticResource DefaultContentDialogStyle}">
 
-    <StackPanel Spacing="12" Width="400">
+    <StackPanel Spacing="12" Width="420">
 
         <Border Background="{ThemeResource LayerFillColorAltBrush}" 
                 BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" 
@@ -18,7 +18,7 @@
                 CornerRadius="8" 
                 Padding="12">
 
-            <StackPanel Spacing="8">
+            <StackPanel Spacing="12">
 
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -55,15 +55,15 @@
                         <TextBlock Text="{x:Bind Task.OrderNumber}" FontFamily="Consolas" FontWeight="SemiBold" HorizontalAlignment="Right"/>
                     </StackPanel>
                 </Grid>
-                
-                <MenuFlyoutSeparator Margin="0,4"/>
+
+                <MenuFlyoutSeparator Margin="0,0"/>
 
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="Started" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock Text="Currently Ordered" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                     <TextBlock Grid.Column="1" Style="{StaticResource CaptionTextBlockStyle}" FontWeight="SemiBold">
                         <Run Text="{x:Bind Task.StartedQuantity}" />
                         <Run Text=" / " Foreground="{ThemeResource TextFillColorDisabledBrush}" />
@@ -73,38 +73,37 @@
 
                 <ProgressBar Minimum="0" Maximum="{x:Bind Task.RequestedQuantity}" Value="{x:Bind Task.StartedQuantity}" />
 
-                <MenuFlyoutSeparator Margin="0,4"/>
-
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Text="Completed" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                    <TextBlock Grid.Column="1" Style="{StaticResource CaptionTextBlockStyle}" FontWeight="SemiBold">
-                        <Run Text="{x:Bind Task.CompletedQuantity}" />
-                        <Run Text=" / " Foreground="{ThemeResource TextFillColorDisabledBrush}" />
-                        <Run Text="{x:Bind Task.RequestedQuantity}" />
-                    </TextBlock>
-                </Grid>
-
-                <ProgressBar Minimum="0" Maximum="{x:Bind Task.RequestedQuantity}" Value="{x:Bind Task.CompletedQuantity}" />
-
             </StackPanel>
-
+            
         </Border>
 
-        <StackPanel Spacing="8">
-            <TextBlock Text="{x:Bind ActionMessage}" Style="{StaticResource BodyTextBlockStyle}" />
+        <StackPanel Spacing="16">
 
-            <NumberBox x:Name="InputBox" 
-                       Value="{x:Bind InputValue, Mode=TwoWay}"
-                       Minimum="1" 
-                       Maximum="{x:Bind MaxAllowedQuantity}"
-                       SpinButtonPlacementMode="Inline"
-                       HorizontalAlignment="Stretch"
-                       FontSize="20"
-                       FontWeight="SemiBold"/>
+            <TextBox Header="Purchase Order Number*" 
+                     Text="{x:Bind PoNumber, Mode=TwoWay}" 
+                     PlaceholderText="e.g. PO-2026-001" />
+
+            <Grid ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1.5*" />
+                </Grid.ColumnDefinitions>
+
+                <NumberBox Header="Order Qty*" 
+                           Value="{x:Bind IssueQuantity, Mode=TwoWay}"
+                           Minimum="1" 
+                           Maximum="{x:Bind MaxAllowedQuantity}"
+                           SpinButtonPlacementMode="Compact"
+                           HorizontalAlignment="Stretch" />
+
+                <NumberBox Grid.Column="1" 
+                           Header="Estimated Cost (LKR)*" 
+                           Value="{x:Bind CostAmount, Mode=TwoWay}"
+                           Minimum="0" 
+                           SpinButtonPlacementMode="Compact"
+                           HorizontalAlignment="Stretch" />
+            </Grid>
+
         </StackPanel>
 
     </StackPanel>

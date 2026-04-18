@@ -20,10 +20,14 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
         private readonly INavigationService _navigationService;
         private readonly IToastService _toastService;
         private readonly IDialogService _dialogService;
+        private readonly ITenantProfileService _tenantProfile;
 
         // Drafts
         private readonly Dictionary<Guid, int> _draftMarkReadyQuantities = new();
         private readonly Dictionary<Guid, int> _draftStartProductionQuantities = new();
+        private readonly Dictionary<Guid, int> _draftIssuePoQuantities = new();
+        private readonly Dictionary<Guid, string> _draftIssuePoNumbers = new();
+        private readonly Dictionary<Guid, double> _draftIssuePoCosts = new();
 
         // Grouping
         private ObservableCollection<FulfillmentGroup> _groupedTasks = new ();
@@ -88,13 +92,14 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
         public IAsyncRelayCommand MarkReadyCommand { get; }
         public IAsyncRelayCommand CancelTaskCommand { get; }
 
-        public FulfillmentTasksViewModel(IFulfillmentTasksApi api, IPermissionService permissionService, INavigationService navigationService, IToastService toastService, IDialogService dialogService)
+        public FulfillmentTasksViewModel(IFulfillmentTasksApi api, IPermissionService permissionService, INavigationService navigationService, IToastService toastService, IDialogService dialogService, ITenantProfileService tenantProfile)
         {
             _api = api;
             _permissionService = permissionService;
             _navigationService = navigationService;
             _toastService = toastService;
             _dialogService = dialogService;
+            _tenantProfile = tenantProfile;
 
             ClearFiltersCommand = new AsyncRelayCommand(ClearFlitersAsync);
             NewTaskCommand = new RelayCommand(NavigateToNewTask);
@@ -218,7 +223,7 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
             if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
             {
                 int qtyToSubmit = (int)dialog.InputValue;
-                _draftMarkReadyQuantities[task.Id] = qtyToSubmit;
+                _draftStartProductionQuantities[task.Id] = qtyToSubmit;
 
                 try
                 {
@@ -242,7 +247,71 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
         }
         private async Task IssuePoAsync(FulfillmentTaskGridItem? task)
         {
+            if (task == null || task.Type == FulfillmentTaskType.Production)
+                return;
 
+            int remainingToStart = task.RequestedQuantity - task.StartedQuantity;
+            if (remainingToStart <= 0)
+                return;
+
+            int initialValue = _draftIssuePoQuantities.TryGetValue(task.Id, out var draft)
+                ? draft
+                : remainingToStart;
+
+            string initialPoNumber = _draftIssuePoNumbers.TryGetValue(task.Id, out var draftPoNumber)
+                ? draftPoNumber
+                : "";
+
+            double initialCostAmount = _draftIssuePoCosts.TryGetValue(task.Id, out var draftCostAmount)
+                ? draftCostAmount
+                : 0;
+
+            var dialog = new IssuePoDialog(
+                        task: task,
+                        initialQuantity: initialValue,
+                        initialPoNumber: initialPoNumber,
+                        initialCost: initialCostAmount,
+                        baseCurrency: _tenantProfile.Profile?.BaseCurrency ?? "LKR")
+            {
+                XamlRoot = _dialogService.CurrentXamlRoot,
+            };
+
+            var result = await dialog.ShowAsync();
+
+            if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
+            {
+                int qtyToSubmit = (int)dialog.IssueQuantity;
+                _draftIssuePoCosts[task.Id] = qtyToSubmit;
+
+                string poNumberToSumit = (string)dialog.PoNumber;
+                _draftIssuePoNumbers[task.Id] = poNumberToSumit;
+
+                decimal costToSubmit = (decimal)dialog.CostAmount;
+                _draftIssuePoCosts[task.Id] = (double)costToSubmit;
+
+                try
+                {
+                    IsBusy = true;
+
+                    await _api.IssuePurchaseOrder(new IssuePurchaseOrderCommand(
+                        task.Id, 
+                        qtyToSubmit, 
+                        poNumberToSumit, 
+                        new MoneyDto(costToSubmit, _tenantProfile.Profile?.BaseCurrency ?? "LKR")));
+
+                    await LoadDataAsync();
+
+                    _toastService.ShowSuccess("Success", $"Marked {qtyToSubmit} items as being in production.");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error loading products: {ex.Message}");
+                }
+                finally
+                {
+                    IsBusy = false;
+                }
+            }
         }
         private async Task MarkReadyAsync(FulfillmentTaskGridItem? task)
         {
