@@ -14,7 +14,10 @@ public class DialogService : IDialogService
     public void RegisterXamlRoot(XamlRoot xamlRoot)
     {
         _xamlRoot = xamlRoot;
+        CurrentXamlRoot = xamlRoot;
     }
+
+    public XamlRoot? CurrentXamlRoot { get; private set; }
 
     public async Task ShowMessageAsync(string title, string message)
     {

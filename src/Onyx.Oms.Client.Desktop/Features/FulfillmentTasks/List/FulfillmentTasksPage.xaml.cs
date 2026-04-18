@@ -75,5 +75,36 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
             //    ViewModel.EditCustomerCommand.Execute(customer);
             //}
         }
+
+        private void OnStartWorkClick(object sender, RoutedEventArgs e)
+        {
+            if ((sender as FrameworkElement)?.DataContext is FulfillmentTaskGridItem task)
+            {
+                ViewModel.StartWorkCommand.Execute(task);
+            }
+        }
+        private void OnIssuePoClick(object sender, RoutedEventArgs e)
+        {
+            if ((sender as FrameworkElement)?.DataContext is FulfillmentTaskGridItem task)
+            {
+                ViewModel.IssuePoCommand.Execute(task);
+            }
+        }
+
+        private void OnMarkReadyClick(object sender, RoutedEventArgs e)
+        {
+            if ((sender as FrameworkElement)?.DataContext is FulfillmentTaskGridItem task)
+            {
+                ViewModel.MarkReadyCommand.Execute(task);
+            }
+        }
+
+        private void OnCancelTaskClick(object sender, RoutedEventArgs e)
+        {
+            if ((sender as FrameworkElement)?.DataContext is FulfillmentTaskGridItem task)
+            {
+                ViewModel.CancelTaskCommand.Execute(task);
+            }
+        }
     }
 }

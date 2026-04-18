@@ -123,6 +123,10 @@
 
         </Grid>
 
+        <ProgressBar Grid.Row="0" VerticalAlignment="Bottom" HorizontalAlignment="Stretch"
+             IsIndeterminate="True" Canvas.ZIndex="100"
+             Visibility="{x:Bind ViewModel.IsBusy, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
         <Grid Grid.Row="1" x:Name="TableContainer">
 
             <ScrollViewer HorizontalScrollBarVisibility="Auto"
@@ -188,7 +192,24 @@
                                     <MenuFlyout>
                                         <MenuFlyoutItem Text="View Details" Icon="ContactInfo" Click="OnViewClick" />
                                         <MenuFlyoutSeparator />
+                                        <MenuFlyoutItem Text="Start Work" Icon="Play" 
+                                                        Click="OnStartWorkClick"
+                                                        Visibility="{Binding IsProductionPending, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+                                        <MenuFlyoutItem Text="Issue PO" Icon="Send" 
+                                                        Click="OnIssuePoClick"
+                                                        Visibility="{Binding IsProcurementPending, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+                                        <MenuFlyoutItem Text="Mark Ready" Icon="Accept" 
+                                                        Click="OnMarkReadyClick"
+                                                        Visibility="{Binding IsInProgress, Converter={StaticResource BoolToVisibilityConverter}}" />
+
                                         <MenuFlyoutItem Text="Edit" Icon="Edit" Click="OnEditClick" IsEnabled="{Binding CanEdit}" />
+
+                                        <MenuFlyoutSeparator />
+                                        <MenuFlyoutItem Text="Cancel Task" Icon="Cancel" Foreground="Red" 
+                                                        Click="OnCancelTaskClick"
+                                                        IsEnabled="{Binding CanBeCancelled}" />
                                     </MenuFlyout>
                                 </Setter.Value>
                             </Setter>
@@ -242,7 +263,24 @@
                                             <MenuFlyout>
                                                 <MenuFlyoutItem Text="View Details" Icon="ContactInfo" Click="OnViewClick" />
                                                 <MenuFlyoutSeparator />
-                                                <MenuFlyoutItem Text="Edit" Icon="Edit" Click="OnEditClick" IsEnabled="{x:Bind CanEdit}" />
+                                                <MenuFlyoutItem Text="Start Work" Icon="Play" 
+                                                                Click="OnStartWorkClick"
+                                                                Visibility="{Binding IsProductionPending, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+                                                <MenuFlyoutItem Text="Issue PO" Icon="Send" 
+                                                                Click="OnIssuePoClick"
+                                                                Visibility="{Binding IsProcurementPending, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+                                                <MenuFlyoutItem Text="Mark Ready" Icon="Accept" 
+                                                                Click="OnMarkReadyClick"
+                                                                Visibility="{Binding IsInProgress, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+                                                <MenuFlyoutItem Text="Edit" Icon="Edit" Click="OnEditClick" IsEnabled="{Binding CanEdit}" />
+
+                                                <MenuFlyoutSeparator />
+                                                <MenuFlyoutItem Text="Cancel Task" Icon="Cancel" Foreground="Red" 
+                                                                Click="OnCancelTaskClick"
+                                                                IsEnabled="{Binding CanBeCancelled}" />
                                             </MenuFlyout>
                                         </Button.Flyout>
                                     </Button>

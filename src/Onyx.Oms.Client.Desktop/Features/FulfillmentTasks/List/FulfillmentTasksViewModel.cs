@@ -1,11 +1,10 @@
 using CommunityToolkit.Mvvm.Input;
 using Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.Create;
-using Onyx.Oms.Client.Desktop.Features.Products;
-using Onyx.Oms.Client.Desktop.Features.Products.Create;
 using Onyx.Oms.Client.Desktop.Shared.Constants;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using Onyx.Oms.Client.Desktop.Shared.ViewModels;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,7 +16,13 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
         private readonly IFulfillmentTasksApi _api;
         private readonly IPermissionService _permissionService;
         private readonly INavigationService _navigationService;
+        private readonly IToastService _toastService;
+        private readonly IDialogService _dialogService;
 
+        // Drafts
+        private readonly Dictionary<Guid, int> _draftMarkReadyQuantities = new();
+
+        // Grouping
         private ObservableCollection<FulfillmentGroup> _groupedTasks = new ();
         public ObservableCollection<FulfillmentGroup> GroupedTasks
         {
@@ -61,6 +66,13 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
             set => SetProperty(ref _selectedDate, value);
         }
 
+        private bool _isBusy = false;
+        public bool IsBusy
+        {
+            get => _isBusy;
+            set => SetProperty(ref _isBusy, value);
+        }
+
         // --- Permissions ---
         public bool CanCreateTasks => _permissionService.CanExecute(Permissions.FulfillmentTasks.Create);
         public bool CanEditTasks => _permissionService.CanExecute(Permissions.FulfillmentTasks.Edit);
@@ -68,15 +80,25 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
         // -- Commands --
         public IAsyncRelayCommand ClearFiltersCommand { get; }
         public IRelayCommand NewTaskCommand { get; }
+        public IAsyncRelayCommand StartWorkCommand { get; }
+        public IAsyncRelayCommand IssuePoCommand { get; }
+        public IAsyncRelayCommand MarkReadyCommand { get; }
+        public IAsyncRelayCommand CancelTaskCommand { get; }
 
-        public FulfillmentTasksViewModel(IFulfillmentTasksApi api, IPermissionService permissionService, INavigationService navigationService)
+        public FulfillmentTasksViewModel(IFulfillmentTasksApi api, IPermissionService permissionService, INavigationService navigationService, IToastService toastService, IDialogService dialogService)
         {
             _api = api;
             _permissionService = permissionService;
             _navigationService = navigationService;
+            _toastService = toastService;
+            _dialogService = dialogService;
 
             ClearFiltersCommand = new AsyncRelayCommand(ClearFlitersAsync);
             NewTaskCommand = new RelayCommand(NavigateToNewTask);
+            StartWorkCommand = new AsyncRelayCommand<FulfillmentTaskGridItem>(StartWorkAsync);
+            IssuePoCommand = new AsyncRelayCommand<FulfillmentTaskGridItem>(IssuePoAsync);
+            MarkReadyCommand = new AsyncRelayCommand<FulfillmentTaskGridItem>(MarkReadyAsync);
+            CancelTaskCommand = new AsyncRelayCommand<FulfillmentTaskGridItem>(CancelTaskAsync);
         }
 
         public void OnNavigatedFrom()
@@ -163,6 +185,72 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
         private void NavigateToNewTask()
         {
             _navigationService.NavigateTo(typeof(CreateFulfillmentTaskPage).FullName!);
+        }
+
+        private async Task StartWorkAsync(FulfillmentTaskGridItem? task)
+        {
+
+        }
+        private async Task IssuePoAsync(FulfillmentTaskGridItem? task)
+        {
+
+        }
+        private async Task MarkReadyAsync(FulfillmentTaskGridItem? task)
+        {
+            if (task == null)
+                return;
+
+            int remainingToComplete = task.RequestedQuantity - (task.CompletedQuantity + task.ScrappedQuantity);
+            if (remainingToComplete <= 0)
+                return;
+
+            int initialValue = _draftMarkReadyQuantities.TryGetValue(task.Id, out var draft)
+                ? draft
+                : remainingToComplete;
+
+            var dialog = new TaskQuantityActionDialog(
+                        task: task,
+                        actionTitle: "Mark Items Ready",
+                        actionMessage: "Enter the quantity of items that have been completed:",
+                        maxAllowedQuantity: remainingToComplete,
+                        initialValue: initialValue)
+            {
+                XamlRoot = _dialogService.CurrentXamlRoot,
+            };
+
+            var result = await dialog.ShowAsync();
+
+            if(result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
+            {
+                int qtyToSubmit = (int)dialog.InputValue;
+                _draftMarkReadyQuantities[task.Id] = qtyToSubmit;
+
+                try
+                {
+                    IsBusy = true;
+
+                    if (task.Type == FulfillmentTaskType.Production)
+                        await _api.CompleteProduction(new CompleteProductionTaskCommand(task.Id, qtyToSubmit));
+                    else if (task.Type == FulfillmentTaskType.Procurement)
+                        await _api.CompleteProcurement(new CompleteProcurementTaskCommand(task.Id, qtyToSubmit));
+
+                    await LoadDataAsync();
+
+                    _toastService.ShowSuccess("Success", $"Marked {qtyToSubmit} items ready.");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error loading products: {ex.Message}");
+                }
+                finally
+                {
+                    IsBusy= false;
+                }
+            }
+        }
+        private async Task CancelTaskAsync(FulfillmentTaskGridItem? task)
+        {
+
         }
     }
 }
