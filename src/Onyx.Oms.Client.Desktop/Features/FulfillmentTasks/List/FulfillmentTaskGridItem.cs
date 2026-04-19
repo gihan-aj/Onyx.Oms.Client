@@ -7,6 +7,9 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
         public bool IsInProgress => Status == FulfillmentTaskStatus.InProgress || Status == FulfillmentTaskStatus.Pending;
         public bool CanBeCancelled => Status == FulfillmentTaskStatus.Pending || Status == FulfillmentTaskStatus.InProgress;
         public bool CanEdit { get; set; }
+        public string AssigneeName => Type == FulfillmentTaskType.Procurement ? "N/A" 
+            : (string.IsNullOrEmpty(AssignedUserFirstName) ? "Unassigned" : $"{AssignedUserFirstName} {AssignedUserLastName}");
+        public bool HasScrapped => ScrappedQuantity > 0;
     }
 
     public static class FulfillmentTaskMappingExtensions

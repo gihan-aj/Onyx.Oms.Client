@@ -56,21 +56,74 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
         public FulfillmentTaskType? SelectedType
         {
             get => _selectedType;
-            set => SetProperty(ref _selectedType, value);
+            set
+            {
+                if (SetProperty(ref _selectedType, value))
+                {
+                    Page = 1;
+                    LoadDataCommand.ExecuteAsync(null);
+                }
+            }
         }
+
+        public Array TypeOptions { get; } = Enum.GetValues(typeof(FulfillmentTaskType));
 
         private TaskPriority? _selectedPriority;
         public TaskPriority? SelectedPriority
         {
             get => _selectedPriority;
-            set => SetProperty(ref _selectedPriority, value);
+            set
+            {
+                if (SetProperty(ref _selectedPriority, value))
+                {
+                    Page = 1;
+                    LoadDataCommand.ExecuteAsync(null);
+                }
+            }
         }
+
+        public Array PriorityOptions { get; } = Enum.GetValues(typeof(TaskPriority));
 
         private DateTimeOffset? _selectedDate;
         public DateTimeOffset? SelectedDate
         {
             get => _selectedDate;
-            set => SetProperty(ref _selectedDate, value);
+            set
+            {
+                if (SetProperty(ref _selectedDate, value))
+                {
+                    Page = 1;
+                    LoadDataCommand.ExecuteAsync(null);
+                }
+            }
+        }
+
+        private bool _showAllStatus;
+        public bool ShowAllStatus
+        {
+            get => _showAllStatus;
+            set
+            {
+                if (SetProperty(ref _showAllStatus, value))
+                {
+                    Page = 1;
+                    LoadDataCommand.ExecuteAsync(null);
+                }
+            }
+        }
+
+        private DateTimeOffset? _createdAfterFilter = DateTimeOffset.UtcNow.AddMonths(-1);
+        public DateTimeOffset? CreatedAfterFilter
+        {
+            get => _createdAfterFilter;
+            set
+            {
+                if (SetProperty(ref _createdAfterFilter, value))
+                {
+                    Page = 1;
+                    LoadDataCommand.ExecuteAsync(null);
+                }
+            }
         }
 
         private bool _isBusy = false;
@@ -136,7 +189,9 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
                     sortOrder: SortOrder,
                     type: SelectedType,
                     priority: SelectedPriority,
-                    expectedCompletionDate: SelectedDate);
+                    expectedCompletionDate: SelectedDate,
+                    showAllStatus: ShowAllStatus,
+                    createdAfter: CreatedAfterFilter);
 
                 Items.Clear();
 
@@ -170,7 +225,9 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
                 .Select(g => new FulfillmentGroup(
                     g.Key,
                     g.First().ProductName,
+                    g.First().Sku,
                     g.Sum(t => t.RequestedQuantity),
+                    g.Sum(t => t.CompletedQuantity),
                     g
                 ));
 
@@ -186,6 +243,11 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
         private async Task ClearFlitersAsync()
         {
             SearchTerm = string.Empty;
+            SelectedType = null;
+            SelectedPriority = null;
+            SelectedDate = null;
+            ShowAllStatus = false;
+            CreatedAfterFilter = DateTimeOffset.UtcNow.AddMonths(-1);
             Page = 1;
             await LoadDataAsync();
         }
