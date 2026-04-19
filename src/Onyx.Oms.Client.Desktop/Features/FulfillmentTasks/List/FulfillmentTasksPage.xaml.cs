@@ -57,23 +57,18 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
 
         private async void OnViewClick(object sender, RoutedEventArgs e)
         {
-            //if ((sender as FrameworkElement)?.DataContext is CustomerDto customer)
-            //{
-            //    var dialog = new CustomerDetailsDialog(customer);
-            //    if (dialog != null)
-            //    {
-            //        dialog.XamlRoot = this.XamlRoot;
-            //        await dialog.ShowAsync();
-            //    }
-            //}
+            if ((sender as FrameworkElement)?.DataContext is FulfillmentTaskGridItem task)
+            {
+                ViewModel.ViewTaskDetailsCommand.Execute(task);
+            }
         }
 
         private void OnEditClick(object sender, RoutedEventArgs e)
         {
-            //if ((sender as FrameworkElement)?.DataContext is CustomerDto customer)
-            //{
-            //    ViewModel.EditCustomerCommand.Execute(customer);
-            //}
+            if ((sender as FrameworkElement)?.DataContext is FulfillmentTaskGridItem task)
+            {
+                ViewModel.EditTaskCommand.Execute(task);
+            }
         }
 
         private void OnStartWorkClick(object sender, RoutedEventArgs e)

@@ -86,8 +86,8 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks
     public record UpdateProcurementTaskCommand(
         Guid ProcurementTaskId,
         int RequestedQuantity,
-        string PurchaseOrderNumber,
-        MoneyDto Cost,
+        string? PurchaseOrderNumber,
+        MoneyDto? Cost,
         DateTimeOffset? ExpectedCompletionDate,
         TaskPriority Priority,
         string? Notes);

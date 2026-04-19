@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.Input;
 using Onyx.Oms.Client.Desktop.Features.Customers;
 using Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.Create;
+using Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.Edit;
 using Onyx.Oms.Client.Desktop.Shared.Constants;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using Onyx.Oms.Client.Desktop.Shared.ViewModels;
@@ -140,10 +141,12 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
         // -- Commands --
         public IAsyncRelayCommand ClearFiltersCommand { get; }
         public IRelayCommand NewTaskCommand { get; }
+        public IAsyncRelayCommand EditTaskCommand { get; }
         public IAsyncRelayCommand StartWorkCommand { get; }
         public IAsyncRelayCommand IssuePoCommand { get; }
         public IAsyncRelayCommand MarkReadyCommand { get; }
         public IAsyncRelayCommand CancelTaskCommand { get; }
+        public IAsyncRelayCommand ViewTaskDetailsCommand { get; }
 
         public FulfillmentTasksViewModel(IFulfillmentTasksApi api, IPermissionService permissionService, INavigationService navigationService, IToastService toastService, IDialogService dialogService, ITenantProfileService tenantProfile)
         {
@@ -156,10 +159,12 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
 
             ClearFiltersCommand = new AsyncRelayCommand(ClearFlitersAsync);
             NewTaskCommand = new RelayCommand(NavigateToNewTask);
+            EditTaskCommand = new AsyncRelayCommand<FulfillmentTaskGridItem>(EditTaskAsync);
             StartWorkCommand = new AsyncRelayCommand<FulfillmentTaskGridItem>(StartWorkAsync);
             IssuePoCommand = new AsyncRelayCommand<FulfillmentTaskGridItem>(IssuePoAsync);
             MarkReadyCommand = new AsyncRelayCommand<FulfillmentTaskGridItem>(MarkReadyAsync);
             CancelTaskCommand = new AsyncRelayCommand<FulfillmentTaskGridItem>(CancelTaskAsync);
+            ViewTaskDetailsCommand = new AsyncRelayCommand<FulfillmentTaskGridItem>(ViewTaskDetailsAsync);
         }
 
         public void OnNavigatedFrom()
@@ -255,6 +260,27 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
         private void NavigateToNewTask()
         {
             _navigationService.NavigateTo(typeof(CreateFulfillmentTaskPage).FullName!);
+        }
+
+        private async Task EditTaskAsync(FulfillmentTaskGridItem? task)
+        {
+            if (task == null)
+                return;
+
+            _navigationService.NavigateTo(typeof(EditFulfillmentTaskViewModel).FullName!, task.Id);
+        }
+
+        private async Task ViewTaskDetailsAsync(FulfillmentTaskGridItem? task)
+        {
+            if (task == null)
+                return;
+
+            var dialog = new FulfillmentTaskDetailsDialog(task)
+            {
+                XamlRoot = _dialogService.CurrentXamlRoot,
+            };
+
+            await dialog.ShowAsync();
         }
 
         private async Task StartWorkAsync(FulfillmentTaskGridItem? task)

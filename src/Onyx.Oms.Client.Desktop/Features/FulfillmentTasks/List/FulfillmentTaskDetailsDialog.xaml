@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List.FulfillmentTaskDetailsDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List"
+    Title="Task Details"
+    CloseButtonText="Close"
+    DefaultButton="Close"
+    Style="{StaticResource DefaultContentDialogStyle}">
+
+    <ContentDialog.Resources>
+        <local:FulfillmentTaskStatusToBackgroundConverter x:Key="TaskStatusBgConverter" />
+        <local:FulfillmentTaskStatusToForegroundConverter x:Key="TaskStatusFgConverter" />
+        <local:FulfillmentTaskPriorityToBackgroundConverter x:Key="TaskPriorityBgConverter" />
+        <local:FulfillmentTaskPriorityToForegroundConverter x:Key="TaskPriorityFgConverter" />
+    </ContentDialog.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Height="500">
+        <StackPanel Spacing="16" Width="450" Padding="0,0,16,0">
+
+            <!-- Title Header -->
+            <StackPanel Spacing="4">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{x:Bind Task.Type}" Style="{StaticResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1" Text="{x:Bind CreatedDateText}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center"/>
+                </Grid>
+                
+                <TextBlock Text="{x:Bind Task.ProductName}" Style="{StaticResource SubtitleTextBlockStyle}" FontWeight="Bold" TextWrapping="Wrap" />
+                <TextBlock Text="{x:Bind Task.Sku}" Style="{StaticResource BodyTextBlockStyle}" FontWeight="SemiBold" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                
+                <ItemsControl ItemsSource="{x:Bind Task.VariantAttributes}" 
+                              Visibility="{x:Bind Task.ProductHasVariants}" Margin="0,4,0,0">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VariableSizedWrapGrid Orientation="Horizontal" MaximumRowsOrColumns="5"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="{ThemeResource LayerFillColorDefaultBrush}" 
+                                    BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" 
+                                    BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="0,0,4,4">
+                                <TextBlock Text="{Binding Value}" Style="{StaticResource CaptionTextBlockStyle}"/>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+
+            <MenuFlyoutSeparator />
+
+            <!-- Core Info Row -->
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <TextBlock Text="Status" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <Border Style="{StaticResource StatusBadgeStyle}" 
+                            Background="{x:Bind Task.Status, Converter={StaticResource TaskStatusBgConverter}}"
+                            HorizontalAlignment="Left">
+                        <TextBlock Text="{x:Bind Task.Status}" Style="{StaticResource StatusBadgeTextStyle}" 
+                                   Foreground="{x:Bind Task.Status, Converter={StaticResource TaskStatusFgConverter}}" />
+                    </Border>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Spacing="4">
+                    <TextBlock Text="Priority" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <Border Style="{StaticResource StatusBadgeStyle}" 
+                            Background="{x:Bind Task.Priority, Converter={StaticResource TaskPriorityBgConverter}}"
+                            HorizontalAlignment="Left">
+                        <TextBlock Text="{x:Bind Task.Priority}" Style="{StaticResource StatusBadgeTextStyle}" 
+                                   Foreground="{x:Bind Task.Priority, Converter={StaticResource TaskPriorityFgConverter}}" />
+                    </Border>
+                </StackPanel>
+            </Grid>
+
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <TextBlock Text="Expected Date" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Text="{x:Bind ExpectedDateText}" Style="{StaticResource BodyTextBlockStyle}" FontWeight="SemiBold"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Spacing="4" Visibility="{x:Bind HasOrder}">
+                    <TextBlock Text="Linked Order" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Text="{x:Bind Task.OrderNumber}" Style="{StaticResource BodyTextBlockStyle}" FontFamily="Consolas" FontWeight="SemiBold"/>
+                </StackPanel>
+            </Grid>
+
+            <MenuFlyoutSeparator />
+
+            <!-- Conditional Details -->
+            
+            <StackPanel Spacing="8" Visibility="{x:Bind IsProduction}">
+                <TextBlock Text="Production Assignment" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontWeight="SemiBold" />
+                <TextBlock Text="{x:Bind Task.AssigneeName}" Style="{StaticResource BodyTextBlockStyle}" FontWeight="SemiBold" />
+            </StackPanel>
+
+            <Grid ColumnSpacing="16" Visibility="{x:Bind IsProcurement}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <TextBlock Text="Purchase Order" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Text="{x:Bind PoNumberText}" Style="{StaticResource BodyTextBlockStyle}" FontWeight="SemiBold"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Spacing="4">
+                    <TextBlock Text="Estimated Cost" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Text="{x:Bind FormattedCost}" Style="{StaticResource BodyTextBlockStyle}" FontWeight="SemiBold"/>
+                </StackPanel>
+            </Grid>
+
+            <MenuFlyoutSeparator Visibility="{x:Bind IsProcurement}" />
+            <MenuFlyoutSeparator Visibility="{x:Bind IsProduction}" />
+
+            <!-- Progress Bars -->
+            <StackPanel Spacing="8">
+                <TextBlock Text="Progress Tracking" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontWeight="SemiBold"/>
+                
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Started" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock Grid.Column="1" Style="{StaticResource CaptionTextBlockStyle}" FontWeight="SemiBold">
+                        <Run Text="{x:Bind Task.StartedQuantity}" />
+                        <Run Text=" / " Foreground="{ThemeResource TextFillColorDisabledBrush}" />
+                        <Run Text="{x:Bind Task.RequestedQuantity}" />
+                    </TextBlock>
+                </Grid>
+                <ProgressBar Minimum="0" Maximum="{x:Bind Task.RequestedQuantity}" Value="{x:Bind Task.StartedQuantity}" />
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Completed" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock Grid.Column="1" Style="{StaticResource CaptionTextBlockStyle}" FontWeight="SemiBold">
+                        <Run Text="{x:Bind Task.CompletedQuantity}" />
+                        <Run Text=" / " Foreground="{ThemeResource TextFillColorDisabledBrush}" />
+                        <Run Text="{x:Bind Task.RequestedQuantity}" />
+                    </TextBlock>
+                </Grid>
+                <ProgressBar Minimum="0" Maximum="{x:Bind Task.RequestedQuantity}" Value="{x:Bind Task.CompletedQuantity}" Foreground="{ThemeResource SystemFillColorSuccessBrush}"/>
+
+                <Grid Visibility="{x:Bind Task.HasScrapped}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Scrapped" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemFillColorCriticalBrush}"/>
+                    <TextBlock Grid.Column="1" Style="{StaticResource CaptionTextBlockStyle}" FontWeight="SemiBold" Foreground="{ThemeResource SystemFillColorCriticalBrush}">
+                        <Run Text="{x:Bind Task.ScrappedQuantity}" />
+                    </TextBlock>
+                </Grid>
+            </StackPanel>
+
+            <StackPanel Spacing="4" Visibility="{x:Bind HasNotes}">
+                <MenuFlyoutSeparator Margin="0,8,0,8" />
+                <TextBlock Text="Notes" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontWeight="SemiBold"/>
+                <TextBlock Text="{x:Bind Task.Notes}" TextWrapping="Wrap" Style="{StaticResource BodyTextBlockStyle}" />
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</ContentDialog>
