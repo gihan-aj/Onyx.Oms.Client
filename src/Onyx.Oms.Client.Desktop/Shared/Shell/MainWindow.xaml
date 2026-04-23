@@ -67,7 +67,7 @@
                 <NavigationViewItem Icon="Home" Content="Dashboard" Tag="Onyx.Oms.Client.Desktop.Features.Dashboard.DashboardPage" />
                 
                 <NavigationViewItemHeader Content="Sales" />
-                <NavigationViewItem Icon="Shop" Content="Orders" Tag="Onyx.Oms.Client.Desktop.Features.Orders.OrdersPage" />
+                <NavigationViewItem Icon="Shop" Content="Orders" Tag="Onyx.Oms.Client.Desktop.Features.Orders.List.OrdersPage" />
                 <NavigationViewItem Icon="Contact" Content="Customers" Tag="Onyx.Oms.Client.Desktop.Features.Customers.CustomersPage" />
                 
                 <NavigationViewItemHeader Content="Operations" />

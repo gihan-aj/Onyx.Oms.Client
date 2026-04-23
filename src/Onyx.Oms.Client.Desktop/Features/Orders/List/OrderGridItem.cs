@@ -1,16 +1,12 @@
-using Onyx.Oms.Client.Desktop.Shared.Services;
-using System;
-using System.Threading.Tasks;
-
-namespace Onyx.Oms.Client.Desktop.Features.Orders
+﻿namespace Onyx.Oms.Client.Desktop.Features.Orders.List
 {
     public class OrderGridItem : OrderSummaryDto
     {
         public bool CanEdit { get; set; }
         public bool CanView { get; set; }
-        
-        public string CustomerDisplay => string.IsNullOrWhiteSpace(CustomerEmail) 
-            ? CustomerName 
+
+        public string CustomerDisplay => string.IsNullOrWhiteSpace(CustomerEmail)
+            ? CustomerName
             : $"{CustomerName} ({CustomerEmail})";
 
         public string GrandTotalDisplay => $"{GrandTotalCurrency} {GrandTotalAmount:N2}";

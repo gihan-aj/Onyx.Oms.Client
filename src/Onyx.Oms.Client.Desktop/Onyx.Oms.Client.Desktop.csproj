@@ -25,6 +25,7 @@
     <None Remove="Features\FulfillmentTasks\ProductPicker\ProductPickerDialog.xaml" />
     <None Remove="Features\Fulfillment\FulfillmentPage.xaml" />
     <None Remove="Features\Orders\CustomerPicker.xaml" />
+    <None Remove="Features\Orders\List\OrdersPage.xaml" />
     <None Remove="Features\ProductCategories\ProductCategoriesPage.xaml" />
     <None Remove="Features\Products\Controls\ProductCategoryPicker.xaml" />
     <None Remove="Features\Products\Create\CreateProductPage.xaml" />
@@ -101,6 +102,7 @@
   <ItemGroup>
     <Folder Include="BackendServices\IdP\" />
     <Folder Include="BackendServices\API\" />
+    <Folder Include="Features\Orders\Create\" />
     <Folder Include="Shared\Components\" />
     <Folder Include="Shared\Shell\Navigation\" />
   </ItemGroup>
@@ -194,6 +196,12 @@
 	<Content Include="BackendServices\**\*.*">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Features\Orders\List\OrdersPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <ItemGroup>
