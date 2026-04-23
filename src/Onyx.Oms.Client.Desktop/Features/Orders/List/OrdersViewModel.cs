@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Controls;
+using Onyx.Oms.Client.Desktop.Features.Orders.Create;
 using Onyx.Oms.Client.Desktop.Shared.Constants;
 using Onyx.Oms.Client.Desktop.Shared.Models;
 using Onyx.Oms.Client.Desktop.Shared.Services;
@@ -219,7 +220,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
 
         private void NavigateToNewOrder()
         {
-            // _navigationService.NavigateTo(typeof(CreateOrderViewModel).FullName!);
+             _navigationService.NavigateTo(typeof(CreateOrderViewModel).FullName!);
         }
 
         private void ViewOrderDetails(OrderGridItem? order)
