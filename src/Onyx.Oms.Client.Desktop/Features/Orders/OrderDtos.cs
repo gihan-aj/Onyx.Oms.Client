@@ -114,4 +114,19 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         public bool IsActive { get; set; }
         public DateTimeOffset CreatedDate { get; set; }
     }
+
+    public class CreateCustomerCommand
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string PrimaryPhone { get; set; } = string.Empty;
+        public string? SecondaryPhone { get; set; }
+        public string Street { get; set; } = string.Empty;
+        public string City { get; set; } = string.Empty;
+        public string State { get; set; } = string.Empty;
+        public string District { get; set; } = string.Empty;
+        public string PostalCode { get; set; } = string.Empty;
+        public string Country { get; set; } = string.Empty;
+        public string? Notes { get; set; }
+    }
 }

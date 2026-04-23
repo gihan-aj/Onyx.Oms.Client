@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="Onyx.Oms.Client.Desktop.Features.Orders.Create.CreateNewCustomerDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Onyx.Oms.Client.Desktop.Features.Orders.Create"
+
+    Title="Create New Customer"
+    PrimaryButtonText="Create"
+    CloseButtonText="Cancel"
+    DefaultButton="Primary"
+    Style="{StaticResource DefaultContentDialogStyle}">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="600" Padding="0,0,16,0">
+        <StackPanel Spacing="16" MinWidth="450">
+            <!-- Identity -->
+            <StackPanel Spacing="8">
+                <TextBlock Text="Identity" FontWeight="SemiBold" />
+                <TextBox Header="Full Name*" Text="{x:Bind CustomerName, Mode=TwoWay}" />
+                <TextBox Header="Email Address" Text="{x:Bind Email, Mode=TwoWay}" PlaceholderText="name@company.com" />
+            </StackPanel>
+
+            <!-- Contact -->
+            <StackPanel Spacing="8">
+                <TextBlock Text="Contact Numbers" FontWeight="SemiBold" />
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox Header="Primary Phone*" Text="{x:Bind PrimaryPhone, Mode=TwoWay}" FontFamily="Consolas" />
+                    <TextBox Grid.Column="1" Header="Secondary (Opt)" Text="{x:Bind SecondaryPhone, Mode=TwoWay}" FontFamily="Consolas" />
+                </Grid>
+            </StackPanel>
+
+            <!-- Address -->
+            <StackPanel Spacing="8">
+                <TextBlock Text="Location / Shipping Address" FontWeight="SemiBold" />
+                <TextBox Header="Street Address" Text="{x:Bind Street, Mode=TwoWay}" />
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="1.5*" />
+                        <ColumnDefinition Width="1.5*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox Header="City" Text="{x:Bind City, Mode=TwoWay}" />
+                    <ComboBox Grid.Column="1" Header="State / Province" 
+                              ItemsSource="{x:Bind Provinces}"
+                              SelectedItem="{x:Bind State, Mode=TwoWay}"
+                              HorizontalAlignment="Stretch" />
+
+                    <ComboBox Grid.Column="2" Header="District" 
+                              ItemsSource="{x:Bind Districts, Mode=OneWay}"
+                              SelectedItem="{x:Bind District, Mode=TwoWay}"
+                              HorizontalAlignment="Stretch" />
+                </Grid>
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="2*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox Header="Zip / Postal" Text="{x:Bind PostalCode, Mode=TwoWay}" FontFamily="Consolas" />
+                    <TextBox Grid.Column="1" Header="Country" Text="{x:Bind Country, Mode=TwoWay}" />
+                </Grid>
+            </StackPanel>
+
+            <!-- Notes -->
+            <StackPanel Spacing="8">
+                <TextBlock Text="Internal Notes" FontWeight="SemiBold" />
+                <TextBox Text="{x:Bind Notes, Mode=TwoWay}" PlaceholderText="Add details..." AcceptsReturn="True" TextWrapping="Wrap" MinHeight="80" />
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</ContentDialog>

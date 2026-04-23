@@ -59,7 +59,7 @@
 
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="16">
 
-            <Grid Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}">
+            <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="10000*" MaxWidth="1200" />
@@ -67,6 +67,88 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="1" HorizontalAlignment="Stretch" Spacing="16">
+
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*" MinWidth="350" />
+                            <ColumnDefinition Width="2*" MinWidth="350" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Left Column -->
+                        <StackPanel Grid.Column="0" Orientation="Vertical" Spacing="16">
+
+                            <!-- Customer Section -->
+                            <StackPanel Style="{StaticResource CardStackStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="Customer Details" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                    <TextBlock Text="Select a return customer or add and select a new customer." 
+                                               Style="{StaticResource CaptionTextBlockStyle}" 
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" 
+                                               Margin="0,0,0,12" />
+                                </StackPanel>
+
+                                <Grid ColumnSpacing="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" MinWidth="350" />
+                                        <ColumnDefinition Width="Auto" MinWidth="20" />
+                                        <ColumnDefinition Width="Auto" MinWidth="20" />
+                                    </Grid.ColumnDefinitions>
+                                    
+                                    <parent:CustomerPicker x:Name="CustomerPicker"
+                                                           Grid.Column="0"
+                                                           Width="Auto"
+                                                           SelectedCustomer="{x:Bind ViewModel.SelectedCustomer, Mode=TwoWay}"
+                                                           PlaceholderText="Search a Customer by Name, Phone, Email or Last Order Number..."/>
+
+                                    <Button Click="OnAddNewCustomerClick" 
+                                            Grid.Column="1"
+                                            Style="{StaticResource SubtleButtonStyle}"
+                                            ToolTipService.ToolTip="Add a New Customer">
+                                        <FontIcon Glyph="&#xE710;" FontSize="16" />
+                                    </Button>
+
+                                    <Button Command="{x:Bind ViewModel.ClearCustomerCommand}"
+                                            Grid.Column="2"
+                                            Style="{StaticResource SubtleButtonStyle}"
+                                            Visibility="{x:Bind ViewModel.HasSelectedCustomer, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                            ToolTipService.ToolTip="Clear selected customer">
+                                        <FontIcon Glyph="&#xE711;" FontSize="16" />
+                                    </Button>
+                                </Grid>
+
+                                <!-- Customer Details Display -->
+                                <StackPanel Visibility="{x:Bind ViewModel.HasSelectedCustomer, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                            Background="{ThemeResource LayerFillColorAltBrush}"
+                                            Padding="16" CornerRadius="8" Margin="0,12,0,0">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <FontIcon Glyph="&#xE77B;" FontSize="32" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                                        
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock Text="{x:Bind ViewModel.SelectedCustomer.Name, Mode=OneWay, TargetNullValue='', FallbackValue=''}" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                            <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,4,0,0">
+                                                <StackPanel Orientation="Horizontal" Spacing="4" Visibility="{x:Bind ViewModel.SelectedCustomer.PrimaryPhone, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}, FallbackValue='Collapsed'}">
+                                                    <FontIcon Glyph="&#xE717;" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                    <TextBlock Text="{x:Bind ViewModel.SelectedCustomer.PrimaryPhone, Mode=OneWay, TargetNullValue='', FallbackValue=''}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                </StackPanel>
+                                                
+                                                <StackPanel Orientation="Horizontal" Spacing="4" Visibility="{x:Bind ViewModel.SelectedCustomer.Email, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}, FallbackValue='Collapsed'}">
+                                                    <FontIcon Glyph="&#xE715;" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                    <TextBlock Text="{x:Bind ViewModel.SelectedCustomer.Email, Mode=OneWay, TargetNullValue='', FallbackValue=''}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
+
+                            </StackPanel>
+
+                        </StackPanel>
+                    </Grid>
                     
                 </StackPanel>
             </Grid>

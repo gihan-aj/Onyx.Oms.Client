@@ -31,6 +31,9 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
             InitializeComponent();
 
             ViewModel = App.Current.Services.GetRequiredService<CreateOrderViewModel>();
+            DataContext = ViewModel;
+
+            CustomerPicker.FetchDataDelegate = ViewModel.FetchCustomersAsync;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -43,6 +46,11 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
         {
             base.OnNavigatedFrom(e);
             ViewModel.OnNavigatedFrom();
+        }
+
+        private void OnAddNewCustomerClick(object sender, RoutedEventArgs e)
+        {
+            ViewModel.CreateNewCustomerCommand.Execute(null);
         }
     }
 }

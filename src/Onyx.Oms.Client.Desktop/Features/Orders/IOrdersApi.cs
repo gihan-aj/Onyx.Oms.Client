@@ -32,5 +32,11 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
             [AliasAs("SortColumn")] string? sortColumn = null,
             [AliasAs("SortOrder")] string? sortOrder = null,
             [AliasAs("IsActive")] bool? isActive = null);
+
+        [Post("/api/v1/customers")]
+        Task<Guid> CreateCustomer([Body] CreateCustomerCommand customer);
+
+        [Get("/api/v1/customers/{id}")]
+        Task<CustomerDto> GetCustomerById(Guid id);
     }
 }
