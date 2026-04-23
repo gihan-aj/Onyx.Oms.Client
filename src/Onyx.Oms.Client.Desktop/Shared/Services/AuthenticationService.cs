@@ -6,6 +6,7 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Onyx.Oms.Client.Desktop.Shared.Services;
@@ -16,6 +17,7 @@ public class AuthenticationService : IAuthenticationService
     private readonly ILogger<AuthenticationService> _logger;
     private readonly AuthenticationOptions _options;
     private OidcClient? _oidcClient;
+    private readonly SemaphoreSlim _refreshSemaphore = new SemaphoreSlim(1, 1);
     public event EventHandler<bool>? AuthenticationChanged;
     public event EventHandler<bool>? AuthenticationProcessStateChanged;
 
@@ -66,7 +68,7 @@ public class AuthenticationService : IAuthenticationService
         if (!string.IsNullOrEmpty(refreshToken))
         {
             // Try to refresh the token
-            await RefreshTokenAsync(refreshToken);
+            await PerformTokenRefreshAsync(refreshToken);
         }
         else if (!string.IsNullOrEmpty(accessToken)) 
         {
@@ -152,7 +154,32 @@ public class AuthenticationService : IAuthenticationService
         }
     }
 
-    private async Task RefreshTokenAsync(string refreshToken)
+    public async Task<bool> RefreshTokenAsync(string? failedAccessToken)
+    {
+        await _refreshSemaphore.WaitAsync();
+        try
+        {
+            if (failedAccessToken != null && AccessToken != failedAccessToken)
+            {
+                // Token was already refreshed by another thread
+                return true;
+            }
+
+            var (_, refreshToken, _) = await _tokenStorageService.GetTokensAsync();
+            if (string.IsNullOrEmpty(refreshToken))
+            {
+                return false;
+            }
+
+            return await PerformTokenRefreshAsync(refreshToken);
+        }
+        finally
+        {
+            _refreshSemaphore.Release();
+        }
+    }
+
+    private async Task<bool> PerformTokenRefreshAsync(string refreshToken)
     {
         try
         {
@@ -165,7 +192,7 @@ public class AuthenticationService : IAuthenticationService
                  _logger.LogWarning("Token refresh failed: {Error}", result.Error);
                  AuthenticationProcessStateChanged?.Invoke(this, false);
                  await LogoutAsync();
-                 return;
+                 return false;
             }
 
             // Update tokens
@@ -185,7 +212,7 @@ public class AuthenticationService : IAuthenticationService
                 _logger.LogError("UserInfo Error during refresh: {Error}", userInfoResult.Error);
                 AuthenticationProcessStateChanged?.Invoke(this, false);
                 await LogoutAsync();
-                return;
+                return false;
             }
 
             var identity = new ClaimsIdentity(userInfoResult.Claims, "OIDC", "name", "role");
@@ -193,12 +220,14 @@ public class AuthenticationService : IAuthenticationService
             
             AuthenticationProcessStateChanged?.Invoke(this, false);
             AuthenticationChanged?.Invoke(this, true);
+            return true;
         }
         catch(Exception ex)
         {
             _logger.LogError(ex, "RefreshToken Exception");
             AuthenticationProcessStateChanged?.Invoke(this, false);
             await LogoutAsync();
+            return false;
         }
     }
 

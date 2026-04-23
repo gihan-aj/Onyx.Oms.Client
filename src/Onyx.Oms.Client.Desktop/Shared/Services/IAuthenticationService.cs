@@ -15,6 +15,7 @@ public interface IAuthenticationService
     Task InitializeAsync();
     Task<CurrentUser?> GetCurrentUserAsync();
     string? AccessToken { get; }
+    Task<bool> RefreshTokenAsync(string? failedAccessToken);
 }
 
 public record CurrentUser(string? Id, string? FirstName, string? LastName, string? Email, string[] Roles);
