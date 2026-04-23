@@ -1,4 +1,4 @@
-﻿namespace Onyx.Oms.Client.Desktop.Shared.Constants;
+namespace Onyx.Oms.Client.Desktop.Shared.Constants;
 public static class Permissions
 {
     public static class Platform
@@ -89,5 +89,13 @@ public static class Permissions
     {
         public const string View = "tenant:appsequences:view";
         public const string Edit = "tenant:appsequences:edit";
+    }
+
+    public static class Orders
+    {
+        public const string View = "tenant:orders:view";
+        public const string Create = "tenant:orders:create";
+        public const string Edit = "tenant:orders:edit";
+        public const string Delete = "tenant:orders:delete";
     }
 }

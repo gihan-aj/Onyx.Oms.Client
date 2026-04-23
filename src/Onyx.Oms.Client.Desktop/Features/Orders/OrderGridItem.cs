@@ -1,0 +1,54 @@
+using Onyx.Oms.Client.Desktop.Shared.Services;
+using System;
+using System.Threading.Tasks;
+
+namespace Onyx.Oms.Client.Desktop.Features.Orders
+{
+    public class OrderGridItem : OrderSummaryDto
+    {
+        public bool CanEdit { get; set; }
+        public bool CanView { get; set; }
+        
+        public string CustomerDisplay => string.IsNullOrWhiteSpace(CustomerEmail) 
+            ? CustomerName 
+            : $"{CustomerName} ({CustomerEmail})";
+
+        public string GrandTotalDisplay => $"{GrandTotalCurrency} {GrandTotalAmount:N2}";
+        public string BalanceDisplay => $"{GrandTotalCurrency} {BalanceAmount:N2}";
+
+        public string OrderDateDisplay => OrderDate?.ToLocalTime().ToString("g") ?? "-";
+    }
+
+    public static class OrderMappingExtensions
+    {
+        public static OrderGridItem ToGridItem(
+            this OrderSummaryDto dto,
+            bool canEdit,
+            bool canView)
+        {
+            return new OrderGridItem
+            {
+                Id = dto.Id,
+                OrderNumber = dto.OrderNumber,
+                OrderDate = dto.OrderDate,
+                CustomerId = dto.CustomerId,
+                CustomerName = dto.CustomerName,
+                CustomerEmail = dto.CustomerEmail,
+                PrimaryPhone = dto.PrimaryPhone,
+                Status = dto.Status,
+                PaymentStatus = dto.PaymentStatus,
+                GrandTotalAmount = dto.GrandTotalAmount,
+                GrandTotalCurrency = dto.GrandTotalCurrency,
+                TotalPaidAmount = dto.TotalPaidAmount,
+                BalanceAmount = dto.BalanceAmount,
+                IsCashOnDelivery = dto.IsCashOnDelivery,
+                TrackingNumber = dto.TrackingNumber,
+                CreatedOnUtc = dto.CreatedOnUtc,
+                LastModifiedOnUtc = dto.LastModifiedOnUtc,
+
+                CanEdit = canEdit,
+                CanView = canView
+            };
+        }
+    }
+}

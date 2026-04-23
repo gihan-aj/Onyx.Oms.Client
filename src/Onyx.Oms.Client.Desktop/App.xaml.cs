@@ -20,6 +20,7 @@ using Refit;
 using Serilog;
 using System;
 using Onyx.Oms.Client.Desktop.Features.FulfillmentTasks;
+using Onyx.Oms.Client.Desktop.Features.Orders;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -185,6 +186,16 @@ namespace Onyx.Oms.Client.Desktop
                     .AddHttpMessageHandler<AuthHeaderHandler>()
                     .AddHttpMessageHandler<ProblemDetailsHandler>();
 
+            services.AddRefitClient<IOrdersApi>()
+                    .ConfigureHttpClient((sp, c) =>
+                    {
+                        var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
+                        c.BaseAddress = new Uri(options.BaseUrl);
+                    })
+                    .AddHttpMessageHandler<HttpLoggingHandler>()
+                    .AddHttpMessageHandler<AuthHeaderHandler>()
+                    .AddHttpMessageHandler<ProblemDetailsHandler>();
+
             services.AddRefitClient<IUsersApi>()
                     .ConfigureHttpClient((sp, c) =>
                     {
@@ -289,6 +300,7 @@ namespace Onyx.Oms.Client.Desktop
             services.AddTransient<Features.Dashboard.DashboardPage>();
             services.AddTransient<Features.Dashboard.DashboardViewModel>();
             services.AddTransient<Features.Orders.OrdersPage>();
+            services.AddTransient<Features.Orders.OrdersViewModel>();
             services.AddTransient<Features.Customers.CustomersPage>();
             services.AddTransient<Features.FulfillmentTasks.List.FulfillmentTasksPage>();
             services.AddTransient<Features.FulfillmentTasks.List.FulfillmentTasksViewModel>();
