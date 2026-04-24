@@ -94,10 +94,10 @@
                                         </StackPanel>
 
                                         <StackPanel Grid.Column="1" HorizontalAlignment="Right">
-                                            <TextBlock Text="{x:Bind BaseSku}" FontFamily="Consolas" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                            <TextBlock Text="{x:Bind AvailableQuantity}" Style="{StaticResource CaptionTextBlockStyle}" 
-                                                   Foreground="{ThemeResource SystemFillColorSuccessBrush}"
-                                                   Visibility="{x:Bind HasVariants, Converter={StaticResource InvertedBoolToVisibilityConverter}}"/>
+                                            <TextBlock Text="{x:Bind DisplaySku, Mode=OneWay}" FontFamily="Consolas" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                            <TextBlock Text="{x:Bind DisplayAvailableQuantity, Mode=OneWay}" Style="{StaticResource CaptionTextBlockStyle}" 
+                                                   Foreground="{x:Bind QuantityForeground, Mode=OneWay}"
+                                                   Visibility="{x:Bind ShouldShowQuantity, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                         </StackPanel>
                                     </Grid>
 

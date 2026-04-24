@@ -1,4 +1,4 @@
-﻿using Microsoft.UI.Xaml.Media.Imaging;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using System;
 using System.Collections.Generic;
@@ -49,6 +49,22 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.ProductPicker
         public ObservableCollection<UiOption> UiOptions { get; set; } = new();
         public Action<ProductPickerGridItem>? OnOptionInteraction { get; set; }
 
+        public string DisplaySku => ResolvedVariant != null ? ResolvedVariant.Sku : BaseSku;
+        public string DisplayAvailableQuantity => $"Available: {(ResolvedVariant != null ? (ResolvedVariant.StockOnHand - ResolvedVariant.ReservedQuantity) : AvailableQuantity)}";
+        public string? ResolvedImageUrl => _currentImageUrl ?? MainImageUrl;
+        public bool ShouldShowQuantity => !HasVariants || ResolvedVariant != null;
+
+        public Microsoft.UI.Xaml.Media.Brush QuantityForeground
+        {
+            get
+            {
+                var qty = ResolvedVariant != null ? (ResolvedVariant.StockOnHand - ResolvedVariant.ReservedQuantity) : AvailableQuantity;
+                if (qty <= 0) return (Microsoft.UI.Xaml.Media.Brush)Microsoft.UI.Xaml.Application.Current.Resources["SystemFillColorCriticalBrush"];
+                if (qty < 10) return (Microsoft.UI.Xaml.Media.Brush)Microsoft.UI.Xaml.Application.Current.Resources["SystemFillColorCautionBrush"];
+                return (Microsoft.UI.Xaml.Media.Brush)Microsoft.UI.Xaml.Application.Current.Resources["SystemFillColorSuccessBrush"];
+            }
+        }
+
         private ProductVariantDto? _resolvedVariant;
         public ProductVariantDto? ResolvedVariant
         {
@@ -59,6 +75,11 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.ProductPicker
                 {
                     _resolvedVariant = value;
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ResolvedVariant)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DisplayName)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DisplaySku)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DisplayAvailableQuantity)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ShouldShowQuantity)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(QuantityForeground)));
                 }
             }
         }
@@ -135,6 +156,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.ProductPicker
 
                     ImageSource = bitmap;
                     _currentImageUrl = targetImageUrl; // Save state
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ResolvedImageUrl)));
                 }
             }
             catch (Exception ex)
