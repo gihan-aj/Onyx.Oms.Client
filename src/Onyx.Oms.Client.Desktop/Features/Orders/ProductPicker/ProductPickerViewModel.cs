@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using Onyx.Oms.Client.Desktop.Shared.Models;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using Onyx.Oms.Client.Desktop.Shared.ViewModels;
@@ -81,6 +81,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.ProductPicker
         // -- Commands --
         public IAsyncRelayCommand ClearFiltersCommand { get; }
 
+        public Action<ProductPickerGridItem, int>? OnProductAdded { get; set; }
+
         public ProductPickerViewModel(
             IOrdersApi api,
             IFileService fileService)
@@ -114,6 +116,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.ProductPicker
                 foreach (var item in result.Items)
                 {
                     var gridItem = await item.ToPickerGridItem(_fileService);
+                    gridItem.OnProductAdded = OnProductAdded;
                     gridItem.OnOptionInteraction = (interactedItem) =>
                     {
                         if (SelectedItem != interactedItem)

@@ -52,5 +52,11 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
         {
             ViewModel.CreateNewCustomerCommand.Execute(null);
         }
+
+        public Visibility GetOrderItemsEmptyState(int imageCount)
+        {
+            if (ViewModel.OrderItems.Count == 0) return Visibility.Visible;
+            return Visibility.Collapsed;
+        }
     }
 }

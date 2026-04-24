@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List;
 using Onyx.Oms.Client.Desktop.Features.Orders;
+using Onyx.Oms.Client.Desktop.Features.Orders.Create;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -108,7 +109,7 @@ public partial class DashboardViewModel : ObservableObject
     public void LoadQuickActions()
     {
         QuickActions.Clear();
-        QuickActions.Add(new DashboardQuickAction("New Order", "Create a new customer order", "\uE710", NavigateToCreateOrderCommand, false, true));
+        QuickActions.Add(new DashboardQuickAction("New Order", "Create a new customer order", "\uE710", NavigateToCreateOrderCommand, true, true));
         QuickActions.Add(new DashboardQuickAction("Add Customer", "Register a new buyer profile", "\uE8FA", NavigateToAddCustomerCommand, true, true));
         QuickActions.Add(new DashboardQuickAction("View Catalog", "Manage latest products/variants", "\uE81E", NavigateToCatalogCommand, true, true));
         QuickActions.Add(new DashboardQuickAction("Fulfillment", "View pending task assignments", "\uE9D5", NavigateToFulfillmentCommand, true, true));
@@ -117,7 +118,7 @@ public partial class DashboardViewModel : ObservableObject
 
     private void NavigateToCreateOrder()
     {
-        //_navigationService.NavigateTo(typeof(CreateOrderPage).FullName!);
+        _navigationService.NavigateTo(typeof(CreateOrderViewModel).FullName!);
     }
 
     private void NavigateToAddCustomer()

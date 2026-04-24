@@ -9,13 +9,15 @@
     xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    x:Name="RootPage">
 
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converters:BoolToVisibilityConverter x:Key="InvertedBoolToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible"/>
         <converters:EmptyStringToObjectConverter x:Key="StringToVisibilityConverter" EmptyValue="Collapsed" NotEmptyValue="Visible" />
         <converters:BoolNegationConverter x:Key="InvertedBoolConverter" />
+        <converters:EmptyCollectionToObjectConverter x:Key="InvertedCollectionToVisibilityConverter" EmptyValue="Visible" NotEmptyValue="Collapsed" />
     </Page.Resources>
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -113,36 +115,7 @@
                                 <parent:CustomerPicker x:Name="CustomerPicker"
                                                        Width="Auto"
                                                        SelectedCustomer="{x:Bind ViewModel.SelectedCustomer, Mode=TwoWay}"
-                                                       PlaceholderText="Search a Customer by Name, Phone, Email or Last Order Number..."/>
-
-                                <!--<Grid ColumnSpacing="8">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" MinWidth="350" />
-                                        <ColumnDefinition Width="Auto" MinWidth="20" />
-                                        <ColumnDefinition Width="Auto" MinWidth="20" />
-                                    </Grid.ColumnDefinitions>
-                                    
-                                    <parent:CustomerPicker x:Name="CustomerPicker"
-                                                           Grid.Column="0"
-                                                           Width="Auto"
-                                                           SelectedCustomer="{x:Bind ViewModel.SelectedCustomer, Mode=TwoWay}"
-                                                           PlaceholderText="Search a Customer by Name, Phone, Email or Last Order Number..."/>
-
-                                    <Button Click="OnAddNewCustomerClick" 
-                                            Grid.Column="1"
-                                            Style="{StaticResource SubtleButtonStyle}"
-                                            ToolTipService.ToolTip="Add a New Customer">
-                                        <FontIcon Glyph="&#xE710;" FontSize="16" />
-                                    </Button>
-
-                                    <Button Command="{x:Bind ViewModel.ClearCustomerCommand}"
-                                            Grid.Column="2"
-                                            Style="{StaticResource SubtleButtonStyle}"
-                                            Visibility="{x:Bind ViewModel.HasSelectedCustomer, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
-                                            ToolTipService.ToolTip="Clear selected customer">
-                                        <FontIcon Glyph="&#xE711;" FontSize="16" />
-                                    </Button>
-                                </Grid>-->
+                                                       PlaceholderText="Selct a Customer..."/>
 
                                 <!-- Customer Details Display -->
                                 <StackPanel Visibility="{x:Bind ViewModel.HasSelectedCustomer, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
@@ -196,15 +169,149 @@
                                                 IsOpen="False" 
                                                 DefaultLabelPosition="Right" 
                                                 IsSticky="True">
-                                        <AppBarButton Icon="Add" Label="Add Items" 
+                                        <AppBarButton Icon="Add" Label="Add" 
                                                       ToolTipService.ToolTip="Select Product" 
                                                       Command="{x:Bind ViewModel.ShowProductPickerCommand}" />
 
                                     </CommandBar>
                                 </Grid>
 
+                                <ListView ItemsSource="{x:Bind ViewModel.OrderItems, Mode=OneWay}"
+                                          SelectionMode="None"
+                                          HorizontalAlignment="Stretch"
+                                          ScrollViewer.VerticalScrollMode="Disabled">
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem">
+                                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                            <Setter Property="Margin" Value="0,0,0,8" />
+                                            <Setter Property="Padding" Value="0" />
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate x:DataType="local:CreateOrderLineItem">
+                                            <Grid Background="{ThemeResource LayerFillColorAltBrush}"
+                                                  CornerRadius="8"
+                                                  BorderThickness="0"
+                                                  BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
+                                                  Padding="12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="64" />
+                                                    <ColumnDefinition Width="*" MinWidth="150" />
+                                                    <ColumnDefinition Width="Auto" MinWidth="120" />
+                                                    <ColumnDefinition Width="Auto" MinWidth="140" />
+                                                    <ColumnDefinition Width="Auto" MinWidth="100" />
+                                                    <ColumnDefinition Width="Auto" MinWidth="40" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <!-- Image -->
+                                                <Grid Grid.Column="0" Width="56" Height="56" CornerRadius="4" 
+                                                      Background="{ThemeResource LayerFillColorAltBrush}" BorderThickness="1" BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
+                                                      VerticalAlignment="Center">
+                                                    <FontIcon Glyph="&#xE8B9;" FontSize="16" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                                                    <Image Source="{x:Bind ImageSource, Mode=OneWay}" Stretch="UniformToFill" />
+                                                </Grid>
+
+                                                <!-- Product Details -->
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="16,0,0,0">
+                                                    <TextBlock Text="{x:Bind ProductName, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" TextWrapping="Wrap"/>
+                                                    <TextBlock Text="{x:Bind Sku, Mode=OneWay}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                </StackPanel>
+
+                                                <!-- Unit Price -->
+                                                <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="16,0,0,0">
+                                                    <TextBlock Text="Unit Price" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                                    <TextBlock Style="{StaticResource BodyTextBlockStyle}">
+                                                        <Run Text="{x:Bind BaseCurrency, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                        <Run Text=" " />
+                                                        <Run Text="{x:Bind UnitPrice, Mode=OneWay}" />
+                                                    </TextBlock>
+                                                </StackPanel>
+
+                                                <!-- Quantity & Availability -->
+                                                <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="16,0,0,0">
+                                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                                        <NumberBox Value="{x:Bind Quantity, Mode=TwoWay}" 
+                                                                   Minimum="1" 
+                                                                   SpinButtonPlacementMode="Inline" 
+                                                                   Width="120" />
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
+                                                        <ProgressBar Value="{x:Bind AvailableQuantity, Mode=OneWay}" 
+                                                                     Maximum="{x:Bind Quantity, Mode=OneWay}" 
+                                                                     Foreground="{x:Bind QuantityProgressBrush, Mode=OneWay}"
+                                                                     Width="60" />
+                                                        <TextBlock Style="{StaticResource CaptionTextBlockStyle}">
+                                                            <Run Text="{x:Bind AvailableQuantity, Mode=OneWay}"/>
+                                                            <Run Text="/" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                            <Run Text="{x:Bind Quantity, Mode=OneWay}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                        </TextBlock>
+                                                    </StackPanel>
+                                                </StackPanel>
+
+                                                <!-- Line Total -->
+                                                <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="16,0,0,0">
+                                                    <TextBlock Text="Total" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                                    <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}">
+                                                        <Run Text="{x:Bind BaseCurrency, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                        <Run Text=" " />
+                                                        <Run Text="{x:Bind LineTotal, Mode=OneWay}" />
+                                                    </TextBlock>
+                                                </StackPanel>
+
+                                                <!-- Remove Action -->
+                                                <Button Grid.Column="5" 
+                                                        Style="{StaticResource SubtleButtonStyle}" 
+                                                        VerticalAlignment="Center" 
+                                                        Margin="16,0,0,0"
+                                                        ToolTipService.ToolTip="Remove Item"
+                                                        Command="{Binding ElementName=RootPage, Path=ViewModel.RemoveLineItemCommand}"
+                                                        CommandParameter="{Binding}">
+                                                    <FontIcon Glyph="&#xE74D;" FontSize="16" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                                                </Button>
+
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+
+                                <!-- Empty State -->
+                                <StackPanel Visibility="{x:Bind GetOrderItemsEmptyState(ViewModel.OrderItems.Count), Mode=OneWay}"
+                                            VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8" Margin="0,32,0,32">
+                                    <FontIcon Glyph="&#xE7B3;" FontSize="32" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                                    <TextBlock Text="No items added yet" Style="{StaticResource BodyTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+
                             </StackPanel>
 
+                            <!-- Notes Section -->
+                            <StackPanel Style="{StaticResource CardStackStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="Notes" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                    <TextBlock Text="Add notes relevant to the order (Chat messages)." 
+                                               Style="{StaticResource CaptionTextBlockStyle}" 
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+
+                                <TextBox 
+                                         Text="{x:Bind ViewModel.Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                         TextWrapping="Wrap" AcceptsReturn="True" MinHeight="100" Margin="0,0,0,12" />
+                            </StackPanel>
+
+                        </StackPanel>
+
+                        <!-- Right Column -->
+                        <StackPanel Grid.Column="1" Orientation="Vertical" Spacing="16">
+                            <!-- Logistics Section -->
+                            <StackPanel Style="{StaticResource CardStackStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="Logistics" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                    <TextBlock Text="Determine the shipping reality." 
+                                               Style="{StaticResource CaptionTextBlockStyle}" 
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+                                
+                            </StackPanel>
+                            
                         </StackPanel>
                     </Grid>
                     

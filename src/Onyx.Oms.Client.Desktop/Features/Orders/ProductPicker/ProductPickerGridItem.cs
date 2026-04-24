@@ -1,3 +1,4 @@
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using System;
@@ -15,6 +16,37 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.ProductPicker
     {
         private IFileService? _fileService;
         private string? _currentImageUrl;
+
+        public ProductPickerGridItem()
+        {
+            AddToOrderCommand = new RelayCommand(ExecuteAddToOrder);
+        }
+
+        private int _selectedQuantity = 1;
+        public int SelectedQuantity
+        {
+            get => _selectedQuantity;
+            set
+            {
+                if (_selectedQuantity != value)
+                {
+                    _selectedQuantity = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedQuantity)));
+                }
+            }
+        }
+
+        public IRelayCommand AddToOrderCommand { get; }
+        public Action<ProductPickerGridItem, int>? OnProductAdded { get; set; }
+
+        private void ExecuteAddToOrder()
+        {
+            if (OnProductAdded != null)
+            {
+                OnProductAdded.Invoke(this, SelectedQuantity);
+                SelectedQuantity = 1; // Reset to 1 after adding
+            }
+        }
 
         public string DisplayName
         {

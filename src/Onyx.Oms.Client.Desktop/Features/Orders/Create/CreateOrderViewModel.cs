@@ -5,6 +5,8 @@ using Onyx.Oms.Client.Desktop.Shared.Models;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,6 +22,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
         private readonly INavigationService _navigationService;
         //private readonly IFileService _fileService;
         private readonly ITenantProfileService _tenantProfileService;
+        private readonly IFileService _fileService;
 
         public string Title => "Create Order";
 
@@ -44,6 +47,17 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
 
         private CreateCustomerCommand? _draftCustomer = null;
 
+        // Order items
+        public ObservableCollection<CreateOrderLineItem> OrderItems { get; } = new();
+
+        // Notes
+        private string? _notes;
+        public string? Notes
+        {
+            get => _notes;
+            set => SetProperty(ref _notes, value);
+        }
+
         // --- UI State ---
         private bool _isLoading = true;
         public bool IsLoading { get => _isLoading; set => SetProperty(ref _isLoading, value); }
@@ -56,6 +70,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
         public IAsyncRelayCommand CreateNewCustomerCommand { get; }
         public IRelayCommand ClearCustomerCommand { get; }
         public IAsyncRelayCommand ShowProductPickerCommand { get; }
+        public IRelayCommand<CreateOrderLineItem> RemoveLineItemCommand { get; }
 
         public CreateOrderViewModel(
             IOrdersApi ordersApi,
@@ -63,7 +78,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
             IToastService toastService,
             INavigationService navigationService,
             ITenantProfileService tenantProfileService,
-            IDialogService dialogService)
+            IDialogService dialogService,
+            IFileService fileService)
         {
             _ordersApi = ordersApi;
             _logger = logger;
@@ -71,12 +87,14 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
             _navigationService = navigationService;
             _tenantProfileService = tenantProfileService;
             _dialogService = dialogService;
+            _fileService = fileService;
 
             SaveCommand = new AsyncRelayCommand(OnSaveExecuteAsync);
             CancelCommand = new RelayCommand(OnCancelExecute);
             CreateNewCustomerCommand = new AsyncRelayCommand(OnCreateNewCustomerAsync);
             ClearCustomerCommand = new RelayCommand(() => SelectedCustomer = null);
             ShowProductPickerCommand = new AsyncRelayCommand(OnShowProductPickerExecuteAsync);
+            RemoveLineItemCommand = new RelayCommand<CreateOrderLineItem>(OnRemoveLineItem);
         }
 
         public void OnNavigatedFrom()
@@ -94,6 +112,14 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
             if (_navigationService.CanGoBack)
             {
                 _navigationService.GoBack();
+            }
+        }
+
+        private void OnRemoveLineItem(CreateOrderLineItem? item)
+        {
+            if (item != null && OrderItems.Contains(item))
+            {
+                OrderItems.Remove(item);
             }
         }
 
@@ -166,11 +192,42 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
             var dialog = new ProductPicker.ProductPicker();
             dialog.XamlRoot = App.MainWindow.Content.XamlRoot;
 
-            var result = await dialog.ShowAsync();
-            if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary && dialog.ViewModel.SelectedItem != null)
+            dialog.ViewModel.OnProductAdded = async (gridItem, qty) => 
             {
-                
-            }
+                decimal price = gridItem.ResolvedVariant != null && gridItem.ResolvedVariant.PriceAmount > 0 
+                    ? gridItem.ResolvedVariant.PriceAmount 
+                    : gridItem.BasePriceAmount;
+
+                var lineItem = new CreateOrderLineItem(_fileService)
+                {
+                    ProductId = gridItem.Id,
+                    ProductVariantId = gridItem.ResolvedVariant?.Id,
+                    ProductName = gridItem.DisplayName,
+                    Sku = gridItem.DisplaySku,
+                    ImageUrl = gridItem.ResolvedImageUrl,
+                    BaseCurrency = gridItem.BasePriceCurrency,
+                    UnitPrice = price,
+                    Quantity = qty,
+                    AvailableQuantity = gridItem.ResolvedVariant != null 
+                        ? (gridItem.ResolvedVariant.StockOnHand - gridItem.ResolvedVariant.ReservedQuantity) 
+                        : gridItem.AvailableQuantity
+                };
+
+                var existingItem = OrderItems.FirstOrDefault(i => i.ProductId == lineItem.ProductId && i.ProductVariantId == lineItem.ProductVariantId);
+                if (existingItem != null)
+                {
+                    existingItem.Quantity += lineItem.Quantity;
+                }
+                else
+                {
+                    await lineItem.LoadImageAsync();
+                    OrderItems.Add(lineItem);
+                }
+
+                _toastService.ShowSuccess("Item Added", $"Added {qty}x {lineItem.ProductName} to the order.");
+            };
+
+            await dialog.ShowAsync();
         }
     }
 }
