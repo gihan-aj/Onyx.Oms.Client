@@ -28,6 +28,8 @@
     <None Remove="Features\Orders\Create\CreateOrderPage.xaml" />
     <None Remove="Features\Orders\CustomerPicker.xaml" />
     <None Remove="Features\Orders\List\OrdersPage.xaml" />
+    <None Remove="Features\Orders\ProductCategoryPicker\ProductCategoryPicker.xaml" />
+    <None Remove="Features\Orders\ProductPicker\ProductPicker.xaml" />
     <None Remove="Features\ProductCategories\ProductCategoriesPage.xaml" />
     <None Remove="Features\Products\Controls\ProductCategoryPicker.xaml" />
     <None Remove="Features\Products\Create\CreateProductPage.xaml" />
@@ -197,6 +199,18 @@
 	<Content Include="BackendServices\**\*.*">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Features\Orders\ProductPicker\ProductPicker.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Features\Orders\ProductCategoryPicker\ProductCategoryPicker.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <ItemGroup>

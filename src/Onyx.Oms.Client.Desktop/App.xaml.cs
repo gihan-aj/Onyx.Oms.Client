@@ -303,6 +303,7 @@ namespace Onyx.Oms.Client.Desktop
             services.AddTransient<Features.Orders.List.OrdersViewModel>();
             services.AddTransient<Features.Orders.Create.CreateOrderPage>();
             services.AddTransient<Features.Orders.Create.CreateOrderViewModel>();
+            services.AddTransient<Features.Orders.ProductPicker.ProductPickerViewModel>();
             services.AddTransient<Features.Customers.CustomersPage>();
             services.AddTransient<Features.FulfillmentTasks.List.FulfillmentTasksPage>();
             services.AddTransient<Features.FulfillmentTasks.List.FulfillmentTasksViewModel>();

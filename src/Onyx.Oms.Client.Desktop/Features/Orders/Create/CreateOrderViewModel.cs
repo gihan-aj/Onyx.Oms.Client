@@ -55,6 +55,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
         public IRelayCommand CancelCommand { get; }
         public IAsyncRelayCommand CreateNewCustomerCommand { get; }
         public IRelayCommand ClearCustomerCommand { get; }
+        public IAsyncRelayCommand ShowProductPickerCommand { get; }
 
         public CreateOrderViewModel(
             IOrdersApi ordersApi,
@@ -75,6 +76,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
             CancelCommand = new RelayCommand(OnCancelExecute);
             CreateNewCustomerCommand = new AsyncRelayCommand(OnCreateNewCustomerAsync);
             ClearCustomerCommand = new RelayCommand(() => SelectedCustomer = null);
+            ShowProductPickerCommand = new AsyncRelayCommand(OnShowProductPickerExecuteAsync);
         }
 
         public void OnNavigatedFrom()
@@ -156,6 +158,18 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
                 {
                     IsBusy = false;
                 }
+            }
+        }
+
+        private async Task OnShowProductPickerExecuteAsync()
+        {
+            var dialog = new ProductPicker.ProductPicker();
+            dialog.XamlRoot = App.MainWindow.Content.XamlRoot;
+
+            var result = await dialog.ShowAsync();
+            if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary && dialog.ViewModel.SelectedItem != null)
+            {
+                
             }
         }
     }

@@ -79,15 +79,43 @@
 
                             <!-- Customer Section -->
                             <StackPanel Style="{StaticResource CardStackStyle}">
-                                <StackPanel>
-                                    <TextBlock Text="Customer Details" Style="{StaticResource BodyStrongTextBlockStyle}" />
-                                    <TextBlock Text="Select a return customer or add and select a new customer." 
-                                               Style="{StaticResource CaptionTextBlockStyle}" 
-                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" 
-                                               Margin="0,0,0,12" />
-                                </StackPanel>
+                                <Grid Margin="0,0,0,16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
 
-                                <Grid ColumnSpacing="8">
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Customer Details" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                        <TextBlock Text="Select a return customer or add and select a new customer." 
+                                                   Style="{StaticResource CaptionTextBlockStyle}" 
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" 
+                                                   Margin="0,0,0,12" />
+                                    </StackPanel>
+
+                                    <CommandBar Grid.Column="1" 
+                                                Background="Transparent" 
+                                                IsOpen="False" 
+                                                DefaultLabelPosition="Right" 
+                                                IsSticky="True">
+                                        <AppBarButton Icon="Add" Label="Add"
+                                                      ToolTipService.ToolTip="Add a New Customer" 
+                                                      Click="OnAddNewCustomerClick" />
+                                        
+                                        <AppBarButton Icon="Cancel" Label="Clear"
+                                                      ToolTipService.ToolTip="Clear selected customer" 
+                                                      Visibility="{x:Bind ViewModel.HasSelectedCustomer, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                      Command="{x:Bind ViewModel.ClearCustomerCommand}"/>
+
+                                    </CommandBar>
+                                </Grid>
+
+                                <parent:CustomerPicker x:Name="CustomerPicker"
+                                                       Width="Auto"
+                                                       SelectedCustomer="{x:Bind ViewModel.SelectedCustomer, Mode=TwoWay}"
+                                                       PlaceholderText="Search a Customer by Name, Phone, Email or Last Order Number..."/>
+
+                                <!--<Grid ColumnSpacing="8">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" MinWidth="350" />
                                         <ColumnDefinition Width="Auto" MinWidth="20" />
@@ -114,7 +142,7 @@
                                             ToolTipService.ToolTip="Clear selected customer">
                                         <FontIcon Glyph="&#xE711;" FontSize="16" />
                                     </Button>
-                                </Grid>
+                                </Grid>-->
 
                                 <!-- Customer Details Display -->
                                 <StackPanel Visibility="{x:Bind ViewModel.HasSelectedCustomer, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
@@ -144,6 +172,36 @@
                                         </StackPanel>
                                     </Grid>
                                 </StackPanel>
+
+                            </StackPanel>
+
+                            <!-- Products Section -->
+                            <StackPanel Style="{StaticResource CardStackStyle}">
+
+                                <Grid Margin="0,0,0,16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Items" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                        <TextBlock Text="Select products or product variants and required quantities." 
+                                                   Style="{StaticResource CaptionTextBlockStyle}" 
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                    </StackPanel>
+
+                                    <CommandBar Grid.Column="1" 
+                                                Background="Transparent" 
+                                                IsOpen="False" 
+                                                DefaultLabelPosition="Right" 
+                                                IsSticky="True">
+                                        <AppBarButton Icon="Add" Label="Add Items" 
+                                                      ToolTipService.ToolTip="Select Product" 
+                                                      Command="{x:Bind ViewModel.ShowProductPickerCommand}" />
+
+                                    </CommandBar>
+                                </Grid>
 
                             </StackPanel>
 
