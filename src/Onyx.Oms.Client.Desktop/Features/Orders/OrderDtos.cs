@@ -202,4 +202,13 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         public bool IsActive { get; set; }
     }
 
+    public record CourierDto(
+        Guid Id,
+        string Name,
+        string? ContactPerson,
+        string? PrimaryPhone,
+        string? SecondaryPhone,
+        string? WebsiteUrl,
+        bool IsActive);
+
 }

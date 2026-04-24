@@ -310,8 +310,56 @@
                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                                 </StackPanel>
                                 
-                            </StackPanel>
+                                <StackPanel Spacing="16" Margin="0,16,0,0">
+                                    <ToggleSwitch Header="Cash on Delivery" 
+                                                  IsOn="{x:Bind ViewModel.IsCashOnDelivery, Mode=TwoWay}" 
+                                                  OnContent="Yes" OffContent="No" />
+
+                                    <ComboBox Header="Courier" 
+                                              ItemsSource="{x:Bind ViewModel.Couriers, Mode=OneWay}" 
+                                              SelectedItem="{x:Bind ViewModel.SelectedCourier, Mode=TwoWay}"
+                                              DisplayMemberPath="Name" 
+                                              PlaceholderText="Select a Courier" 
+                                              HorizontalAlignment="Stretch" />
+
+                                    <StackPanel Spacing="8" Margin="0,8,0,0">
+                                        <TextBlock Text="Shipping Address" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                        
+                                        <CheckBox Content="Use Customer Default Address" 
+                                                  IsChecked="{x:Bind ViewModel.UseCustomerAddress, Mode=TwoWay}"
+                                                  IsEnabled="{x:Bind ViewModel.HasSelectedCustomer, Mode=OneWay}" />
+
+                                        <TextBox Header="Street Address" Text="{x:Bind ViewModel.ShippingStreet, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                                        <Grid ColumnSpacing="12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBox Grid.Column="0" Header="City" Text="{x:Bind ViewModel.ShippingCity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            <ComboBox Grid.Column="1" Header="State / Province" 
+                                                      ItemsSource="{x:Bind ViewModel.Provinces}"
+                                                      SelectedItem="{x:Bind ViewModel.ShippingState, Mode=TwoWay}"
+                                                      HorizontalAlignment="Stretch" />
+                                        </Grid>
+
+                                        <Grid ColumnSpacing="12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <ComboBox Grid.Column="0" Header="District" 
+                                                      ItemsSource="{x:Bind ViewModel.Districts, Mode=OneWay}"
+                                                      SelectedItem="{x:Bind ViewModel.ShippingDistrict, Mode=TwoWay}"
+                                                      HorizontalAlignment="Stretch" />
+                                            <TextBox Grid.Column="1" Header="Postal Code" Text="{x:Bind ViewModel.ShippingPostalCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        </Grid>
+
+                                        <TextBox Header="Country" Text="{x:Bind ViewModel.ShippingCountry, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </StackPanel>
                             
+                            </StackPanel>
                         </StackPanel>
                     </Grid>
                     

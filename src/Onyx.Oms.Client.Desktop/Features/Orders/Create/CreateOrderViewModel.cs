@@ -41,6 +41,10 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
                 if (SetProperty(ref _selectedCustomer, value))
                 {
                     OnPropertyChanged(nameof(HasSelectedCustomer));
+                    if (UseCustomerAddress)
+                    {
+                        AutoFillAddress();
+                    }
                 }
             }
         }
@@ -56,6 +60,115 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
         {
             get => _notes;
             set => SetProperty(ref _notes, value);
+        }
+
+        // Logistics State
+        public ObservableCollection<CourierDto> Couriers { get; } = new();
+
+        private CourierDto? _selectedCourier;
+        public CourierDto? SelectedCourier { get => _selectedCourier; set => SetProperty(ref _selectedCourier, value); }
+
+        private bool _isCashOnDelivery = true;
+        public bool IsCashOnDelivery { get => _isCashOnDelivery; set => SetProperty(ref _isCashOnDelivery, value); }
+
+        private bool _useCustomerAddress;
+        public bool UseCustomerAddress
+        {
+            get => _useCustomerAddress;
+            set
+            {
+                if (SetProperty(ref _useCustomerAddress, value))
+                {
+                    if (value)
+                    {
+                        AutoFillAddress();
+                    }
+                }
+            }
+        }
+
+        // Shipping Address
+        private string _shippingStreet = string.Empty;
+        public string ShippingStreet { get => _shippingStreet; set => SetProperty(ref _shippingStreet, value); }
+
+        private string _shippingCity = string.Empty;
+        public string ShippingCity { get => _shippingCity; set => SetProperty(ref _shippingCity, value); }
+
+        private string _shippingState = string.Empty;
+        public string ShippingState 
+        { 
+            get => _shippingState; 
+            set 
+            {
+                if (SetProperty(ref _shippingState, value))
+                {
+                    UpdateDistricts(value);
+                }
+            } 
+        }
+
+        private string _shippingDistrict = string.Empty;
+        public string ShippingDistrict { get => _shippingDistrict; set => SetProperty(ref _shippingDistrict, value); }
+
+        private string _shippingPostalCode = string.Empty;
+        public string ShippingPostalCode { get => _shippingPostalCode; set => SetProperty(ref _shippingPostalCode, value); }
+
+        private string _shippingCountry = string.Empty;
+        public string ShippingCountry { get => _shippingCountry; set => SetProperty(ref _shippingCountry, value); }
+
+        private string[] _districts = Array.Empty<string>();
+        public string[] Districts 
+        { 
+            get => _districts; 
+            private set => SetProperty(ref _districts, value);
+        }
+
+        public IReadOnlyList<string> Provinces { get; } = new[]
+        {
+            "Central", "Eastern", "North Central", "Northern", "North Western", "Sabaragamuwa", "Southern", "Uva", "Western"
+        };
+
+        private readonly Dictionary<string, string[]> _districtsByProvince = new(StringComparer.OrdinalIgnoreCase)
+        {
+            { "Central", new[] { "Kandy", "Matale", "Nuwara Eliya" } },
+            { "Eastern", new[] { "Ampara", "Batticaloa", "Trincomalee" } },
+            { "North Central", new[] { "Anuradhapura", "Polonnaruwa" } },
+            { "Northern", new[] { "Jaffna", "Kilinochchi", "Mannar", "Mullaitivu", "Vavuniya" } },
+            { "North Western", new[] { "Kurunegala", "Puttalam" } },
+            { "Sabaragamuwa", new[] { "Kegalle", "Ratnapura" } },
+            { "Southern", new[] { "Galle", "Hambantota", "Matara" } },
+            { "Uva", new[] { "Badulla", "Monaragala" } },
+            { "Western", new[] { "Colombo", "Gampaha", "Kalutara" } }
+        };
+
+        private void UpdateDistricts(string province)
+        {
+            if (string.IsNullOrWhiteSpace(province) || !_districtsByProvince.TryGetValue(province, out var districts))
+            {
+                Districts = Array.Empty<string>();
+            }
+            else
+            {
+                Districts = districts;
+            }
+
+            if (!string.IsNullOrWhiteSpace(ShippingDistrict) && Array.IndexOf(Districts, ShippingDistrict) == -1)
+            {
+                ShippingDistrict = string.Empty;
+            }
+        }
+
+        private void AutoFillAddress()
+        {
+            if (SelectedCustomer?.Address != null)
+            {
+                ShippingStreet = SelectedCustomer.Address.Street ?? string.Empty;
+                ShippingCity = SelectedCustomer.Address.City ?? string.Empty;
+                ShippingState = SelectedCustomer.Address.State ?? string.Empty;
+                ShippingDistrict = SelectedCustomer.Address.District ?? string.Empty;
+                ShippingPostalCode = SelectedCustomer.Address.PostalCode ?? string.Empty;
+                ShippingCountry = SelectedCustomer.Address.Country ?? string.Empty;
+            }
         }
 
         // --- UI State ---
@@ -102,9 +215,27 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
 
         }
 
-        public void OnNavigatedTo(object parameter)
+        public async void OnNavigatedTo(object parameter)
         {
             BaseCurrency = _tenantProfileService.Profile?.BaseCurrency ?? "LKR";
+            await LoadCouriersAsync();
+        }
+
+        private async Task LoadCouriersAsync()
+        {
+            try
+            {
+                var couriers = await _ordersApi.GetCouriers(true);
+                Couriers.Clear();
+                foreach (var c in couriers)
+                {
+                    Couriers.Add(c);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to load couriers.");
+            }
         }
 
         private void OnCancelExecute()

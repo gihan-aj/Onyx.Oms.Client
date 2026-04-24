@@ -2,6 +2,7 @@
 using Onyx.Oms.Client.Desktop.Shared.Models;
 using Refit;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Onyx.Oms.Client.Desktop.Features.Orders
@@ -63,5 +64,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
             [AliasAs("IsActive")] bool? isActive = null,
             [AliasAs("IsValidParent")] bool? isValidParent = null,
             [AliasAs("IsLeafOnly")] bool? isLeafOnly = null);
+
+        [Get("/api/v1/couriers")]
+        Task<List<CourierDto>> GetCouriers([AliasAs("IsActive")] bool isActive = true);
     }
 }
