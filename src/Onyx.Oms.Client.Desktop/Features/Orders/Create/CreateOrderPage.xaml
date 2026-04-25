@@ -464,6 +464,67 @@
                                 </StackPanel>
                             </StackPanel>
 
+                            <!-- Financial Summary Section -->
+                            <StackPanel Style="{StaticResource CardStackStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="Financial Summary" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                    <TextBlock Text="The Receipt Snapshot." 
+                                               Style="{StaticResource CaptionTextBlockStyle}" 
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+
+                                <StackPanel Spacing="8" Margin="0,16,0,0">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Subtotal" Grid.Column="0" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                        <TextBlock Text="{x:Bind ViewModel.BaseCurrency, Mode=OneWay}" Grid.Column="1" Margin="0,0,8,0" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                        <TextBlock Text="{x:Bind ViewModel.FormatCurrency(ViewModel.SubTotal), Mode=OneWay}" Grid.Column="2" HorizontalAlignment="Right" />
+                                    </Grid>
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Shipping" Grid.Column="0" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                        <TextBlock Text="{x:Bind ViewModel.BaseCurrency, Mode=OneWay}" Grid.Column="1" Margin="0,0,8,0" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                        <TextBlock Text="{x:Bind ViewModel.FormatCurrency(ViewModel.ShippingFee), Mode=OneWay}" Grid.Column="2" HorizontalAlignment="Right" />
+                                    </Grid>
+
+                                    <Grid Visibility="{x:Bind ViewModel.HasDiscount, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Discount" Grid.Column="0" Foreground="{ThemeResource SystemFillColorSuccessBrush}" />
+                                        <TextBlock Text="{x:Bind ViewModel.BaseCurrency, Mode=OneWay}" Grid.Column="1" Margin="0,0,8,0" Foreground="{ThemeResource SystemFillColorSuccessBrush}" />
+                                        <TextBlock Grid.Column="2" HorizontalAlignment="Right" Foreground="{ThemeResource SystemFillColorSuccessBrush}">
+                                            <Run Text="-" />
+                                            <Run Text="{x:Bind ViewModel.FormatCurrency(ViewModel.DiscountAmount), Mode=OneWay}" />
+                                        </TextBlock>
+                                    </Grid>
+
+                                    <MenuFlyoutSeparator Margin="0,8" />
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Grand Total" Grid.Column="0" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Bottom" />
+                                        <TextBlock Text="{x:Bind ViewModel.BaseCurrency, Mode=OneWay}" Grid.Column="1" Margin="0,0,8,0" Style="{StaticResource BodyTextBlockStyle}" VerticalAlignment="Bottom" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                        <TextBlock Text="{x:Bind ViewModel.FormatCurrency(ViewModel.GrandTotal), Mode=OneWay}" Grid.Column="2" HorizontalAlignment="Right" Style="{StaticResource TitleTextBlockStyle}" FontWeight="Bold" Foreground="{ThemeResource AccentAAFillColorDefaultBrush}" />
+                                    </Grid>
+                                </StackPanel>
+                            </StackPanel>
+
                         </StackPanel>
                     </Grid>
                     

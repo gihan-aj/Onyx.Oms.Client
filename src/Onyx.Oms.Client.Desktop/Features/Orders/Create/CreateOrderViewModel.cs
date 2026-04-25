@@ -176,14 +176,26 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
         public decimal ShippingFee
         {
             get => _shippingFee;
-            set => SetProperty(ref _shippingFee, value);
+            set
+            {
+                if (SetProperty(ref _shippingFee, value))
+                {
+                    RecalculateTotals();
+                }
+            }
         }
 
         private decimal _taxAmount;
         public decimal TaxAmount
         {
             get => _taxAmount;
-            set => SetProperty(ref _taxAmount, value);
+            set
+            {
+                if (SetProperty(ref _taxAmount, value))
+                {
+                    RecalculateTotals();
+                }
+            }
         }
 
         private OrderDiscountDto? _appliedDiscount;
@@ -195,11 +207,65 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
                 if (SetProperty(ref _appliedDiscount, value))
                 {
                     OnPropertyChanged(nameof(HasDiscount));
+                    RecalculateTotals();
                 }
             }
         }
 
         public bool HasDiscount => AppliedDiscount != null;
+
+        // Financial Summary
+        private decimal _subTotal;
+        public decimal SubTotal
+        {
+            get => _subTotal;
+            private set => SetProperty(ref _subTotal, value);
+        }
+
+        private decimal _discountAmount;
+        public decimal DiscountAmount
+        {
+            get => _discountAmount;
+            private set => SetProperty(ref _discountAmount, value);
+        }
+
+        private decimal _grandTotal;
+        public decimal GrandTotal
+        {
+            get => _grandTotal;
+            private set => SetProperty(ref _grandTotal, value);
+        }
+
+        public string FormatCurrency(decimal value)
+        {
+            return value.ToString("N2");
+        }
+
+        private void RecalculateTotals()
+        {
+            decimal subTotal = 0;
+            foreach (var item in OrderItems)
+            {
+                subTotal += item.LineTotal;
+            }
+            SubTotal = subTotal;
+
+            decimal discount = 0;
+            if (AppliedDiscount != null)
+            {
+                if (AppliedDiscount.Type == DiscountType.FlatAmount)
+                {
+                    discount = AppliedDiscount.Value;
+                }
+                else if (AppliedDiscount.Type == DiscountType.Percentage)
+                {
+                    discount = SubTotal * (AppliedDiscount.Value / 100m);
+                }
+            }
+            DiscountAmount = discount;
+
+            GrandTotal = SubTotal + ShippingFee + TaxAmount - DiscountAmount;
+        }
 
         // --- UI State ---
         private bool _isLoading = true;
@@ -242,6 +308,35 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
             RemoveLineItemCommand = new RelayCommand<CreateOrderLineItem>(OnRemoveLineItem);
             ShowApplyDiscountDialogCommand = new AsyncRelayCommand(OnShowApplyDiscountDialogAsync);
             ClearDiscountCommand = new RelayCommand(() => AppliedDiscount = null);
+
+            OrderItems.CollectionChanged += OrderItems_CollectionChanged;
+        }
+
+        private void OrderItems_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.NewItems != null)
+            {
+                foreach (CreateOrderLineItem item in e.NewItems)
+                {
+                    item.PropertyChanged += LineItem_PropertyChanged;
+                }
+            }
+            if (e.OldItems != null)
+            {
+                foreach (CreateOrderLineItem item in e.OldItems)
+                {
+                    item.PropertyChanged -= LineItem_PropertyChanged;
+                }
+            }
+            RecalculateTotals();
+        }
+
+        private void LineItem_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(CreateOrderLineItem.LineTotal))
+            {
+                RecalculateTotals();
+            }
         }
 
         public void OnNavigatedFrom()
