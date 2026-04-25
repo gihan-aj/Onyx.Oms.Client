@@ -7,6 +7,7 @@
     xmlns:parent="using:Onyx.Oms.Client.Desktop.Features.Orders"
     xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
     xmlns:converters="using:CommunityToolkit.WinUI.Converters"
+    xmlns:sharedConverters="using:Onyx.Oms.Client.Desktop.Shared.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -18,6 +19,7 @@
         <converters:EmptyStringToObjectConverter x:Key="StringToVisibilityConverter" EmptyValue="Collapsed" NotEmptyValue="Visible" />
         <converters:BoolNegationConverter x:Key="InvertedBoolConverter" />
         <converters:EmptyCollectionToObjectConverter x:Key="InvertedCollectionToVisibilityConverter" EmptyValue="Visible" NotEmptyValue="Collapsed" />
+        <sharedConverters:DecimalToDoubleConverter x:Key="DecimalToDoubleConverter" />
     </Page.Resources>
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -360,6 +362,108 @@
                                 </StackPanel>
                             
                             </StackPanel>
+
+                            <!-- Financial Adjustments Section -->
+                            <StackPanel Style="{StaticResource CardStackStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="Financial Adjustments" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                    <TextBlock Text="Handle shipping fees, taxes, and discounts." 
+                                               Style="{StaticResource CaptionTextBlockStyle}" 
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+
+                                <StackPanel Spacing="16" Margin="0,16,0,0">
+                                    <!--<NumberBox Header="Shipping Fee" 
+                                               Value="{x:Bind ViewModel.ShippingFee, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}" 
+                                               SpinButtonPlacementMode="Inline" 
+                                               Minimum="0" />
+
+                                    <NumberBox Header="Tax Amount" 
+                                               Value="{x:Bind ViewModel.TaxAmount, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}" 
+                                               SpinButtonPlacementMode="Inline" 
+                                               Minimum="0" 
+                                               IsEnabled="False" />-->
+
+                                    <StackPanel>
+                                        <TextBlock Text="Shipping Fee"
+                                                   Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,4"/>
+                                        <Grid ColumnSpacing="8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{x:Bind ViewModel.BaseCurrency, Mode=OneWay}"
+                                                       VerticalAlignment="Center" Grid.Column="0"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                            <NumberBox Value="{x:Bind ViewModel.ShippingFee, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}" 
+                                                       SpinButtonPlacementMode="Inline" 
+                                                       Minimum="0"
+                                                       Grid.Column="1"/>
+                                        </Grid>
+                                    </StackPanel>
+                                    
+                                    <StackPanel>
+                                        <TextBlock Text="Tax Amount"
+                                                   Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,4"/>
+                                        <Grid ColumnSpacing="8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{x:Bind ViewModel.BaseCurrency, Mode=OneWay}"
+                                                       VerticalAlignment="Center" Grid.Column="0"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                            <NumberBox Value="{x:Bind ViewModel.TaxAmount, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}" 
+                                                       SpinButtonPlacementMode="Inline" 
+                                                       Minimum="0" 
+                                                       IsEnabled="False" 
+                                                       Grid.Column="1"/>
+                                        </Grid>
+                                    </StackPanel>
+
+                                    <!-- Discount Actions -->
+                                    <StackPanel Margin="0,8,0,0">
+                                        <TextBlock Text="Discount" Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,4" />
+                                        
+                                        <Button Content="Apply Discount" 
+                                                Command="{x:Bind ViewModel.ShowApplyDiscountDialogCommand}"
+                                                Visibility="{x:Bind ViewModel.HasDiscount, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}" />
+
+                                        <!-- Applied Discount Chip -->
+                                        <Grid Background="{ThemeResource SystemFillColorSuccessBackgroundBrush}"
+                                              CornerRadius="4"
+                                              Padding="12,8"
+                                              Visibility="{x:Bind ViewModel.HasDiscount, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource SystemFillColorSuccessBrush}">
+                                                    <Run Text="{x:Bind ViewModel.AppliedDiscount.Type, Mode=OneWay}" />
+                                                    <Run Text=" Discount Applied" />
+                                                </TextBlock>
+                                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemFillColorSuccessBrush}">
+                                                    <Run Text="Value:" />
+                                                    <Run Text="{x:Bind ViewModel.AppliedDiscount.Value, Mode=OneWay}" />
+                                                    <Run Text=" | Reason:" />
+                                                    <Run Text="{x:Bind ViewModel.AppliedDiscount.Reason, Mode=OneWay, TargetNullValue='None', FallbackValue='None'}" />
+                                                </TextBlock>
+                                            </StackPanel>
+
+                                            <Button Grid.Column="1" 
+                                                    Style="{StaticResource SubtleButtonStyle}" 
+                                                    Command="{x:Bind ViewModel.ClearDiscountCommand}"
+                                                    ToolTipService.ToolTip="Remove Discount"
+                                                    VerticalAlignment="Center">
+                                                <FontIcon Glyph="&#xE74D;" FontSize="14" Foreground="{ThemeResource SystemFillColorSuccessBrush}" />
+                                            </Button>
+                                        </Grid>
+                                    </StackPanel>
+                                </StackPanel>
+                            </StackPanel>
+
                         </StackPanel>
                     </Grid>
                     

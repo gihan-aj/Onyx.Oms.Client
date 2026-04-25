@@ -171,6 +171,36 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
             }
         }
 
+        // Financial Adjustments
+        private decimal _shippingFee;
+        public decimal ShippingFee
+        {
+            get => _shippingFee;
+            set => SetProperty(ref _shippingFee, value);
+        }
+
+        private decimal _taxAmount;
+        public decimal TaxAmount
+        {
+            get => _taxAmount;
+            set => SetProperty(ref _taxAmount, value);
+        }
+
+        private OrderDiscountDto? _appliedDiscount;
+        public OrderDiscountDto? AppliedDiscount
+        {
+            get => _appliedDiscount;
+            set
+            {
+                if (SetProperty(ref _appliedDiscount, value))
+                {
+                    OnPropertyChanged(nameof(HasDiscount));
+                }
+            }
+        }
+
+        public bool HasDiscount => AppliedDiscount != null;
+
         // --- UI State ---
         private bool _isLoading = true;
         public bool IsLoading { get => _isLoading; set => SetProperty(ref _isLoading, value); }
@@ -184,6 +214,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
         public IRelayCommand ClearCustomerCommand { get; }
         public IAsyncRelayCommand ShowProductPickerCommand { get; }
         public IRelayCommand<CreateOrderLineItem> RemoveLineItemCommand { get; }
+        public IAsyncRelayCommand ShowApplyDiscountDialogCommand { get; }
+        public IRelayCommand ClearDiscountCommand { get; }
 
         public CreateOrderViewModel(
             IOrdersApi ordersApi,
@@ -208,6 +240,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
             ClearCustomerCommand = new RelayCommand(() => SelectedCustomer = null);
             ShowProductPickerCommand = new AsyncRelayCommand(OnShowProductPickerExecuteAsync);
             RemoveLineItemCommand = new RelayCommand<CreateOrderLineItem>(OnRemoveLineItem);
+            ShowApplyDiscountDialogCommand = new AsyncRelayCommand(OnShowApplyDiscountDialogAsync);
+            ClearDiscountCommand = new RelayCommand(() => AppliedDiscount = null);
         }
 
         public void OnNavigatedFrom()
@@ -359,6 +393,18 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
             };
 
             await dialog.ShowAsync();
+        }
+
+        private async Task OnShowApplyDiscountDialogAsync()
+        {
+            var dialog = new ApplyDiscountDialog();
+            dialog.XamlRoot = App.MainWindow.Content.XamlRoot;
+
+            var result = await dialog.ShowAsync();
+            if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary && dialog.Result != null)
+            {
+                AppliedDiscount = dialog.Result;
+            }
         }
     }
 }

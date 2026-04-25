@@ -24,6 +24,7 @@
     <None Remove="Features\FulfillmentTasks\List\TaskQuantityActionDialog.xaml" />
     <None Remove="Features\FulfillmentTasks\ProductPicker\ProductPickerDialog.xaml" />
     <None Remove="Features\Fulfillment\FulfillmentPage.xaml" />
+    <None Remove="Features\Orders\ApplyDiscountDialog.xaml" />
     <None Remove="Features\Orders\Create\CreateNewCustomerDialog.xaml" />
     <None Remove="Features\Orders\Create\CreateOrderPage.xaml" />
     <None Remove="Features\Orders\CustomerPicker.xaml" />
@@ -199,6 +200,12 @@
 	<Content Include="BackendServices\**\*.*">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Features\Orders\ApplyDiscountDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <ItemGroup>
