@@ -78,7 +78,7 @@ To generate your own local certificate for development, open PowerShell in the `
 $cert = New-SelfSignedCertificate -Subject "CN=OnyxOpenIddict" -CertStoreLocation "Cert:\CurrentUser\My" -KeyExportPolicy Exportable -KeySpec Signature -NotAfter (Get-Date).AddYears(5)
 
 # Exports the certificate to a .pfx file (Replace 'YourPasswordHere' with the password in your appsettings.json)
-$pwd = ConvertTo-SecureString -String "YourPasswordHere" -Force -AsPlainText
+$pwd = ConvertTo-SecureString -String "SuperSecretPassword123!" -Force -AsPlainText
 Export-PfxCertificate -Cert $cert -FilePath "openiddict-cert.pfx" -Password $pwd
 ```
 *Note: Ensure the password you use here exactly matches the `Certificate:Password` value in your IdP's `appsettings.Production.json`.*
