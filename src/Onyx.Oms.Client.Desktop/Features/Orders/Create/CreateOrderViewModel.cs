@@ -422,7 +422,83 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
 
         private async Task OnSaveExecuteAsync()
         {
+            if (SelectedCustomer == null)
+            {
+                _toastService.ShowError("Validation Error", "Please select or create a customer.");
+                return;
+            }
 
+            if (OrderItems.Count == 0)
+            {
+                _toastService.ShowError("Validation Error", "Please add at least one item to the order.");
+                return;
+            }
+
+            try
+            {
+                IsBusy = true;
+
+                var items = OrderItems.Select(i => new OrderItemDto(
+                    ProductVariantId: i.ProductVariantId ?? i.ProductId,
+                    Quantity: i.Quantity,
+                    Discount: null
+                )).ToList();
+
+                ShippingAddressDto? shippingAddress = null;
+                if (!string.IsNullOrWhiteSpace(ShippingStreet) || !string.IsNullOrWhiteSpace(ShippingCity))
+                {
+                    shippingAddress = new ShippingAddressDto(
+                        Street: string.IsNullOrWhiteSpace(ShippingStreet) ? null : ShippingStreet,
+                        City: string.IsNullOrWhiteSpace(ShippingCity) ? null : ShippingCity,
+                        District: string.IsNullOrWhiteSpace(ShippingDistrict) ? null : ShippingDistrict,
+                        State: string.IsNullOrWhiteSpace(ShippingState) ? null : ShippingState,
+                        PostalCode: string.IsNullOrWhiteSpace(ShippingPostalCode) ? null : ShippingPostalCode,
+                        Country: string.IsNullOrWhiteSpace(ShippingCountry) ? null : ShippingCountry
+                    );
+                }
+
+                InitialPaymentDto? initialPayment = null;
+                if (!IsCashOnDelivery && PaymentAmount > 0)
+                {
+                    initialPayment = new InitialPaymentDto(
+                        Amount: new MoneyDto(PaymentAmount, BaseCurrency),
+                        Method: PaymentMethod,
+                        Reference: string.IsNullOrWhiteSpace(PaymentReference) ? null : PaymentReference,
+                        PaymentDate: PaymentDate.DateTime
+                    );
+                }
+
+                var command = new CreateOrderCommand(
+                    CustomerId: SelectedCustomer.Id,
+                    IsCashOnDelivery: IsCashOnDelivery,
+                    OrderDate: DateTimeOffset.Now,
+                    Items: items,
+                    CourierId: SelectedCourier?.Id,
+                    ShippingAddress: shippingAddress,
+                    ShippingFee: ShippingFee > 0 ? new MoneyDto(ShippingFee, BaseCurrency) : null,
+                    TaxAmount: TaxAmount > 0 ? new MoneyDto(TaxAmount, BaseCurrency) : null,
+                    Discount: AppliedDiscount,
+                    Payment: initialPayment,
+                    Notes: string.IsNullOrWhiteSpace(Notes) ? null : Notes
+                );
+
+                var orderId = await _ordersApi.CreateOrder(command);
+                _toastService.ShowSuccess("Success", "Order created successfully!");
+
+                if (_navigationService.CanGoBack)
+                {
+                    _navigationService.GoBack();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to create order.");
+                //_toastService.ShowError("Error", "Failed to create order. Please try again.");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
         }
 
         public async Task<PagedResult<CustomerDto>> FetchCustomersAsync(string searchTerm, int page, int pageSize, CancellationToken token = default)

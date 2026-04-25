@@ -24,7 +24,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
             [AliasAs("includeDetails")] bool includeDetails = false);
 
         [Post("/api/v1/orders")]
-        Task<Guid> CreateProcurementTask([Body] CreateOrderCommand task);
+        Task<Guid> CreateOrder([Body] CreateOrderCommand task);
 
         [Get("/api/v1/customers/search")]
         Task<PagedResult<CustomerDto>> SearchCustomers(

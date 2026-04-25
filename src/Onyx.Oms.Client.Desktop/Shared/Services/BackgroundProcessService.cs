@@ -39,8 +39,8 @@ namespace Onyx.Oms.Client.Desktop.Shared.Services
                 if (!File.Exists(idpPath)) Log.Error($"IdP executable not found at: {idpPath}");
                 if (!File.Exists(apiPath)) Log.Error($"API executable not found at: {apiPath}");
 
-                _idpProcess = LaunchHiddenProcess(idpPath, "--urls \"http://localhost:5000\"");
-                _apiProcess = LaunchHiddenProcess(apiPath, "--urls \"http://localhost:5001\"");
+                _idpProcess = LaunchHiddenProcess(idpPath, "--urls \"http://localhost:54320\"");
+                _apiProcess = LaunchHiddenProcess(apiPath, "--urls \"http://localhost:54321\"");
 
                 Log.Information("Background services started successfully.");
             }
