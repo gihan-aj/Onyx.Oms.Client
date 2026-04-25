@@ -464,6 +464,48 @@
                                 </StackPanel>
                             </StackPanel>
 
+                            <!-- Advance Payment Section -->
+                            <StackPanel Style="{StaticResource CardStackStyle}" 
+                                        Visibility="{x:Bind ViewModel.IsCashOnDelivery, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}">
+                                <StackPanel>
+                                    <TextBlock Text="Advance Payment" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                    <TextBlock Text="Capture initial payment for the order." 
+                                               Style="{StaticResource CaptionTextBlockStyle}" 
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+
+                                <StackPanel Spacing="16" Margin="0,16,0,0">
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <NumberBox Header="Amount Paid" 
+                                                   Value="{x:Bind ViewModel.PaymentAmount, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}" 
+                                                   SpinButtonPlacementMode="Inline" 
+                                                   Minimum="0" 
+                                                   Grid.Column="0" />
+                                        <Button Grid.Column="1" 
+                                                Content="Paid in Full" 
+                                                VerticalAlignment="Bottom"
+                                                Command="{x:Bind ViewModel.PayInFullCommand}" />
+                                    </Grid>
+
+                                    <ComboBox Header="Payment Method" 
+                                              ItemsSource="{x:Bind ViewModel.PaymentMethods}" 
+                                              SelectedItem="{x:Bind ViewModel.PaymentMethod, Mode=TwoWay}"
+                                              HorizontalAlignment="Stretch" />
+
+                                    <TextBox Header="Reference (Optional)" 
+                                             Text="{x:Bind ViewModel.PaymentReference, Mode=TwoWay}" 
+                                             PlaceholderText="e.g. Bank Slip ID" />
+
+                                    <CalendarDatePicker Header="Payment Date" 
+                                                        Date="{x:Bind ViewModel.PaymentDate, Mode=TwoWay}" 
+                                                        HorizontalAlignment="Stretch" />
+                                </StackPanel>
+                            </StackPanel>
+
                             <!-- Financial Summary Section -->
                             <StackPanel Style="{StaticResource CardStackStyle}">
                                 <StackPanel>

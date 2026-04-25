@@ -267,6 +267,41 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
             GrandTotal = SubTotal + ShippingFee + TaxAmount - DiscountAmount;
         }
 
+        // Payment
+        private decimal _paymentAmount;
+        public decimal PaymentAmount
+        {
+            get => _paymentAmount;
+            set => SetProperty(ref _paymentAmount, value);
+        }
+
+        private PaymentMethod _paymentMethod = PaymentMethod.BankTransfer;
+        public PaymentMethod PaymentMethod
+        {
+            get => _paymentMethod;
+            set => SetProperty(ref _paymentMethod, value);
+        }
+
+        public List<PaymentMethod> PaymentMethods { get; } = new() 
+        { 
+            PaymentMethod.BankTransfer, 
+            PaymentMethod.Card
+        };
+
+        private string _paymentReference = string.Empty;
+        public string PaymentReference
+        {
+            get => _paymentReference;
+            set => SetProperty(ref _paymentReference, value);
+        }
+
+        private DateTimeOffset _paymentDate = DateTimeOffset.Now;
+        public DateTimeOffset PaymentDate
+        {
+            get => _paymentDate;
+            set => SetProperty(ref _paymentDate, value);
+        }
+
         // --- UI State ---
         private bool _isLoading = true;
         public bool IsLoading { get => _isLoading; set => SetProperty(ref _isLoading, value); }
@@ -282,6 +317,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
         public IRelayCommand<CreateOrderLineItem> RemoveLineItemCommand { get; }
         public IAsyncRelayCommand ShowApplyDiscountDialogCommand { get; }
         public IRelayCommand ClearDiscountCommand { get; }
+        public IRelayCommand PayInFullCommand { get; }
 
         public CreateOrderViewModel(
             IOrdersApi ordersApi,
@@ -308,6 +344,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
             RemoveLineItemCommand = new RelayCommand<CreateOrderLineItem>(OnRemoveLineItem);
             ShowApplyDiscountDialogCommand = new AsyncRelayCommand(OnShowApplyDiscountDialogAsync);
             ClearDiscountCommand = new RelayCommand(() => AppliedDiscount = null);
+            PayInFullCommand = new RelayCommand(() => PaymentAmount = GrandTotal);
 
             OrderItems.CollectionChanged += OrderItems_CollectionChanged;
         }
