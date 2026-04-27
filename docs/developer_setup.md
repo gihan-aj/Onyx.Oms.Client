@@ -65,8 +65,15 @@ Create a file named `appsettings.Production.json` in the root of the API project
   }
 }
 ```
-
----
+Right click on `Onyx.Oms.Api` -> `Manage User Secrets` to add the Authentication secrets.
+```json
+{
+  "Authentication": {
+    "Audience": "onyx.oms.api",
+    "ClientSecret": "oms-api-super-secret"
+  }
+}
+```
 
 ## 🔐 Step 3: OpenIddict Certificate Generation
 The Identity Provider requires an encryption/signing certificate (`openiddict-cert.pfx`) to generate JWTs. This file is `.gitignore`d for security. 
