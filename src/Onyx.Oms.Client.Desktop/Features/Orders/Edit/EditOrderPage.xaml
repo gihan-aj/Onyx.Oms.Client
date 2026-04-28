@@ -129,9 +129,149 @@
                         </StackPanel>
                         
                         <!-- Right Column -->
-                        <StackPanel Grid.Column="0" Orientation="Vertical" Spacing="12">
+                        <StackPanel Grid.Column="1" Orientation="Vertical" Spacing="12">
 
-                            
+                            <!-- Logistics Section -->
+                            <StackPanel Style="{StaticResource CardStackStyle}">
+
+                                <Grid Margin="0,0,0,16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel>
+                                        <TextBlock Text="Logistics" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                        <TextBlock Text="Determine the shipping reality." 
+                                                   Style="{StaticResource CaptionTextBlockStyle}" 
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                    </StackPanel>
+
+                                    <CommandBar Grid.Column="1" 
+                                                Background="Transparent" 
+                                                IsOpen="False" 
+                                                DefaultLabelPosition="Right" 
+                                                IsSticky="True">
+                                        <AppBarButton Icon="Edit" Label="Edit" 
+                                                      Visibility="{x:Bind ViewModel.Logistics.IsReadonly, Mode=OneWay}"
+                                                      Command="{x:Bind ViewModel.Logistics.BeginEditCommand, Mode=OneWay}" />
+
+                                        <AppBarButton Icon="Save" Label="Save" 
+                                                      AllowFocusOnInteraction="True"
+                                                      Visibility="{x:Bind ViewModel.Logistics.IsEditing, Mode=OneWay}"
+                                                      Command="{x:Bind ViewModel.UpdateOrderLogisticsCommand}" />
+
+                                        <AppBarButton Icon="Cancel" Label="Cancel" 
+                                                      Visibility="{x:Bind ViewModel.Logistics.IsEditing, Mode=OneWay}"
+                                                      Command="{x:Bind ViewModel.Logistics.CancelEditCommand, Mode=OneWay}" />
+
+                                    </CommandBar>
+                                </Grid>
+
+                                <!-- READONLY MODE -->
+                                <StackPanel Spacing="12" Visibility="{x:Bind ViewModel.Logistics.IsReadonly, Mode=OneWay}">
+                                    
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="Payment Method" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+
+                                        <TextBlock Text="Cash on Delivery" 
+                                                   Style="{StaticResource BodyTextBlockStyle}" 
+                                                   Visibility="{x:Bind ViewModel.Logistics.IsCashOnDelivery, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                                        <TextBlock Text="Prepaid" 
+                                                   Style="{StaticResource BodyTextBlockStyle}" 
+                                                   Visibility="{x:Bind ViewModel.Logistics.IsCashOnDelivery, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}"/>
+                                    </StackPanel>
+                                    
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="Courier" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Text="{x:Bind ViewModel.Logistics.SelectedCourier.Name, Mode=OneWay, TargetNullValue='No Courier Selected', FallbackValue='No Courier Selected'}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                    </StackPanel>
+
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="Shipping Address" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Text="{x:Bind ViewModel.Logistics.ShippingAddressStreet, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" Visibility="{x:Bind ViewModel.Logistics.ShippingAddressStreet, Mode=OneWay, Converter={StaticResource InvertedNullToVisibilityConverter}}"/>
+                                        <TextBlock Style="{StaticResource BodyTextBlockStyle}">
+                                            <Run Text="{x:Bind ViewModel.Logistics.ShippingAddressCity, Mode=OneWay}"/>
+                                            <Run Text=" - "/>
+                                            <Run Text="{x:Bind ViewModel.Logistics.ShippingAddressDistrict, Mode=OneWay}"/>
+                                        </TextBlock>
+                                        <TextBlock Style="{StaticResource BodyTextBlockStyle}">
+                                            <Run Text="{x:Bind ViewModel.Logistics.ShippingAddressState, Mode=OneWay}"/>
+                                            <Run Text=", "/>
+                                            <Run Text="{x:Bind ViewModel.Logistics.ShippingAddressPostalCode, Mode=OneWay}"/>
+                                        </TextBlock>
+                                        <TextBlock Text="{x:Bind ViewModel.Logistics.ShippingAddressCountry, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" />
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <!-- EDIT MODE -->
+                                <StackPanel Spacing="12" Visibility="{x:Bind ViewModel.Logistics.IsEditing, Mode=OneWay}">
+                                    <StackPanel Spacing="16" Margin="0,16,0,0">
+                                        <ToggleSwitch Header="Cash on Delivery" 
+                                                      IsEnabled="False"
+                                                      IsOn="{x:Bind ViewModel.Logistics.IsCashOnDelivery, Mode=TwoWay}" 
+                                                      OnContent="Yes" OffContent="No" />
+
+                                        <ComboBox Header="Courier" 
+                                                  ItemsSource="{x:Bind ViewModel.Logistics.Couriers, Mode=OneWay}" 
+                                                  SelectedItem="{x:Bind ViewModel.Logistics.SelectedCourier, Mode=TwoWay}"
+                                                  DisplayMemberPath="Name" 
+                                                  PlaceholderText="Select a Courier" 
+                                                  HorizontalAlignment="Stretch" />
+
+                                        <StackPanel Spacing="8" Margin="0,8,0,0">
+                                            <Grid Margin="0,8,0,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBlock Grid.Column="0" 
+                                                           Text="Shipping Address" 
+                                                           Style="{StaticResource BodyStrongTextBlockStyle}" 
+                                                           VerticalAlignment="Center"/>
+
+                                                <!-- The autofill button -->
+                                                <HyperlinkButton Grid.Column="1" 
+                                                                 Content="Use Customer Default Address" 
+                                                                 Command="{x:Bind ViewModel.Logistics.UseCustomerAddressCommand}" 
+                                                                 Margin="12,0,0,0" 
+                                                                 VerticalAlignment="Center" />
+                                            </Grid>
+
+                                            <TextBox Header="Street Address" Text="{x:Bind ViewModel.Logistics.ShippingAddressStreet, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                                            <Grid ColumnSpacing="12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBox Grid.Column="0" Header="City" Text="{x:Bind ViewModel.Logistics.ShippingAddressCity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                                <ComboBox Grid.Column="1" Header="State / Province" 
+                                                          ItemsSource="{x:Bind ViewModel.Logistics.Provinces, Mode=OneWay}"
+                                                          SelectedItem="{x:Bind ViewModel.Logistics.ShippingAddressState, Mode=TwoWay}"
+                                                          HorizontalAlignment="Stretch" />
+                                            </Grid>
+
+                                            <Grid ColumnSpacing="12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <ComboBox Grid.Column="0" Header="District" 
+                                                          ItemsSource="{x:Bind ViewModel.Logistics.Districts, Mode=OneWay}"
+                                                          SelectedItem="{x:Bind ViewModel.Logistics.ShippingAddressDistrict, Mode=TwoWay}"
+                                                          HorizontalAlignment="Stretch" />
+                                                <TextBox Grid.Column="1" Header="Postal Code" Text="{x:Bind ViewModel.Logistics.ShippingAddressPostalCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            </Grid>
+
+                                            <TextBox Header="Country" Text="{x:Bind ViewModel.Logistics.ShippingAddressCountry, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </StackPanel>
+
+                            </StackPanel>
                             
                         </StackPanel>
                         

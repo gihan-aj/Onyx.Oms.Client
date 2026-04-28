@@ -36,7 +36,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
 
         public bool HasEmail => !string.IsNullOrWhiteSpace(Email);
 
-        public CustomerDetailsViewModel(CustomerDetailsDto dto)
+        public CustomerDetailsViewModel(CustomerDto dto)
         {
             _name = dto.Name;
             _primaryPhone = dto.PrimaryPhone;

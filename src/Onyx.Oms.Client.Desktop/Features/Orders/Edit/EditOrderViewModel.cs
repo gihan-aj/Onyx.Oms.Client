@@ -4,6 +4,8 @@ using Microsoft.Extensions.Logging;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,6 +16,9 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
         private readonly IOrdersApi _ordersApi;
         private readonly ILogger<EditOrderViewModel> _logger;
         private readonly INavigationService _navigationService;
+        private readonly IToastService _toastService;
+
+        private Guid? _orderId;
 
         private bool _isLoading;
         public bool IsLoading
@@ -50,17 +55,28 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             }
         }
 
+        // Logistics
+        private OrderLogisticsViewModel? _logistics = null;
+        public OrderLogisticsViewModel? Logistics
+        {
+            get => _logistics;
+            set => SetProperty(ref _logistics, value);
+        }
+
         public bool HasCustomerDetails => CustomerDetails != null;
 
         public IRelayCommand GoBackCommand { get; }
+        public IAsyncRelayCommand UpdateOrderLogisticsCommand { get; }
 
-        public EditOrderViewModel(IOrdersApi ordersApi, ILogger<EditOrderViewModel> logger, INavigationService navigationService)
+        public EditOrderViewModel(IOrdersApi ordersApi, ILogger<EditOrderViewModel> logger, INavigationService navigationService, IToastService toastService)
         {
             _ordersApi = ordersApi;
             _logger = logger;
             _navigationService = navigationService;
+            _toastService = toastService;
 
             GoBackCommand = new RelayCommand(GoBack);
+            UpdateOrderLogisticsCommand = new AsyncRelayCommand(UpdateLogisticsAsync);
         }
 
         public void OnNavigatedFrom()
@@ -86,8 +102,11 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             {
                 IsLoading = true;
                 var orderDetails = await _ordersApi.GetOrderById(orderId);
+                _orderId = orderDetails.Id;
                 PageTitle = orderDetails.OrderNumber;
                 CustomerDetails = new CustomerDetailsViewModel(orderDetails.Customer);
+                Logistics = new OrderLogisticsViewModel(orderDetails, _toastService);
+                await LoadCouriersAsync(Logistics);
             }
             catch
             {
@@ -96,6 +115,29 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             finally
             {
                 IsLoading = false;
+            }
+        }
+
+        private async Task LoadCouriersAsync(OrderLogisticsViewModel logistics)
+        {
+            try
+            {
+                var couriers = await _ordersApi.GetCouriers(true);
+                logistics.Couriers.Clear();
+                foreach (var c in couriers)
+                {
+                    logistics.Couriers.Add(c);
+                }
+                if (logistics.CourierId.HasValue)
+                {
+                    var selected = logistics.Couriers.FirstOrDefault(c => c.Id == logistics.CourierId.Value);
+                    if(selected != null)
+                        logistics.SelectedCourier = selected;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to load couriers at order edit page.");
             }
         }
 
@@ -108,6 +150,32 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             else
             {
                 _navigationService.NavigateTo("Onyx.Oms.Client.Desktop.Features.Orders.List.OrdersPage");
+            }
+        }
+
+        private async Task UpdateLogisticsAsync()
+        {
+            if (Logistics == null || !_orderId.HasValue)
+                return;
+
+            var request = Logistics.GetUpdateDto();
+            if (request == null)
+                return;
+
+            try
+            {
+                IsBusy = true;
+                await _ordersApi.UpdateLogistics(_orderId.Value, request);
+                await InitializeAsync(_orderId.Value);
+                _toastService.ShowSuccess("Success", "Order logistics has been updated.");
+            }
+            catch
+            {
+                _logger.LogError("Failed to update order logistics details for order ID: {OrderId}", _orderId);
+            }
+            finally
+            {
+                IsBusy = false;
             }
         }
     }

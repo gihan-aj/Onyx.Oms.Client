@@ -80,7 +80,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
     public record OrderDetailsDto(
         Guid Id,
         string OrderNumber,
-        CustomerDetailsDto Customer,
+        CustomerDto Customer,
         Guid? CourierId,
         string? TrackingNumber,
         string ShippingAddressStreet,
@@ -107,13 +107,13 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         List<OrderPaymentDetailsDto> Payments
     );
 
-    public record CustomerDetailsDto(
-        Guid Id,
-        string Name,
-        string PrimaryPhone,
-        string? SecondaryPhone,
-        string? Email
-    );
+    //public record CustomerDetailsDto(
+    //    Guid Id,
+    //    string Name,
+    //    string PrimaryPhone,
+    //    string? SecondaryPhone,
+    //    string? Email
+    //);
 
     public record OrderItemDetailsDto(
         Guid Id,
