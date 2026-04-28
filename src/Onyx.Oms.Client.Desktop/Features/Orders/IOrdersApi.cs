@@ -23,8 +23,47 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
             [AliasAs("toDate")] DateTimeOffset? toDate = null,
             [AliasAs("includeDetails")] bool includeDetails = false);
 
+        [Get("/api/v1/orders/{id}")]
+        Task<OrderDetailsDto> GetOrderById(Guid id);
+
         [Post("/api/v1/orders")]
         Task<Guid> CreateOrder([Body] CreateOrderCommand task);
+
+        [Put("/api/v1/orders/{id}/financials")]
+        Task UpdateFinancials(Guid id, [Body] UpdateOrderFinancialsCommand command);
+
+        [Put("/api/v1/orders/{id}/logistics")]
+        Task UpdateLogistics(Guid id, [Body] UpdateOrderLogisticsCommand command);
+
+        [Put("/api/v1/orders/{id}/notes")]
+        Task UpdateNotes(Guid id, [Body] UpdateOrderNotesCommand command);
+
+        [Put("/api/v1/orders/{orderId}/items/{orderItemId}/production-tasks")]
+        Task CreateProductionTask(Guid orderId, Guid orderItemId, [Body] CreateOrderProductionTaskCommand command);
+
+        [Put("/api/v1/orders/{orderId}/items/{orderItemId}/procurement-tasks")]
+        Task CreateProcurementTask(Guid orderId, Guid orderItemId, [Body] CreateOrderProcurementTaskCommand command);
+
+        [Put("/api/v1/orders/{id}/confirm")]
+        Task ConfirmOrder(Guid id);
+
+        [Put("/api/v1/orders/{id}/cancel")]
+        Task CancelOrder(Guid id);
+
+        [Put("/api/v1/orders/{id}/complete")]
+        Task CompleteOrder(Guid id);
+
+        [Put("/api/v1/orders/{id}/deliver")]
+        Task DeliverOrder(Guid id);
+
+        [Put("/api/v1/orders/{id}/fail-delivery")]
+        Task FailOrderDelivery(Guid id, [Body] FailDeliveryCommand command);
+
+        [Put("/api/v1/orders/{id}/pack")]
+        Task PackOrder(Guid id);
+
+        [Put("/api/v1/orders/{id}/ship")]
+        Task ShipOrder(Guid id, [Body] ShipOrderCommand command);
 
         [Get("/api/v1/customers/search")]
         Task<PagedResult<CustomerDto>> SearchCustomers(

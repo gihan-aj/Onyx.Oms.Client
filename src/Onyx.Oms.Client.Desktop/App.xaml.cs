@@ -303,6 +303,8 @@ namespace Onyx.Oms.Client.Desktop
             services.AddTransient<Features.Orders.List.OrdersViewModel>();
             services.AddTransient<Features.Orders.Create.CreateOrderPage>();
             services.AddTransient<Features.Orders.Create.CreateOrderViewModel>();
+            services.AddTransient<Features.Orders.Edit.EditOrderPage>();
+            services.AddTransient<Features.Orders.Edit.EditOrderViewModel>();
             services.AddTransient<Features.Orders.ProductPicker.ProductPickerViewModel>();
             services.AddTransient<Features.Customers.CustomersPage>();
             services.AddTransient<Features.FulfillmentTasks.List.FulfillmentTasksPage>();
@@ -348,6 +350,7 @@ namespace Onyx.Oms.Client.Desktop
             pageService.Configure(typeof(Features.Dashboard.DashboardPage).FullName!, typeof(Features.Dashboard.DashboardPage));
             pageService.Configure(typeof(Features.Orders.List.OrdersPage).FullName!, typeof(Features.Orders.List.OrdersPage));
             pageService.Configure(typeof(Features.Orders.Create.CreateOrderViewModel).FullName!, typeof(Features.Orders.Create.CreateOrderPage));
+            pageService.Configure(typeof(Features.Orders.Edit.EditOrderViewModel).FullName!, typeof(Features.Orders.Edit.EditOrderPage));
             pageService.Configure(typeof(Features.Customers.CustomersPage).FullName!, typeof(Features.Customers.CustomersPage));
             pageService.Configure(typeof(Features.Customers.CustomerFormPage).FullName!, typeof(Features.Customers.CustomerFormPage));
             pageService.Configure(typeof(Features.FulfillmentTasks.List.FulfillmentTasksPage).FullName!, typeof(Features.FulfillmentTasks.List.FulfillmentTasksPage));

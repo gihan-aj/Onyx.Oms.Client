@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Controls;
 using Onyx.Oms.Client.Desktop.Features.Orders.Create;
+using Onyx.Oms.Client.Desktop.Features.Orders.Edit;
 using Onyx.Oms.Client.Desktop.Shared.Constants;
 using Onyx.Oms.Client.Desktop.Shared.Models;
 using Onyx.Oms.Client.Desktop.Shared.Services;
@@ -235,7 +236,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
         {
             if (order != null)
             {
-                // _navigationService.NavigateTo(typeof(EditOrderViewModel).FullName!, order.Id);
+                 _navigationService.NavigateTo(typeof(EditOrderViewModel).FullName!, order.Id);
             }
         }
     }

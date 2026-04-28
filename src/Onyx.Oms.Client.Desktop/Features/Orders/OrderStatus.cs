@@ -44,3 +44,11 @@ public enum PaymentStatus
     PartiallyPaid = 1,
     FullyPaid = 2
 }
+
+public enum TaskPriority
+{
+    Low = 0,
+    Normal = 1,
+    High = 2,
+    Urgent = 3
+}

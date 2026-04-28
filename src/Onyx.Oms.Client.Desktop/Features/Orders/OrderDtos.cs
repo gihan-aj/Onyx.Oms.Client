@@ -61,6 +61,12 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         InitialPaymentDto? Payment,
         string? Notes);
 
+    public record UpdateOrderFinancialsCommand(
+        List<OrderItemDto> Items,
+        MoneyDto? ShippingFee,
+        MoneyDto? TaxAmount,
+        OrderDiscountDto? Discount);
+
     public record OrderItemDto(
         Guid ProductVariantId,
         int Quantity,
@@ -70,6 +76,72 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         decimal Value,
         DiscountType Type,
         string? Reason);
+
+    public record OrderDetailsDto(
+        Guid Id,
+        string OrderNumber,
+        CustomerDetailsDto Customer,
+        Guid? CourierId,
+        string? TrackingNumber,
+        string ShippingAddressStreet,
+        string ShippingAddressCity,
+        string ShippingAddressDistrict,
+        string ShippingAddressState,
+        string ShippingAddressPostalCode,
+        string ShippingAddressCountry,
+        OrderStatus Status,
+        PaymentStatus PaymentStatus,
+        bool IsCashOnDelivery,
+        string? Notes,
+        decimal SubTotal,
+        decimal DiscountAmount,
+        string? DiscountReason,
+        decimal ShippingCost,
+        decimal TaxAmount,
+        decimal GrandTotal,
+        decimal TotalPaid,
+        decimal BalanceAmount,
+        DateTimeOffset? OrderDate,
+        DateTimeOffset CreatedOnUtc,
+        List<OrderItemDetailsDto> Items,
+        List<OrderPaymentDetailsDto> Payments
+    );
+
+    public record CustomerDetailsDto(
+        Guid Id,
+        string Name,
+        string PrimaryPhone,
+        string? SecondaryPhone,
+        string? Email
+    );
+
+    public record OrderItemDetailsDto(
+        Guid Id,
+        Guid ProductVariantId,
+        int Quantity,
+        int AllocatedQuantity,
+        int PendingQuantity,
+        decimal UnitPrice,
+        decimal DiscountAmount,
+        string? DiscountReason,
+        decimal LineTotal,
+        OrderItemStatus Status
+    );
+
+    public record OrderPaymentDetailsDto(
+        Guid Id,
+        decimal Amount,
+        PaymentMethod Method,
+        string? Reference,
+        DateTime PaymentDate,
+        string? GatewayName,
+        string? GatewayTransactionId,
+        string? GatewayPaymentStatus
+    );
+
+    public record UpdateOrderLogisticsCommand(
+        Guid? CourierId,
+        ShippingAddressDto? ShippingAddress);
 
     public record ShippingAddressDto(
         string? Street,
@@ -102,6 +174,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         }
     }
 
+    public record UpdateOrderNotesCommand(string? Notes);
+
     public class CustomerDto
     {
         public Guid Id { get; set; }
@@ -129,6 +203,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         public string Country { get; set; } = string.Empty;
         public string? Notes { get; set; }
     }
+
+
 
     public record VariantAttributeDto(
         string Name,
@@ -211,4 +287,21 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         string? WebsiteUrl,
         bool IsActive);
 
+    public record CreateOrderProcurementTaskCommand(
+        Guid OrderItemId,
+        int RequestedQuantity,
+        string? Notes,
+        DateTimeOffset? ExpectedCompletionDate,
+        TaskPriority Priority);
+
+    public record CreateOrderProductionTaskCommand(
+        Guid OrderItemId,
+        int RequestedQuantity,
+        string? Notes,
+        DateTimeOffset? ExpectedCompletionDate,
+        TaskPriority Priority);
+
+    public record FailDeliveryCommand(bool IsReturnedToSender);
+
+    public record ShipOrderCommand(Guid CourierId, string? TrackingNumber);
 }
