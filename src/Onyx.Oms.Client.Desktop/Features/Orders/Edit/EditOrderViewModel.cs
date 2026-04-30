@@ -17,6 +17,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
         private readonly ILogger<EditOrderViewModel> _logger;
         private readonly INavigationService _navigationService;
         private readonly IToastService _toastService;
+        private readonly IFileService _fileService;
 
         private Guid? _orderId;
 
@@ -65,18 +66,29 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
 
         public bool HasCustomerDetails => CustomerDetails != null;
 
+        // Order items
+        private OrderItemsViewModel? _orderItems = null;
+        public OrderItemsViewModel? OrderItems
+        {
+            get => _orderItems;
+            set => SetProperty(ref _orderItems, value);
+        }
+
         public IRelayCommand GoBackCommand { get; }
         public IAsyncRelayCommand UpdateOrderLogisticsCommand { get; }
+        public IAsyncRelayCommand UpdateOrderItemsCommand { get; }
 
-        public EditOrderViewModel(IOrdersApi ordersApi, ILogger<EditOrderViewModel> logger, INavigationService navigationService, IToastService toastService)
+        public EditOrderViewModel(IOrdersApi ordersApi, ILogger<EditOrderViewModel> logger, INavigationService navigationService, IToastService toastService, IFileService fileService)
         {
             _ordersApi = ordersApi;
             _logger = logger;
             _navigationService = navigationService;
             _toastService = toastService;
+            _fileService = fileService;
 
             GoBackCommand = new RelayCommand(GoBack);
             UpdateOrderLogisticsCommand = new AsyncRelayCommand(UpdateLogisticsAsync);
+            UpdateOrderItemsCommand = new AsyncRelayCommand(UpdateOrderItemsAsync);
         }
 
         public void OnNavigatedFrom()
@@ -107,6 +119,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                 CustomerDetails = new CustomerDetailsViewModel(orderDetails.Customer);
                 Logistics = new OrderLogisticsViewModel(orderDetails, _toastService);
                 await LoadCouriersAsync(Logistics);
+                OrderItems = new OrderItemsViewModel(orderDetails, _fileService, _toastService);
+                await OrderItems.LoadImagesAsync();
             }
             catch
             {
@@ -172,6 +186,32 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             catch
             {
                 _logger.LogError("Failed to update order logistics details for order ID: {OrderId}", _orderId);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+        private async Task UpdateOrderItemsAsync()
+        {
+            if (OrderItems == null || !_orderId.HasValue)
+                return;
+
+            var request = OrderItems.GetUpdateDto();
+            if (request == null)
+                return;
+
+            try
+            {
+                IsBusy = true;
+                await _ordersApi.UpdateFinancials(_orderId.Value, request);
+                await InitializeAsync(_orderId.Value);
+                _toastService.ShowSuccess("Success", "Order items has been updated.");
+            }
+            catch
+            {
+                _logger.LogError("Failed to update order items for order ID: {OrderId}", _orderId);
             }
             finally
             {

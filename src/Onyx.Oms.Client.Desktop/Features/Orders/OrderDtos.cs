@@ -101,6 +101,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         decimal GrandTotal,
         decimal TotalPaid,
         decimal BalanceAmount,
+        string BaseCurrency,
         DateTimeOffset? OrderDate,
         DateTimeOffset CreatedOnUtc,
         List<OrderItemDetailsDto> Items,
@@ -118,6 +119,10 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
     public record OrderItemDetailsDto(
         Guid Id,
         Guid ProductVariantId,
+        string ProductName,
+        string Sku,
+        string? ImageUrl,
+        int AvailableQuantity,
         int Quantity,
         int AllocatedQuantity,
         int PendingQuantity,

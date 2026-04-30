@@ -44,5 +44,10 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             ViewModel.OnNavigatedFrom();
         }
 
+        public Visibility GetOrderItemsEmptyState(int imageCount)
+        {
+            if (ViewModel.OrderItems != null && ViewModel.OrderItems.Items.Count == 0) return Visibility.Visible;
+            return Visibility.Collapsed;
+        }
     }
 }

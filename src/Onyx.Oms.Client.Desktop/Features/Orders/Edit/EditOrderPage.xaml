@@ -77,8 +77,8 @@
                     <Grid ColumnSpacing="12">
 
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1.2*" MinWidth="350" />
-                            <ColumnDefinition Width="1*" MinWidth="350" />
+                            <ColumnDefinition Width="3*" MinWidth="350" />
+                            <ColumnDefinition Width="2*" MinWidth="350" />
                         </Grid.ColumnDefinitions>
 
                         <!-- Left Column -->
@@ -122,6 +122,244 @@
                                             </StackPanel>
                                         </StackPanel>
                                     </Grid>
+                                </StackPanel>
+
+                            </StackPanel>
+
+                            <!-- Products Section -->
+                            <StackPanel Style="{StaticResource CardStackStyle}">
+
+                                <Grid Margin="0,0,0,16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Items" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                        <TextBlock Text="Select products or product variants and required quantities." 
+                                                   Style="{StaticResource CaptionTextBlockStyle}" 
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                    </StackPanel>
+
+                                    <CommandBar Grid.Column="1" 
+                                                Background="Transparent" 
+                                                IsOpen="False" 
+                                                DefaultLabelPosition="Right" 
+                                                IsSticky="True">
+                                        
+                                        <AppBarButton Icon="Edit" Label="Edit" 
+                                                      Visibility="{x:Bind ViewModel.OrderItems.CanModifyCart, Mode=OneWay}"
+                                                      Command="{x:Bind ViewModel.OrderItems.BeginEditCommand, Mode=OneWay}" />
+                                        
+                                        <AppBarButton Icon="Add" Label="Add" 
+                                                      ToolTipService.ToolTip="Add an item" 
+                                                      Visibility="{x:Bind ViewModel.OrderItems.IsEditing, Mode=OneWay}"
+                                                      Command="{x:Bind ViewModel.OrderItems.ShowProductPickerCommand, Mode=OneWay}" />
+
+                                        <AppBarButton Icon="Save" Label="Save" 
+                                                      AllowFocusOnInteraction="True"
+                                                      Visibility="{x:Bind ViewModel.OrderItems.IsEditing, Mode=OneWay}"
+                                                      Command="{x:Bind ViewModel.UpdateOrderItemsCommand}" />
+
+                                        <AppBarButton Icon="Cancel" Label="Cancel" 
+                                                      Visibility="{x:Bind ViewModel.OrderItems.IsEditing, Mode=OneWay}"
+                                                      Command="{x:Bind ViewModel.OrderItems.CancelEditCommand, Mode=OneWay}" />
+
+                                    </CommandBar>
+                                </Grid>
+
+                                <!-- READONLY MODE -->
+                                <StackPanel Spacing="12" Visibility="{x:Bind ViewModel.OrderItems.IsReadonly, Mode=OneWay}">
+
+                                    <ItemsControl ItemsSource="{x:Bind ViewModel.OrderItems.Items, Mode=OneWay}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="local:EditOrderLineItem">
+
+                                                <Grid Background="{ThemeResource LayerFillColorAltBrush}"
+                                                      CornerRadius="8" 
+                                                      Padding="12" Margin="0,0,0,8">
+
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="64" />
+                                                        <ColumnDefinition Width="*" MinWidth="150" />
+                                                        <ColumnDefinition Width="Auto" MinWidth="120" />
+                                                        <ColumnDefinition Width="Auto" MinWidth="180" />
+                                                        <ColumnDefinition Width="Auto" MinWidth="140" />
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <!-- Image (Same as Edit Mode) -->
+                                                    <Grid Grid.Column="0" Width="56" Height="56" CornerRadius="4" 
+                                                          Background="{ThemeResource LayerFillColorAltBrush}" BorderThickness="1" BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}">
+                                                        <Image Source="{x:Bind ImageSource, Mode=OneWay}" Stretch="UniformToFill" />
+                                                    </Grid>
+
+                                                    <!-- Product Details -->
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="16,0,0,0">
+                                                        <TextBlock Text="{x:Bind ProductName, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" TextWrapping="Wrap"/>
+                                                        <TextBlock Text="{x:Bind Sku, Mode=OneWay}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                    </StackPanel>
+
+                                                    <!-- Status Badge -->
+                                                    <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="16,0,0,0">
+                                                        <TextBlock Text="Status" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
+                                                        <!-- You can style this border based on the Status enum using a converter later! -->
+                                                        <Border Background="{ThemeResource SystemFillColorNeutralBrush}" CornerRadius="4" Padding="6,2" HorizontalAlignment="Left">
+                                                            <TextBlock Text="{x:Bind Status, Mode=OneWay}" FontSize="12" FontWeight="SemiBold"/>
+                                                        </Border>
+                                                    </StackPanel>
+
+                                                    <!-- Fulfillment Progress (Allocated / Requested) -->
+                                                    <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="16,0,0,0">
+                                                        <TextBlock Text="Fulfillment" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
+                                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                                            <!-- Progress Bar comparing Allocated to Requested -->
+                                                            <ProgressBar Value="{x:Bind AllocatedQuantity, Mode=OneWay}" 
+                                                                         Maximum="{x:Bind Quantity, Mode=OneWay}" 
+                                                                         Width="80" />
+                                                            <TextBlock Style="{StaticResource BodyTextBlockStyle}">
+                                                                <Run Text="{x:Bind AllocatedQuantity, Mode=OneWay}" FontWeight="SemiBold"/>
+                                                                <Run Text=" / " Foreground="{ThemeResource TextFillColorDisabledBrush}"/>
+                                                                <Run Text="{x:Bind Quantity, Mode=OneWay}"/>
+                                                            </TextBlock>
+                                                        </StackPanel>
+                                                    </StackPanel>
+
+                                                    <!-- Contextual Action Buttons -->
+                                                    <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="16,0,0,0" HorizontalAlignment="Right">
+
+                                                        <!-- Shown if they need it, and you have it in stock -->
+                                                        <Button Content="Allocate Stock" 
+                                                                Style="{StaticResource AccentButtonStyle}"
+                                                                Visibility="{x:Bind CanAllocateStock, Mode=OneWay}" />
+
+                                                        <!-- Shown if they need it, and you DO NOT have it -->
+                                                        <Button Content="Create Task" 
+                                                                Visibility="{x:Bind CanCreateTask, Mode=OneWay}">
+                                                            <Button.Flyout>
+                                                                <MenuFlyout>
+                                                                    <MenuFlyoutItem Text="Production Task" Icon="Repair" />
+                                                                    <MenuFlyoutItem Text="Procurement Task" Icon="Shop" />
+                                                                </MenuFlyout>
+                                                            </Button.Flyout>
+                                                        </Button>
+
+                                                    </StackPanel>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+
+                                </StackPanel>
+
+                                <!-- EDIT MODE -->
+                                <StackPanel Spacing="12" Visibility="{x:Bind ViewModel.OrderItems.IsEditing, Mode=OneWay}">
+
+                                    <ListView ItemsSource="{x:Bind ViewModel.OrderItems.Items, Mode=OneWay}"
+                                              SelectionMode="None"
+                                              HorizontalAlignment="Stretch"
+                                              ScrollViewer.VerticalScrollMode="Disabled">
+                                        <ListView.ItemContainerStyle>
+                                            <Style TargetType="ListViewItem">
+                                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                                <Setter Property="Margin" Value="0,0,0,8" />
+                                                <Setter Property="Padding" Value="0" />
+                                            </Style>
+                                        </ListView.ItemContainerStyle>
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate x:DataType="local:EditOrderLineItem">
+                                                <Grid Background="{ThemeResource LayerFillColorAltBrush}"
+                                                      CornerRadius="8"
+                                                      BorderThickness="0"
+                                                      BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
+                                                      Padding="12">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="64" />
+                                                        <ColumnDefinition Width="*" MinWidth="150" />
+                                                        <ColumnDefinition Width="Auto" MinWidth="120" />
+                                                        <ColumnDefinition Width="Auto" MinWidth="140" />
+                                                        <ColumnDefinition Width="Auto" MinWidth="100" />
+                                                        <ColumnDefinition Width="Auto" MinWidth="40" />
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <!-- Image -->
+                                                    <Grid Grid.Column="0" Width="56" Height="56" CornerRadius="4" 
+                                                          Background="{ThemeResource LayerFillColorAltBrush}" BorderThickness="1" BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
+                                                          VerticalAlignment="Center">
+                                                        <FontIcon Glyph="&#xE8B9;" FontSize="16" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                                                        <Image Source="{x:Bind ImageSource, Mode=OneWay}" Stretch="UniformToFill" />
+                                                    </Grid>
+
+                                                    <!-- Product Details -->
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="16,0,0,0">
+                                                        <TextBlock Text="{x:Bind ProductName, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" TextWrapping="Wrap"/>
+                                                        <TextBlock Text="{x:Bind Sku, Mode=OneWay}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                    </StackPanel>
+
+                                                    <!-- Unit Price -->
+                                                    <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="16,0,0,0">
+                                                        <TextBlock Text="Unit Price" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                                        <TextBlock Style="{StaticResource BodyTextBlockStyle}">
+                                                            <Run Text="{x:Bind BaseCurrency, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                            <Run Text=" " />
+                                                            <Run Text="{x:Bind UnitPrice, Mode=OneWay}" />
+                                                        </TextBlock>
+                                                    </StackPanel>
+
+                                                    <!-- Quantity & Availability -->
+                                                    <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="16,0,0,0">
+                                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                                            <NumberBox Value="{x:Bind Quantity, Mode=TwoWay}" 
+                                                                       Minimum="1" 
+                                                                       SpinButtonPlacementMode="Inline" 
+                                                                       Width="120" />
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
+                                                            <ProgressBar Value="{x:Bind AvailableQuantity, Mode=OneWay}" 
+                                                                         Maximum="{x:Bind Quantity, Mode=OneWay}" 
+                                                                         Foreground="{x:Bind QuantityProgressBrush, Mode=OneWay}"
+                                                                         Width="60" />
+                                                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}">
+                                                                <Run Text="{x:Bind AvailableQuantity, Mode=OneWay}"/>
+                                                                <Run Text="/" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                                <Run Text="{x:Bind Quantity, Mode=OneWay}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                            </TextBlock>
+                                                        </StackPanel>
+                                                    </StackPanel>
+
+                                                    <!-- Line Total -->
+                                                    <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="16,0,0,0">
+                                                        <TextBlock Text="Total" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                                        <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}">
+                                                            <Run Text="{x:Bind BaseCurrency, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                            <Run Text=" " />
+                                                            <Run Text="{x:Bind LineTotal, Mode=OneWay}" />
+                                                        </TextBlock>
+                                                    </StackPanel>
+
+                                                    <!-- Remove Action -->
+                                                    <Button Grid.Column="5" 
+                                                            Style="{StaticResource SubtleButtonStyle}" 
+                                                            VerticalAlignment="Center" 
+                                                            Margin="16,0,0,0"
+                                                            ToolTipService.ToolTip="Remove Item"
+                                                            Command="{x:Bind RemoveCommand, Mode=OneWay}"
+                                                            CommandParameter="{x:Bind}">
+                                                        <FontIcon Glyph="&#xE74D;" FontSize="16" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                                                    </Button>
+
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
+
+                                    <!-- Empty State -->
+                                    <StackPanel Visibility="{x:Bind GetOrderItemsEmptyState(ViewModel.OrderItems.Items.Count), Mode=OneWay}"
+                                                VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8" Margin="0,32,0,32">
+                                        <FontIcon Glyph="&#xE7B3;" FontSize="32" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                                        <TextBlock Text="No items added yet" Style="{StaticResource BodyTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                    </StackPanel>
+
                                 </StackPanel>
 
                             </StackPanel>
