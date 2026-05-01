@@ -82,12 +82,23 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                 if (SetProperty(ref _appliedDiscount, value))
                 {
                     OnPropertyChanged(nameof(HasDiscount));
+                    OnPropertyChanged(nameof(ShowOriginalDiscount));
+                    OnPropertyChanged(nameof(ShowNewDiscount));
+                    OnPropertyChanged(nameof(ShowApplyButton));
                     //RecalculateTotals();
                 }
             }
         }
 
         public bool HasDiscount => AppliedDiscount != null;
+
+        public decimal OriginalDiscountAmount => _originalDiscountAmount;
+        public string? OriginalDiscountReason => _originalDiscountReason;
+
+        public bool HasOriginalDiscount => _originalDiscountAmount > 0;
+        public bool ShowOriginalDiscount => HasOriginalDiscount && AppliedDiscount == null;
+        public bool ShowNewDiscount => AppliedDiscount != null;
+        public bool ShowApplyButton => !HasOriginalDiscount && AppliedDiscount == null;
 
         public IRelayCommand BeginEditCommand { get; }
         public IRelayCommand CancelEditCommand { get; }

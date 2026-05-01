@@ -550,9 +550,45 @@
 
                                 <!-- READONLY MODE -->
                                 <StackPanel Spacing="12" Visibility="{x:Bind ViewModel.Financials.IsReadonly, Mode=OneWay}">
-                                    
-                                    
-                                    
+
+                                    <!-- Shipping & Tax -->
+                                    <Grid ColumnSpacing="32">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Grid.Column="0" Spacing="4">
+                                            <TextBlock Text="Shipping Fee" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                            <TextBlock Style="{StaticResource BodyTextBlockStyle}">
+                                                <Run Text="{x:Bind ViewModel.Financials.BaseCurrency, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                <Run Text=" " />
+                                                <Run Text="{x:Bind ViewModel.Financials.ShippingFee, Mode=OneWay}" />
+                                            </TextBlock>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Spacing="4">
+                                            <TextBlock Text="Tax Amount" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                            <TextBlock Style="{StaticResource BodyTextBlockStyle}">
+                                                <Run Text="{x:Bind ViewModel.Financials.BaseCurrency, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                <Run Text=" " />
+                                                <Run Text="{x:Bind ViewModel.Financials.TaxAmount, Mode=OneWay}" />
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Grid>
+                                    <!-- Original Discount -->
+                                    <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.Financials.HasOriginalDiscount, Mode=OneWay}">
+                                        <TextBlock Text="Applied Discount" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                        <TextBlock Style="{StaticResource BodyTextBlockStyle}" Foreground="{ThemeResource SystemFillColorSuccessBrush}">
+                                            <Run Text="- " />
+                                            <Run Text="{x:Bind ViewModel.Financials.BaseCurrency, Mode=OneWay}" FontSize="12" />
+                                            <Run Text=" " />
+                                            <Run Text="{x:Bind ViewModel.Financials.OriginalDiscountAmount, Mode=OneWay}" />
+                                            <Run Text=" (" />
+                                            <Run Text="{x:Bind ViewModel.Financials.OriginalDiscountReason, Mode=OneWay}" />
+                                            <Run Text=")" />
+                                        </TextBlock>
+                                    </StackPanel>
+
                                 </StackPanel>
 
                                 <!-- EDIT MODE -->
@@ -596,18 +632,40 @@
                                     </StackPanel>
 
                                     <!-- Discount Actions -->
-                                    <StackPanel Margin="0,8,0,0">
-                                        <TextBlock Text="Discount" Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,4" />
+                                    <StackPanel Margin="0,16,0,0" Spacing="8">
+                                        <TextBlock Text="Discount" Style="{StaticResource BodyTextBlockStyle}" />
 
-                                        <Button Content="Apply Discount" 
-                                                Command="{x:Bind ViewModel.Financials.ShowApplyDiscountDialogCommand, Mode=OneWay}"
-                                                Visibility="{x:Bind ViewModel.Financials.HasDiscount, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}" />
+                                        <!-- 1. Discount Chip (Shows if there's an original discount AND no new discount applied) -->
+                                        <Grid Background="{ThemeResource LayerFillColorAltBrush}"
+                                              CornerRadius="4" Padding="12,8"
+                                              Visibility="{x:Bind ViewModel.Financials.ShowOriginalDiscount, Mode=OneWay}">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
 
-                                        <!-- Applied Discount Chip -->
+                                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                <TextBlock Text="Current Discount" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                    <Run Text="Amount: " />
+                                                    <Run Text="{x:Bind ViewModel.Financials.BaseCurrency, Mode=OneWay}" />
+                                                    <Run Text="{x:Bind ViewModel.Financials.OriginalDiscountAmount, Mode=OneWay}" />
+                                                    <Run Text=" | Reason: " />
+                                                    <Run Text="{x:Bind ViewModel.Financials.OriginalDiscountReason, Mode=OneWay, TargetNullValue='None', FallbackValue='None'}" />
+                                                </TextBlock>
+                                            </StackPanel>
+
+                                            <Button Grid.Column="1" 
+                                                    Content="Replace" 
+                                                    Style="{StaticResource DefaultButtonStyle}"
+                                                    Command="{x:Bind ViewModel.Financials.ShowApplyDiscountDialogCommand, Mode=OneWay}"
+                                                    VerticalAlignment="Center" />
+                                        </Grid>
+
+                                        <!-- 2. NEW Applied Discount Chip (Shows if a new discount is applied) -->
                                         <Grid Background="{ThemeResource SystemFillColorSuccessBackgroundBrush}"
-                                              CornerRadius="4"
-                                              Padding="12,8"
-                                              Visibility="{x:Bind ViewModel.Financials.HasDiscount, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                              CornerRadius="4" Padding="12,8"
+                                              Visibility="{x:Bind ViewModel.Financials.ShowNewDiscount, Mode=OneWay}">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*" />
                                                 <ColumnDefinition Width="Auto" />
@@ -629,12 +687,18 @@
                                             <Button Grid.Column="1" 
                                                     Style="{StaticResource SubtleButtonStyle}" 
                                                     Command="{x:Bind ViewModel.Financials.ClearDiscountCommand, Mode=OneWay}"
-                                                    ToolTipService.ToolTip="Remove Discount"
+                                                    ToolTipService.ToolTip="Revert Discount"
                                                     VerticalAlignment="Center">
                                                 <FontIcon Glyph="&#xE74D;" FontSize="14" Foreground="{ThemeResource SystemFillColorSuccessBrush}" />
                                             </Button>
                                         </Grid>
+
+                                        <!-- 3. Button to Apply Discount if NO discount exists at all -->
+                                        <Button Content="Apply Discount" 
+                                                Command="{x:Bind ViewModel.Financials.ShowApplyDiscountDialogCommand, Mode=OneWay}"
+                                                Visibility="{x:Bind ViewModel.Financials.ShowApplyButton, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
                                     </StackPanel>
+
                                 </StackPanel>
                             </StackPanel>
 
