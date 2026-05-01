@@ -68,6 +68,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         OrderDiscountDto? Discount);
 
     public record OrderItemDto(
+        Guid? Id,
         Guid ProductVariantId,
         int Quantity,
         OrderDiscountDto? Discount);

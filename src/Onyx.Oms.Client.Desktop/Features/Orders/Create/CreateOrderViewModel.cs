@@ -439,6 +439,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
                 IsBusy = true;
 
                 var items = OrderItems.Select(i => new OrderItemDto(
+                    Id: null,
                     ProductVariantId: i.ProductVariantId ?? i.ProductId,
                     Quantity: i.Quantity,
                     Discount: null

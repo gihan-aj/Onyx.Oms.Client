@@ -74,9 +74,18 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             set => SetProperty(ref _orderItems, value);
         }
 
+        // Financials
+        private FinancialsViewModel? _financials = null;
+        public FinancialsViewModel? Financials
+        {
+            get => _financials;
+            set => SetProperty(ref _financials, value);
+        }
+
         public IRelayCommand GoBackCommand { get; }
         public IAsyncRelayCommand UpdateOrderLogisticsCommand { get; }
         public IAsyncRelayCommand UpdateOrderItemsCommand { get; }
+        public IAsyncRelayCommand UpdateFinancialsCommand { get; }
 
         public EditOrderViewModel(IOrdersApi ordersApi, ILogger<EditOrderViewModel> logger, INavigationService navigationService, IToastService toastService, IFileService fileService)
         {
@@ -89,6 +98,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             GoBackCommand = new RelayCommand(GoBack);
             UpdateOrderLogisticsCommand = new AsyncRelayCommand(UpdateLogisticsAsync);
             UpdateOrderItemsCommand = new AsyncRelayCommand(UpdateOrderItemsAsync);
+            UpdateFinancialsCommand = new AsyncRelayCommand(UpdateFinancialsAsync);
         }
 
         public void OnNavigatedFrom()
@@ -121,6 +131,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                 await LoadCouriersAsync(Logistics);
                 OrderItems = new OrderItemsViewModel(orderDetails, _fileService, _toastService);
                 await OrderItems.LoadImagesAsync();
+                Financials = new FinancialsViewModel(orderDetails);
             }
             catch
             {
@@ -212,6 +223,32 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             catch
             {
                 _logger.LogError("Failed to update order items for order ID: {OrderId}", _orderId);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+        private async Task UpdateFinancialsAsync()
+        {
+            if (Financials == null || !_orderId.HasValue)
+                return;
+
+            var request = Financials.GetUpdateDto();
+            if (request == null)
+                return;
+
+            try
+            {
+                IsBusy = true;
+                await _ordersApi.UpdateFinancials(_orderId.Value, request);
+                await InitializeAsync(_orderId.Value);
+                _toastService.ShowSuccess("Success", "Order financials has been updated.");
+            }
+            catch
+            {
+                _logger.LogError("Failed to update order financials for order ID: {OrderId}", _orderId);
             }
             finally
             {

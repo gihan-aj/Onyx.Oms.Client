@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Controls;
-using Onyx.Oms.Client.Desktop.Features.Orders.Create;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using System;
 using System.Collections.Generic;
@@ -35,7 +34,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                 {
                     OnPropertyChanged(nameof(IsReadonly));
                     //OnPropertyChanged(nameof(CanModifyCart));
-                    CanModifyCart = !value && _orderStatus == OrderStatus.Pending;
+                    CanModifyCart = !value && _orderStatus < OrderStatus.Shipped;
                 }
             }
         }
@@ -70,6 +69,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             {
                 var orderItem = new EditOrderLineItem(_fileService)
                 {
+                    Id = item.Id,
                     ProductId = item.Id,
                     ProductVariantId = item.ProductVariantId,
                     ProductName = item.ProductName,
@@ -88,7 +88,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                 Items.Add(orderItem);
             }
 
-            CanModifyCart = _orderStatus == OrderStatus.Pending;
+            CanModifyCart = _orderStatus < OrderStatus.Shipped;
 
             BeginEditCommand = new AsyncRelayCommand(BeginEdit);
             CancelEditCommand = new AsyncRelayCommand(CancelEdit);
@@ -116,6 +116,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             {
                 var orderItem = new EditOrderLineItem(_fileService)
                 {
+                    Id = item.Id,
                     ProductId = item.Id,
                     ProductVariantId = item.ProductVariantId,
                     ProductName = item.ProductName,
@@ -156,6 +157,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
 
                 var lineItem = new EditOrderLineItem(_fileService)
                 {
+                    Id = null,
                     ProductId = gridItem.Id,
                     ProductVariantId = gridItem.ResolvedVariant?.Id ?? Guid.Empty,
                     ProductName = gridItem.DisplayName,
@@ -203,7 +205,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                 _toastService.ShowError("Validation Error", "Please add at least one item to the order.");
                 return null;
             }
-            var orderItems = Items.Select(i => new OrderItemDto(i.ProductVariantId, i.Quantity, null)).ToList();
+            var orderItems = Items.Select(i => new OrderItemDto(i.Id, i.ProductVariantId, i.Quantity, null)).ToList();
             var shippingCost = new MoneyDto(_shippingCost, _baseCurrency);
             var tax = new MoneyDto(_taxAmount, _baseCurrency);
             var dto = new UpdateOrderFinancialsCommand(orderItems, shippingCost, tax, null);

@@ -14,6 +14,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
     {
         private readonly IFileService _fileService;
 
+        public Guid? Id { get; set; }
         public OrderStatus OrderCurrentStatus { get; set; }
 
         private Guid _productId;

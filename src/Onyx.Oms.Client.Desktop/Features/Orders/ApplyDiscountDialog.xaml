@@ -11,7 +11,8 @@
     PrimaryButtonText="Apply"
     CloseButtonText="Cancel"
     DefaultButton="Primary"
-    PrimaryButtonClick="OnPrimaryButtonClick">
+    PrimaryButtonClick="OnPrimaryButtonClick"
+    Style="{StaticResource DefaultContentDialogStyle}">
 
     <StackPanel Spacing="16" MinWidth="350" Margin="0,12,0,0">
         
