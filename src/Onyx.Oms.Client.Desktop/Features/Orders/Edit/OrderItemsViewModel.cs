@@ -49,6 +49,13 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
 
         public ObservableCollection<EditOrderLineItem> Items = new();
 
+        private decimal _subTotal;
+        public decimal SubTotal
+        {
+            get => _subTotal;
+            private set => SetProperty(ref _subTotal, value);
+        }
+
         public IAsyncRelayCommand BeginEditCommand { get; }
         public IAsyncRelayCommand CancelEditCommand { get; }
         public IAsyncRelayCommand ShowProductPickerCommand { get; }
@@ -87,6 +94,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
 
                 Items.Add(orderItem);
             }
+
+            RecalculateSubTotal();
 
             CanModifyCart = _orderStatus < OrderStatus.Shipped;
 
@@ -136,6 +145,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             }
 
             await LoadImagesAsync();
+            RecalculateSubTotal();
         }
 
         public async Task LoadImagesAsync()
@@ -184,6 +194,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                     Items.Add(lineItem);
                 }
 
+                RecalculateSubTotal();
                 _toastService.ShowSuccess("Item Added", $"Added {qty}x {lineItem.ProductName} to the order.");
             };
 
@@ -195,7 +206,13 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             if (item != null && Items.Contains(item))
             {
                 Items.Remove(item);
+                RecalculateSubTotal();
             }
+        }
+
+        public void RecalculateSubTotal()
+        {
+            SubTotal = Items.Sum(i => i.LineTotal);
         }
 
         public UpdateOrderFinancialsCommand? GetUpdateDto()

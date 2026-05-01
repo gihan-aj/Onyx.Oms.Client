@@ -159,6 +159,19 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             }
         }
 
+        public decimal GetEffectiveDiscountAmount(decimal subTotal)
+        {
+            if (AppliedDiscount != null)
+            {
+                if (AppliedDiscount.Type == DiscountType.FlatAmount)
+                    return AppliedDiscount.Value;
+                if (AppliedDiscount.Type == DiscountType.Percentage)
+                    return subTotal * (AppliedDiscount.Value / 100m);
+            }
+
+            return _originalDiscountAmount;
+        }
+
         public UpdateOrderFinancialsCommand GetUpdateDto()
         {
             var shippingCost = new MoneyDto(ShippingFee, BaseCurrency);

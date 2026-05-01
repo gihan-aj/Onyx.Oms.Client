@@ -82,6 +82,27 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             set => SetProperty(ref _financials, value);
         }
 
+        // Financial Summary
+        private string _baseCurrency = "R";
+        public string BaseCurrency
+        {
+            get => _baseCurrency;
+            set => SetProperty(ref _baseCurrency, value);
+        }
+
+        private decimal _discountAmount;
+        public decimal DiscountAmount
+        {
+            get => _discountAmount;
+            private set => SetProperty(ref _discountAmount, value);
+        }
+        private decimal _grandTotal;
+        public decimal GrandTotal
+        {
+            get => _grandTotal;
+            private set => SetProperty(ref _grandTotal, value);
+        }
+
         public IRelayCommand GoBackCommand { get; }
         public IAsyncRelayCommand UpdateOrderLogisticsCommand { get; }
         public IAsyncRelayCommand UpdateOrderItemsCommand { get; }
@@ -98,7 +119,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             GoBackCommand = new RelayCommand(GoBack);
             UpdateOrderLogisticsCommand = new AsyncRelayCommand(UpdateLogisticsAsync);
             UpdateOrderItemsCommand = new AsyncRelayCommand(UpdateOrderItemsAsync);
-            UpdateFinancialsCommand = new AsyncRelayCommand(UpdateFinancialsAsync);
+            UpdateFinancialsCommand = new AsyncRelayCommand(UpdateFinancialsAsync);          
         }
 
         public void OnNavigatedFrom()
@@ -132,6 +153,24 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                 OrderItems = new OrderItemsViewModel(orderDetails, _fileService, _toastService);
                 await OrderItems.LoadImagesAsync();
                 Financials = new FinancialsViewModel(orderDetails);
+                BaseCurrency = orderDetails.BaseCurrency;
+
+                RecalculateTotals();
+
+                // Listen to SubTotal changes
+                OrderItems.PropertyChanged += (s, e) => {
+                    if (e.PropertyName == nameof(OrderItemsViewModel.SubTotal))
+                        RecalculateTotals();
+                };
+                // Listen to Financial changes
+                Financials.PropertyChanged += (s, e) => {
+                    if (e.PropertyName == nameof(FinancialsViewModel.ShippingFee) ||
+                        e.PropertyName == nameof(FinancialsViewModel.TaxAmount) ||
+                        e.PropertyName == nameof(FinancialsViewModel.AppliedDiscount))
+                    {
+                        RecalculateTotals();
+                    }
+                };
             }
             catch
             {
@@ -140,6 +179,15 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             finally
             {
                 IsLoading = false;
+            }
+        }
+
+        public void RecalculateTotals()
+        {
+            if(Financials != null && OrderItems != null)
+            {
+                DiscountAmount = Financials.GetEffectiveDiscountAmount(OrderItems.SubTotal);
+                GrandTotal = OrderItems.SubTotal + Financials.ShippingFee + Financials.TaxAmount - DiscountAmount;
             }
         }
 
