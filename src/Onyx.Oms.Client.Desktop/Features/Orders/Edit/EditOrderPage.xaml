@@ -371,7 +371,12 @@
 
                             <!-- Financial Summary Card -->
                             <StackPanel Style="{StaticResource CardStackStyle}" Background="{ThemeResource LayerFillColorAltBrush}">
-                                <TextBlock Text="Order Summary" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,0,0,16"/>
+                                <StackPanel>
+                                    <TextBlock Text="Order Summary" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                    <TextBlock Text="The Receipt Snapshot." 
+                                               Style="{StaticResource CaptionTextBlockStyle}" 
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
 
                                 <Grid RowSpacing="8">
                                     <Grid.RowDefinitions>
@@ -391,7 +396,7 @@
                                     <TextBlock Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" Style="{StaticResource BodyStrongTextBlockStyle}">
                                         <Run Text="{x:Bind ViewModel.BaseCurrency, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         <Run Text=" "/>
-                                        <Run Text="{x:Bind ViewModel.OrderItems.SubTotal, Mode=OneWay}"/>
+                                        <Run Text="{x:Bind ViewModel.FormatCurrency(ViewModel.OrderItems.SubTotal), Mode=OneWay}"/>
                                     </TextBlock>
 
                                     <!-- Shipping -->
@@ -399,7 +404,7 @@
                                     <TextBlock Grid.Row="1" Grid.Column="1"  HorizontalAlignment="Right" Style="{StaticResource BodyStrongTextBlockStyle}">
                                         <Run Text="{x:Bind ViewModel.BaseCurrency, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         <Run Text=" "/>
-                                        <Run Text="{x:Bind ViewModel.Financials.ShippingFee, Mode=OneWay}"/>
+                                        <Run Text="{x:Bind ViewModel.FormatCurrency(ViewModel.Financials.ShippingFee), Mode=OneWay}"/>
                                     </TextBlock>
 
                                     <!-- Tax -->
@@ -407,7 +412,7 @@
                                     <TextBlock Grid.Row="2" Grid.Column="1"  HorizontalAlignment="Right" Style="{StaticResource BodyStrongTextBlockStyle}">
                                         <Run Text="{x:Bind ViewModel.BaseCurrency, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                         <Run Text=" "/>
-                                        <Run Text="{x:Bind ViewModel.Financials.TaxAmount, Mode=OneWay}"/>
+                                        <Run Text="{x:Bind ViewModel.FormatCurrency(ViewModel.Financials.TaxAmount), Mode=OneWay}"/>
                                     </TextBlock>
 
                                     <!-- Discount -->
@@ -416,7 +421,7 @@
                                         <Run Text="- "/>
                                         <Run Text="{x:Bind ViewModel.BaseCurrency, Mode=OneWay}" FontSize="12"/>
                                         <Run Text=" "/>
-                                        <Run Text="{x:Bind ViewModel.DiscountAmount, Mode=OneWay}"/>
+                                        <Run Text="{x:Bind ViewModel.FormatCurrency(ViewModel.DiscountAmount), Mode=OneWay}"/>
                                     </TextBlock>
 
                                     <!-- Grand Total -->
@@ -430,7 +435,7 @@
                                             <TextBlock Grid.Column="1"  HorizontalAlignment="Right" Style="{StaticResource SubtitleTextBlockStyle}" FontWeight="Bold" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}">
                                                 <Run Text="{x:Bind ViewModel.BaseCurrency, Mode=OneWay}" FontSize="14" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                 <Run Text=" "/>
-                                                <Run Text="{x:Bind ViewModel.GrandTotal, Mode=OneWay}"/>
+                                                <Run Text="{x:Bind ViewModel.FormatCurrency(ViewModel.GrandTotal), Mode=OneWay}"/>
                                             </TextBlock>
                                         </Grid>
                                     </Border>

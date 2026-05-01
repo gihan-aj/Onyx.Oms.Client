@@ -255,11 +255,12 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
             {
                 if (AppliedDiscount.Type == DiscountType.FlatAmount)
                 {
-                    discount = AppliedDiscount.Value;
+                    discount = Math.Round(AppliedDiscount.Value, 0, MidpointRounding.AwayFromZero);
                 }
                 else if (AppliedDiscount.Type == DiscountType.Percentage)
                 {
-                    discount = SubTotal * (AppliedDiscount.Value / 100m);
+                   var calculated = SubTotal * (AppliedDiscount.Value / 100m);
+                   discount = Math.Round(calculated, 0, MidpointRounding.AwayFromZero);
                 }
             }
             DiscountAmount = discount;

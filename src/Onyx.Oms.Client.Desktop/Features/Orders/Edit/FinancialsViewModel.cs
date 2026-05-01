@@ -164,9 +164,13 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             if (AppliedDiscount != null)
             {
                 if (AppliedDiscount.Type == DiscountType.FlatAmount)
-                    return AppliedDiscount.Value;
+                    return Math.Round(AppliedDiscount.Value, 0, MidpointRounding.AwayFromZero);
+
                 if (AppliedDiscount.Type == DiscountType.Percentage)
-                    return subTotal * (AppliedDiscount.Value / 100m);
+                {
+                    decimal calculated = subTotal * (AppliedDiscount.Value / 100m);
+                    return Math.Round(calculated, 0, MidpointRounding.AwayFromZero);
+                }
             }
 
             return _originalDiscountAmount;

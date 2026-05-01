@@ -303,6 +303,80 @@
 
                         <!-- Right Column -->
                         <StackPanel Grid.Column="1" Orientation="Vertical" Spacing="16">
+
+                            <!-- Financial Summary Card -->
+                            <StackPanel Style="{StaticResource CardStackStyle}" Background="{ThemeResource LayerFillColorAltBrush}">
+                                <StackPanel>
+                                    <TextBlock Text="Order Summary" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                    <TextBlock Text="The Receipt Snapshot." 
+                                               Style="{StaticResource CaptionTextBlockStyle}" 
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+
+                                <Grid RowSpacing="8">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Subtotal -->
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Subtotal" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" Style="{StaticResource BodyStrongTextBlockStyle}">
+                                        <Run Text="{x:Bind ViewModel.BaseCurrency, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <Run Text=" "/>
+                                        <Run Text="{x:Bind ViewModel.FormatCurrency(ViewModel.SubTotal), Mode=OneWay}"/>
+                                    </TextBlock>
+
+                                    <!-- Shipping -->
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Shipping" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="1"  HorizontalAlignment="Right" Style="{StaticResource BodyStrongTextBlockStyle}">
+                                        <Run Text="{x:Bind ViewModel.BaseCurrency, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <Run Text=" "/>
+                                        <Run Text="{x:Bind ViewModel.FormatCurrency(ViewModel.ShippingFee), Mode=OneWay}"/>
+                                    </TextBlock>
+
+                                    <!-- Tax -->
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Tax" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="1"  HorizontalAlignment="Right" Style="{StaticResource BodyStrongTextBlockStyle}">
+                                        <Run Text="{x:Bind ViewModel.BaseCurrency, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <Run Text=" "/>
+                                        <Run Text="{x:Bind ViewModel.FormatCurrency(ViewModel.TaxAmount), Mode=OneWay}"/>
+                                    </TextBlock>
+
+                                    <!-- Discount -->
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Discount" Foreground="{ThemeResource SystemFillColorSuccessBrush}"/>
+                                    <TextBlock Grid.Row="3" Grid.Column="1"  HorizontalAlignment="Right" Style="{StaticResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource SystemFillColorSuccessBrush}">
+                                        <Run Text="- "/>
+                                        <Run Text="{x:Bind ViewModel.BaseCurrency, Mode=OneWay}" FontSize="12"/>
+                                        <Run Text=" "/>
+                                        <Run Text="{x:Bind ViewModel.FormatCurrency(ViewModel.DiscountAmount), Mode=OneWay}"/>
+                                    </TextBlock>
+
+                                    <!-- Grand Total -->
+                                    <Border Grid.Row="4" Grid.ColumnSpan="2" BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" BorderThickness="0,1,0,0" Margin="0,4,0,0" Padding="0,12,0,0">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="Total" Style="{StaticResource SubtitleTextBlockStyle}" FontWeight="SemiBold"/>
+                                            <TextBlock Grid.Column="1"  HorizontalAlignment="Right" Style="{StaticResource SubtitleTextBlockStyle}" FontWeight="Bold" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}">
+                                                <Run Text="{x:Bind ViewModel.BaseCurrency, Mode=OneWay}" FontSize="14" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                <Run Text=" "/>
+                                                <Run Text="{x:Bind ViewModel.FormatCurrency(ViewModel.GrandTotal), Mode=OneWay}"/>
+                                            </TextBlock>
+                                        </Grid>
+                                    </Border>
+                                </Grid>
+                            </StackPanel>
+
                             <!-- Logistics Section -->
                             <StackPanel Style="{StaticResource CardStackStyle}">
                                 <StackPanel>
@@ -507,9 +581,9 @@
                             </StackPanel>
 
                             <!-- Financial Summary Section -->
-                            <StackPanel Style="{StaticResource CardStackStyle}">
+                            <!--<StackPanel Style="{StaticResource CardStackStyle}">
                                 <StackPanel>
-                                    <TextBlock Text="Financial Summary" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                    <TextBlock Text="Order Summary" Style="{StaticResource BodyStrongTextBlockStyle}" />
                                     <TextBlock Text="The Receipt Snapshot." 
                                                Style="{StaticResource CaptionTextBlockStyle}" 
                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
@@ -565,7 +639,7 @@
                                         <TextBlock Text="{x:Bind ViewModel.FormatCurrency(ViewModel.GrandTotal), Mode=OneWay}" Grid.Column="2" HorizontalAlignment="Right" Style="{StaticResource TitleTextBlockStyle}" FontWeight="Bold" Foreground="{ThemeResource AccentAAFillColorDefaultBrush}" />
                                     </Grid>
                                 </StackPanel>
-                            </StackPanel>
+                            </StackPanel>-->
 
                         </StackPanel>
                     </Grid>

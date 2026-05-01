@@ -5,6 +5,7 @@ using Onyx.Oms.Client.Desktop.Shared.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -145,6 +146,13 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             {
                 IsLoading = true;
                 var orderDetails = await _ordersApi.GetOrderById(orderId);
+
+                // Unsubscribe fromprevious viewmodels
+                if(OrderItems != null)
+                    OrderItems.PropertyChanged -= OnOrderItemsPropertyChanged;
+                if (Financials != null)
+                    Financials.PropertyChanged -= OnFinancialsPropertyChanged;
+
                 _orderId = orderDetails.Id;
                 PageTitle = orderDetails.OrderNumber;
                 CustomerDetails = new CustomerDetailsViewModel(orderDetails.Customer);
@@ -158,19 +166,9 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                 RecalculateTotals();
 
                 // Listen to SubTotal changes
-                OrderItems.PropertyChanged += (s, e) => {
-                    if (e.PropertyName == nameof(OrderItemsViewModel.SubTotal))
-                        RecalculateTotals();
-                };
+                OrderItems.PropertyChanged += OnOrderItemsPropertyChanged;
                 // Listen to Financial changes
-                Financials.PropertyChanged += (s, e) => {
-                    if (e.PropertyName == nameof(FinancialsViewModel.ShippingFee) ||
-                        e.PropertyName == nameof(FinancialsViewModel.TaxAmount) ||
-                        e.PropertyName == nameof(FinancialsViewModel.AppliedDiscount))
-                    {
-                        RecalculateTotals();
-                    }
-                };
+                Financials.PropertyChanged += OnFinancialsPropertyChanged;
             }
             catch
             {
@@ -180,6 +178,26 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             {
                 IsLoading = false;
             }
+        }
+
+        private void OnOrderItemsPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(OrderItemsViewModel.SubTotal))
+                RecalculateTotals();
+        }
+        private void OnFinancialsPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(FinancialsViewModel.ShippingFee) ||
+                e.PropertyName == nameof(FinancialsViewModel.TaxAmount) ||
+                e.PropertyName == nameof(FinancialsViewModel.AppliedDiscount))
+            {
+                RecalculateTotals();
+            }
+        }
+
+        public string FormatCurrency(decimal value)
+        {
+            return value.ToString("N2");
         }
 
         public void RecalculateTotals()
