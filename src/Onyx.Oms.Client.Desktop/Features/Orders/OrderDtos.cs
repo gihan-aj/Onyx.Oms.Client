@@ -139,7 +139,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         decimal Amount,
         PaymentMethod Method,
         string? Reference,
-        DateTime PaymentDate,
+        DateTimeOffset PaymentDate,
         string? GatewayName,
         string? GatewayTransactionId,
         string? GatewayPaymentStatus

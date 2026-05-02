@@ -364,6 +364,94 @@
 
                             </StackPanel>
 
+                            <!-- Payments Ledger Section -->
+                            <StackPanel Style="{StaticResource CardStackStyle}"
+                                        Visibility="{x:Bind ViewModel.Payments.ShowPayments, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <Grid Margin="0,0,0,16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Payment Ledger" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                        <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                            <Run Text="Total Paid: "/>
+                                            <Run Text="{x:Bind ViewModel.Payments.BaseCurrency, Mode=OneWay}"/>
+                                            <Run Text="{x:Bind ViewModel.Payments.TotalPaid, Mode=OneWay}"/>
+                                            <Run Text=" | Due Balance: "/>
+                                            <Run Text="{x:Bind ViewModel.Payments.BaseCurrency, Mode=OneWay}"/>
+                                            <Run Text="{x:Bind ViewModel.Payments.DueBalance, Mode=OneWay}"/>
+                                        </TextBlock>
+                                    </StackPanel>
+
+                                    <CommandBar Grid.Column="1" 
+                                                Background="Transparent" 
+                                                IsOpen="False" 
+                                                DefaultLabelPosition="Right" 
+                                                IsSticky="True">
+
+                                        <AppBarButton Icon="Add" Label="Add Payment" 
+                                                      ToolTipService.ToolTip="Add a payment" 
+                                                      Visibility="{x:Bind ViewModel.Payments.CanAddPayment, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                      Command="{x:Bind ViewModel.Payments.ShowAddPaymentDialogCommand, Mode=OneWay}" />
+
+                                    </CommandBar>
+                                </Grid>
+
+                                <ListView ItemsSource="{x:Bind ViewModel.Payments.Payments, Mode=OneWay}" SelectionMode="None">
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem">
+                                            <!-- Forces the item to take up the full width of the ListView -->
+                                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                            <!-- Removes the default invisible margins/padding WinUI adds -->
+                                            <Setter Property="Padding" Value="0" />
+                                            <Setter Property="Margin" Value="0" />
+                                            <!-- Removes the hover background effect since SelectionMode="None" -->
+                                            <Setter Property="Background" Value="Transparent" />
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                    <!-- Header row for the ledger -->
+                                    <ListView.Header>
+                                        <Grid Padding="12,8" BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="2*" />
+                                                <ColumnDefinition Width="2*" />
+                                                <ColumnDefinition Width="3*" />
+                                                <ColumnDefinition Width="2*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="Date" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                            <TextBlock Grid.Column="1" Text="Method" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                            <TextBlock Grid.Column="2" Text="Reference" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                            <TextBlock Grid.Column="3" Text="Amount" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" HorizontalAlignment="Right"/>
+                                        </Grid>
+                                    </ListView.Header>
+
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate x:DataType="local:OrderPaymentLineItem">
+                                            <Grid Padding="12,12" BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="2*" />
+                                                    <ColumnDefinition Width="2*" />
+                                                    <ColumnDefinition Width="3*" />
+                                                    <ColumnDefinition Width="2*" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBlock Grid.Column="0" Text="{x:Bind PaymentDate, Mode=OneWay}" VerticalAlignment="Center" />
+                                                <TextBlock Grid.Column="1" Text="{x:Bind Method, Mode=OneWay}" VerticalAlignment="Center" />
+                                                <TextBlock Grid.Column="2" Text="{x:Bind Reference, Mode=OneWay, TargetNullValue='-', FallbackValue='-'}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+
+                                                <TextBlock Grid.Column="3" Style="{StaticResource BodyStrongTextBlockStyle}" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                                    <Run Text="{x:Bind Currency, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                    <Run Text=" "/>
+                                                    <Run Text="{x:Bind Amount, Mode=OneWay}"/>
+                                                </TextBlock>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </StackPanel>
+
                         </StackPanel>
                         
                         <!-- Right Column -->

@@ -28,6 +28,7 @@
     <None Remove="Features\Orders\Create\CreateNewCustomerDialog.xaml" />
     <None Remove="Features\Orders\Create\CreateOrderPage.xaml" />
     <None Remove="Features\Orders\CustomerPicker.xaml" />
+    <None Remove="Features\Orders\Edit\AddPaymentDialog.xaml" />
     <None Remove="Features\Orders\Edit\EditOrderPage.xaml" />
     <None Remove="Features\Orders\List\OrdersPage.xaml" />
     <None Remove="Features\Orders\ProductCategoryPicker\ProductCategoryPicker.xaml" />
@@ -201,6 +202,12 @@
 	<Content Include="BackendServices\**\*.*">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Features\Orders\Edit\AddPaymentDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <ItemGroup>

@@ -104,6 +104,14 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             private set => SetProperty(ref _grandTotal, value);
         }
 
+        // Payments
+        public PaymentsViewModel? _payments;
+        public PaymentsViewModel? Payments 
+        { 
+            get => _payments; 
+            set => SetProperty(ref _payments, value); 
+        }
+
         public IRelayCommand GoBackCommand { get; }
         public IAsyncRelayCommand UpdateOrderLogisticsCommand { get; }
         public IAsyncRelayCommand UpdateOrderItemsCommand { get; }
@@ -152,6 +160,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                     OrderItems.PropertyChanged -= OnOrderItemsPropertyChanged;
                 if (Financials != null)
                     Financials.PropertyChanged -= OnFinancialsPropertyChanged;
+                if(Payments != null)
+                    Payments.PropertyChanged -= OnOrderPaymentsPropertyChanged;
 
                 _orderId = orderDetails.Id;
                 PageTitle = orderDetails.OrderNumber;
@@ -162,6 +172,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                 await OrderItems.LoadImagesAsync();
                 Financials = new FinancialsViewModel(orderDetails);
                 BaseCurrency = orderDetails.BaseCurrency;
+                Payments = new PaymentsViewModel(orderDetails, _toastService, _ordersApi, _logger);
 
                 RecalculateTotals();
 
@@ -169,6 +180,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                 OrderItems.PropertyChanged += OnOrderItemsPropertyChanged;
                 // Listen to Financial changes
                 Financials.PropertyChanged += OnFinancialsPropertyChanged;
+                Payments.PropertyChanged += OnOrderPaymentsPropertyChanged;
             }
             catch
             {
@@ -193,6 +205,11 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             {
                 RecalculateTotals();
             }
+        }
+        private void OnOrderPaymentsPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(PaymentsViewModel.IsBusy) && Payments != null)
+                IsBusy = Payments.IsBusy;
         }
 
         public string FormatCurrency(decimal value)

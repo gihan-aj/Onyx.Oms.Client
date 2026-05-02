@@ -189,6 +189,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
 
             CanEdit = order.Status < OrderStatus.Shipped && IsReadonly;
 
+            IsCashOnDelivery = order.IsCashOnDelivery;
             CourierId = order.CourierId;
             ShippingAddressStreet = order.ShippingAddressStreet;
             ShippingAddressCity = order.ShippingAddressCity;
