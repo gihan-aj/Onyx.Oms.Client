@@ -303,6 +303,13 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
             set => SetProperty(ref _paymentDate, value);
         }
 
+        private TimeSpan _paymentTime = DateTime.Now.TimeOfDay;
+        public TimeSpan PaymentTime
+        {
+            get => _paymentTime;
+            set => SetProperty(ref _paymentTime, value);
+        }
+
         // --- UI State ---
         private bool _isLoading = true;
         public bool IsLoading { get => _isLoading; set => SetProperty(ref _isLoading, value); }
@@ -466,7 +473,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
                         Amount: new MoneyDto(PaymentAmount, BaseCurrency),
                         Method: PaymentMethod,
                         Reference: string.IsNullOrWhiteSpace(PaymentReference) ? null : PaymentReference,
-                        PaymentDate: PaymentDate.DateTime
+                        PaymentDate: PaymentDate.Date + PaymentTime
                     );
                 }
 

@@ -288,15 +288,20 @@
                             <!-- Notes Section -->
                             <StackPanel Style="{StaticResource CardStackStyle}">
                                 <StackPanel>
-                                    <TextBlock Text="Notes" Style="{StaticResource BodyStrongTextBlockStyle}" />
-                                    <TextBlock Text="Add notes relevant to the order (Chat messages)." 
+                                    <TextBlock Text="Internal Notes &amp; Logs" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                    <TextBlock Text="Customer requests, chat history, or internal instructions." 
                                                Style="{StaticResource CaptionTextBlockStyle}" 
                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                                 </StackPanel>
 
-                                <TextBox 
-                                         Text="{x:Bind ViewModel.Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                         TextWrapping="Wrap" AcceptsReturn="True" MinHeight="100" Margin="0,0,0,12" />
+                                <TextBox Text="{x:Bind ViewModel.Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                         PlaceholderText="Paste social media chat logs, special delivery instructions, or internal notes here..."
+                                         AcceptsReturn="True" 
+                                         TextWrapping="Wrap"
+                                         MinHeight="150" 
+                                         MaxHeight="400"
+                                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                         HorizontalAlignment="Stretch" />
                             </StackPanel>
 
                         </StackPanel>
@@ -554,11 +559,28 @@
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
-                                        <NumberBox Header="Amount Paid" 
+                                        <!--<NumberBox Header="Amount Paid" 
                                                    Value="{x:Bind ViewModel.PaymentAmount, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}" 
                                                    SpinButtonPlacementMode="Inline" 
                                                    Minimum="0" 
-                                                   Grid.Column="0" />
+                                                   Grid.Column="0" />-->
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="Amount Paid"
+                                                       Style="{StaticResource BodyTextBlockStyle}" Margin="0,0,0,4"/>
+                                            <Grid ColumnSpacing="8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{x:Bind ViewModel.BaseCurrency, Mode=OneWay}"
+                                                           VerticalAlignment="Center" Grid.Column="0"
+                                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                <NumberBox Value="{x:Bind ViewModel.PaymentAmount, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}" 
+                                                           SpinButtonPlacementMode="Inline"
+                                                           Minimum="0"
+                                                           Grid.Column="1"/>
+                                            </Grid>
+                                        </StackPanel>
                                         <Button Grid.Column="1" 
                                                 Content="Paid in Full" 
                                                 VerticalAlignment="Bottom"
@@ -574,9 +596,17 @@
                                              Text="{x:Bind ViewModel.PaymentReference, Mode=TwoWay}" 
                                              PlaceholderText="e.g. Bank Slip ID" />
 
-                                    <CalendarDatePicker Header="Payment Date" 
+                                    <!--<CalendarDatePicker Header="Payment Date" 
                                                         Date="{x:Bind ViewModel.PaymentDate, Mode=TwoWay}" 
-                                                        HorizontalAlignment="Stretch" />
+                                                        HorizontalAlignment="Stretch" />-->
+
+                                    <DatePicker Header="Payment Date" 
+                                                Date="{x:Bind ViewModel.PaymentDate, Mode=TwoWay}" 
+                                                HorizontalAlignment="Stretch" />
+
+                                    <TimePicker Header="Time" 
+                                                Time="{x:Bind ViewModel.PaymentTime, Mode=TwoWay}" 
+                                                HorizontalAlignment="Stretch" />
                                 </StackPanel>
                             </StackPanel>
 

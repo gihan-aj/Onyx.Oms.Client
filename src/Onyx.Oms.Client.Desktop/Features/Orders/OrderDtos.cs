@@ -45,7 +45,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         public string Currency { get; set; } = "LKR";
         public PaymentMethod Method { get; set; }
         public string? Reference { get; set; }
-        public DateTime PaymentDate { get; set; }
+        public DateTimeOffset PaymentDate { get; set; }
     }
 
     public record CreateOrderCommand(
@@ -161,7 +161,14 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         MoneyDto Amount,
         PaymentMethod Method,
         string? Reference,
-        DateTime PaymentDate);
+        DateTimeOffset PaymentDate);
+
+    public record AddPaymentCommand(
+        decimal Amount,
+        string Currency,
+        PaymentMethod Method,
+        string? Reference,
+        DateTimeOffset PaymentDate);
 
     public record MoneyDto(decimal Amount, string Currency = "LKR");
 

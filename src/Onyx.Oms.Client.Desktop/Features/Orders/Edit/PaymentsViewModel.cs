@@ -99,20 +99,18 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             var result = await dialog.ShowAsync();
             if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
             {
-                var command = new InitialPaymentDto(
-                    new MoneyDto(dialog.PaymentAmount, BaseCurrency),
+                var command = new AddPaymentCommand(
+                    dialog.PaymentAmount,
+                    BaseCurrency,
                     dialog.SelectedMethod,
                     dialog.ReferenceNumber,
-                    dialog.PaymentDate.DateTime);
+                    dialog.PaymentDate.Date + dialog.PaymentTime);
 
                 try
                 {
                     IsBusy = true;
-                    await Task.Delay(2000);
-                    // TODO: Create the endpoint in IOrdersApi and call it here!
-                    // await _ordersApi.AddOrderPaymentAsync(_orderId, command);
-                    // For now, mock the UI update to test it:
-                    var newPayment = new OrderPaymentDetailsDto(Guid.NewGuid(), dialog.PaymentAmount,dialog.SelectedMethod, dialog.ReferenceNumber, dialog.PaymentDate.DateTime, null, null, null);
+                    var paymentId = await _ordersApi.AddPayment(_orderId, command);
+                    var newPayment = new OrderPaymentDetailsDto(paymentId, dialog.PaymentAmount,dialog.SelectedMethod, dialog.ReferenceNumber, dialog.PaymentDate.Date + dialog.PaymentTime, null, null, null);
                     Payments.Add(new OrderPaymentLineItem(newPayment, BaseCurrency));
 
                     TotalPaid += dialog.PaymentAmount;

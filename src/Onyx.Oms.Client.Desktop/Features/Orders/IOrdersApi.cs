@@ -35,6 +35,9 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         [Put("/api/v1/orders/{id}/logistics")]
         Task UpdateLogistics(Guid id, [Body] UpdateOrderLogisticsCommand command);
 
+        [Post("/api/v1/orders/{id}/payments")]
+        Task<Guid> AddPayment(Guid id, [Body] AddPaymentCommand command);
+
         [Put("/api/v1/orders/{id}/notes")]
         Task UpdateNotes(Guid id, [Body] UpdateOrderNotesCommand command);
 

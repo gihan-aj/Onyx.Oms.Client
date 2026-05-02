@@ -462,8 +462,8 @@
                                     </Grid.ColumnDefinitions>
 
                                     <StackPanel>
-                                        <TextBlock Text="Notes" Style="{StaticResource BodyStrongTextBlockStyle}" />
-                                        <TextBlock Text="Add notes relevant to the order (Chat messages)." 
+                                        <TextBlock Text="Internal Notes &amp; Logs" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                        <TextBlock Text="Customer requests, chat history, or internal instructions." 
                                                    Style="{StaticResource CaptionTextBlockStyle}" 
                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                                     </StackPanel>
