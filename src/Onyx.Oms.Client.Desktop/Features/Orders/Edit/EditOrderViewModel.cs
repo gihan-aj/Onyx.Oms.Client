@@ -105,17 +105,26 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
         }
 
         // Payments
-        public PaymentsViewModel? _payments;
+        private PaymentsViewModel? _payments;
         public PaymentsViewModel? Payments 
         { 
             get => _payments; 
             set => SetProperty(ref _payments, value); 
         }
 
+        // Notes
+        private NotesViewModel? _notes;
+        public NotesViewModel? Notes
+        {
+            get => _notes;
+            set => SetProperty(ref _notes, value);
+        }
+
         public IRelayCommand GoBackCommand { get; }
         public IAsyncRelayCommand UpdateOrderLogisticsCommand { get; }
         public IAsyncRelayCommand UpdateOrderItemsCommand { get; }
         public IAsyncRelayCommand UpdateFinancialsCommand { get; }
+        public IAsyncRelayCommand UpdateNotesCommand { get; }
 
         public EditOrderViewModel(IOrdersApi ordersApi, ILogger<EditOrderViewModel> logger, INavigationService navigationService, IToastService toastService, IFileService fileService)
         {
@@ -129,6 +138,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             UpdateOrderLogisticsCommand = new AsyncRelayCommand(UpdateLogisticsAsync);
             UpdateOrderItemsCommand = new AsyncRelayCommand(UpdateOrderItemsAsync);
             UpdateFinancialsCommand = new AsyncRelayCommand(UpdateFinancialsAsync);          
+            UpdateNotesCommand = new AsyncRelayCommand(UpdateNotesAsync);          
         }
 
         public void OnNavigatedFrom()
@@ -173,6 +183,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                 Financials = new FinancialsViewModel(orderDetails);
                 BaseCurrency = orderDetails.BaseCurrency;
                 Payments = new PaymentsViewModel(orderDetails, _toastService, _ordersApi, _logger);
+                Notes = new NotesViewModel(orderDetails);
 
                 RecalculateTotals();
 
@@ -332,6 +343,32 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             catch
             {
                 _logger.LogError("Failed to update order financials for order ID: {OrderId}", _orderId);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+        private async Task UpdateNotesAsync()
+        {
+            if (Notes == null || !_orderId.HasValue)
+                return;
+
+            var request = Notes.GetUpdateDto();
+            if (request == null)
+                return;
+
+            try
+            {
+                IsBusy = true;
+                await _ordersApi.UpdateNotes(_orderId.Value, request);
+                await InitializeAsync(_orderId.Value);
+                _toastService.ShowSuccess("Success", "Order notes has been updated.");
+            }
+            catch
+            {
+                _logger.LogError("Failed to update order notes for order ID: {OrderId}", _orderId);
             }
             finally
             {

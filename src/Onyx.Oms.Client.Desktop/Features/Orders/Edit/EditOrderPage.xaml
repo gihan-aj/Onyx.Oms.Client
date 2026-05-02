@@ -452,6 +452,83 @@
                                 </ListView>
                             </StackPanel>
 
+                            <!-- Notes Section -->
+                            <StackPanel Style="{StaticResource CardStackStyle}">
+
+                                <Grid Margin="0,0,0,16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel>
+                                        <TextBlock Text="Notes" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                        <TextBlock Text="Add notes relevant to the order (Chat messages)." 
+                                                   Style="{StaticResource CaptionTextBlockStyle}" 
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                    </StackPanel>
+
+                                    <CommandBar Grid.Column="1" 
+                                                Background="Transparent" 
+                                                IsOpen="False" 
+                                                DefaultLabelPosition="Right" 
+                                                IsSticky="True">
+                                        <AppBarButton Icon="Edit" Label="Edit" 
+                                                      Visibility="{x:Bind ViewModel.Notes.IsReadonly, Mode=OneWay}"
+                                                      Command="{x:Bind ViewModel.Notes.BeginEditCommand, Mode=OneWay}" />
+
+                                        <AppBarButton Icon="Save" Label="Save" 
+                                                      AllowFocusOnInteraction="True"
+                                                      Visibility="{x:Bind ViewModel.Notes.IsEditing, Mode=OneWay}"
+                                                      Command="{x:Bind ViewModel.UpdateNotesCommand}" />
+
+                                        <AppBarButton Icon="Cancel" Label="Cancel" 
+                                                      Visibility="{x:Bind ViewModel.Notes.IsEditing, Mode=OneWay}"
+                                                      Command="{x:Bind ViewModel.Notes.CancelEditCommand, Mode=OneWay}" />
+
+                                    </CommandBar>
+                                </Grid>
+
+                                <!-- READONLY MODE -->
+                                <StackPanel Spacing="12" Visibility="{x:Bind ViewModel.Notes.IsReadonly, Mode=OneWay}">
+
+                                    <!-- Empty State -->
+                                    <StackPanel Visibility="{x:Bind ViewModel.Notes.HasNotes, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}"
+                                                Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
+                                        <FontIcon Glyph="&#xE783;" FontSize="16" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                                        <TextBlock Text="No notes or chat logs have been added." 
+                                                   Style="{StaticResource BodyTextBlockStyle}" 
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                    </StackPanel>
+                                    <!-- Notes Content -->
+                                    <Border Background="{ThemeResource LayerFillColorAltBrush}" 
+                                            BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" 
+                                            BorderThickness="0" CornerRadius="8" Padding="16"
+                                            Visibility="{x:Bind ViewModel.Notes.HasNotes, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+
+                                        <TextBlock Text="{x:Bind ViewModel.Notes.Notes, Mode=OneWay}" 
+                                                   TextWrapping="Wrap" 
+                                                   Style="{StaticResource BodyTextBlockStyle}" />
+                                    </Border>
+
+                                </StackPanel>
+
+                                <!-- EDIT MODE -->
+                                <StackPanel Spacing="12" Visibility="{x:Bind ViewModel.Notes.IsEditing, Mode=OneWay}">
+
+                                    <TextBox Text="{x:Bind ViewModel.Notes.Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                             PlaceholderText="Paste social media chat logs, special delivery instructions, or internal notes here..."
+                                             AcceptsReturn="True" 
+                                             TextWrapping="Wrap"
+                                             MinHeight="150" 
+                                             MaxHeight="400"
+                                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                             HorizontalAlignment="Stretch" />
+
+                                </StackPanel>
+
+                            </StackPanel>
+
                         </StackPanel>
                         
                         <!-- Right Column -->
