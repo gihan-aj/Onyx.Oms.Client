@@ -19,6 +19,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
         private readonly INavigationService _navigationService;
         private readonly IToastService _toastService;
         private readonly IFileService _fileService;
+        private readonly IDialogService _dialogService;
 
         private Guid? _orderId;
 
@@ -120,25 +121,36 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             set => SetProperty(ref _notes, value);
         }
 
+        // Status
+        private bool _canConfirm = false;
+        public bool CanConfirm
+        {
+            get => _canConfirm;
+            set => SetProperty(ref _canConfirm, value);
+        }
+
         public IRelayCommand GoBackCommand { get; }
         public IAsyncRelayCommand UpdateOrderLogisticsCommand { get; }
         public IAsyncRelayCommand UpdateOrderItemsCommand { get; }
         public IAsyncRelayCommand UpdateFinancialsCommand { get; }
         public IAsyncRelayCommand UpdateNotesCommand { get; }
+        public IAsyncRelayCommand ConfirmOrderCommand { get; }
 
-        public EditOrderViewModel(IOrdersApi ordersApi, ILogger<EditOrderViewModel> logger, INavigationService navigationService, IToastService toastService, IFileService fileService)
+        public EditOrderViewModel(IOrdersApi ordersApi, ILogger<EditOrderViewModel> logger, INavigationService navigationService, IToastService toastService, IFileService fileService, IDialogService dialogService)
         {
             _ordersApi = ordersApi;
             _logger = logger;
             _navigationService = navigationService;
             _toastService = toastService;
             _fileService = fileService;
+            _dialogService = dialogService;
 
             GoBackCommand = new RelayCommand(GoBack);
             UpdateOrderLogisticsCommand = new AsyncRelayCommand(UpdateLogisticsAsync);
             UpdateOrderItemsCommand = new AsyncRelayCommand(UpdateOrderItemsAsync);
-            UpdateFinancialsCommand = new AsyncRelayCommand(UpdateFinancialsAsync);          
-            UpdateNotesCommand = new AsyncRelayCommand(UpdateNotesAsync);          
+            UpdateFinancialsCommand = new AsyncRelayCommand(UpdateFinancialsAsync);
+            UpdateNotesCommand = new AsyncRelayCommand(UpdateNotesAsync);
+            ConfirmOrderCommand = new AsyncRelayCommand(ConfirmOrderAsync);
         }
 
         public void OnNavigatedFrom()
@@ -184,6 +196,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                 BaseCurrency = orderDetails.BaseCurrency;
                 Payments = new PaymentsViewModel(orderDetails, _toastService, _ordersApi, _logger);
                 Notes = new NotesViewModel(orderDetails);
+
+                CanConfirm = orderDetails.Status == OrderStatus.Pending;
 
                 RecalculateTotals();
 
@@ -369,6 +383,54 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             catch
             {
                 _logger.LogError("Failed to update order notes for order ID: {OrderId}", _orderId);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+        private async Task ConfirmOrderAsync()
+        {
+            if (OrderItems == null || !_orderId.HasValue)
+                return;
+
+            bool hasStockShortage = OrderItems.Items.Any(item => item.Quantity > item.AvailableQuantity);
+
+            string title;
+            string message;
+
+            if (hasStockShortage)
+            {
+                title = "Confirm Order (Stock Shortage)";
+                message = "You do not have enough stock to fulfill all items in this order immediately. " +
+                          "Once confirmed, you will need to create Procurement or Production tasks to acquire the missing items.\n\n" +
+                          "Are you sure you want to confirm this order?";
+            }
+            else
+            {
+                title = "Confirm Order";
+                message = "All items in this order are currently in stock! " +
+                          "Once confirmed, this order can be sent for immediate packing.\n\n" +
+                          "Are you sure you want to proceed?";
+            }
+
+            bool isConfirmed = await _dialogService.ShowConfirmationAsync(title, message, "Confirm Order", "Cancel");
+            if (!isConfirmed)
+            {
+                return;
+            }
+
+            try
+            {
+                IsBusy = true;
+                await _ordersApi.ConfirmOrder(_orderId.Value);
+                await InitializeAsync(_orderId.Value);
+                _toastService.ShowSuccess("Success", "Order has been confirmed.");
+            }
+            catch
+            {
+                _logger.LogError("Failed to confirm order for order ID: {OrderId}", _orderId);
             }
             finally
             {

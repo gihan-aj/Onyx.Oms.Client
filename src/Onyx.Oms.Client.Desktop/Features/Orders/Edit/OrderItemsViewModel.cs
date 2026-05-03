@@ -107,7 +107,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
 
         private async Task BeginEdit()
         {
-            await RestoreOriginalValues();
+            //await RestoreOriginalValues();
             IsEditing = true;
         }
 

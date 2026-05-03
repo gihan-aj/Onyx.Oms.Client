@@ -19,6 +19,7 @@
         <converters:EmptyObjectToObjectConverter x:Key="NullToVisibilityConverter" EmptyValue="Visible" NotEmptyValue="Collapsed" />
         <converters:EmptyObjectToObjectConverter x:Key="InvertedNullToVisibilityConverter" EmptyValue="Collapsed" NotEmptyValue="Visible" />
         <converters:EmptyCollectionToObjectConverter x:Key="EmptyListToVisibiltyConverter" EmptyValue="Visible" NotEmptyValue="Collapsed" />
+        <converters:BoolNegationConverter x:Key="InvertedBoolConverter" />
         <sharedConverters:DecimalToDoubleConverter x:Key="DecimalToDoubleConverter" />
         <sharedConverters:StringListConverter x:Key="StringListConverter" />
         <sharedConverters:StringToBoolConverter x:Key="StringToBoolConverter" />
@@ -38,6 +39,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
             <Button Grid.Column="0"
@@ -50,6 +52,19 @@
                        Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}" 
                        Style="{StaticResource SubtitleTextBlockStyle}" 
                        FontWeight="SemiBold" VerticalAlignment="Center" />
+
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8"
+                        Visibility="{x:Bind ViewModel.CanConfirm, Mode=OneWay}">
+                <Button Command="{x:Bind ViewModel.ConfirmOrderCommand}" Style="{StaticResource AccentButtonStyle}" 
+                        IsEnabled="{x:Bind ViewModel.IsBusy, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xF28B;" FontSize="14" />
+                            <TextBlock Text="Confirm Order" />
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+            </StackPanel>
 
         </Grid>
 
@@ -172,13 +187,25 @@
                                 <!-- READONLY MODE -->
                                 <StackPanel Spacing="12" Visibility="{x:Bind ViewModel.OrderItems.IsReadonly, Mode=OneWay}">
 
-                                    <ItemsControl ItemsSource="{x:Bind ViewModel.OrderItems.Items, Mode=OneWay}">
-                                        <ItemsControl.ItemTemplate>
+                                    <ListView ItemsSource="{x:Bind ViewModel.OrderItems.Items, Mode=OneWay}"
+                                              SelectionMode="None"
+                                              HorizontalAlignment="Stretch"
+                                              ScrollViewer.VerticalScrollMode="Disabled"
+                                              ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                              ScrollViewer.HorizontalScrollMode="Enabled">
+                                        <ListView.ItemContainerStyle>
+                                            <Style TargetType="ListViewItem">
+                                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                                <Setter Property="Margin" Value="0,0,0,8" />
+                                                <Setter Property="Padding" Value="0" />
+                                            </Style>
+                                        </ListView.ItemContainerStyle>
+                                        <ListView.ItemTemplate>
                                             <DataTemplate x:DataType="local:EditOrderLineItem">
 
                                                 <Grid Background="{ThemeResource LayerFillColorAltBrush}"
                                                       CornerRadius="8" 
-                                                      Padding="12" Margin="0,0,0,8">
+                                                      Padding="12">
 
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="64" />
@@ -203,9 +230,14 @@
                                                     <!-- Status Badge -->
                                                     <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="16,0,0,0">
                                                         <TextBlock Text="Status" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
-                                                        <!-- You can style this border based on the Status enum using a converter later! -->
-                                                        <Border Background="{ThemeResource SystemFillColorNeutralBrush}" CornerRadius="4" Padding="6,2" HorizontalAlignment="Left">
-                                                            <TextBlock Text="{x:Bind Status, Mode=OneWay}" FontSize="12" FontWeight="SemiBold"/>
+                                                        <Border Style="{StaticResource StatusBadgeStyle}" 
+                                                                Background="{x:Bind Status, Mode=OneWay, Converter={StaticResource OrderItemStatusBackgroundConverter}}" 
+                                                                HorizontalAlignment="Left">
+
+                                                            <TextBlock Text="{x:Bind Status, Mode=OneWay}" 
+                                                                       Style="{StaticResource StatusBadgeTextStyle}"
+                                                                       Foreground="{x:Bind Status, Mode=OneWay, Converter={StaticResource OrderItemStatusForegroundConverter}}" />
+
                                                         </Border>
                                                     </StackPanel>
 
@@ -247,8 +279,8 @@
                                                     </StackPanel>
                                                 </Grid>
                                             </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
 
                                 </StackPanel>
 
@@ -258,7 +290,9 @@
                                     <ListView ItemsSource="{x:Bind ViewModel.OrderItems.Items, Mode=OneWay}"
                                               SelectionMode="None"
                                               HorizontalAlignment="Stretch"
-                                              ScrollViewer.VerticalScrollMode="Disabled">
+                                              ScrollViewer.VerticalScrollMode="Disabled"
+                                              ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                              ScrollViewer.HorizontalScrollMode="Enabled">
                                         <ListView.ItemContainerStyle>
                                             <Style TargetType="ListViewItem">
                                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />

@@ -172,18 +172,34 @@
                         </toolkit:DataGridTemplateColumn>
 
                         <!-- Status -->
-                        <toolkit:DataGridTextColumn Header="Status" 
-                                            Binding="{Binding Status}" Tag="status" 
-                                            Width="140" MinWidth="140" 
-                                            HeaderStyle="{StaticResource CenteredHeaderStyle}" 
-                                            ElementStyle="{StaticResource CenteredCellStyle}" />
+                        <toolkit:DataGridTemplateColumn Header="Status" Tag="status" Width="140" MinWidth="140" HeaderStyle="{StaticResource CenteredHeaderStyle}">
+                            <toolkit:DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="local:OrderGridItem">
+                                    <Border Style="{StaticResource StatusBadgeStyle}" 
+                                            HorizontalAlignment="Center"
+                                            Background="{x:Bind Status, Converter={StaticResource OrderStatusBackgroundConverter}}">
+                                        <TextBlock Text="{x:Bind Status, Mode=OneWay}"
+                                                   Style="{StaticResource StatusBadgeTextStyle}"
+                                                   Foreground="{x:Bind Status, Converter={StaticResource OrderStatusForegroundConverter}}" />
+                                    </Border>
+                                </DataTemplate>
+                            </toolkit:DataGridTemplateColumn.CellTemplate>
+                        </toolkit:DataGridTemplateColumn>
 
                         <!-- Payment Status -->
-                        <toolkit:DataGridTextColumn Header="Payment" 
-                                            Binding="{Binding PaymentStatus}" Tag="paymentStatus" 
-                                            Width="140" MinWidth="140" 
-                                            HeaderStyle="{StaticResource CenteredHeaderStyle}" 
-                                            ElementStyle="{StaticResource CenteredCellStyle}" />
+                        <toolkit:DataGridTemplateColumn Header="Payment" Tag="paymentStatus" Width="140" MinWidth="140" HeaderStyle="{StaticResource CenteredHeaderStyle}">
+                            <toolkit:DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="local:OrderGridItem">
+                                    <Border Style="{StaticResource StatusBadgeStyle}" 
+                                            HorizontalAlignment="Center"
+                                            Background="{x:Bind PaymentStatus, Converter={StaticResource PaymentStatusBackgroundConverter}}">
+                                        <TextBlock Text="{x:Bind PaymentStatus, Mode=OneWay}"
+                                                   Style="{StaticResource StatusBadgeTextStyle}"
+                                                   Foreground="{x:Bind PaymentStatus, Converter={StaticResource PaymentStatusForegroundConverter}}" />
+                                    </Border>
+                                </DataTemplate>
+                            </toolkit:DataGridTemplateColumn.CellTemplate>
+                        </toolkit:DataGridTemplateColumn>
 
                         <!-- Total -->
                         <toolkit:DataGridTextColumn Header="Total" 

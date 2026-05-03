@@ -47,7 +47,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         [Put("/api/v1/orders/{orderId}/items/{orderItemId}/procurement-tasks")]
         Task CreateProcurementTask(Guid orderId, Guid orderItemId, [Body] CreateOrderProcurementTaskCommand command);
 
-        [Put("/api/v1/orders/{id}/confirm")]
+        [Post("/api/v1/orders/{id}/confirm")]
         Task ConfirmOrder(Guid id);
 
         [Put("/api/v1/orders/{id}/cancel")]
