@@ -62,10 +62,10 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         [Put("/api/v1/orders/{id}/fail-delivery")]
         Task FailOrderDelivery(Guid id, [Body] FailDeliveryCommand command);
 
-        [Put("/api/v1/orders/{id}/pack")]
+        [Post("/api/v1/orders/{id}/pack")]
         Task PackOrder(Guid id);
 
-        [Put("/api/v1/orders/{id}/ship")]
+        [Post("/api/v1/orders/{id}/ship")]
         Task ShipOrder(Guid id, [Body] ShipOrderCommand command);
 
         [Get("/api/v1/customers/search")]
@@ -109,5 +109,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
 
         [Get("/api/v1/couriers")]
         Task<List<CourierDto>> GetCouriers([AliasAs("IsActive")] bool isActive = true);
+
+        [Get("/api/v1/couriers/{id}")]
+        Task<CourierDto> GetCourier(Guid id);
     }
 }
