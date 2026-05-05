@@ -33,6 +33,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                 if (SetProperty(ref _isEditing, value))
                 {
                     OnPropertyChanged(nameof(IsReadonly));
+                    CanEdit = !value && _orderStatus < OrderStatus.Shipped;
                 }
             }
         }

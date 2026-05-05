@@ -38,6 +38,7 @@
 
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
@@ -53,7 +54,17 @@
                        Style="{StaticResource SubtitleTextBlockStyle}" 
                        FontWeight="SemiBold" VerticalAlignment="Center" />
 
-            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8"
+            <StackPanel Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="12,0,0,0">
+                <Border Style="{StaticResource StatusBadgeStyle}" 
+                        HorizontalAlignment="Center"
+                        Background="{x:Bind ViewModel.Status, Mode=OneWay, Converter={StaticResource OrderStatusBackgroundConverter}}">
+                    <TextBlock Text="{x:Bind ViewModel.Status, Mode=OneWay}"
+                               Style="{StaticResource StatusBadgeTextStyle}"
+                               Foreground="{x:Bind ViewModel.Status, Mode=OneWay, Converter={StaticResource OrderStatusForegroundConverter}}" />
+                </Border>
+            </StackPanel>
+            
+            <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8"
                         Visibility="{x:Bind ViewModel.CanConfirm, Mode=OneWay}">
                 <Button Command="{x:Bind ViewModel.ConfirmOrderCommand}" Style="{StaticResource AccentButtonStyle}" 
                         IsEnabled="{x:Bind ViewModel.IsBusy, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}">
@@ -66,7 +77,7 @@
                 </Button>
             </StackPanel>
             
-            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8"
+            <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8"
                         Visibility="{x:Bind ViewModel.CanPack, Mode=OneWay}">
                 <Button Command="{x:Bind ViewModel.PackOrderCommand}" Style="{StaticResource AccentButtonStyle}" 
                         IsEnabled="{x:Bind ViewModel.IsBusy, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}">
@@ -79,7 +90,7 @@
                 </Button>
             </StackPanel>
             
-            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8"
+            <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8"
                         Visibility="{x:Bind ViewModel.CanShip, Mode=OneWay}">
                 <Button Command="{x:Bind ViewModel.ShipOrderCommand}" Style="{StaticResource AccentButtonStyle}" 
                         IsEnabled="{x:Bind ViewModel.IsBusy, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}">
@@ -87,6 +98,32 @@
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon Glyph="&#xE709;" FontSize="14" />
                             <TextBlock Text="Mark As Shipped" />
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+            </StackPanel>
+            
+            <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8"
+                        Visibility="{x:Bind ViewModel.CanDeliver, Mode=OneWay}">
+                <Button Command="{x:Bind ViewModel.DeliverOrderCommand}" Style="{StaticResource AccentButtonStyle}" 
+                        IsEnabled="{x:Bind ViewModel.IsBusy, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE726;" FontSize="14" />
+                            <TextBlock Text="Mark As Delivered" />
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+            </StackPanel>
+            
+            <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8"
+                        Visibility="{x:Bind ViewModel.CanComplete, Mode=OneWay}">
+                <Button Command="{x:Bind ViewModel.CompleteOrderCommand}" Style="{StaticResource AccentButtonStyle}" 
+                        IsEnabled="{x:Bind ViewModel.IsBusy, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE930;" FontSize="14" />
+                            <TextBlock Text="Mark As Completed" />
                         </StackPanel>
                     </Button.Content>
                 </Button>
@@ -459,7 +496,17 @@
                                     </CommandBar>
                                 </Grid>
 
-                                <ListView ItemsSource="{x:Bind ViewModel.Payments.Payments, Mode=OneWay}" SelectionMode="None">
+                                <!-- Empty State -->
+                                <StackPanel Visibility="{x:Bind ViewModel.Payments.HasPayments, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}"
+                                            Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
+                                    <FontIcon Glyph="&#xE783;" FontSize="16" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                                    <TextBlock Text="No payments have been added." 
+                                               Style="{StaticResource BodyTextBlockStyle}" 
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+
+                                <ListView ItemsSource="{x:Bind ViewModel.Payments.Payments, Mode=OneWay}" SelectionMode="None"
+                                          Visibility="{x:Bind ViewModel.Payments.HasPayments, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                                     <ListView.ItemContainerStyle>
                                         <Style TargetType="ListViewItem">
                                             <!-- Forces the item to take up the full width of the ListView -->
@@ -689,7 +736,7 @@
                                                 DefaultLabelPosition="Right" 
                                                 IsSticky="True">
                                         <AppBarButton Icon="Edit" Label="Edit" 
-                                                      Visibility="{x:Bind ViewModel.Logistics.IsReadonly, Mode=OneWay}"
+                                                      Visibility="{x:Bind ViewModel.Logistics.CanEdit, Mode=OneWay}"
                                                       Command="{x:Bind ViewModel.Logistics.BeginEditCommand, Mode=OneWay}" />
 
                                         <AppBarButton Icon="Save" Label="Save" 
@@ -831,7 +878,7 @@
                                                 DefaultLabelPosition="Right" 
                                                 IsSticky="True">
                                         <AppBarButton Icon="Edit" Label="Edit" 
-                                                      Visibility="{x:Bind ViewModel.Financials.IsReadonly, Mode=OneWay}"
+                                                      Visibility="{x:Bind ViewModel.Financials.CanEdit, Mode=OneWay}"
                                                       Command="{x:Bind ViewModel.Financials.BeginEditCommand, Mode=OneWay}" />
 
                                         <AppBarButton Icon="Save" Label="Save" 

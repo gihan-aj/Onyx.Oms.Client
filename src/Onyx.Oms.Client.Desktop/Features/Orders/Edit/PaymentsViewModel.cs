@@ -1,10 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,7 +19,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
         private readonly bool _isCashOnDelivery;
         private readonly IToastService _toastService;
         private readonly IOrdersApi _ordersApi;
-        private readonly ILogger<EditOrderViewModel> _logger;
+        private readonly ILogger<PaymentsViewModel> _logger;
 
         public ObservableCollection<OrderPaymentLineItem> Payments { get; } = new();
 
@@ -68,12 +70,19 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             set => SetProperty(ref _isBusy, value);
         }
 
+        private bool _hasPayments = false;
+        public bool HasPayments
+        {
+            get => _hasPayments;
+            set => SetProperty(ref _hasPayments, value);
+        }
+
         public IAsyncRelayCommand ShowAddPaymentDialogCommand { get; }
-        public PaymentsViewModel(OrderDetailsDto order, IToastService toastService, IOrdersApi ordersApi, ILogger<EditOrderViewModel> logger)
+        public PaymentsViewModel(OrderDetailsDto order, IToastService toastService, IOrdersApi ordersApi)
         {
             _toastService = toastService;
             _ordersApi = ordersApi;
-            _logger = logger;
+            _logger = App.Current.Services.GetRequiredService<ILogger<PaymentsViewModel>>();
 
             _orderId = order.Id;
             _status = order.Status;
@@ -87,11 +96,14 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                 Payments.Add(new OrderPaymentLineItem(p, BaseCurrency));
             }
             ShowAddPaymentDialogCommand = new AsyncRelayCommand(ShowAddPaymentDialogAsync);
+
+            if(Payments.Any())
+                HasPayments = true;
         }
 
         private async Task ShowAddPaymentDialogAsync()
         {
-            var dialog = new AddPaymentDialog(DueBalance, BaseCurrency)
+            var dialog = new AddPaymentDialog(DueBalance, BaseCurrency, _isCashOnDelivery)
             {
                 XamlRoot = App.MainWindow.Content.XamlRoot
             };
@@ -112,6 +124,9 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                     var paymentId = await _ordersApi.AddPayment(_orderId, command);
                     var newPayment = new OrderPaymentDetailsDto(paymentId, dialog.PaymentAmount,dialog.SelectedMethod, dialog.ReferenceNumber, dialog.PaymentDate.Date + dialog.PaymentTime, null, null, null);
                     Payments.Add(new OrderPaymentLineItem(newPayment, BaseCurrency));
+
+                    if (!HasPayments)
+                        HasPayments = true;
 
                     TotalPaid += dialog.PaymentAmount;
                     DueBalance -= dialog.PaymentAmount;

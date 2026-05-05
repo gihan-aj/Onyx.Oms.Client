@@ -50,16 +50,16 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         [Post("/api/v1/orders/{id}/confirm")]
         Task ConfirmOrder(Guid id);
 
-        [Put("/api/v1/orders/{id}/cancel")]
+        [Post("/api/v1/orders/{id}/cancel")]
         Task CancelOrder(Guid id);
 
-        [Put("/api/v1/orders/{id}/complete")]
+        [Post("/api/v1/orders/{id}/complete")]
         Task CompleteOrder(Guid id);
 
-        [Put("/api/v1/orders/{id}/deliver")]
+        [Post("/api/v1/orders/{id}/deliver")]
         Task DeliverOrder(Guid id);
 
-        [Put("/api/v1/orders/{id}/fail-delivery")]
+        [Post("/api/v1/orders/{id}/fail-delivery")]
         Task FailOrderDelivery(Guid id, [Body] FailDeliveryCommand command);
 
         [Post("/api/v1/orders/{id}/pack")]

@@ -44,6 +44,13 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             set => SetProperty(ref _pageTitle, value);
         }
 
+        private OrderStatus _status = OrderStatus.Pending;
+        public OrderStatus Status
+        {
+            get => _status;
+            set => SetProperty(ref _status, value);
+        }
+
         // Customer
         private CustomerDetailsViewModel? _customerDetails = null;
         public CustomerDetailsViewModel? CustomerDetails
@@ -143,6 +150,20 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             set => SetProperty(ref _canShip, value);
         }
 
+        private bool _canDeliver = false;
+        public bool CanDeliver
+        {
+            get => _canDeliver;
+            set => SetProperty(ref _canDeliver, value);
+        }
+
+        private bool _canComplete = false;
+        public bool CanComplete
+        {
+            get => _canComplete;
+            set => SetProperty(ref _canComplete, value);
+        }
+
         public IRelayCommand GoBackCommand { get; }
         public IAsyncRelayCommand UpdateOrderLogisticsCommand { get; }
         public IAsyncRelayCommand UpdateOrderItemsCommand { get; }
@@ -151,6 +172,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
         public IAsyncRelayCommand ConfirmOrderCommand { get; }
         public IAsyncRelayCommand PackOrderCommand { get; }
         public IAsyncRelayCommand ShipOrderCommand { get; }
+        public IAsyncRelayCommand DeliverOrderCommand { get; }
+        public IAsyncRelayCommand CompleteOrderCommand { get; }
 
         public EditOrderViewModel(IOrdersApi ordersApi, ILogger<EditOrderViewModel> logger, INavigationService navigationService, IToastService toastService, IFileService fileService, IDialogService dialogService)
         {
@@ -169,6 +192,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             ConfirmOrderCommand = new AsyncRelayCommand(ConfirmOrderAsync);
             PackOrderCommand = new AsyncRelayCommand(PackOrderAsync);
             ShipOrderCommand = new AsyncRelayCommand(ShipOrderAsync);
+            DeliverOrderCommand = new AsyncRelayCommand(DeliverOrderAsync);
+            CompleteOrderCommand = new AsyncRelayCommand(CompleteOrderAsync);
         }
 
         public void OnNavigatedFrom()
@@ -205,6 +230,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
 
                 _orderId = orderDetails.Id;
                 PageTitle = orderDetails.OrderNumber;
+                Status = orderDetails.Status;
                 CustomerDetails = new CustomerDetailsViewModel(orderDetails.Customer);
                 Logistics = new OrderLogisticsViewModel(orderDetails, _toastService);
                 await LoadCouriersAsync(Logistics);
@@ -212,12 +238,14 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                 await OrderItems.LoadImagesAsync();
                 Financials = new FinancialsViewModel(orderDetails);
                 BaseCurrency = orderDetails.BaseCurrency;
-                Payments = new PaymentsViewModel(orderDetails, _toastService, _ordersApi, _logger);
+                Payments = new PaymentsViewModel(orderDetails, _toastService, _ordersApi);
                 Notes = new NotesViewModel(orderDetails);
 
                 CanConfirm = orderDetails.Status == OrderStatus.Pending;
                 CanPack = orderDetails.Status == OrderStatus.ReadyToPack;
                 CanShip = orderDetails.Status == OrderStatus.Packed;
+                CanDeliver = orderDetails.Status == OrderStatus.Shipped;
+                CanComplete = orderDetails.Status == OrderStatus.Delivered;
 
                 RecalculateTotals();
 
@@ -466,7 +494,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             bool hasStockShortage = OrderItems.Items.Any(item => item.Quantity > item.AvailableQuantity);
             if (hasStockShortage)
             {
-                _toastService.ShowSuccess("Missing Items", "Order cannot be packed until all items are reserved.");
+                _toastService.ShowError("Missing Items", "Order cannot be packed until all items are reserved.");
                 return;
             }
 
@@ -504,7 +532,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             bool hasStockShortage = OrderItems.Items.Any(item => item.Quantity > item.AvailableQuantity);
             if (hasStockShortage)
             {
-                _toastService.ShowSuccess("Missing Items", "Order cannot be shipped until all items are reserved.");
+                _toastService.ShowError("Missing Items", "Order cannot be shipped until all items are reserved.");
                 return;
             }
 
@@ -540,6 +568,112 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                 {
                     IsBusy = false;
                 }
+            }
+        }
+
+        private async Task DeliverOrderAsync()
+        {
+            if (OrderItems == null || !_orderId.HasValue || Logistics == null)
+                return;
+
+            bool hasStockShortage = OrderItems.Items.Any(item => item.Quantity > item.AvailableQuantity);
+            if (hasStockShortage)
+            {
+                _toastService.ShowError("Missing Items", "Order cannot be delivered until all items are reserved.");
+                return;
+            }
+
+            if (!Logistics.CourierId.HasValue)
+            {
+                _toastService.ShowError("Courier Required", "Order cannot be delivered without a courier.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(Logistics.ShippingAddressStreet))
+            {
+                _toastService.ShowError("Shipping Address Required", "Order cannot be delivered without a shipping address.");
+                return;
+            }
+
+            string title = "Deliver Order";
+            string message = "Are you sure you want to mark this order as Delivered?";
+
+            bool isConfirmed = await _dialogService.ShowConfirmationAsync(title, message, "Mark as Delivered", "Cancel");
+            if (!isConfirmed)
+            {
+                return;
+            }
+
+            try
+            {
+                IsBusy = true;
+                await _ordersApi.DeliverOrder(_orderId.Value);
+                await InitializeAsync(_orderId.Value);
+                _toastService.ShowSuccess("Success", "Order has been marked as Delivered.");
+            }
+            catch
+            {
+                _logger.LogError("Failed to mark as Delivered order ID: {OrderId}", _orderId);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+        private async Task CompleteOrderAsync()
+        {
+            if (OrderItems == null || !_orderId.HasValue || Logistics == null || Payments == null)
+                return;
+
+            bool hasStockShortage = OrderItems.Items.Any(item => item.Quantity > item.AvailableQuantity);
+            if (hasStockShortage)
+            {
+                _toastService.ShowError("Missing Items", "Order cannot be delivered until all items are reserved.");
+                return;
+            }
+
+            if (!Logistics.CourierId.HasValue)
+            {
+                _toastService.ShowError("Courier Required", "Order cannot be delivered without a courier.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(Logistics.ShippingAddressStreet))
+            {
+                _toastService.ShowError("Shipping Address Required", "Order cannot be delivered without a shipping address.");
+                return;
+            }
+
+            if(Payments.DueBalance > 0)
+            {
+                _toastService.ShowError("Payment Required", "Order cannot be completed until full payment is received.");
+                return;
+            }
+
+            string title = "Complete Order";
+            string message = "Are you sure you want to mark this order as Completed?";
+
+            bool isConfirmed = await _dialogService.ShowConfirmationAsync(title, message, "Mark as Completed", "Cancel");
+            if (!isConfirmed)
+            {
+                return;
+            }
+
+            try
+            {
+                IsBusy = true;
+                await _ordersApi.CompleteOrder(_orderId.Value);
+                await InitializeAsync(_orderId.Value);
+                _toastService.ShowSuccess("Success", "Order has been marked as Completed.");
+            }
+            catch
+            {
+                _logger.LogError("Failed to mark as Completed order ID: {OrderId}", _orderId);
+            }
+            finally
+            {
+                IsBusy = false;
             }
         }
     }

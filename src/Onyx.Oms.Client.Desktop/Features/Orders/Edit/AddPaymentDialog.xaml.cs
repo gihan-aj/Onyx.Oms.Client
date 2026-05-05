@@ -28,11 +28,14 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
         public string? ReferenceNumber { get; set; }
         public List<PaymentMethod> PaymentMethods { get; set; } = new(); 
 
-        public AddPaymentDialog(decimal dueBalance, string baseCurrency)
+        public AddPaymentDialog(decimal dueBalance, string baseCurrency, bool isCashOnDelivery)
         {
             InitializeComponent();
+            
             PaymentAmount = dueBalance;
             BaseCurrency = baseCurrency;
+            if (isCashOnDelivery)
+                SelectedMethod = PaymentMethod.CashOnDelivery;
 
             foreach( PaymentMethod paymentMethod in Enum.GetValues(typeof(PaymentMethod)))
             {
