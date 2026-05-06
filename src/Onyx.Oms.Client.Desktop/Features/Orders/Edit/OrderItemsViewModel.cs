@@ -77,6 +77,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                 var orderItem = new EditOrderLineItem(_fileService)
                 {
                     Id = item.Id,
+                    OrderCurrentStatus = order.Status,
                     ProductId = item.Id,
                     ProductVariantId = item.ProductVariantId,
                     ProductName = item.ProductName,
@@ -126,6 +127,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                 var orderItem = new EditOrderLineItem(_fileService)
                 {
                     Id = item.Id,
+                    OrderCurrentStatus = _orderStatus,
                     ProductId = item.Id,
                     ProductVariantId = item.ProductVariantId,
                     ProductName = item.ProductName,
@@ -168,6 +170,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                 var lineItem = new EditOrderLineItem(_fileService)
                 {
                     Id = null,
+                    OrderCurrentStatus = _orderStatus,
                     ProductId = gridItem.Id,
                     ProductVariantId = gridItem.ResolvedVariant?.Id ?? Guid.Empty,
                     ProductName = gridItem.DisplayName,

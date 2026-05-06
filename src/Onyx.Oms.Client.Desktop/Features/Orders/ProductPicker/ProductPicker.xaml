@@ -157,10 +157,10 @@
             </ScrollViewer>
 
             <!-- Loading Indicator -->
-            <!--<Grid Opacity="0.8" 
-              Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-            <ProgressRing IsActive="True" Width="48" Height="48" />
-        </Grid>-->
+            <Grid Opacity="0.8" 
+                  Visibility="{x:Bind ViewModel.IsListLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ProgressRing IsActive="True" Width="48" Height="48" />
+            </Grid>
 
             <!-- No Data Message -->
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="16"

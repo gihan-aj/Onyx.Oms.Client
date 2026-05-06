@@ -271,15 +271,14 @@
                                                       Padding="12">
 
                                                     <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="64" />
-                                                        <ColumnDefinition Width="*" MinWidth="150" />
-                                                        <ColumnDefinition Width="Auto" MinWidth="120" />
-                                                        <ColumnDefinition Width="Auto" MinWidth="180" />
-                                                        <ColumnDefinition Width="Auto" MinWidth="140" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="Auto" />
                                                     </Grid.ColumnDefinitions>
 
                                                     <!-- Image (Same as Edit Mode) -->
-                                                    <Grid Grid.Column="0" Width="56" Height="56" CornerRadius="4" 
+                                                    <Grid Grid.Column="0" Width="90" Height="90" CornerRadius="4" 
                                                           Background="{ThemeResource LayerFillColorAltBrush}" BorderThickness="1" BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}">
                                                         <Image Source="{x:Bind ImageSource, Mode=OneWay}" Stretch="UniformToFill" />
                                                     </Grid>
@@ -287,59 +286,63 @@
                                                     <!-- Product Details -->
                                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="16,0,0,0">
                                                         <TextBlock Text="{x:Bind ProductName, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" TextWrapping="Wrap"/>
-                                                        <TextBlock Text="{x:Bind Sku, Mode=OneWay}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                                    </StackPanel>
-
-                                                    <!-- Status Badge -->
-                                                    <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="16,0,0,0">
-                                                        <TextBlock Text="Status" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
+                                                        <TextBlock Text="{x:Bind Sku, Mode=OneWay}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,8"/>
                                                         <Border Style="{StaticResource StatusBadgeStyle}" 
                                                                 Background="{x:Bind Status, Mode=OneWay, Converter={StaticResource OrderItemStatusBackgroundConverter}}" 
-                                                                HorizontalAlignment="Left">
-
+                                                                HorizontalAlignment="Left"
+                                                                Visibility="{x:Bind IsFulfillmentActive, Mode=OneWay}">
                                                             <TextBlock Text="{x:Bind Status, Mode=OneWay}" 
                                                                        Style="{StaticResource StatusBadgeTextStyle}"
                                                                        Foreground="{x:Bind Status, Mode=OneWay, Converter={StaticResource OrderItemStatusForegroundConverter}}" />
-
                                                         </Border>
                                                     </StackPanel>
 
                                                     <!-- Fulfillment Progress (Allocated / Requested) -->
-                                                    <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="16,0,0,0">
-                                                        <TextBlock Text="Fulfillment" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
-                                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                                            <!-- Progress Bar comparing Allocated to Requested -->
-                                                            <ProgressBar Value="{x:Bind AllocatedQuantity, Mode=OneWay}" 
-                                                                         Maximum="{x:Bind Quantity, Mode=OneWay}" 
-                                                                         Width="80" />
-                                                            <TextBlock Style="{StaticResource BodyTextBlockStyle}">
-                                                                <Run Text="{x:Bind AllocatedQuantity, Mode=OneWay}" FontWeight="SemiBold"/>
-                                                                <Run Text=" / " Foreground="{ThemeResource TextFillColorDisabledBrush}"/>
-                                                                <Run Text="{x:Bind Quantity, Mode=OneWay}"/>
-                                                            </TextBlock>
+                                                    <StackPanel Grid.Column="3" VerticalAlignment="Center" Orientation="Horizontal" Spacing="16"
+                                                                Visibility="{x:Bind IsFulfillmentActive, Mode=OneWay}">
+                                                        <StackPanel VerticalAlignment="Center" Visibility="{x:Bind ShowsProgressBar, Mode=OneWay}">
+                                                            <TextBlock Text="Fulfillment" Style="{StaticResource CaptionTextBlockStyle}"
+                                                                        Foreground="{ThemeResource AccentTextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
+                                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                                <ProgressBar Value="{x:Bind AllocatedQuantity, Mode=OneWay}" Maximum="{x:Bind Quantity, Mode=OneWay}" Width="60" />
+                                                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}">
+                                                                    <Run Text="{x:Bind AllocatedQuantity, Mode=OneWay}" FontWeight="SemiBold"/>
+                                                                    <Run Text="/" Foreground="{ThemeResource TextFillColorDisabledBrush}"/>
+                                                                    <Run Text="{x:Bind Quantity, Mode=OneWay}"/>
+                                                                </TextBlock>
+                                                            </StackPanel>
                                                         </StackPanel>
-                                                    </StackPanel>
 
-                                                    <!-- Contextual Action Buttons -->
-                                                    <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="16,0,0,0" HorizontalAlignment="Right">
-
-                                                        <!-- Shown if they need it, and you have it in stock -->
-                                                        <Button Content="Allocate Stock" 
-                                                                Style="{StaticResource AccentButtonStyle}"
-                                                                Visibility="{x:Bind CanAllocateStock, Mode=OneWay}" />
-
-                                                        <!-- Shown if they need it, and you DO NOT have it -->
-                                                        <Button Content="Create Task" 
-                                                                Visibility="{x:Bind CanCreateTask, Mode=OneWay}">
+                                                        <!-- Actions -->
+                                                        <Button Content="Allocate" Style="{StaticResource AccentButtonStyle}" Visibility="{x:Bind CanAllocateStock, Mode=OneWay}" VerticalAlignment="Center"/>
+                                                        <Button Style="{StaticResource SubtleButtonStyle}" 
+                                                                Visibility="{x:Bind CanCreateTask, Mode=OneWay}" 
+                                                                VerticalAlignment="Center" >
+                                                            <FontIcon FontSize="32" Glyph="&#xE9F5;" />
                                                             <Button.Flyout>
                                                                 <MenuFlyout>
-                                                                    <MenuFlyoutItem Text="Production Task" Icon="Repair" />
-                                                                    <MenuFlyoutItem Text="Procurement Task" Icon="Shop" />
+                                                                    <MenuFlyoutItem Text="Production" Icon="Repair" />
+                                                                    <MenuFlyoutItem Text="Procurement" Icon="Shop" />
                                                                 </MenuFlyout>
                                                             </Button.Flyout>
                                                         </Button>
-
                                                     </StackPanel>
+
+                                                    <!-- Financials -->
+                                                    <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="16,0,32,0">
+                                                        <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" HorizontalAlignment="Right">
+                                                            <Run Text="{x:Bind BaseCurrency, Mode=OneWay}" />
+                                                            <Run Text="{x:Bind UnitPrice, Mode=OneWay}" />
+                                                            <Run Text=" x " />
+                                                            <Run Text="{x:Bind Quantity, Mode=OneWay}" FontWeight="SemiBold" />
+                                                        </TextBlock>
+                                                        <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" HorizontalAlignment="Right">
+                                                            <Run Text="{x:Bind BaseCurrency, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                            <Run Text=" " />
+                                                            <Run Text="{x:Bind LineTotal, Mode=OneWay}" />
+                                                        </TextBlock>
+                                                    </StackPanel>
+
                                                 </Grid>
                                             </DataTemplate>
                                         </ListView.ItemTemplate>
@@ -367,20 +370,17 @@
                                             <DataTemplate x:DataType="local:EditOrderLineItem">
                                                 <Grid Background="{ThemeResource LayerFillColorAltBrush}"
                                                       CornerRadius="8"
-                                                      BorderThickness="0"
-                                                      BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
                                                       Padding="12">
                                                     <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="64" />
-                                                        <ColumnDefinition Width="*" MinWidth="150" />
-                                                        <ColumnDefinition Width="Auto" MinWidth="120" />
-                                                        <ColumnDefinition Width="Auto" MinWidth="140" />
-                                                        <ColumnDefinition Width="Auto" MinWidth="100" />
-                                                        <ColumnDefinition Width="Auto" MinWidth="40" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="Auto" />
                                                     </Grid.ColumnDefinitions>
 
                                                     <!-- Image -->
-                                                    <Grid Grid.Column="0" Width="56" Height="56" CornerRadius="4" 
+                                                    <Grid Grid.Column="0" Width="90" Height="90" CornerRadius="4" 
                                                           Background="{ThemeResource LayerFillColorAltBrush}" BorderThickness="1" BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
                                                           VerticalAlignment="Center">
                                                         <FontIcon Glyph="&#xE8B9;" FontSize="16" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
@@ -391,57 +391,44 @@
                                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="16,0,0,0">
                                                         <TextBlock Text="{x:Bind ProductName, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" TextWrapping="Wrap"/>
                                                         <TextBlock Text="{x:Bind Sku, Mode=OneWay}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                                    </StackPanel>
 
-                                                    <!-- Unit Price -->
-                                                    <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="16,0,0,0">
-                                                        <TextBlock Text="Unit Price" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                                        <TextBlock Style="{StaticResource BodyTextBlockStyle}">
-                                                            <Run Text="{x:Bind BaseCurrency, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                                            <Run Text=" " />
-                                                            <Run Text="{x:Bind UnitPrice, Mode=OneWay}" />
-                                                        </TextBlock>
-                                                    </StackPanel>
+                                                        <TextBlock Text="{x:Bind AllocatedContextText, Mode=OneWay}" 
+                                                                   FontSize="11" 
+                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" 
+                                                                   Visibility="{x:Bind AllocatedQuantity, Mode=OneWay, Converter={StaticResource InvertedNullToVisibilityConverter}}" />
 
-                                                    <!-- Quantity & Availability -->
-                                                    <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="16,0,0,0">
-                                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                                            <NumberBox Value="{x:Bind Quantity, Mode=TwoWay}" 
-                                                                       Minimum="1" 
-                                                                       SpinButtonPlacementMode="Inline" 
-                                                                       Width="120" />
-                                                        </StackPanel>
-                                                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
-                                                            <ProgressBar Value="{x:Bind AvailableQuantity, Mode=OneWay}" 
-                                                                         Maximum="{x:Bind Quantity, Mode=OneWay}" 
-                                                                         Foreground="{x:Bind QuantityProgressBrush, Mode=OneWay}"
-                                                                         Width="60" />
-                                                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}">
-                                                                <Run Text="{x:Bind AvailableQuantity, Mode=OneWay}"/>
-                                                                <Run Text="/" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                                                <Run Text="{x:Bind Quantity, Mode=OneWay}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                                            </TextBlock>
+                                                        <TextBlock Text="{x:Bind AvailableContextText, Mode=OneWay}" 
+                                                                   FontSize="11" 
+                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+
+                                                        <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,4,0,0" 
+                                                                    Visibility="{x:Bind ShowsTaskWarning, Mode=OneWay}">
+                                                            <FontIcon Glyph="&#xE7BA;" FontSize="10" Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
+                                                            <TextBlock Text="Requires Fulfillment Task" 
+                                                                        FontSize="11" 
+                                                                        Foreground="{ThemeResource SystemFillColorCautionBrush}" 
+                                                                        FontWeight="SemiBold"/>
                                                         </StackPanel>
                                                     </StackPanel>
 
-                                                    <!-- Line Total -->
-                                                    <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="16,0,0,0">
-                                                        <TextBlock Text="Total" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                                        <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}">
+                                                    <!-- Quantity Editor -->
+                                                    <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="16,0,32,0">
+                                                        <TextBlock Text="Quantity" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
+                                                        <NumberBox Value="{x:Bind Quantity, Mode=TwoWay}" Minimum="1" SpinButtonPlacementMode="Compact" Width="100" Margin="0,0,0,4"/>
+                                                    </StackPanel>
+
+                                                    <!-- Financials -->
+                                                    <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="0,0,16,0" HorizontalAlignment="Right">
+                                                        <TextBlock Text="Line Total" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" HorizontalAlignment="Right"/>
+                                                        <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" HorizontalAlignment="Right">
                                                             <Run Text="{x:Bind BaseCurrency, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                             <Run Text=" " />
                                                             <Run Text="{x:Bind LineTotal, Mode=OneWay}" />
                                                         </TextBlock>
                                                     </StackPanel>
 
-                                                    <!-- Remove Action -->
-                                                    <Button Grid.Column="5" 
-                                                            Style="{StaticResource SubtleButtonStyle}" 
-                                                            VerticalAlignment="Center" 
-                                                            Margin="16,0,0,0"
-                                                            ToolTipService.ToolTip="Remove Item"
-                                                            Command="{x:Bind RemoveCommand, Mode=OneWay}"
-                                                            CommandParameter="{x:Bind}">
+                                                    <!-- Remove -->
+                                                    <Button Grid.Column="4" Style="{StaticResource SubtleButtonStyle}" VerticalAlignment="Center" Command="{x:Bind RemoveCommand, Mode=OneWay}" CommandParameter="{x:Bind}">
                                                         <FontIcon Glyph="&#xE74D;" FontSize="16" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
                                                     </Button>
 

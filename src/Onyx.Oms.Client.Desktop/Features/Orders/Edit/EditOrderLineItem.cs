@@ -15,7 +15,22 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
         private readonly IFileService _fileService;
 
         public Guid? Id { get; set; }
-        public OrderStatus OrderCurrentStatus { get; set; }
+
+        private OrderStatus _orderCurrentStatus;    
+        public OrderStatus OrderCurrentStatus
+        {
+            get => _orderCurrentStatus;
+            set
+            {
+                if (SetProperty(ref _orderCurrentStatus, value))
+                {
+                    OnPropertyChanged(nameof(IsFulfillmentActive));
+                    OnPropertyChanged(nameof(CanAllocateStock));
+                    OnPropertyChanged(nameof(CanCreateTask));
+                    OnPropertyChanged(nameof(IsHistoricalRecord));
+                }
+            }
+        }
 
         private Guid _productId;
         public Guid ProductId
@@ -99,14 +114,29 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
         public int AllocatedQuantity
         {
             get => _allocatedQuantity;
-            set => SetProperty(ref _allocatedQuantity, value);
+            set
+            {
+                if (SetProperty(ref _allocatedQuantity, value))
+                {
+                    OnPropertyChanged(nameof(AllocatedContextText));
+                    OnPropertyChanged(nameof(ShowsTaskWarning));
+                    OnPropertyChanged(nameof(ShowsProgressBar));
+                }
+            }
         }
 
         private int _pendingQuantity;
         public int PendingQuantity
         {
             get => _pendingQuantity;
-            set => SetProperty(ref _pendingQuantity, value);
+            set
+            {
+                if (SetProperty(ref _pendingQuantity, value))
+                {
+                    OnPropertyChanged(nameof(CanAllocateStock));
+                    OnPropertyChanged(nameof(CanCreateTask));
+                }
+            }
         }
 
         private decimal _lineTotal;
@@ -128,6 +158,9 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             OrderCurrentStatus == OrderStatus.Processing ||
             OrderCurrentStatus == OrderStatus.ReadyToPack;
 
+        public bool IsHistoricalRecord =>
+            OrderCurrentStatus >= OrderStatus.Shipped;
+
         // Show "Allocate" if they need items AND the warehouse has them
         public bool CanAllocateStock =>
             IsFulfillmentActive && PendingQuantity > 0 && AvailableQuantity > 0;
@@ -135,6 +168,18 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
         // Show "Create Task" if they need items BUT the warehouse is empty
         public bool CanCreateTask =>
             IsFulfillmentActive && PendingQuantity > 0 && AvailableQuantity == 0;
+
+        public string AllocatedContextText => AllocatedQuantity > 0
+            ? $"🔒 {AllocatedQuantity} already allocated"
+            : "No items allocated yet";
+
+        public string AvailableContextText => AvailableQuantity > 0
+            ? $"📦 {AvailableQuantity} available in warehouse"
+            : "⚠️ 0 available in warehouse";
+
+        public bool ShowsProgressBar => Quantity > AllocatedQuantity;
+
+        public bool ShowsTaskWarning => Quantity > (AllocatedQuantity + AvailableQuantity);
 
         public IRelayCommand<EditOrderLineItem>? RemoveCommand { get; set; }
 
@@ -157,11 +202,17 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
         {
             LineTotal = Quantity * UnitPrice;
             OnPropertyChanged(nameof(QuantityProgressBrush));
+            OnPropertyChanged(nameof(ShowsTaskWarning));
+            OnPropertyChanged(nameof(ShowsProgressBar));
         }
 
         void OnAvailableQuantityChanged(int value)
         {
             OnPropertyChanged(nameof(QuantityProgressBrush));
+            OnPropertyChanged(nameof(CanAllocateStock));
+            OnPropertyChanged(nameof(CanCreateTask));
+            OnPropertyChanged(nameof(ShowsTaskWarning));
+            OnPropertyChanged(nameof(AvailableContextText));
         }
 
         void OnUnitPriceChanged(decimal value)
