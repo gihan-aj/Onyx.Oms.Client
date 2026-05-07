@@ -110,6 +110,7 @@ public class ProductDetailsVariantDto
     public string? WeightUnit { get; set; } = "kg";
     public int StockOnHand { get; set; }
     public int ReservedQuantity { get; set; }
+    public int IncomingStock { get; set; }
     public bool IsActive { get; set; }
 }
 

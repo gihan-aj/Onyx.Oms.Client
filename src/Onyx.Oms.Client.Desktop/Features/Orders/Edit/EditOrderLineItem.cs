@@ -139,6 +139,21 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             }
         }
 
+        private int _incomingStock;
+        public int IncomingStock
+        {
+            get => _incomingStock;
+            set
+            {
+                if (SetProperty(ref _incomingStock, value))
+                {
+                    OnPropertyChanged(nameof(IncomingContextText));
+                    OnPropertyChanged(nameof(HasIncomingStock));
+                    OnPropertyChanged(nameof(StockContextText));
+                }
+            }
+        }
+
         private decimal _lineTotal;
         public decimal LineTotal
         {
@@ -161,13 +176,32 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
         public bool IsHistoricalRecord =>
             OrderCurrentStatus >= OrderStatus.Shipped;
 
+        public bool RequiresFulfillment => IsFulfillmentActive && PendingQuantity > 0;
+
         // Show "Allocate" if they need items AND the warehouse has them
-        public bool CanAllocateStock =>
-            IsFulfillmentActive && PendingQuantity > 0 && AvailableQuantity > 0;
+        public bool CanAllocateStock => AvailableQuantity > 0;
 
         // Show "Create Task" if they need items BUT the warehouse is empty
         public bool CanCreateTask =>
             IsFulfillmentActive && PendingQuantity > 0 && AvailableQuantity == 0;
+
+        public string StockContextText
+        {
+            get
+            {
+                var parts = new List<string>();
+
+                if (AvailableQuantity > 0)
+                    parts.Add($"📦 {AvailableQuantity} in stock");
+                else
+                    parts.Add("⚠️ Out of stock");
+
+                if (IncomingStock > 0)
+                    parts.Add($"⏳ {IncomingStock} incoming");
+
+                return string.Join("  •  ", parts);
+            }
+        }
 
         public string AllocatedContextText => AllocatedQuantity > 0
             ? $"🔒 {AllocatedQuantity} already allocated"
@@ -177,9 +211,13 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             ? $"📦 {AvailableQuantity} available in warehouse"
             : "⚠️ 0 available in warehouse";
 
+        public string IncomingContextText => $"🚚 {IncomingStock} incoming from active tasks"; 
+
         public bool ShowsProgressBar => Quantity > AllocatedQuantity;
 
         public bool ShowsTaskWarning => Quantity > (AllocatedQuantity + AvailableQuantity);
+
+        public bool HasIncomingStock => IncomingStock > 0 && ShowsTaskWarning;
 
         public IRelayCommand<EditOrderLineItem>? RemoveCommand { get; set; }
 
@@ -213,6 +251,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             OnPropertyChanged(nameof(CanCreateTask));
             OnPropertyChanged(nameof(ShowsTaskWarning));
             OnPropertyChanged(nameof(AvailableContextText));
+            OnPropertyChanged(nameof(StockContextText));
         }
 
         void OnUnitPriceChanged(decimal value)

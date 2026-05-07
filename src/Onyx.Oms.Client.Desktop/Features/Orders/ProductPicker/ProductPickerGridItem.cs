@@ -221,6 +221,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.ProductPicker
                 Images = dto.Images,
                 StockOnHand = dto.StockOnHand,
                 AvailableQuantity = dto.AvailableQuantity,
+                IncomingStock = dto.IncomingStock,
                 IsActive = dto.IsActive,
                 CreatedOnUtc = dto.CreatedOnUtc,
                 LastModifiedOnUtc = dto.LastModifiedOnUtc,

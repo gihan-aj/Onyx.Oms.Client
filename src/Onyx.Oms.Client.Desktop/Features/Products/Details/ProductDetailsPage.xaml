@@ -292,6 +292,9 @@
                                     <toolkit:DataGridTextColumn Header="Reserved" Binding="{Binding Dto.ReservedQuantity}" Width="120" 
                                                                 HeaderStyle="{StaticResource RightAlignedHeaderStyle}" ElementStyle="{StaticResource RightAlignedCellStyle}"/>
 
+                                    <toolkit:DataGridTextColumn Header="Incoming" Binding="{Binding Dto.IncomingStock}" Width="120" 
+                                                                HeaderStyle="{StaticResource RightAlignedHeaderStyle}" ElementStyle="{StaticResource RightAlignedCellStyle}"/>
+
                                     <toolkit:DataGridTemplateColumn Header="Available" Width="120" HeaderStyle="{StaticResource CenteredHeaderStyle}">
                                         <toolkit:DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate x:DataType="local:ProductVariantViewItem">

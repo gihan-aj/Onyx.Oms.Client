@@ -275,6 +275,7 @@
                                                         <ColumnDefinition Width="*"/>
                                                         <ColumnDefinition Width="Auto" />
                                                         <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="Auto" />
                                                     </Grid.ColumnDefinitions>
 
                                                     <!-- Image (Same as Edit Mode) -->
@@ -289,8 +290,7 @@
                                                         <TextBlock Text="{x:Bind Sku, Mode=OneWay}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,8"/>
                                                         <Border Style="{StaticResource StatusBadgeStyle}" 
                                                                 Background="{x:Bind Status, Mode=OneWay, Converter={StaticResource OrderItemStatusBackgroundConverter}}" 
-                                                                HorizontalAlignment="Left"
-                                                                Visibility="{x:Bind IsFulfillmentActive, Mode=OneWay}">
+                                                                HorizontalAlignment="Left">
                                                             <TextBlock Text="{x:Bind Status, Mode=OneWay}" 
                                                                        Style="{StaticResource StatusBadgeTextStyle}"
                                                                        Foreground="{x:Bind Status, Mode=OneWay, Converter={StaticResource OrderItemStatusForegroundConverter}}" />
@@ -298,34 +298,41 @@
                                                     </StackPanel>
 
                                                     <!-- Fulfillment Progress (Allocated / Requested) -->
-                                                    <StackPanel Grid.Column="3" VerticalAlignment="Center" Orientation="Horizontal" Spacing="16"
-                                                                Visibility="{x:Bind IsFulfillmentActive, Mode=OneWay}">
-                                                        <StackPanel VerticalAlignment="Center" Visibility="{x:Bind ShowsProgressBar, Mode=OneWay}">
-                                                            <TextBlock Text="Fulfillment" Style="{StaticResource CaptionTextBlockStyle}"
-                                                                        Foreground="{ThemeResource AccentTextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
-                                                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                                                <ProgressBar Value="{x:Bind AllocatedQuantity, Mode=OneWay}" Maximum="{x:Bind Quantity, Mode=OneWay}" Width="60" />
-                                                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}">
-                                                                    <Run Text="{x:Bind AllocatedQuantity, Mode=OneWay}" FontWeight="SemiBold"/>
-                                                                    <Run Text="/" Foreground="{ThemeResource TextFillColorDisabledBrush}"/>
-                                                                    <Run Text="{x:Bind Quantity, Mode=OneWay}"/>
-                                                                </TextBlock>
-                                                            </StackPanel>
+                                                    <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="16,0,0,0">
+                                                        <TextBlock Text="Fulfillment" 
+                                                                   Style="{StaticResource CaptionTextBlockStyle}" 
+                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" 
+                                                                   Margin="0,0,0,4"/>
+                                                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,4">
+                                                            <ProgressBar Value="{x:Bind AllocatedQuantity, Mode=OneWay}" 
+                                                                         Maximum="{x:Bind Quantity, Mode=OneWay}" Width="80" />
+                                                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}">
+                                                                <Run Text="{x:Bind AllocatedQuantity, Mode=OneWay}" FontWeight="SemiBold"/>
+                                                                <Run Text=" / " Foreground="{ThemeResource TextFillColorDisabledBrush}"/>
+                                                                <Run Text="{x:Bind Quantity, Mode=OneWay}"/>
+                                                            </TextBlock>
                                                         </StackPanel>
 
-                                                        <!-- Actions -->
-                                                        <Button Content="Allocate" Style="{StaticResource AccentButtonStyle}" Visibility="{x:Bind CanAllocateStock, Mode=OneWay}" VerticalAlignment="Center"/>
-                                                        <Button Style="{StaticResource SubtleButtonStyle}" 
-                                                                Visibility="{x:Bind CanCreateTask, Mode=OneWay}" 
-                                                                VerticalAlignment="Center" >
-                                                            <FontIcon FontSize="32" Glyph="&#xE9F5;" />
-                                                            <Button.Flyout>
+                                                        <TextBlock Text="{x:Bind StockContextText, Mode=OneWay}" 
+                                                                   Style="{StaticResource CaptionTextBlockStyle}" 
+                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" 
+                                                                   Margin="0,0,0,4"
+                                                                   Visibility="{x:Bind RequiresFulfillment, Mode=OneWay}" />
+
+                                                        <!--<DropDownButton Content="Fulfill Options" 
+                                                                        Visibility="{x:Bind RequiresFulfillment, Mode=OneWay}">
+                                                            <DropDownButton.Flyout>
                                                                 <MenuFlyout>
-                                                                    <MenuFlyoutItem Text="Production" Icon="Repair" />
-                                                                    <MenuFlyoutItem Text="Procurement" Icon="Shop" />
+
+                                                                    <MenuFlyoutItem Text="Allocate Available Stock" Icon="Accept" 
+                                                                                    Visibility="{x:Bind CanAllocateStock, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                                                    <MenuFlyoutSeparator Visibility="{x:Bind CanAllocateStock, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+                                                                    <MenuFlyoutItem Text="Create Production Task" Icon="Repair" />
+                                                                    <MenuFlyoutItem Text="Create Procurement Task" Icon="Shop" />
                                                                 </MenuFlyout>
-                                                            </Button.Flyout>
-                                                        </Button>
+                                                            </DropDownButton.Flyout>
+                                                        </DropDownButton>-->
                                                     </StackPanel>
 
                                                     <!-- Financials -->
@@ -341,6 +348,29 @@
                                                             <Run Text=" " />
                                                             <Run Text="{x:Bind LineTotal, Mode=OneWay}" />
                                                         </TextBlock>
+                                                    </StackPanel>
+
+                                                    <!-- Contextual Action Button -->
+                                                    <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="16,0,0,0" HorizontalAlignment="Right">
+
+                                                        <Button ToolTipService.ToolTip="Fulfill Options" 
+                                                                Style="{StaticResource SubtleButtonStyle}"
+                                                                Visibility="{x:Bind RequiresFulfillment, Mode=OneWay}">
+                                                            <FontIcon Glyph="&#xE9F5;" />
+                                                            <Button.Flyout>
+                                                                <MenuFlyout>
+                                                                    
+                                                                    <MenuFlyoutItem Text="Allocate Available Stock" Icon="Accept" 
+                                                                                    Visibility="{x:Bind CanAllocateStock, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                                                    <MenuFlyoutSeparator Visibility="{x:Bind CanAllocateStock, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+                                                                    
+                                                                    <MenuFlyoutItem Text="Create Production Task" Icon="Repair" />
+                                                                    <MenuFlyoutItem Text="Create Procurement Task" Icon="Shop" />
+                                                                </MenuFlyout>
+                                                            </Button.Flyout>
+                                                        </Button>
+
                                                     </StackPanel>
 
                                                 </Grid>
@@ -395,11 +425,7 @@
                                                         <TextBlock Text="{x:Bind AllocatedContextText, Mode=OneWay}" 
                                                                    FontSize="11" 
                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}" 
-                                                                   Visibility="{x:Bind AllocatedQuantity, Mode=OneWay, Converter={StaticResource InvertedNullToVisibilityConverter}}" />
-
-                                                        <TextBlock Text="{x:Bind AvailableContextText, Mode=OneWay}" 
-                                                                   FontSize="11" 
-                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                                                   Visibility="{x:Bind AllocatedContextText, Mode=OneWay, Converter={StaticResource InvertedNullToVisibilityConverter}}" />
 
                                                         <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,4,0,0" 
                                                                     Visibility="{x:Bind ShowsTaskWarning, Mode=OneWay}">
@@ -409,12 +435,17 @@
                                                                         Foreground="{ThemeResource SystemFillColorCautionBrush}" 
                                                                         FontWeight="SemiBold"/>
                                                         </StackPanel>
+
                                                     </StackPanel>
 
                                                     <!-- Quantity Editor -->
                                                     <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="16,0,32,0">
                                                         <TextBlock Text="Quantity" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
                                                         <NumberBox Value="{x:Bind Quantity, Mode=TwoWay}" Minimum="1" SpinButtonPlacementMode="Compact" Width="100" Margin="0,0,0,4"/>
+                                                        <TextBlock Text="{x:Bind StockContextText, Mode=OneWay}" 
+                                                                   Style="{StaticResource CaptionTextBlockStyle}" 
+                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" 
+                                                                   Margin="0,4,0,0" />
                                                     </StackPanel>
 
                                                     <!-- Financials -->

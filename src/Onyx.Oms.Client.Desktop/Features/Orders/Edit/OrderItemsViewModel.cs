@@ -68,6 +68,11 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
 
             _originalItems = order.Items;
 
+            BeginEditCommand = new AsyncRelayCommand(BeginEdit);
+            CancelEditCommand = new AsyncRelayCommand(CancelEdit);
+            ShowProductPickerCommand = new AsyncRelayCommand(ShowProductPickerAsync);
+            RemoveLineItemCommand = new RelayCommand<EditOrderLineItem>(RemoveLineItem);
+
             _orderStatus = order.Status;
             _baseCurrency = order.BaseCurrency;
             _shippingCost = order.ShippingCost;
@@ -90,6 +95,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                     AvailableQuantity = item.AvailableQuantity,
                     AllocatedQuantity = item.AllocatedQuantity,
                     PendingQuantity = item.PendingQuantity,
+                    IncomingStock = item.IncomingStock,
                     RemoveCommand = RemoveLineItemCommand
                 };
 
@@ -99,11 +105,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             RecalculateSubTotal();
 
             CanModifyCart = _orderStatus < OrderStatus.Shipped;
-
-            BeginEditCommand = new AsyncRelayCommand(BeginEdit);
-            CancelEditCommand = new AsyncRelayCommand(CancelEdit);
-            ShowProductPickerCommand = new AsyncRelayCommand(ShowProductPickerAsync);
-            RemoveLineItemCommand = new RelayCommand<EditOrderLineItem>(RemoveLineItem);
+            
         }
 
         private async Task BeginEdit()
@@ -140,6 +142,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                     AvailableQuantity = item.AvailableQuantity,
                     AllocatedQuantity = item.AllocatedQuantity,
                     PendingQuantity = item.PendingQuantity,
+                    IncomingStock = item.IncomingStock,
                     RemoveCommand = RemoveLineItemCommand
                 };
 
@@ -182,6 +185,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                     AvailableQuantity = gridItem.ResolvedVariant != null
                         ? (gridItem.ResolvedVariant.StockOnHand - gridItem.ResolvedVariant.ReservedQuantity)
                         : gridItem.AvailableQuantity,
+                    IncomingStock = gridItem.IncomingStock,
                     Status = OrderItemStatus.Pending,
                     RemoveCommand = RemoveLineItemCommand
                 };

@@ -127,6 +127,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         int Quantity,
         int AllocatedQuantity,
         int PendingQuantity,
+        int IncomingStock,
         decimal UnitPrice,
         decimal DiscountAmount,
         string? DiscountReason,
@@ -241,6 +242,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         public List<ProductImageDto>? Images { get; set; }
         public int StockOnHand { get; set; }
         public int AvailableQuantity { get; set; }
+        public int IncomingStock {  get; set; }
         public bool IsActive { get; set; }
         public DateTimeOffset CreatedOnUtc { get; set; }
         public DateTimeOffset? LastModifiedOnUtc { get; set; }
