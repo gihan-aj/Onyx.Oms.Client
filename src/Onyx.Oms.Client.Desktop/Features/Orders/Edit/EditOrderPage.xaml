@@ -786,23 +786,38 @@
                                     
                                     <StackPanel Spacing="4">
                                         <TextBlock Text="Courier" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                        <TextBlock Text="{x:Bind ViewModel.Logistics.SelectedCourier.Name, Mode=OneWay, TargetNullValue='No Courier Selected', FallbackValue='No Courier Selected'}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                        <TextBlock Text="{x:Bind ViewModel.Logistics.SelectedCourier.Name, Mode=OneWay, TargetNullValue='No Courier Selected', FallbackValue='No Courier Selected'}" 
+                                                   Style="{StaticResource BodyTextBlockStyle}"/>
                                     </StackPanel>
 
                                     <StackPanel Spacing="4">
                                         <TextBlock Text="Shipping Address" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                        <TextBlock Text="{x:Bind ViewModel.Logistics.ShippingAddressStreet, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" Visibility="{x:Bind ViewModel.Logistics.ShippingAddressStreet, Mode=OneWay, Converter={StaticResource InvertedNullToVisibilityConverter}}"/>
-                                        <TextBlock Style="{StaticResource BodyTextBlockStyle}">
-                                            <Run Text="{x:Bind ViewModel.Logistics.ShippingAddressCity, Mode=OneWay}"/>
-                                            <Run Text=" - "/>
-                                            <Run Text="{x:Bind ViewModel.Logistics.ShippingAddressDistrict, Mode=OneWay}"/>
-                                        </TextBlock>
-                                        <TextBlock Style="{StaticResource BodyTextBlockStyle}">
-                                            <Run Text="{x:Bind ViewModel.Logistics.ShippingAddressState, Mode=OneWay}"/>
-                                            <Run Text=", "/>
-                                            <Run Text="{x:Bind ViewModel.Logistics.ShippingAddressPostalCode, Mode=OneWay}"/>
-                                        </TextBlock>
-                                        <TextBlock Text="{x:Bind ViewModel.Logistics.ShippingAddressCountry, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" />
+
+                                        <StackPanel Orientation="Horizontal" Spacing="6" 
+                                                    Visibility="{x:Bind ViewModel.Logistics.ShippingAddressStreet, Mode=OneWay, Converter={StaticResource InvertedNullToVisibilityConverter}}">
+                                            <FontIcon Glyph="&#xE783;" FontSize="14" Foreground="{ThemeResource SystemFillColorCautionBrush}" />
+                                            <TextBlock Text="No shipping address provided." 
+                                                       Style="{StaticResource BodyTextBlockStyle}" 
+                                                       Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
+                                        </StackPanel>
+
+                                        <StackPanel Visibility="{x:Bind ViewModel.Logistics.ShippingAddressStreet, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
+                                            <TextBlock Text="{x:Bind ViewModel.Logistics.ShippingAddressStreet, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" />
+
+                                            <TextBlock Style="{StaticResource BodyTextBlockStyle}">
+                                                <Run Text="{x:Bind ViewModel.Logistics.ShippingAddressCity, Mode=OneWay}"/>
+                                                <Run Text=" - "/>
+                                                <Run Text="{x:Bind ViewModel.Logistics.ShippingAddressDistrict, Mode=OneWay}"/>
+                                            </TextBlock>
+
+                                            <TextBlock Style="{StaticResource BodyTextBlockStyle}">
+                                                <Run Text="{x:Bind ViewModel.Logistics.ShippingAddressState, Mode=OneWay}"/>
+                                                <Run Text=", "/>
+                                                <Run Text="{x:Bind ViewModel.Logistics.ShippingAddressPostalCode, Mode=OneWay}"/>
+                                            </TextBlock>
+
+                                            <TextBlock Text="{x:Bind ViewModel.Logistics.ShippingAddressCountry, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" />
+                                        </StackPanel>
                                     </StackPanel>
                                 </StackPanel>
 
