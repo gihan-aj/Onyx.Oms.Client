@@ -16,6 +16,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
         private readonly IToastService _toastService;
 
         private OrderStatus _orderStatus;
+        private readonly string _orderNumber;
 
         private bool _canModifyCart;
         public bool CanModifyCart
@@ -58,6 +59,9 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
 
         public Func<Guid, Guid, int, Task>? OnAllocateStockRequested { get; set; }
         public IAsyncRelayCommand<EditOrderLineItem> AllocateStockCommand { get; }
+        public Func<Guid, Guid, FulfillmentTaskType, int, TaskPriority, DateTimeOffset?, string?, Task>? OnCreateTaskRequested { get; set; }
+        public IAsyncRelayCommand<EditOrderLineItem> CreateProductionTaskCommand { get; }
+        public IAsyncRelayCommand<EditOrderLineItem> CreateProcurementTaskCommand { get; }
         public IAsyncRelayCommand BeginEditCommand { get; }
         public IAsyncRelayCommand CancelEditCommand { get; }
         public IAsyncRelayCommand ShowProductPickerCommand { get; }
@@ -70,16 +74,20 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
 
             _originalItems = order.Items;
 
+            _orderStatus = order.Status;
+            _orderNumber = order.OrderNumber;
+            _baseCurrency = order.BaseCurrency;
+            _shippingCost = order.ShippingCost;
+            _taxAmount = order.TaxAmount;
+
+            CreateProductionTaskCommand = new AsyncRelayCommand<EditOrderLineItem>(i => CreateTaskAsync(i, FulfillmentTaskType.Production));
+            CreateProcurementTaskCommand = new AsyncRelayCommand<EditOrderLineItem>(i => CreateTaskAsync(i, FulfillmentTaskType.Procurement));
             AllocateStockCommand = new AsyncRelayCommand<EditOrderLineItem>(AllocateStockAsync);
             BeginEditCommand = new AsyncRelayCommand(BeginEdit);
             CancelEditCommand = new AsyncRelayCommand(CancelEdit);
             ShowProductPickerCommand = new AsyncRelayCommand(ShowProductPickerAsync);
             RemoveLineItemCommand = new RelayCommand<EditOrderLineItem>(RemoveLineItem);
 
-            _orderStatus = order.Status;
-            _baseCurrency = order.BaseCurrency;
-            _shippingCost = order.ShippingCost;
-            _taxAmount = order.TaxAmount;
             foreach (var item in order.Items)
             {
                 var orderItem = new EditOrderLineItem(_fileService)
@@ -100,6 +108,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                     PendingQuantity = item.PendingQuantity,
                     IncomingStock = item.IncomingStock,
                     AllocateStockCommand = AllocateStockCommand,
+                    CreateProcurementTaskCommand = CreateProcurementTaskCommand,
+                    CreateProductionTaskCommand = CreateProductionTaskCommand,
                     RemoveCommand = RemoveLineItemCommand
                 };
 
@@ -148,6 +158,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                     PendingQuantity = item.PendingQuantity,
                     IncomingStock = item.IncomingStock,
                     AllocateStockCommand = AllocateStockCommand,
+                    CreateProcurementTaskCommand = CreateProcurementTaskCommand,
+                    CreateProductionTaskCommand = CreateProductionTaskCommand,
                     RemoveCommand = RemoveLineItemCommand
                 };
 
@@ -244,6 +256,26 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                     await OnAllocateStockRequested(item.Id.Value, item.ProductVariantId, dialog.QuantityToAllocate);
                 else
                     _toastService.ShowError("Unsaved changes", "Seems like you have unsaved changes in order items.");
+            }
+        }
+
+        private async Task CreateTaskAsync(EditOrderLineItem? item, FulfillmentTaskType taskType)
+        {
+            // Important: We need the OrderItemId (item.Id), so we can't create tasks for unsaved items!
+            if (item == null || item.Id == null)
+            {
+                _toastService.ShowError("Save Order First", "You must save the order items before creating tasks.");
+                return;
+            }
+            var dialog = new CreateFulfillmentTaskDialog(_orderNumber, item.ProductName, item.Sku, item.PendingQuantity, taskType)
+            {
+                XamlRoot = App.MainWindow.Content.XamlRoot
+            };
+            var result = await dialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary && OnCreateTaskRequested != null)
+            {
+                await OnCreateTaskRequested(item.Id.Value, item.ProductVariantId, taskType, dialog.RequestedQuantity, dialog.SelectedPriority, dialog.ExpectedCompletionDate, dialog.Notes);
             }
         }
 

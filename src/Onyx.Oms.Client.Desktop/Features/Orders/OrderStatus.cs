@@ -45,6 +45,12 @@ public enum PaymentStatus
     FullyPaid = 2
 }
 
+public enum FulfillmentTaskType
+{
+    Production = 0,
+    Procurement = 1
+}
+
 public enum TaskPriority
 {
     Low = 0,

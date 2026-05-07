@@ -367,8 +367,12 @@
                                                                     <MenuFlyoutSeparator Visibility="{x:Bind CanAllocateStock, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
 
                                                                     
-                                                                    <MenuFlyoutItem Text="Create Production Task" Icon="Repair" />
-                                                                    <MenuFlyoutItem Text="Create Procurement Task" Icon="Shop" />
+                                                                    <MenuFlyoutItem Text="Create Production Task" Icon="Repair"
+                                                                                    Command="{x:Bind CreateProductionTaskCommand, Mode=OneWay}"
+                                                                                    CommandParameter="{x:Bind}"/>
+                                                                    <MenuFlyoutItem Text="Create Procurement Task" Icon="Shop"
+                                                                                    Command="{x:Bind CreateProcurementTaskCommand, Mode=OneWay}"
+                                                                                    CommandParameter="{x:Bind}"/>
                                                                 </MenuFlyout>
                                                             </Button.Flyout>
                                                         </Button>

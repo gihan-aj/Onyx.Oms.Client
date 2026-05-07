@@ -30,6 +30,7 @@
     <None Remove="Features\Orders\CustomerPicker.xaml" />
     <None Remove="Features\Orders\Edit\AddPaymentDialog.xaml" />
     <None Remove="Features\Orders\Edit\AllocateStockDialog.xaml" />
+    <None Remove="Features\Orders\Edit\CreateFulfillmentTaskDialog.xaml" />
     <None Remove="Features\Orders\Edit\EditOrderPage.xaml" />
     <None Remove="Features\Orders\Edit\ShipOrderConfirmationDialog.xaml" />
     <None Remove="Features\Orders\List\OrdersPage.xaml" />
@@ -204,6 +205,12 @@
 	<Content Include="BackendServices\**\*.*">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Features\Orders\Edit\CreateFulfillmentTaskDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <ItemGroup>

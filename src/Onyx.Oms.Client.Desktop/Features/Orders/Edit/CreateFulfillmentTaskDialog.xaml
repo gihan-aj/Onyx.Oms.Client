@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="Onyx.Oms.Client.Desktop.Features.Orders.Edit.CreateFulfillmentTaskDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Create Fulfillment Task"
+    PrimaryButtonText="Create Task"
+    CloseButtonText="Cancel"
+    DefaultButton="Primary"
+    Style="{StaticResource DefaultContentDialogStyle}">
+
+    <StackPanel Spacing="16" Width="400">
+        <!-- Order & Product Info Header -->
+        <StackPanel Background="{ThemeResource LayerFillColorAltBrush}" Padding="12" CornerRadius="8" Spacing="4">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <FontIcon Glyph="&#xE8D5;" FontSize="14" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                <TextBlock Text="Order:" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                <TextBlock Text="{x:Bind OrderNumber, Mode=OneWay}" Style="{StaticResource CaptionTextBlockStyle}" FontWeight="SemiBold"/>
+            </StackPanel>
+            <TextBlock Text="{x:Bind ProductName, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" TextWrapping="Wrap"/>
+            <TextBlock Text="{x:Bind Sku, Mode=OneWay}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+        </StackPanel>
+        <!-- Task Parameters -->
+        <Grid ColumnSpacing="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <NumberBox Grid.Column="0" Header="Task Quantity" 
+                       Value="{x:Bind RequestedQuantity, Mode=TwoWay}"
+                       Minimum="1" 
+                       Maximum="{x:Bind PendingQuantity, Mode=OneWay}"
+                       SpinButtonPlacementMode="Inline" />
+            <ComboBox Grid.Column="1" Header="Priority"
+                      ItemsSource="{x:Bind Priorities, Mode=OneWay}"
+                      SelectedItem="{x:Bind SelectedPriority, Mode=TwoWay}"
+                      HorizontalAlignment="Stretch" />
+        </Grid>
+        <!-- Dates & Notes -->
+        <DatePicker Header="Expected Completion Date" 
+                    SelectedDate="{x:Bind ExpectedCompletionDate, Mode=TwoWay}"
+                    HorizontalAlignment="Stretch" />
+        <TextBox Header="Task Notes (Optional)"
+                 Text="{x:Bind Notes, Mode=TwoWay}"
+                 AcceptsReturn="True"
+                 MinHeight="60"
+                 TextWrapping="Wrap"
+                 PlaceholderText="e.g. Expedite this if possible." />
+
+        <TextBlock Text="This will push a new request to the fulfillment center dashboard." 
+                   Style="{StaticResource CaptionTextBlockStyle}" 
+                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" 
+                   TextWrapping="Wrap"/>
+    </StackPanel>
+</ContentDialog>

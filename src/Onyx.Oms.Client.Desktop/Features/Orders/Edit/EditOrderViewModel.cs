@@ -9,6 +9,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Onyx.Oms.Client.Desktop.Shared.Constants.Permissions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
 {
@@ -225,6 +227,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                 {
                     OrderItems.PropertyChanged -= OnOrderItemsPropertyChanged;
                     OrderItems.OnAllocateStockRequested -= OnAllocateStockRequested;
+                    OrderItems.OnCreateTaskRequested -= OnCreateTaskRequested;
                 }
                 if (Financials != null)
                     Financials.PropertyChanged -= OnFinancialsPropertyChanged;
@@ -255,6 +258,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                 // Listen to SubTotal changes
                 OrderItems.PropertyChanged += OnOrderItemsPropertyChanged;
                 OrderItems.OnAllocateStockRequested += OnAllocateStockRequested;
+                OrderItems.OnCreateTaskRequested += OnCreateTaskRequested;
                 // Listen to Financial changes
                 Financials.PropertyChanged += OnFinancialsPropertyChanged;
                 Payments.PropertyChanged += OnOrderPaymentsPropertyChanged;
@@ -300,6 +304,41 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
 
                 await InitializeAsync(_orderId.Value);
             }
+        }
+
+        private async Task OnCreateTaskRequested(Guid orderItemId, Guid variantId, FulfillmentTaskType taskType, int qty, TaskPriority priority, DateTimeOffset? date, string? notes)
+        {
+            if (_orderId.HasValue)
+            {
+                try
+                {
+                    IsBusy = true;
+                    if (taskType == FulfillmentTaskType.Production)
+                    {
+                        var command = new CreateOrderProductionTaskCommand(orderItemId, qty, notes, date, priority);
+                        await _ordersApi.CreateProductionTask(_orderId.Value, orderItemId, command);
+                    }
+                    else
+                    {
+                        var command = new CreateOrderProcurementTaskCommand(orderItemId, qty, notes, date, priority);
+                        await _ordersApi.CreateProcurementTask(_orderId.Value, orderItemId, command);
+                    }
+
+                    _toastService.ShowSuccess("Task Created", "Fulfillment task pushed successfully.");
+
+                    // Refresh the page to get the updated incoming stock & statuses!
+                    await InitializeAsync(_orderId.Value);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to create task at order edit page.");
+                }
+                finally
+                {
+                    IsBusy = false;
+                }
+            }
+            
         }
 
         public string FormatCurrency(decimal value)

@@ -221,6 +221,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
 
         public IRelayCommand<EditOrderLineItem>? RemoveCommand { get; set; }
         public IAsyncRelayCommand<EditOrderLineItem>? AllocateStockCommand { get; set; }
+        public IAsyncRelayCommand<EditOrderLineItem>? CreateProductionTaskCommand { get; set; }
+        public IAsyncRelayCommand<EditOrderLineItem>? CreateProcurementTaskCommand { get; set; }
 
         public EditOrderLineItem(IFileService fileService)
         {

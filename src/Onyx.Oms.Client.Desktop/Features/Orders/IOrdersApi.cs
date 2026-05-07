@@ -41,10 +41,10 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         [Put("/api/v1/orders/{id}/notes")]
         Task UpdateNotes(Guid id, [Body] UpdateOrderNotesCommand command);
 
-        [Put("/api/v1/orders/{orderId}/items/{orderItemId}/production-tasks")]
+        [Post("/api/v1/orders/{orderId}/items/{orderItemId}/production-tasks")]
         Task CreateProductionTask(Guid orderId, Guid orderItemId, [Body] CreateOrderProductionTaskCommand command);
 
-        [Put("/api/v1/orders/{orderId}/items/{orderItemId}/procurement-tasks")]
+        [Post("/api/v1/orders/{orderId}/items/{orderItemId}/procurement-tasks")]
         Task CreateProcurementTask(Guid orderId, Guid orderItemId, [Body] CreateOrderProcurementTaskCommand command);
 
         [Post("/api/v1/orders/{id}/confirm")]
