@@ -56,6 +56,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             private set => SetProperty(ref _subTotal, value);
         }
 
+        public Func<Guid, Guid, int, Task>? OnAllocateStockRequested { get; set; }
+        public IAsyncRelayCommand<EditOrderLineItem> AllocateStockCommand { get; }
         public IAsyncRelayCommand BeginEditCommand { get; }
         public IAsyncRelayCommand CancelEditCommand { get; }
         public IAsyncRelayCommand ShowProductPickerCommand { get; }
@@ -68,6 +70,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
 
             _originalItems = order.Items;
 
+            AllocateStockCommand = new AsyncRelayCommand<EditOrderLineItem>(AllocateStockAsync);
             BeginEditCommand = new AsyncRelayCommand(BeginEdit);
             CancelEditCommand = new AsyncRelayCommand(CancelEdit);
             ShowProductPickerCommand = new AsyncRelayCommand(ShowProductPickerAsync);
@@ -96,6 +99,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                     AllocatedQuantity = item.AllocatedQuantity,
                     PendingQuantity = item.PendingQuantity,
                     IncomingStock = item.IncomingStock,
+                    AllocateStockCommand = AllocateStockCommand,
                     RemoveCommand = RemoveLineItemCommand
                 };
 
@@ -143,6 +147,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                     AllocatedQuantity = item.AllocatedQuantity,
                     PendingQuantity = item.PendingQuantity,
                     IncomingStock = item.IncomingStock,
+                    AllocateStockCommand = AllocateStockCommand,
                     RemoveCommand = RemoveLineItemCommand
                 };
 
@@ -220,6 +225,26 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
         public void RecalculateSubTotal()
         {
             SubTotal = Items.Sum(i => i.LineTotal);
+        }
+
+
+        private async Task AllocateStockAsync(EditOrderLineItem? item)
+        {
+            if (item == null) return;
+            var dialog = new AllocateStockDialog(item.ProductName, item.Sku, item.PendingQuantity, item.AvailableQuantity)
+            {
+                XamlRoot = App.MainWindow.Content.XamlRoot
+            };
+            var result = await dialog.ShowAsync();
+
+            // If they clicked 'Allocate' and the parent is listening, send the data up!
+            if (result == ContentDialogResult.Primary && OnAllocateStockRequested != null)
+            {
+                if(item.Id.HasValue)
+                    await OnAllocateStockRequested(item.Id.Value, item.ProductVariantId, dialog.QuantityToAllocate);
+                else
+                    _toastService.ShowError("Unsaved changes", "Seems like you have unsaved changes in order items.");
+            }
         }
 
         public UpdateOrderFinancialsCommand? GetUpdateDto()

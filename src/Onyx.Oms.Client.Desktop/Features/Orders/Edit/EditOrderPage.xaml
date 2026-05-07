@@ -361,7 +361,9 @@
                                                                 <MenuFlyout>
                                                                     
                                                                     <MenuFlyoutItem Text="Allocate Available Stock" Icon="Accept" 
-                                                                                    Visibility="{x:Bind CanAllocateStock, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                                                                    Visibility="{x:Bind CanAllocateStock, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" 
+                                                                                    Command="{x:Bind AllocateStockCommand, Mode=OneWay}"
+                                                                                    CommandParameter="{x:Bind}" />
                                                                     <MenuFlyoutSeparator Visibility="{x:Bind CanAllocateStock, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
 
                                                                     

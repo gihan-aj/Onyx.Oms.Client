@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="Onyx.Oms.Client.Desktop.Features.Orders.Edit.AllocateStockDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Onyx.Oms.Client.Desktop.Features.Orders.Edit"
+    Title="Allocate Stock"
+    PrimaryButtonText="Allocate"
+    CloseButtonText="Cancel"
+    DefaultButton="Primary"
+    Style="{StaticResource DefaultContentDialogStyle}">
+
+    <StackPanel Spacing="16" Width="400">
+        <!-- Item Details -->
+        <StackPanel>
+            <TextBlock Text="{x:Bind ProductName, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" TextWrapping="Wrap"/>
+            <TextBlock Text="{x:Bind Sku, Mode=OneWay}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+        </StackPanel>
+        <!-- Visual Comparison -->
+        <Grid ColumnSpacing="16" Margin="0,8,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <!-- Pending -->
+            <StackPanel Grid.Column="0" Background="{ThemeResource LayerFillColorAltBrush}" Padding="12" CornerRadius="8">
+                <TextBlock Text="Requires" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{ThemeResource SystemFillColorCautionBrush}">
+                    <Run Text="{x:Bind PendingQuantity, Mode=OneWay}" FontWeight="SemiBold"/>
+                    <Run Text=" items" FontSize="12"/>
+                </TextBlock>
+            </StackPanel>
+            <!-- Available -->
+            <StackPanel Grid.Column="1" Background="{ThemeResource LayerFillColorAltBrush}" Padding="12" CornerRadius="8">
+                <TextBlock Text="In Stock" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{ThemeResource SystemFillColorSuccessBrush}">
+                    <Run Text="{x:Bind AvailableQuantity, Mode=OneWay}" FontWeight="SemiBold"/>
+                    <Run Text=" items" FontSize="12"/>
+                </TextBlock>
+            </StackPanel>
+        </Grid>
+        <!-- Input Box -->
+        <NumberBox Header="Quantity to Allocate" 
+                   Value="{x:Bind QuantityToAllocate, Mode=TwoWay}"
+                   Minimum="1" 
+                   Maximum="{x:Bind MaxAllocatable, Mode=OneWay}"
+                   SpinButtonPlacementMode="Inline" />
+
+        <TextBlock Text="The selected quantity will be reserved in the warehouse specifically for this order." 
+                   Style="{StaticResource CaptionTextBlockStyle}" 
+                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" 
+                   TextWrapping="Wrap"/>
+    </StackPanel>
+</ContentDialog>

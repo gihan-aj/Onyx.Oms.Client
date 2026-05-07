@@ -222,7 +222,10 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
 
                 // Unsubscribe fromprevious viewmodels
                 if(OrderItems != null)
+                {
                     OrderItems.PropertyChanged -= OnOrderItemsPropertyChanged;
+                    OrderItems.OnAllocateStockRequested -= OnAllocateStockRequested;
+                }
                 if (Financials != null)
                     Financials.PropertyChanged -= OnFinancialsPropertyChanged;
                 if(Payments != null)
@@ -251,6 +254,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
 
                 // Listen to SubTotal changes
                 OrderItems.PropertyChanged += OnOrderItemsPropertyChanged;
+                OrderItems.OnAllocateStockRequested += OnAllocateStockRequested;
                 // Listen to Financial changes
                 Financials.PropertyChanged += OnFinancialsPropertyChanged;
                 Payments.PropertyChanged += OnOrderPaymentsPropertyChanged;
@@ -283,6 +287,19 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
         {
             if (e.PropertyName == nameof(PaymentsViewModel.IsBusy) && Payments != null)
                 IsBusy = Payments.IsBusy;
+        }
+
+        private async Task OnAllocateStockRequested(Guid orderItemId, Guid variantId, int quantityToAllcate)
+        {
+            if (_orderId.HasValue)
+            {
+                // TODO: Await your API call here when you build it!
+                // await _ordersApi.AllocateStockAsync(OrderId, new AllocateStockRequest(productId, variantId, qty));
+
+                _toastService.ShowSuccess("Stock Allocated", $"Successfully allocated {quantityToAllcate} items to the order.");
+
+                await InitializeAsync(_orderId.Value);
+            }
         }
 
         public string FormatCurrency(decimal value)

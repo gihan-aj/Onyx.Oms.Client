@@ -220,6 +220,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
         public bool HasIncomingStock => IncomingStock > 0 && ShowsTaskWarning;
 
         public IRelayCommand<EditOrderLineItem>? RemoveCommand { get; set; }
+        public IAsyncRelayCommand<EditOrderLineItem>? AllocateStockCommand { get; set; }
 
         public EditOrderLineItem(IFileService fileService)
         {
