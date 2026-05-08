@@ -800,14 +800,14 @@
                                         <TextBlock Text="Shipping Address" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
                                         <StackPanel Orientation="Horizontal" Spacing="6" 
-                                                    Visibility="{x:Bind ViewModel.Logistics.ShippingAddressStreet, Mode=OneWay, Converter={StaticResource InvertedNullToVisibilityConverter}}">
+                                                    Visibility="{x:Bind ViewModel.Logistics.ShippingAddressStreet, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
                                             <FontIcon Glyph="&#xE783;" FontSize="14" Foreground="{ThemeResource SystemFillColorCautionBrush}" />
                                             <TextBlock Text="No shipping address provided." 
                                                        Style="{StaticResource BodyTextBlockStyle}" 
                                                        Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
                                         </StackPanel>
 
-                                        <StackPanel Visibility="{x:Bind ViewModel.Logistics.ShippingAddressStreet, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
+                                        <StackPanel Visibility="{x:Bind ViewModel.Logistics.ShippingAddressStreet, Mode=OneWay, Converter={StaticResource InvertedNullToVisibilityConverter}}">
                                             <TextBlock Text="{x:Bind ViewModel.Logistics.ShippingAddressStreet, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" />
 
                                             <TextBlock Style="{StaticResource BodyTextBlockStyle}">

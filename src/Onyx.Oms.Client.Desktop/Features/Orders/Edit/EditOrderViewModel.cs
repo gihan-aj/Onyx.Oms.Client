@@ -226,8 +226,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                 if(OrderItems != null)
                 {
                     OrderItems.PropertyChanged -= OnOrderItemsPropertyChanged;
-                    OrderItems.OnAllocateStockRequested -= OnAllocateStockRequested;
-                    OrderItems.OnCreateTaskRequested -= OnCreateTaskRequested;
+                    //OrderItems.OnAllocateStockRequested -= OnAllocateStockRequested;
+                    //OrderItems.OnCreateTaskRequested -= OnCreateTaskRequested;
                 }
                 if (Financials != null)
                     Financials.PropertyChanged -= OnFinancialsPropertyChanged;
@@ -257,8 +257,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
 
                 // Listen to SubTotal changes
                 OrderItems.PropertyChanged += OnOrderItemsPropertyChanged;
-                OrderItems.OnAllocateStockRequested += OnAllocateStockRequested;
-                OrderItems.OnCreateTaskRequested += OnCreateTaskRequested;
+                OrderItems.OnAllocateStockRequested = OnAllocateStockRequested;
+                OrderItems.OnCreateTaskRequested = OnCreateTaskRequested;
                 // Listen to Financial changes
                 Financials.PropertyChanged += OnFinancialsPropertyChanged;
                 Payments.PropertyChanged += OnOrderPaymentsPropertyChanged;
