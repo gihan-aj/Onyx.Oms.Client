@@ -796,18 +796,26 @@
                                                    Style="{StaticResource BodyTextBlockStyle}"/>
                                     </StackPanel>
 
+                                    <!-- Tracking Number (Only visible if available) -->
+                                    <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.Logistics.HasTrackingNumber, Mode=OneWay}">
+                                        <TextBlock Text="Tracking Number" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Text="{x:Bind ViewModel.Logistics.TrackingNumber, Mode=OneWay}" 
+                                                   FontFamily="Consolas" 
+                                                   Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                    </StackPanel>
+
                                     <StackPanel Spacing="4">
                                         <TextBlock Text="Shipping Address" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
                                         <StackPanel Orientation="Horizontal" Spacing="6" 
-                                                    Visibility="{x:Bind ViewModel.Logistics.ShippingAddressStreet, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
+                                                    Visibility="{x:Bind ViewModel.Logistics.HasShippingAddress, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}">
                                             <FontIcon Glyph="&#xE783;" FontSize="14" Foreground="{ThemeResource SystemFillColorCautionBrush}" />
                                             <TextBlock Text="No shipping address provided." 
                                                        Style="{StaticResource BodyTextBlockStyle}" 
                                                        Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
                                         </StackPanel>
 
-                                        <StackPanel Visibility="{x:Bind ViewModel.Logistics.ShippingAddressStreet, Mode=OneWay, Converter={StaticResource InvertedNullToVisibilityConverter}}">
+                                        <StackPanel Visibility="{x:Bind ViewModel.Logistics.HasShippingAddress, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                                             <TextBlock Text="{x:Bind ViewModel.Logistics.ShippingAddressStreet, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" />
 
                                             <TextBlock Style="{StaticResource BodyTextBlockStyle}">

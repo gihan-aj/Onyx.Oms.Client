@@ -302,6 +302,9 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         string? WebsiteUrl,
         bool IsActive);
 
+    public record AllocateOrderItemQuantityCommand(
+        int QuantityToAllocate);
+
     public record CreateOrderProcurementTaskCommand(
         Guid OrderItemId,
         int RequestedQuantity,

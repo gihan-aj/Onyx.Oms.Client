@@ -105,6 +105,11 @@
                        HorizontalAlignment="Stretch"
                        FontSize="20"
                        FontWeight="SemiBold"/>
+
+            <CheckBox Content="Allocate these items to the order immediately" 
+                      IsChecked="{x:Bind AllocateToOrder, Mode=TwoWay}" 
+                      Visibility="{x:Bind HasOrderNumber, Mode=OneWay}"
+                      Margin="0,8,0,0"/>
         </StackPanel>
 
     </StackPanel>

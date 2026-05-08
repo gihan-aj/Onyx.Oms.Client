@@ -297,12 +297,24 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
         {
             if (_orderId.HasValue)
             {
-                // TODO: Await your API call here when you build it!
-                // await _ordersApi.AllocateStockAsync(OrderId, new AllocateStockRequest(productId, variantId, qty));
+                try
+                {
+                    IsBusy = true;
+                    var command = new AllocateOrderItemQuantityCommand(quantityToAllcate);
+                    await _ordersApi.AllocateOrderItemQuantity(_orderId.Value, orderItemId, command);
 
-                _toastService.ShowSuccess("Stock Allocated", $"Successfully allocated {quantityToAllcate} items to the order.");
+                    _toastService.ShowSuccess("Stock Allocated", $"Successfully allocated {quantityToAllcate} items to the order.");
 
-                await InitializeAsync(_orderId.Value);
+                    await InitializeAsync(_orderId.Value);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to allocate quantity to order item at order edit page.");
+                }
+                finally
+                {
+                    IsBusy = false;
+                }
             }
         }
 
@@ -547,7 +559,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             if (OrderItems == null || !_orderId.HasValue)
                 return;
 
-            bool hasStockShortage = OrderItems.Items.Any(item => item.Quantity > item.AvailableQuantity);
+            bool hasStockShortage = OrderItems.Items.Any(item => item.PendingQuantity > 0);
             if (hasStockShortage)
             {
                 _toastService.ShowError("Missing Items", "Order cannot be packed until all items are reserved.");
@@ -585,7 +597,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             if (OrderItems == null || !_orderId.HasValue || Logistics == null)
                 return;
 
-            bool hasStockShortage = OrderItems.Items.Any(item => item.Quantity > item.AvailableQuantity);
+            bool hasStockShortage = OrderItems.Items.Any(item => item.PendingQuantity > 0);
             if (hasStockShortage)
             {
                 _toastService.ShowError("Missing Items", "Order cannot be shipped until all items are reserved.");
@@ -632,7 +644,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             if (OrderItems == null || !_orderId.HasValue || Logistics == null)
                 return;
 
-            bool hasStockShortage = OrderItems.Items.Any(item => item.Quantity > item.AvailableQuantity);
+            bool hasStockShortage = OrderItems.Items.Any(item => item.PendingQuantity > 0);
             if (hasStockShortage)
             {
                 _toastService.ShowError("Missing Items", "Order cannot be delivered until all items are reserved.");
@@ -682,7 +694,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             if (OrderItems == null || !_orderId.HasValue || Logistics == null || Payments == null)
                 return;
 
-            bool hasStockShortage = OrderItems.Items.Any(item => item.Quantity > item.AvailableQuantity);
+            bool hasStockShortage = OrderItems.Items.Any(item => item.PendingQuantity > 0);
             if (hasStockShortage)
             {
                 _toastService.ShowError("Missing Items", "Order cannot be delivered until all items are reserved.");

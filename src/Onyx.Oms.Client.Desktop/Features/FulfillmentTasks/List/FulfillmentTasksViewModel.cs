@@ -429,6 +429,7 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
             if(result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
             {
                 int qtyToSubmit = (int)dialog.InputValue;
+                bool? allocateToOrder = dialog.AllocateToOrder;
                 _draftMarkReadyQuantities[task.Id] = qtyToSubmit;
 
                 try
@@ -436,9 +437,9 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
                     IsBusy = true;
 
                     if (task.Type == FulfillmentTaskType.Production)
-                        await _api.CompleteProduction(new CompleteProductionTaskCommand(task.Id, qtyToSubmit));
+                        await _api.CompleteProduction(new CompleteProductionTaskCommand(task.Id, qtyToSubmit, allocateToOrder));
                     else if (task.Type == FulfillmentTaskType.Procurement)
-                        await _api.CompleteProcurement(new CompleteProcurementTaskCommand(task.Id, qtyToSubmit));
+                        await _api.CompleteProcurement(new CompleteProcurementTaskCommand(task.Id, qtyToSubmit, allocateToOrder));
 
                     await LoadDataAsync();
 

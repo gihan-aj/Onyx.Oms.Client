@@ -41,6 +41,9 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         [Put("/api/v1/orders/{id}/notes")]
         Task UpdateNotes(Guid id, [Body] UpdateOrderNotesCommand command);
 
+        [Put("/api/v1/orders/{orderId}/items/{orderItemId}/allocate-quantity")]
+        Task AllocateOrderItemQuantity(Guid orderId, Guid orderItemId, [Body] AllocateOrderItemQuantityCommand command);
+
         [Post("/api/v1/orders/{orderId}/items/{orderItemId}/production-tasks")]
         Task CreateProductionTask(Guid orderId, Guid orderItemId, [Body] CreateOrderProductionTaskCommand command);
 

@@ -9,6 +9,7 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
         public string ActionTitle { get; }
         public string ActionMessage { get; }
         public bool HasOrderNumber => !string.IsNullOrWhiteSpace(Task.OrderNumber);
+        public bool? AllocateToOrder { get; set; }
 
         public int MaxAllowedQuantity { get; }
         public double InputValue { get; set; }
@@ -20,6 +21,8 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
             int maxAllowedQuantity,
             int? initialValue = null)
         {
+            this.InitializeComponent();
+
             Task = task;
             ActionTitle = actionTitle;
             ActionMessage = actionMessage;
@@ -29,7 +32,8 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
             else
                 InputValue = maxAllowedQuantity;
 
-            this.InitializeComponent();
+            if (HasOrderNumber)
+                AllocateToOrder = true;
         }
     }
 }

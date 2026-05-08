@@ -77,14 +77,22 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
         public string? ShippingAddressStreet
         {
             get => _shippingAddressStreet;
-            set => SetProperty(ref _shippingAddressStreet, value);
+            set
+            {
+                if (SetProperty(ref _shippingAddressStreet, value))
+                    OnPropertyChanged(nameof(HasShippingAddress));
+            }
         }
 
         private string? _shippingAddressCity;
         public string? ShippingAddressCity
         {
             get => _shippingAddressCity;
-            set => SetProperty(ref _shippingAddressCity, value);
+            set
+            {
+                if (SetProperty(ref _shippingAddressCity, value))
+                    OnPropertyChanged(nameof(HasShippingAddress));
+            }
         }
 
         private string? _shippingAddressDistrict;
@@ -125,6 +133,20 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             get => _shippingAddressCountry;
             set => SetProperty(ref _shippingAddressCountry, value);
         }
+
+        private string? _trackingNumber;
+        public string? TrackingNumber
+        {
+            get => _trackingNumber;
+            set
+            {
+                if (SetProperty(ref _trackingNumber, value))
+                    OnPropertyChanged(nameof(HasTrackingNumber));
+            }
+        }
+
+        public bool HasTrackingNumber => !string.IsNullOrWhiteSpace(TrackingNumber);
+        public bool HasShippingAddress => !string.IsNullOrWhiteSpace(ShippingAddressStreet) || !string.IsNullOrWhiteSpace(ShippingAddressCity);
 
         private string[] _districts = Array.Empty<string>();
         public string[] Districts
@@ -198,6 +220,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             ShippingAddressDistrict = order.ShippingAddressDistrict;
             ShippingAddressPostalCode = order.ShippingAddressPostalCode;
             ShippingAddressCountry = order.ShippingAddressCountry;
+            TrackingNumber = order.TrackingNumber;
 
             BeginEditCommand = new RelayCommand(BeginEdit);
             CancelEditCommand = new RelayCommand(CancelEdit);
