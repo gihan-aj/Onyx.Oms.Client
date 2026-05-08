@@ -311,7 +311,8 @@
                                                         <TextBlock Text="{x:Bind Sku, Mode=OneWay}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,8"/>
                                                         <Border Style="{StaticResource StatusBadgeStyle}" 
                                                                 Background="{x:Bind Status, Mode=OneWay, Converter={StaticResource OrderItemStatusBackgroundConverter}}" 
-                                                                HorizontalAlignment="Left">
+                                                                HorizontalAlignment="Left"
+                                                                Visibility="{x:Bind ShowFulfillmentDetails, Mode=OneWay}">
                                                             <TextBlock Text="{x:Bind Status, Mode=OneWay}" 
                                                                        Style="{StaticResource StatusBadgeTextStyle}"
                                                                        Foreground="{x:Bind Status, Mode=OneWay, Converter={StaticResource OrderItemStatusForegroundConverter}}" />
@@ -319,7 +320,8 @@
                                                     </StackPanel>
 
                                                     <!-- Fulfillment Progress (Allocated / Requested) -->
-                                                    <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="16,0,0,0">
+                                                    <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="16,0,0,0"
+                                                                Visibility="{x:Bind ShowFulfillmentDetails, Mode=OneWay}">
                                                         <TextBlock Text="Fulfillment" 
                                                                    Style="{StaticResource CaptionTextBlockStyle}" 
                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}" 

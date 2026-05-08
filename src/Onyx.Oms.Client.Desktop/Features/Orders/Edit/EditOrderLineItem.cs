@@ -176,6 +176,13 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
         public bool IsHistoricalRecord =>
             OrderCurrentStatus >= OrderStatus.Shipped;
 
+        private bool _showFulfillmentDetails;
+        public bool ShowFulfillmentDetails
+        {
+            get => _showFulfillmentDetails;
+            set => SetProperty(ref _showFulfillmentDetails, value);
+        }
+
         public bool RequiresFulfillment => IsFulfillmentActive && PendingQuantity > 0;
 
         // Show "Allocate" if they need items AND the warehouse has them

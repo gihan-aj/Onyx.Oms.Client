@@ -110,7 +110,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                     AllocateStockCommand = AllocateStockCommand,
                     CreateProcurementTaskCommand = CreateProcurementTaskCommand,
                     CreateProductionTaskCommand = CreateProductionTaskCommand,
-                    RemoveCommand = RemoveLineItemCommand
+                    RemoveCommand = RemoveLineItemCommand,
+                    ShowFulfillmentDetails = _orderStatus < OrderStatus.Shipped
                 };
 
                 Items.Add(orderItem);
@@ -160,7 +161,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                     AllocateStockCommand = AllocateStockCommand,
                     CreateProcurementTaskCommand = CreateProcurementTaskCommand,
                     CreateProductionTaskCommand = CreateProductionTaskCommand,
-                    RemoveCommand = RemoveLineItemCommand
+                    RemoveCommand = RemoveLineItemCommand,
+                    ShowFulfillmentDetails = _orderStatus < OrderStatus.Shipped
                 };
 
                 Items.Add(orderItem);
