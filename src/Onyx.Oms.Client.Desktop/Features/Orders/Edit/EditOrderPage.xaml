@@ -193,11 +193,32 @@
                                                     <TextBlock Text="{x:Bind ViewModel.CustomerDetails.PrimaryPhone, Mode=OneWay, TargetNullValue='', FallbackValue=''}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                 </StackPanel>
 
+                                                <StackPanel Orientation="Horizontal" Spacing="4" Visibility="{x:Bind ViewModel.CustomerDetails.HasSecondaryPhone, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <FontIcon Glyph="&#xE717;" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                    <TextBlock Text="{x:Bind ViewModel.CustomerDetails.SecondaryPhone, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                </StackPanel>
+
                                                 <StackPanel Orientation="Horizontal" Spacing="4" Visibility="{x:Bind ViewModel.CustomerDetails.HasEmail, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                                                     <FontIcon Glyph="&#xE715;" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                     <TextBlock Text="{x:Bind ViewModel.CustomerDetails.Email, Mode=OneWay, TargetNullValue='', FallbackValue=''}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                 </StackPanel>
                                             </StackPanel>
+
+                                            <!-- Address -->
+                                            <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,4,0,0" Visibility="{x:Bind ViewModel.CustomerDetails.HasAddress, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                <FontIcon Glyph="&#xE70F;" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                <TextBlock Text="{x:Bind ViewModel.CustomerDetails.Address.Street, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                <TextBlock Text=", " FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                <TextBlock Text="{x:Bind ViewModel.CustomerDetails.Address.City, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                            </StackPanel>
+
+                                            <!-- Notes -->
+                                            <Border Background="{ThemeResource LayerFillColorDefaultBrush}" BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,8,0,0" Visibility="{x:Bind ViewModel.CustomerDetails.HasNotes, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                <StackPanel>
+                                                    <TextBlock Text="Notes" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                    <TextBlock Text="{x:Bind ViewModel.CustomerDetails.Notes, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                </StackPanel>
+                                            </Border>
                                         </StackPanel>
                                     </Grid>
                                 </StackPanel>
@@ -796,12 +817,21 @@
                                                    Style="{StaticResource BodyTextBlockStyle}"/>
                                     </StackPanel>
 
-                                    <!-- Tracking Number (Only visible if available) -->
                                     <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.Logistics.HasTrackingNumber, Mode=OneWay}">
                                         <TextBlock Text="Tracking Number" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                        <TextBlock Text="{x:Bind ViewModel.Logistics.TrackingNumber, Mode=OneWay}" 
-                                                   FontFamily="Consolas" 
-                                                   Style="{StaticResource BodyStrongTextBlockStyle}"/>
+
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBlock Text="{x:Bind ViewModel.Logistics.TrackingNumber, Mode=OneWay}" 
+                                                       FontFamily="Consolas" 
+                                                       VerticalAlignment="Center"
+                                                       Style="{StaticResource BodyStrongTextBlockStyle}"/>
+
+                                            <Button Padding="4" Background="Transparent" BorderThickness="0" 
+                                                    ToolTipService.ToolTip="Copy to Clipboard"
+                                                    Command="{x:Bind ViewModel.Logistics.CopyTrackingNumberCommand, Mode=OneWay}">
+                                                <FontIcon Glyph="&#xE8C8;" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                            </Button>
+                                        </StackPanel>
                                     </StackPanel>
 
                                     <StackPanel Spacing="4">

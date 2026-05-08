@@ -193,6 +193,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
         public IRelayCommand BeginEditCommand { get; }
         public IRelayCommand CancelEditCommand { get; }
         public IRelayCommand UseCustomerAddressCommand { get; }
+        public IRelayCommand CopyTrackingNumberCommand { get; }
 
         public OrderLogisticsViewModel(OrderDetailsDto order, IToastService toastService)
         {
@@ -227,6 +228,16 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             UseCustomerAddressCommand = new RelayCommand(
                 UseCustomerAddress,
                 () => _customerAddress != null);
+            CopyTrackingNumberCommand = new RelayCommand(CopyTrackingNumber);
+        }
+
+        private void CopyTrackingNumber()
+        {
+            if (string.IsNullOrWhiteSpace(TrackingNumber)) return;
+            var dataPackage = new Windows.ApplicationModel.DataTransfer.DataPackage();
+            dataPackage.SetText(TrackingNumber);
+            Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dataPackage);
+            _toastService.ShowSuccess("Copied", "Tracking number copied to clipboard.");
         }
 
         private void BeginEdit()
