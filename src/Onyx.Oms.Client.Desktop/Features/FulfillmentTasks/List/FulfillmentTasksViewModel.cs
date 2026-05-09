@@ -231,6 +231,7 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
                     g.Key,
                     g.First().ProductName,
                     g.First().Sku,
+                    g.First().VariantAttributes,
                     g.Sum(t => t.RequestedQuantity),
                     g.Sum(t => t.CompletedQuantity),
                     g
@@ -300,6 +301,7 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
                         task: task,
                         actionTitle: "Start Production",
                         actionMessage: "Enter the quantity of items that is starting production:",
+                        isCompleteAction: false,
                         maxAllowedQuantity: remainingToStart,
                         initialValue: initialValue)
             {
@@ -418,6 +420,7 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
                         task: task,
                         actionTitle: "Mark Items Ready",
                         actionMessage: "Enter the quantity of items that have been completed:",
+                        isCompleteAction: true,
                         maxAllowedQuantity: remainingToComplete,
                         initialValue: initialValue)
             {

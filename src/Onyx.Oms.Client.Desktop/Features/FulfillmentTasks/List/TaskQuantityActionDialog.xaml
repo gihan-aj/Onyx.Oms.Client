@@ -108,7 +108,7 @@
 
             <CheckBox Content="Allocate these items to the order immediately" 
                       IsChecked="{x:Bind AllocateToOrder, Mode=TwoWay}" 
-                      Visibility="{x:Bind HasOrderNumber, Mode=OneWay}"
+                      Visibility="{x:Bind ShowAllocateToOrderCheck, Mode=OneWay}"
                       Margin="0,8,0,0"/>
         </StackPanel>
 

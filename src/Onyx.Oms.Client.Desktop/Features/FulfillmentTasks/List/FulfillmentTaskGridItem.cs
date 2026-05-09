@@ -2,6 +2,7 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
 {
     public class FulfillmentTaskGridItem : FulfillmentTaskDto
     {
+        public string ExpectedCompletionDateDisplay => ExpectedCompletionDate?.ToString("MMM dd, yyyy") ?? "-";
         public bool IsProductionPending => Type == FulfillmentTaskType.Production && RequestedQuantity > StartedQuantity;
         public bool IsProcurementPending => Type == FulfillmentTaskType.Procurement && RequestedQuantity > StartedQuantity;
         public bool IsInProgress => Status == FulfillmentTaskStatus.InProgress || Status == FulfillmentTaskStatus.Pending;

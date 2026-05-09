@@ -29,7 +29,6 @@
             <NumberBox Grid.Column="0" Header="Task Quantity" 
                        Value="{x:Bind RequestedQuantity, Mode=TwoWay}"
                        Minimum="1" 
-                       Maximum="{x:Bind PendingQuantity, Mode=OneWay}"
                        SpinButtonPlacementMode="Inline" />
             <ComboBox Grid.Column="1" Header="Priority"
                       ItemsSource="{x:Bind Priorities, Mode=OneWay}"
