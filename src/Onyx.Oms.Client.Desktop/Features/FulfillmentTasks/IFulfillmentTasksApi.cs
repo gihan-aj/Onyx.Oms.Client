@@ -47,6 +47,9 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks
         [Put("/api/v1/fulfillment-tasks/complete-procurement")]
         Task CompleteProcurement([Body] CompleteProcurementTaskCommand command);
 
+        [Put("/api/v1/fulfillment-tasks/complete-batch")]
+        Task CompleteBatch([Body] CompleteBatchCommand command);
+
         [Put("/api/v1/fulfillment-tasks/cancel-production")]
         Task CancelProduction([Body] CancelProductionTaskCommand command);
 

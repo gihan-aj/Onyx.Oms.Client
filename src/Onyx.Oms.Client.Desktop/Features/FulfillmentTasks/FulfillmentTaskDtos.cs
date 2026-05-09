@@ -57,9 +57,11 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks
 
     public record CancelProductionTaskCommand(Guid ProductionTaskId);
 
-    public record CompleteProcurementTaskCommand(Guid ProcurementTaskId, int QuantityToComplete, bool? allocateToOrder = null);
+    public record CompleteProcurementTaskCommand(Guid ProcurementTaskId, int QuantityToComplete, bool? AllocateToOrder = null);
 
-    public record CompleteProductionTaskCommand(Guid ProductionTaskId, int QuantityToComplete, bool? allocateToOrder = null);
+    public record CompleteProductionTaskCommand(Guid ProductionTaskId, int QuantityToComplete, bool? AllocateToOrder = null);
+
+    public record CompleteBatchCommand(Guid ProductVariantId, bool AllocateToOrders);
 
     public record IssuePurchaseOrderCommand(
         Guid ProcurementTaskId,

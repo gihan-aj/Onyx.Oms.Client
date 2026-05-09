@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List.CompleteBatchDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Complete Batch"
+    PrimaryButtonText="Complete Batch"
+    CloseButtonText="Cancel"
+    DefaultButton="Primary"
+    Style="{StaticResource DefaultContentDialogStyle}">
+
+    <StackPanel Spacing="16">
+        <TextBlock Text="Are you sure you want to mark all remaining requested items in this batch as ready?" 
+                   TextWrapping="Wrap" />
+        <Border Background="{ThemeResource LayerFillColorAltBrush}" 
+                BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" 
+                BorderThickness="1" CornerRadius="4" Padding="12">
+            <StackPanel Spacing="4">
+                <TextBlock Text="{x:Bind ProductName, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                <TextBlock Text="{x:Bind Sku, Mode=OneWay}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                <TextBlock Margin="0,8,0,0">
+                    <Run Text="Remaining to Complete: "/>
+                    <Run Text="{x:Bind RemainingQuantity, Mode=OneWay}" FontWeight="Bold"/>
+                </TextBlock>
+            </StackPanel>
+        </Border>
+        <CheckBox Content="Allocate completed quantities to their respective orders"
+                  IsChecked="{x:Bind AllocateToOrders, Mode=TwoWay}" />
+    </StackPanel>
+</ContentDialog>

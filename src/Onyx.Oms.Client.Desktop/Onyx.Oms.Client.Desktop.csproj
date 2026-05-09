@@ -19,6 +19,7 @@
     <None Remove="Features\Catalog\CatalogPage.xaml" />
     <None Remove="Features\Dashboard\DashboardPage.xaml" />
     <None Remove="Features\FulfillmentTasks\Create\CreateFulfillmentTaskPage.xaml" />
+    <None Remove="Features\FulfillmentTasks\List\CompleteBatchDialog.xaml" />
     <None Remove="Features\FulfillmentTasks\List\FulfillmentTasksPage.xaml" />
     <None Remove="Features\FulfillmentTasks\List\IssuePoDialog.xaml" />
     <None Remove="Features\FulfillmentTasks\List\TaskQuantityActionDialog.xaml" />
@@ -205,6 +206,12 @@
 	<Content Include="BackendServices\**\*.*">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Features\FulfillmentTasks\List\CompleteBatchDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <ItemGroup>

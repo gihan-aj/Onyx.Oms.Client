@@ -147,6 +147,7 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
         public IAsyncRelayCommand MarkReadyCommand { get; }
         public IAsyncRelayCommand CancelTaskCommand { get; }
         public IAsyncRelayCommand ViewTaskDetailsCommand { get; }
+        public IAsyncRelayCommand<FulfillmentGroup> CompleteBatchCommand { get; }
 
         public FulfillmentTasksViewModel(IFulfillmentTasksApi api, IPermissionService permissionService, INavigationService navigationService, IToastService toastService, IDialogService dialogService, ITenantProfileService tenantProfile)
         {
@@ -165,6 +166,7 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
             MarkReadyCommand = new AsyncRelayCommand<FulfillmentTaskGridItem>(MarkReadyAsync);
             CancelTaskCommand = new AsyncRelayCommand<FulfillmentTaskGridItem>(CancelTaskAsync);
             ViewTaskDetailsCommand = new AsyncRelayCommand<FulfillmentTaskGridItem>(ViewTaskDetailsAsync);
+            CompleteBatchCommand = new AsyncRelayCommand<FulfillmentGroup>(CompleteBatchAsync);
         }
 
         public void OnNavigatedFrom()
@@ -234,6 +236,7 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
                     g.First().VariantAttributes,
                     g.Sum(t => t.RequestedQuantity),
                     g.Sum(t => t.CompletedQuantity),
+                    CompleteBatchCommand,
                     g
                 ));
 
@@ -458,6 +461,43 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
                 }
             }
         }
+
+        private async Task CompleteBatchAsync(FulfillmentGroup? group)
+        {
+            if (group == null) return;
+            int remaining = group.TotalRequested - group.TotalCompleted;
+            if (remaining <= 0)
+            {
+                _toastService.ShowWarning("Notice", "All tasks in this batch are already completed.");
+                return;
+            }
+            var dialog = new CompleteBatchDialog(group.ProductName, group.Sku, remaining)
+            {
+                XamlRoot = _dialogService.CurrentXamlRoot
+            };
+            var result = await dialog.ShowAsync();
+            if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
+            {
+                try
+                {
+                    IsBusy = true;
+
+                    await _api.CompleteBatch(new CompleteBatchCommand(group.ProductVariantId, dialog.AllocateToOrders));
+
+                    _toastService.ShowSuccess("Success", $"Batch for {group.ProductName} completed.");
+                    await LoadDataAsync();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error completing batch: {ex.Message}");
+                }
+                finally
+                {
+                    IsBusy = false;
+                }
+            }
+        }
+
         private async Task CancelTaskAsync(FulfillmentTaskGridItem? task)
         {
             if (IsBusy || task == null)

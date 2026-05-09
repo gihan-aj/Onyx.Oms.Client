@@ -1,3 +1,4 @@
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,6 +13,7 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
         public IEnumerable<VariantAttributeDto>? VariantAttributes { get; set; }
         public int TotalRequested { get; set; }
         public int TotalCompleted { get; set; }
+        public IAsyncRelayCommand<FulfillmentGroup> CompleteBatchCommand { get; }
 
         public FulfillmentGroup(
             Guid productVariantId, 
@@ -19,7 +21,8 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
             string sku, 
             IEnumerable<VariantAttributeDto>? variantAttributes, 
             int totalRequested, 
-            int totalCompleted, 
+            int totalCompleted,
+            IAsyncRelayCommand<FulfillmentGroup> completeBatchCommand,
             IEnumerable<FulfillmentTaskGridItem> items) : base(items)
         {
             ProductVariantId = productVariantId;
@@ -28,6 +31,7 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
             VariantAttributes = variantAttributes;
             TotalRequested = totalRequested;
             TotalCompleted = totalCompleted;
+            CompleteBatchCommand = completeBatchCommand;
         }
     }
 }

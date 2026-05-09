@@ -897,7 +897,7 @@
                                                 <!-- The autofill button -->
                                                 <HyperlinkButton Grid.Column="1" 
                                                                  Content="Use Customer Default Address" 
-                                                                 Command="{x:Bind ViewModel.Logistics.UseCustomerAddressCommand}" 
+                                                                 Command="{x:Bind ViewModel.Logistics.UseCustomerAddressCommand, Mode=OneWay}" 
                                                                  Margin="12,0,0,0" 
                                                                  VerticalAlignment="Center" />
                                             </Grid>
