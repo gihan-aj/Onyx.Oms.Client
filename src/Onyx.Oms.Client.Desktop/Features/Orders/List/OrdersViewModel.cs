@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml.Controls;
 using Onyx.Oms.Client.Desktop.Features.Orders.Create;
 using Onyx.Oms.Client.Desktop.Features.Orders.Edit;
@@ -24,6 +25,15 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
         private readonly IDialogService _dialogService;
         private readonly IToastService _toastService;
         private readonly INavigationService _navigationService;
+        private readonly ILogger<OrdersViewModel> _logger;
+
+        // UI 
+        private bool _isBusy;
+        public bool IsBusy
+        {
+            get => _isBusy;
+            set => SetProperty(ref _isBusy, value);
+        }
 
         // -- Filtering --
         private string _searchTerm = string.Empty;
@@ -178,13 +188,15 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
             IPermissionService permissionService,
             IDialogService dialogService,
             IToastService toastService,
-            INavigationService navigationService)
+            INavigationService navigationService,
+            ILogger<OrdersViewModel> logger)
         {
             _ordersApi = ordersApi;
             _permissionService = permissionService;
             _dialogService = dialogService;
             _toastService = toastService;
             _navigationService = navigationService;
+            _logger = logger;
 
             // Default Date Range: Past 30 days
             _fromDate = DateTimeOffset.Now.AddDays(-30);
@@ -203,7 +215,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
             DeliverOrderCommand = new RelayCommand<OrderGridItem>(DeliverOrder);
             CompleteOrderCommand = new RelayCommand<OrderGridItem>(CompleteOrder);
             FailDeliveryCommand = new RelayCommand<OrderGridItem>(FailDelivery);
-            StatusChipToggledCommand = new RelayCommand(() => 
+            StatusChipToggledCommand = new RelayCommand(() =>
             {
                 if (SelectedTab == OrderCategoryTab.All)
                 {
@@ -464,7 +476,62 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
             }
         }
 
-        private void ConfirmOrder(OrderGridItem? order) { if (order != null) _toastService.ShowSuccess("Success","Confirm Order placeholder"); }
+        private async void ConfirmOrder(OrderGridItem? order) 
+        {
+            if (order == null)
+                return;
+
+            try
+            {
+                IsBusy = true;
+                var orderDetails = await _ordersApi.GetOrderById(order.Id);
+                if (!orderDetails.Items.Any())
+                {
+                    _toastService.ShowError("Validation Error", "This order has no items and cannot be confirmed.");
+                    return;
+                }
+
+                bool hasStockShortage = orderDetails.Items.Any(item => item.Quantity > item.AvailableQuantity);
+
+                string title;
+                string message;
+
+                if (hasStockShortage)
+                {
+                    title = "Confirm Order (Stock Shortage)";
+                    message = "You do not have enough stock to fulfill all items in this order immediately. " +
+                              "Once confirmed, you will need to create Procurement or Production tasks to acquire the missing items.\n\n" +
+                              "Are you sure you want to confirm this order?";
+                }
+                else
+                {
+                    title = "Confirm Order";
+                    message = "All items in this order are currently in stock! " +
+                              "Once confirmed, this order can be sent for immediate packing.\n\n" +
+                              "Are you sure you want to proceed?";
+                }
+
+                bool isConfirmed = await _dialogService.ShowConfirmationAsync(title, message, "Confirm Order", "Cancel");
+                if (!isConfirmed)
+                {
+                    return;
+                }
+
+                await _ordersApi.ConfirmOrder(orderDetails.Id);
+                await LoadCountsAsync();
+                await LoadDataCommand.ExecuteAsync(null);
+                _toastService.ShowSuccess("Success", $"Order: {order.OrderNumber} has been confirmed.");
+            }
+            catch
+            {
+                _logger.LogError("Confirmation process failed for order ID: {OrderId}", order.Id);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+
+        }
         private void CancelOrder(OrderGridItem? order) { if (order != null) _toastService.ShowSuccess("Success", "Cancel Order placeholder"); }
         private void PackOrder(OrderGridItem? order) { if (order != null) _toastService.ShowSuccess("Success", "Pack Order placeholder"); }
         private void ShipOrder(OrderGridItem? order) { if (order != null) _toastService.ShowSuccess("Success", "Ship Order placeholder"); }

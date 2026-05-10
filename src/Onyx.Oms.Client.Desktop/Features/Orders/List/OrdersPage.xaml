@@ -152,6 +152,11 @@
             </ScrollViewer>
         </Grid>
 
+        <ProgressBar Grid.Row="3" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" 
+             IsIndeterminate="True" 
+             Visibility="{x:Bind ViewModel.IsBusy, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" 
+             Canvas.ZIndex="100" />
+
         <!-- DataGrid Constraints Wrapper -->
         <Grid Grid.Row="4" x:Name="TableContainer">
 
