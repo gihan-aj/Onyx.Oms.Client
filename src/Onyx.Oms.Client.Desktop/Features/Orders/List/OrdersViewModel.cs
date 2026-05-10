@@ -553,20 +553,19 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
                 }
                 bool hasAllocatedItems = orderDetails.Items.Any(item => item.AllocatedQuantity > 0);
 
-                // TODO : get a reason and append it to notes
+                var dialog = new CancelDeliveryDialog(hasAllocatedItems)
+                {
+                    XamlRoot = App.MainWindow.Content.XamlRoot
+                };
 
-                string message = hasAllocatedItems
-                    ? "Are you sure you want to cancel this order?"
-                    : "Are you sure you want to cancel this order?\n\n" +
-                    "Any allocated stock will be released.";
-
-                bool isConfirmed = await _dialogService.ShowConfirmationAsync("Cancel Order", message, "Cancel Order", "Cancel");
-                if (!isConfirmed)
+                var result = await dialog.ShowAsync();
+                if (result != ContentDialogResult.Primary)
                 {
                     return;
                 }
 
-                await _ordersApi.CancelOrder(orderDetails.Id);
+                var command = new CancelOrderCommand(dialog.Reason);
+                await _ordersApi.CancelOrder(orderDetails.Id, command);
                 await LoadCountsAsync();
                 await LoadDataCommand.ExecuteAsync(null);
                 _toastService.ShowSuccess("Success", $"Order: {order.OrderNumber} has been cancelled.");
@@ -750,8 +749,116 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
                 IsBusy = false;
             }
         }
-        private void CompleteOrder(OrderGridItem? order) { if (order != null) _toastService.ShowSuccess("Success", "Complete Order placeholder"); }
-        private void FailDelivery(OrderGridItem? order) { if (order != null) _toastService.ShowSuccess("Success", "Fail Delivery placeholder"); }
+        private async void CompleteOrder(OrderGridItem? order) 
+        {
+            if (order == null)
+                return;
+
+            try
+            {
+                IsBusy = true;
+                var orderDetails = await _ordersApi.GetOrderById(order.Id);
+                if (orderDetails == null)
+                {
+                    _toastService.ShowError("Error", "Order details could not be loaded.");
+                    return;
+                }
+                if (!orderDetails.Items.Any())
+                {
+                    _toastService.ShowError("Cannot complete order", "This order has no items.");
+                    return;
+                }
+
+                bool hasPendingItems = orderDetails.Items.Any(item => item.PendingQuantity > 0);
+                if (hasPendingItems)
+                {
+                    _toastService.ShowError("Cannot complete order", "Some items have not been allocated yet.");
+                    return;
+                }
+
+                if (!orderDetails.CourierId.HasValue)
+                {
+                    _toastService.ShowError("Courier Required", "Order cannot be delivered without a courier.");
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(orderDetails.ShippingAddressStreet))
+                {
+                    _toastService.ShowError("Shipping Address Required", "Order cannot be delivered without a shipping address.");
+                    return;
+                }
+
+                if(orderDetails.PaymentStatus != PaymentStatus.FullyPaid || orderDetails.BalanceAmount > 0)
+                {
+                    _toastService.ShowError("Cannot complete order", $"There is an outstanding balance of {orderDetails.BaseCurrency} {orderDetails.BalanceAmount}.");
+                    return;
+                }
+
+                string title = "Complete Order";
+                string message = "Are you sure you want to mark this order as Completed?";
+
+                bool isConfirmed = await _dialogService.ShowConfirmationAsync(title, message, "Mark as Completed", "Cancel");
+                if (!isConfirmed)
+                {
+                    return;
+                }
+
+                await _ordersApi.CompleteOrder(orderDetails.Id);
+                await LoadCountsAsync();
+                await LoadDataCommand.ExecuteAsync(null);
+                _toastService.ShowSuccess("Success", $"Order: {order.OrderNumber} has been marked as completed.");
+
+            }
+            catch
+            {
+                _logger.LogError("Marking as completed failed for order ID: {OrderId}", order.Id);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+        private async void FailDelivery(OrderGridItem? order) 
+        {
+            if (order == null)
+                return;
+
+            try
+            {
+                IsBusy = true;
+                var orderDetails = await _ordersApi.GetOrderById(order.Id);
+                if (orderDetails == null)
+                {
+                    _toastService.ShowError("Error", "Order details could not be loaded.");
+                    return;
+                }
+
+                var dialog = new FailDeliveryDialog()
+                {
+                    XamlRoot = App.MainWindow.Content.XamlRoot
+                };
+
+                var result = await dialog.ShowAsync();
+                if (result != ContentDialogResult.Primary)
+                {
+                    return;
+                }
+
+                var command = new FailDeliveryCommand(dialog.IsReturnedToSender, dialog.Reason);
+                await _ordersApi.FailOrderDelivery(orderDetails.Id, command);
+                await LoadCountsAsync();
+                await LoadDataCommand.ExecuteAsync(null);
+                _toastService.ShowSuccess("Success", $"Order: {order.OrderNumber} delivery has been marked as failed.");
+            }
+            catch
+            {
+                _logger.LogError("Marking delivery as failed failed for order ID: {OrderId}", order.Id);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
     }
 
     public partial class StatusChipViewModel : ObservableObject

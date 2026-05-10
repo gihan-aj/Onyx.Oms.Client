@@ -26,6 +26,7 @@
     <None Remove="Features\FulfillmentTasks\ProductPicker\ProductPickerDialog.xaml" />
     <None Remove="Features\Fulfillment\FulfillmentPage.xaml" />
     <None Remove="Features\Orders\ApplyDiscountDialog.xaml" />
+    <None Remove="Features\Orders\CancelDeliveryDialog.xaml" />
     <None Remove="Features\Orders\Create\CreateNewCustomerDialog.xaml" />
     <None Remove="Features\Orders\Create\CreateOrderPage.xaml" />
     <None Remove="Features\Orders\CustomerPicker.xaml" />
@@ -33,6 +34,7 @@
     <None Remove="Features\Orders\Edit\AllocateStockDialog.xaml" />
     <None Remove="Features\Orders\Edit\CreateFulfillmentTaskDialog.xaml" />
     <None Remove="Features\Orders\Edit\EditOrderPage.xaml" />
+    <None Remove="Features\Orders\FailDeliveryDialog.xaml" />
     <None Remove="Features\Orders\List\OrdersPage.xaml" />
     <None Remove="Features\Orders\ProductCategoryPicker\ProductCategoryPicker.xaml" />
     <None Remove="Features\Orders\ProductPicker\ProductPicker.xaml" />
@@ -206,6 +208,18 @@
 	<Content Include="BackendServices\**\*.*">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Features\Orders\CancelDeliveryDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Features\Orders\FailDeliveryDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <ItemGroup>

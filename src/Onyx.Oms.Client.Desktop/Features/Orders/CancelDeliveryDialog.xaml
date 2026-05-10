@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="Onyx.Oms.Client.Desktop.Features.Orders.CancelDeliveryDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Cancel Order"
+    PrimaryButtonText="Cancel Order"
+    CloseButtonText="Close"
+    DefaultButton="Close"
+    Style="{StaticResource DefaultContentDialogStyle}">
+
+    <StackPanel Spacing="16" Width="400">
+        <InfoBar IsOpen="{x:Bind HasAllocatedItems, Mode=OneWay}"
+                 Severity="Warning"
+                 Title="Stock Notice"
+                 Message="Any allocated stock will be released."
+                 IsClosable="False" />
+                 
+        <TextBlock Text="Are you sure you want to cancel this order?" TextWrapping="Wrap" />
+
+        <TextBox Header="Reason (Optional)" 
+                 Text="{x:Bind Reason, Mode=TwoWay}"
+                 PlaceholderText="e.g. Customer requested cancellation"
+                 TextWrapping="Wrap"
+                 AcceptsReturn="True"
+                 MinHeight="80" />
+    </StackPanel>
+</ContentDialog>

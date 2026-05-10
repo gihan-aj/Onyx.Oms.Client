@@ -1,4 +1,4 @@
-﻿using Onyx.Oms.Client.Desktop.Features.Products;
+using Onyx.Oms.Client.Desktop.Features.Products;
 using Onyx.Oms.Client.Desktop.Shared.Models;
 using Refit;
 using System;
@@ -66,7 +66,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         Task ConfirmOrder(Guid id);
 
         [Post("/api/v1/orders/{id}/cancel")]
-        Task CancelOrder(Guid id);
+        Task CancelOrder(Guid id, [Body] CancelOrderCommand command);
 
         [Post("/api/v1/orders/{id}/complete")]
         Task CompleteOrder(Guid id);

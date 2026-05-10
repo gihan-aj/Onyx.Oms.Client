@@ -331,7 +331,9 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         DateTimeOffset? ExpectedCompletionDate,
         TaskPriority Priority);
 
-    public record FailDeliveryCommand(bool IsReturnedToSender);
+    public record FailDeliveryCommand(bool IsReturnedToSender, string? Reason);
 
     public record ShipOrderCommand(Guid CourierId, string? TrackingNumber);
+
+    public record CancelOrderCommand(string? Reason);
 }
