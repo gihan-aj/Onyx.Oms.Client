@@ -33,10 +33,10 @@
     <None Remove="Features\Orders\Edit\AllocateStockDialog.xaml" />
     <None Remove="Features\Orders\Edit\CreateFulfillmentTaskDialog.xaml" />
     <None Remove="Features\Orders\Edit\EditOrderPage.xaml" />
-    <None Remove="Features\Orders\Edit\ShipOrderConfirmationDialog.xaml" />
     <None Remove="Features\Orders\List\OrdersPage.xaml" />
     <None Remove="Features\Orders\ProductCategoryPicker\ProductCategoryPicker.xaml" />
     <None Remove="Features\Orders\ProductPicker\ProductPicker.xaml" />
+    <None Remove="Features\Orders\ShippingConfirmationDialog.xaml" />
     <None Remove="Features\ProductCategories\ProductCategoriesPage.xaml" />
     <None Remove="Features\Products\Controls\ProductCategoryPicker.xaml" />
     <None Remove="Features\Products\Create\CreateProductPage.xaml" />
@@ -209,6 +209,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Page Update="Features\Orders\ShippingConfirmationDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
     <Page Update="Features\FulfillmentTasks\List\CompleteBatchDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -222,12 +228,6 @@
 
   <ItemGroup>
     <Page Update="Features\Orders\Edit\AllocateStockDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Page Update="Features\Orders\Edit\ShipOrderConfirmationDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>

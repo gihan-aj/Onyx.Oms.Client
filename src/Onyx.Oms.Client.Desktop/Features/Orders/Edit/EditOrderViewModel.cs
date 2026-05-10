@@ -612,7 +612,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                 address = $"{Logistics.ShippingAddressStreet}, {Logistics.ShippingAddressCity}, {Logistics.ShippingAddressDistrict}";
             }
 
-            var dialog = new ShipOrderConfirmationDialog(courierName, address)
+            var dialog = new ShippingConfirmationDialog(courierName, address)
             {
                 XamlRoot = App.MainWindow.Content.XamlRoot
             };

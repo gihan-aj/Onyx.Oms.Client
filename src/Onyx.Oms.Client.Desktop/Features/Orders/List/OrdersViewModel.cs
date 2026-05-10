@@ -487,7 +487,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
                 var orderDetails = await _ordersApi.GetOrderById(order.Id);
                 if (!orderDetails.Items.Any())
                 {
-                    _toastService.ShowError("Validation Error", "This order has no items and cannot be confirmed.");
+                    _toastService.ShowError("Cannot confirm order", "This order has no items.");
                     return;
                 }
 
@@ -532,8 +532,89 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
             }
 
         }
-        private void CancelOrder(OrderGridItem? order) { if (order != null) _toastService.ShowSuccess("Success", "Cancel Order placeholder"); }
-        private void PackOrder(OrderGridItem? order) { if (order != null) _toastService.ShowSuccess("Success", "Pack Order placeholder"); }
+        private async void CancelOrder(OrderGridItem? order) 
+        {
+            if (order == null)
+                return;
+
+            try
+            {
+                IsBusy = true;
+                var orderDetails = await _ordersApi.GetOrderById(order.Id);
+                bool hasAllocatedItems = orderDetails.Items.Any(item => item.AllocatedQuantity > 0);
+
+                // TODO : get a reason and append it to notes
+
+                string message = hasAllocatedItems
+                    ? "Are you sure you want to cancel this order?"
+                    : "Are you sure you want to cancel this order?\n\n" +
+                    "Any allocated stock will be released.";
+
+                bool isConfirmed = await _dialogService.ShowConfirmationAsync("Cancel Order", message, "Cancel Order", "Cancel");
+                if (!isConfirmed)
+                {
+                    return;
+                }
+
+                await _ordersApi.CancelOrder(orderDetails.Id);
+                await LoadCountsAsync();
+                await LoadDataCommand.ExecuteAsync(null);
+                _toastService.ShowSuccess("Success", $"Order: {order.OrderNumber} has been cancelled.");
+            }
+            catch
+            {
+                _logger.LogError("Cancel process failed for order ID: {OrderId}", order.Id);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+        private async void PackOrder(OrderGridItem? order) 
+        {
+            if (order == null)
+                return;
+
+            try
+            {
+                IsBusy = true;
+                var orderDetails = await _ordersApi.GetOrderById(order.Id);
+                if (!orderDetails.Items.Any())
+                {
+                    _toastService.ShowError("Cannot pack order", "This order has no items.");
+                    return;
+                }
+
+                bool hasPendingItems = orderDetails.Items.Any(item => item.PendingQuantity > 0);
+                if (hasPendingItems)
+                {
+                    _toastService.ShowError("Cannot pack order", "Some items have not been allocated yet.");
+                    return;
+                }
+
+                bool isConfirmed = await _dialogService.ShowConfirmationAsync(
+                    "Pack Order", 
+                    "Are you sure you want to mark this order as Packed?", 
+                    "Pack Order", "Cancel");
+                if (!isConfirmed)
+                {
+                    return;
+                }
+
+                await _ordersApi.PackOrder(orderDetails.Id);
+                await LoadCountsAsync();
+                await LoadDataCommand.ExecuteAsync(null);
+                _toastService.ShowSuccess("Success", $"Order: {order.OrderNumber} has been marked as packed.");
+            }
+            catch
+            {
+                _logger.LogError("Marking as packed failed for order ID: {OrderId}", order.Id);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
         private void ShipOrder(OrderGridItem? order) { if (order != null) _toastService.ShowSuccess("Success", "Ship Order placeholder"); }
         private void DeliverOrder(OrderGridItem? order) { if (order != null) _toastService.ShowSuccess("Success", "Deliver Order placeholder"); }
         private void CompleteOrder(OrderGridItem? order) { if (order != null) _toastService.ShowSuccess("Success", "Complete Order placeholder"); }
