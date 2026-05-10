@@ -76,20 +76,20 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
             }
         }
 
-        private void ViewMenuItem_Click(object sender, RoutedEventArgs e)
+        private OrderGridItem? GetOrderFromSender(object sender)
         {
-            if (sender is FrameworkElement { DataContext: OrderGridItem order })
-                ViewModel.ViewDetailsCommand.Execute(order);
-            else if (sender is MenuFlyoutItem item && item.DataContext is OrderGridItem selectedOrder)
-                ViewModel.ViewDetailsCommand.Execute(selectedOrder);
+            if (sender is FrameworkElement { DataContext: OrderGridItem order }) return order;
+            if (sender is MenuFlyoutItem item && item.DataContext is OrderGridItem selectedOrder) return selectedOrder;
+            return null;
         }
 
-        private void EditMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is FrameworkElement { DataContext: OrderGridItem order })
-                ViewModel.EditDetailsCommand.Execute(order);
-            else if (sender is MenuFlyoutItem item && item.DataContext is OrderGridItem selectedOrder)
-                ViewModel.EditDetailsCommand.Execute(selectedOrder);
-        }
+        private void ManageMenuItem_Click(object sender, RoutedEventArgs e) => ViewModel.ManageOrderCommand.Execute(GetOrderFromSender(sender));
+        private void ConfirmMenuItem_Click(object sender, RoutedEventArgs e) => ViewModel.ConfirmOrderCommand.Execute(GetOrderFromSender(sender));
+        private void CancelMenuItem_Click(object sender, RoutedEventArgs e) => ViewModel.CancelOrderCommand.Execute(GetOrderFromSender(sender));
+        private void PackMenuItem_Click(object sender, RoutedEventArgs e) => ViewModel.PackOrderCommand.Execute(GetOrderFromSender(sender));
+        private void ShipMenuItem_Click(object sender, RoutedEventArgs e) => ViewModel.ShipOrderCommand.Execute(GetOrderFromSender(sender));
+        private void DeliverMenuItem_Click(object sender, RoutedEventArgs e) => ViewModel.DeliverOrderCommand.Execute(GetOrderFromSender(sender));
+        private void CompleteMenuItem_Click(object sender, RoutedEventArgs e) => ViewModel.CompleteOrderCommand.Execute(GetOrderFromSender(sender));
+        private void FailDeliveryMenuItem_Click(object sender, RoutedEventArgs e) => ViewModel.FailDeliveryCommand.Execute(GetOrderFromSender(sender));
     }
 }

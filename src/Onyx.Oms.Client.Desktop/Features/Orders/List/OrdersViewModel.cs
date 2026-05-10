@@ -163,8 +163,14 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
         // -- Commands --
         public IAsyncRelayCommand ClearFiltersCommand { get; }
         public IRelayCommand NewOrderCommand { get; }
-        public IRelayCommand<OrderGridItem> ViewDetailsCommand { get; }
-        public IRelayCommand<OrderGridItem> EditDetailsCommand { get; }
+        public IRelayCommand<OrderGridItem> ManageOrderCommand { get; }
+        public IRelayCommand<OrderGridItem> ConfirmOrderCommand { get; }
+        public IRelayCommand<OrderGridItem> CancelOrderCommand { get; }
+        public IRelayCommand<OrderGridItem> PackOrderCommand { get; }
+        public IRelayCommand<OrderGridItem> ShipOrderCommand { get; }
+        public IRelayCommand<OrderGridItem> DeliverOrderCommand { get; }
+        public IRelayCommand<OrderGridItem> CompleteOrderCommand { get; }
+        public IRelayCommand<OrderGridItem> FailDeliveryCommand { get; }
         public IRelayCommand StatusChipToggledCommand { get; }
 
         public OrdersViewModel(
@@ -189,8 +195,14 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
 
             ClearFiltersCommand = new AsyncRelayCommand(ClearFiltersAsync);
             NewOrderCommand = new RelayCommand(NavigateToNewOrder);
-            ViewDetailsCommand = new RelayCommand<OrderGridItem>(ViewOrderDetails);
-            EditDetailsCommand = new RelayCommand<OrderGridItem>(EditOrderDetails);
+            ManageOrderCommand = new RelayCommand<OrderGridItem>(ManageOrder);
+            ConfirmOrderCommand = new RelayCommand<OrderGridItem>(ConfirmOrder);
+            CancelOrderCommand = new RelayCommand<OrderGridItem>(CancelOrder);
+            PackOrderCommand = new RelayCommand<OrderGridItem>(PackOrder);
+            ShipOrderCommand = new RelayCommand<OrderGridItem>(ShipOrder);
+            DeliverOrderCommand = new RelayCommand<OrderGridItem>(DeliverOrder);
+            CompleteOrderCommand = new RelayCommand<OrderGridItem>(CompleteOrder);
+            FailDeliveryCommand = new RelayCommand<OrderGridItem>(FailDelivery);
             StatusChipToggledCommand = new RelayCommand(() => 
             {
                 if (SelectedTab == OrderCategoryTab.All)
@@ -444,21 +456,21 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
              _navigationService.NavigateTo(typeof(CreateOrderViewModel).FullName!);
         }
 
-        private void ViewOrderDetails(OrderGridItem? order)
-        {
-            if (order != null)
-            {
-                // _navigationService.NavigateTo(typeof(OrderDetailsViewModel).FullName!, order.Id);
-            }
-        }
-
-        private void EditOrderDetails(OrderGridItem? order)
+        private void ManageOrder(OrderGridItem? order)
         {
             if (order != null)
             {
                  _navigationService.NavigateTo(typeof(EditOrderViewModel).FullName!, order.Id);
             }
         }
+
+        private void ConfirmOrder(OrderGridItem? order) { if (order != null) _toastService.ShowSuccess("Success","Confirm Order placeholder"); }
+        private void CancelOrder(OrderGridItem? order) { if (order != null) _toastService.ShowSuccess("Success", "Cancel Order placeholder"); }
+        private void PackOrder(OrderGridItem? order) { if (order != null) _toastService.ShowSuccess("Success", "Pack Order placeholder"); }
+        private void ShipOrder(OrderGridItem? order) { if (order != null) _toastService.ShowSuccess("Success", "Ship Order placeholder"); }
+        private void DeliverOrder(OrderGridItem? order) { if (order != null) _toastService.ShowSuccess("Success", "Deliver Order placeholder"); }
+        private void CompleteOrder(OrderGridItem? order) { if (order != null) _toastService.ShowSuccess("Success", "Complete Order placeholder"); }
+        private void FailDelivery(OrderGridItem? order) { if (order != null) _toastService.ShowSuccess("Success", "Fail Delivery placeholder"); }
     }
 
     public partial class StatusChipViewModel : ObservableObject

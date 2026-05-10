@@ -70,7 +70,7 @@
                         IsEnabled="{x:Bind ViewModel.IsBusy, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}">
                     <Button.Content>
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xF28B;" FontSize="14" />
+                            <FontIcon Glyph="&#xE8FB;" FontSize="14" />
                             <TextBlock Text="Confirm Order" />
                         </StackPanel>
                     </Button.Content>
@@ -96,7 +96,7 @@
                         IsEnabled="{x:Bind ViewModel.IsBusy, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}">
                     <Button.Content>
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xE709;" FontSize="14" />
+                            <FontIcon Glyph="&#xE724;" FontSize="14" />
                             <TextBlock Text="Mark As Shipped" />
                         </StackPanel>
                     </Button.Content>
@@ -109,7 +109,7 @@
                         IsEnabled="{x:Bind ViewModel.IsBusy, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}">
                     <Button.Content>
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xE726;" FontSize="14" />
+                            <FontIcon Glyph="&#xE707;" FontSize="14" />
                             <TextBlock Text="Mark As Delivered" />
                         </StackPanel>
                     </Button.Content>

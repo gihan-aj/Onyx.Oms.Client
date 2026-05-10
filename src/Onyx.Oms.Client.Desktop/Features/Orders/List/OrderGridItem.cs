@@ -1,4 +1,4 @@
-﻿namespace Onyx.Oms.Client.Desktop.Features.Orders.List
+namespace Onyx.Oms.Client.Desktop.Features.Orders.List
 {
     public class OrderGridItem : OrderSummaryDto
     {
@@ -13,6 +13,10 @@
         public string BalanceDisplay => $"{GrandTotalCurrency} {BalanceAmount:N2}";
 
         public string OrderDateDisplay => OrderDate?.ToLocalTime().ToString("g") ?? "-";
+
+        public bool CanConfirm => Status == OrderStatus.Pending;
+        public bool CanCancel => Status == OrderStatus.Pending || Status == OrderStatus.Confirmed || Status == OrderStatus.Processing || Status == OrderStatus.ReadyToPack || Status == OrderStatus.Packed;
+        public bool CanProgress => Status != OrderStatus.Pending && Status != OrderStatus.Cancelled && Status != OrderStatus.Completed && Status != OrderStatus.Delivered && Status != OrderStatus.PaymentFailed;
     }
 
     public static class OrderMappingExtensions

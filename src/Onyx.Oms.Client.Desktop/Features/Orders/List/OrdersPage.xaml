@@ -181,13 +181,40 @@
                             <Setter Property="ContextFlyout">
                                 <Setter.Value>
                                     <MenuFlyout>
-                                        <MenuFlyoutItem Text="View Details" Icon="View" Click="ViewMenuItem_Click" 
-                                                    IsEnabled="{Binding CanView}" />
+                                        <MenuFlyoutItem Text="Manage Order" Click="ManageMenuItem_Click" IsEnabled="{Binding CanEdit}">
+                                            <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE70F;"/></MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+                                        
+                                        <MenuFlyoutSeparator Visibility="{Binding CanConfirm, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                        <MenuFlyoutItem Text="Confirm" Click="ConfirmMenuItem_Click" Visibility="{Binding CanConfirm, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE8FB;"/></MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
 
-                                        <MenuFlyoutSeparator />
+                                        <MenuFlyoutItem Text="Cancel" Click="CancelMenuItem_Click" Visibility="{Binding CanCancel, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE711;"/></MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
 
-                                        <MenuFlyoutItem Text="Edit" Icon="Edit" Click="EditMenuItem_Click"
-                                                    IsEnabled="{Binding CanEdit}" />
+                                        <MenuFlyoutSeparator Visibility="{Binding CanProgress, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                        
+                                        <MenuFlyoutItem Text="Pack" Click="PackMenuItem_Click" Visibility="{Binding CanProgress, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE7B8;"/></MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+
+                                        <MenuFlyoutItem Text="Ship" Click="ShipMenuItem_Click" Visibility="{Binding CanProgress, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE724;"/></MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+
+                                        <MenuFlyoutItem Text="Deliver" Click="DeliverMenuItem_Click" Visibility="{Binding CanProgress, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE707;"/></MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+
+                                        <MenuFlyoutItem Text="Complete" Click="CompleteMenuItem_Click" Visibility="{Binding CanProgress, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE930;"/></MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+
+                                        <MenuFlyoutItem Text="Fail Delivery" Click="FailDeliveryMenuItem_Click" Visibility="{Binding CanProgress, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE7BA;"/></MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
                                     </MenuFlyout>
                                 </Setter.Value>
                             </Setter>
@@ -277,13 +304,40 @@
 
                                         <Button.Flyout>
                                             <MenuFlyout>
-                                                <MenuFlyoutItem x:Name="ViewMenuItem" Text="View Details" Icon="View" Click="ViewMenuItem_Click"
-                                                        IsEnabled="{x:Bind CanView}" />
+                                                <MenuFlyoutItem Text="Manage Order" Click="ManageMenuItem_Click" IsEnabled="{x:Bind CanEdit}">
+                                                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE70F;"/></MenuFlyoutItem.Icon>
+                                                </MenuFlyoutItem>
+                                                
+                                                <MenuFlyoutSeparator Visibility="{x:Bind CanConfirm, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                <MenuFlyoutItem Text="Confirm" Click="ConfirmMenuItem_Click" Visibility="{x:Bind CanConfirm, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE8FB;"/></MenuFlyoutItem.Icon>
+                                                </MenuFlyoutItem>
 
-                                                <MenuFlyoutSeparator />
+                                                <MenuFlyoutItem Text="Cancel" Click="CancelMenuItem_Click" Visibility="{x:Bind CanCancel, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE711;"/></MenuFlyoutItem.Icon>
+                                                </MenuFlyoutItem>
 
-                                                <MenuFlyoutItem x:Name="EditMenuItem" Text="Edit" Icon="Edit" Click="EditMenuItem_Click"
-                                                        IsEnabled="{x:Bind CanEdit}" />
+                                                <MenuFlyoutSeparator Visibility="{x:Bind CanProgress, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                
+                                                <MenuFlyoutItem Text="Pack" Click="PackMenuItem_Click" Visibility="{x:Bind CanProgress, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE7B8;"/></MenuFlyoutItem.Icon>
+                                                </MenuFlyoutItem>
+
+                                                <MenuFlyoutItem Text="Ship" Click="ShipMenuItem_Click" Visibility="{x:Bind CanProgress, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE724;"/></MenuFlyoutItem.Icon>
+                                                </MenuFlyoutItem>
+
+                                                <MenuFlyoutItem Text="Deliver" Click="DeliverMenuItem_Click" Visibility="{x:Bind CanProgress, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE707;"/></MenuFlyoutItem.Icon>
+                                                </MenuFlyoutItem>
+
+                                                <MenuFlyoutItem Text="Complete" Click="CompleteMenuItem_Click" Visibility="{x:Bind CanProgress, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE930;"/></MenuFlyoutItem.Icon>
+                                                </MenuFlyoutItem>
+
+                                                <MenuFlyoutItem Text="Fail Delivery" Click="FailDeliveryMenuItem_Click" Visibility="{x:Bind CanProgress, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE7BA;"/></MenuFlyoutItem.Icon>
+                                                </MenuFlyoutItem>
                                             </MenuFlyout>
                                         </Button.Flyout>
                                     </Button>
