@@ -33,6 +33,19 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
             CustomerPicker.FetchDataDelegate = ViewModel.FetchCustomersAsync;
         }
 
+        public Visibility IsAllActiveTab(OrderCategoryTab tab) => tab == OrderCategoryTab.All ? Visibility.Visible : Visibility.Collapsed;
+
+        private void SelectorBar_SelectionChanged(SelectorBar sender, SelectorBarSelectionChangedEventArgs args)
+        {
+            if (sender.SelectedItem is SelectorBarItem selectedItem && selectedItem.Tag is string tag)
+            {
+                if (Enum.TryParse<OrderCategoryTab>(tag, out var tab))
+                {
+                    ViewModel.SelectedTab = tab;
+                }
+            }
+        }
+
         private void AutoSuggestBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
             ViewModel.LoadDataCommand.Execute(null);

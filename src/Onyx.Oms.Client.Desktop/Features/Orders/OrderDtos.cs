@@ -48,6 +48,18 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         public DateTimeOffset PaymentDate { get; set; }
     }
 
+    public record OrderStatusCountDto
+    {
+        public OrderStatus Status { get; set; }
+        public int Count { get; set; }
+    }
+
+    public record GetOrderStatusCountsResponse
+    {
+        public List<OrderStatusCountDto> Counts { get; set; } = new();
+        public int TotalCount { get; set; }
+    }
+
     public record CreateOrderCommand(
         Guid CustomerId,
         bool IsCashOnDelivery,

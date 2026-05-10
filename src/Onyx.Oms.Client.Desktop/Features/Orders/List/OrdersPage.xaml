@@ -19,32 +19,27 @@
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Header and Filters -->
-        <Grid Grid.Row="0" Padding="16,12"
-          ColumnSpacing="8" RowSpacing="12"
-          Background="{ThemeResource LayerFillColorDefaultBrush}">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-
+        <!-- Top Row: Title, Search, Actions -->
+        <Grid Grid.Row="0" Padding="16,12" Background="{ThemeResource LayerFillColorDefaultBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Top Row: Title, Search, Actions -->
-            <TextBlock Grid.Row="0" Grid.Column="0" 
+            <TextBlock Grid.Column="0" 
                    Text="Orders" 
                    Style="{StaticResource SubtitleTextBlockStyle}" 
                    VerticalAlignment="Center" FontWeight="SemiBold" Margin="0,0,16,0"/>
 
-            <AutoSuggestBox Grid.Row="0" Grid.Column="1"
+            <AutoSuggestBox Grid.Column="1"
                         PlaceholderText="Search orders by number..."
                         QueryIcon="Find"
                         Width="320"
@@ -53,7 +48,7 @@
                         Text="{x:Bind ViewModel.SearchTerm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         QuerySubmitted="AutoSuggestBox_QuerySubmitted"/>
 
-            <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" Spacing="8">
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
                 <Button Style="{StaticResource SubtleButtonStyle}" ToolTipService.ToolTip="Refresh Data"
                     Command="{x:Bind ViewModel.RefreshCommand}">
                     <FontIcon Glyph="&#xE72C;" FontSize="16"/>
@@ -73,33 +68,92 @@
                     </Button.Content>
                 </Button>
             </StackPanel>
+        </Grid>
 
-            <!-- Filters -->
-            <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" Spacing="16">
-                <parent:CustomerPicker x:Name="CustomerPicker"
-                                  Width="300"
-                                  SelectedCustomer="{x:Bind ViewModel.SelectedCustomer, Mode=TwoWay}"
-                                  PlaceholderText="Filter by Customer..."/>
+        <!-- SelectorBar -->
+        <Grid Grid.Row="1" Background="{ThemeResource LayerFillColorDefaultBrush}" Padding="16,0,16,12">
+            <SelectorBar SelectionChanged="SelectorBar_SelectionChanged" >
+                <SelectorBarItem Text="{x:Bind ViewModel.AllActiveTabText, Mode=OneWay}" Tag="All" IsSelected="True" FontWeight="Bold"/>
+                <SelectorBarItem Text="{x:Bind ViewModel.PendingTabText, Mode=OneWay}" Tag="Pending" FontWeight="Bold"/>
+                <SelectorBarItem Text="{x:Bind ViewModel.ProcessingTabText, Mode=OneWay}" Tag="Processing" FontWeight="Bold"/>
+                <SelectorBarItem Text="{x:Bind ViewModel.ReadyToPackTabText, Mode=OneWay}" Tag="ReadyToPack" FontWeight="Bold"/>
+                <SelectorBarItem Text="{x:Bind ViewModel.PackedTabText, Mode=OneWay}" Tag="Packed" FontWeight="Bold"/>
+                <SelectorBarItem Text="{x:Bind ViewModel.HistoricalTabText, Mode=OneWay}" Tag="Historical" FontWeight="Bold"/>
+            </SelectorBar>
+        </Grid>
 
-                <ComboBox ItemsSource="{x:Bind ViewModel.StatusOptions}"
-                      SelectedItem="{x:Bind ViewModel.SelectedStatus, Mode=TwoWay}"
-                      DisplayMemberPath="DisplayName"
-                      PlaceholderText="Status"
-                      Width="150"/>
+        <!-- Status Chips (Only visible for All Active) -->
+        <Grid Grid.Row="2" Background="{ThemeResource LayerFillColorDefaultBrush}" Padding="16,0,16,12"
+              Visibility="{x:Bind IsAllActiveTab(ViewModel.SelectedTab), Mode=OneWay}">
+            <ItemsRepeater ItemsSource="{x:Bind ViewModel.StatusChips, Mode=OneWay}">
+                <ItemsRepeater.Layout>
+                    <StackLayout Orientation="Horizontal" Spacing="8" />
+                </ItemsRepeater.Layout>
+                <ItemsRepeater.ItemTemplate>
+                    <DataTemplate x:DataType="local:StatusChipViewModel">
+                        <ToggleButton Content="{x:Bind DisplayName}" 
+                                      IsChecked="{x:Bind IsChecked, Mode=TwoWay}"
+                                      CornerRadius="16" />
+                    </DataTemplate>
+                </ItemsRepeater.ItemTemplate>
+            </ItemsRepeater>
+        </Grid>
 
-                <ComboBox ItemsSource="{x:Bind ViewModel.PaymentStatusOptions}"
-                      SelectedItem="{x:Bind ViewModel.SelectedPaymentStatus, Mode=TwoWay}"
-                      DisplayMemberPath="DisplayName"
-                      PlaceholderText="Payment Status"
-                      Width="180"/>
+        <!-- Filters -->
+        <Grid Grid.Row="3" Padding="16,0,16,12" Background="{ThemeResource LayerFillColorDefaultBrush}">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                <StackPanel Orientation="Horizontal" Spacing="16" Padding="0,0,0,4">
+                    <StackPanel>
+                        <TextBlock Text="From Date" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
+                        <CalendarDatePicker Date="{x:Bind ViewModel.FromDate, Mode=TwoWay}" Width="140"/>
+                    </StackPanel>
+                    
+                    <StackPanel>
+                        <TextBlock Text="To Date" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
+                        <CalendarDatePicker Date="{x:Bind ViewModel.ToDate, Mode=TwoWay}" Width="140"/>
+                    </StackPanel>
 
-                <Button Content="Clear Filters" Style="{StaticResource SubtleButtonStyle}"
-                    Command="{x:Bind ViewModel.ClearFiltersCommand}"/>
-            </StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="Customer" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
+                        <parent:CustomerPicker x:Name="CustomerPicker"
+                                          Width="200"
+                                          SelectedCustomer="{x:Bind ViewModel.SelectedCustomer, Mode=TwoWay}"
+                                          PlaceholderText="Select Customer"/>
+                    </StackPanel>
+
+                    <StackPanel>
+                        <TextBlock Text="Courier" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
+                        <ComboBox ItemsSource="{x:Bind ViewModel.Couriers}"
+                              SelectedItem="{x:Bind ViewModel.SelectedCourier, Mode=TwoWay}"
+                              DisplayMemberPath="Name"
+                              PlaceholderText="Select Courier"
+                              Width="180"/>
+                    </StackPanel>
+
+                    <StackPanel>
+                        <TextBlock Text="Payment Status" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
+                        <ComboBox ItemsSource="{x:Bind ViewModel.PaymentStatusOptions}"
+                              SelectedItem="{x:Bind ViewModel.SelectedPaymentStatus, Mode=TwoWay}"
+                              DisplayMemberPath="DisplayName"
+                              Width="180"/>
+                    </StackPanel>
+
+                    <StackPanel>
+                        <TextBlock Text="COD" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
+                        <ComboBox ItemsSource="{x:Bind ViewModel.IsCodOptions}"
+                              SelectedItem="{x:Bind ViewModel.SelectedIsCod, Mode=TwoWay}"
+                              DisplayMemberPath="DisplayName"
+                              Width="90"/>
+                    </StackPanel>
+
+                    <Button Content="Clear" Style="{StaticResource SubtleButtonStyle}" VerticalAlignment="Bottom"
+                        Command="{x:Bind ViewModel.ClearFiltersCommand}"/>
+                </StackPanel>
+            </ScrollViewer>
         </Grid>
 
         <!-- DataGrid Constraints Wrapper -->
-        <Grid Grid.Row="1" x:Name="TableContainer">
+        <Grid Grid.Row="4" x:Name="TableContainer">
 
             <ScrollViewer HorizontalScrollBarVisibility="Auto"
                       HorizontalScrollMode="Enabled"
@@ -263,7 +317,7 @@
         </Grid>
 
         <!-- Pagination -->
-        <Grid Grid.Row="2"
+        <Grid Grid.Row="5"
           Background="{ThemeResource LayerFillColorDefaultBrush}"
           Padding="16,8">
             <Grid.ColumnDefinitions>

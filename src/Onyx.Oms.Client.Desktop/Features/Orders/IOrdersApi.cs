@@ -16,12 +16,24 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
             [AliasAs("searchTerm")] string? searchTerm = null,
             [AliasAs("sortColumn")] string? sortColumn = null,
             [AliasAs("sortOrder")] string? sortOrder = null,
-            [AliasAs("status")] OrderStatus? status = null,
+            [Query(CollectionFormat.Multi)] OrderStatus[]? statuses = null,
             [AliasAs("paymentStatus")] PaymentStatus? paymentStatus = null,
             [AliasAs("customerId")] Guid? customerId = null,
+            [AliasAs("courierId")] Guid? courierId = null,
+            [AliasAs("isCashOnDelivery")] bool? isCashOnDelivery = null,
             [AliasAs("fromDate")] DateTimeOffset? fromDate = null,
             [AliasAs("toDate")] DateTimeOffset? toDate = null,
             [AliasAs("includeDetails")] bool includeDetails = false);
+
+        [Get("/api/v1/orders/status-counts")]
+        Task<GetOrderStatusCountsResponse> GetOrderStatusCount(
+            [AliasAs("searchTerm")] string? searchTerm = null,
+            [AliasAs("paymentStatus")] PaymentStatus? paymentStatus = null,
+            [AliasAs("customerId")] Guid? customerId = null,
+            [AliasAs("courierId")] Guid? courierId = null,
+            [AliasAs("isCashOnDelivery")] bool? isCashOnDelivery = null,
+            [AliasAs("fromDate")] DateTimeOffset? fromDate = null,
+            [AliasAs("toDate")] DateTimeOffset? toDate = null);
 
         [Get("/api/v1/orders/{id}")]
         Task<OrderDetailsDto> GetOrderById(Guid id);
