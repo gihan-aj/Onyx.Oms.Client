@@ -485,6 +485,11 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
             {
                 IsBusy = true;
                 var orderDetails = await _ordersApi.GetOrderById(order.Id);
+                if(orderDetails == null)
+                {
+                    _toastService.ShowError("Error", "Order details could not be loaded.");
+                    return;
+                }
                 if (!orderDetails.Items.Any())
                 {
                     _toastService.ShowError("Cannot confirm order", "This order has no items.");
@@ -541,6 +546,11 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
             {
                 IsBusy = true;
                 var orderDetails = await _ordersApi.GetOrderById(order.Id);
+                if (orderDetails == null)
+                {
+                    _toastService.ShowError("Error", "Order details could not be loaded.");
+                    return;
+                }
                 bool hasAllocatedItems = orderDetails.Items.Any(item => item.AllocatedQuantity > 0);
 
                 // TODO : get a reason and append it to notes
@@ -579,6 +589,11 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
             {
                 IsBusy = true;
                 var orderDetails = await _ordersApi.GetOrderById(order.Id);
+                if (orderDetails == null)
+                {
+                    _toastService.ShowError("Error", "Order details could not be loaded.");
+                    return;
+                }
                 if (!orderDetails.Items.Any())
                 {
                     _toastService.ShowError("Cannot pack order", "This order has no items.");
@@ -615,8 +630,126 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
                 IsBusy = false;
             }
         }
-        private void ShipOrder(OrderGridItem? order) { if (order != null) _toastService.ShowSuccess("Success", "Ship Order placeholder"); }
-        private void DeliverOrder(OrderGridItem? order) { if (order != null) _toastService.ShowSuccess("Success", "Deliver Order placeholder"); }
+        private async void ShipOrder(OrderGridItem? order) 
+        {
+            if (order == null)
+                return;
+
+            try
+            {
+                IsBusy = true;
+                var orderDetails = await _ordersApi.GetOrderById(order.Id);
+                if (orderDetails == null)
+                {
+                    _toastService.ShowError("Error", "Order details could not be loaded.");
+                    return;
+                }
+                if (!orderDetails.Items.Any())
+                {
+                    _toastService.ShowError("Cannot ship order", "This order has no items.");
+                    return;
+                }
+
+                bool hasPendingItems = orderDetails.Items.Any(item => item.PendingQuantity > 0);
+                if (hasPendingItems)
+                {
+                    _toastService.ShowError("Cannot ship order", "Some items have not been allocated yet.");
+                    return;
+                }
+
+                string? courierName = Couriers.FirstOrDefault(c => c.Id == orderDetails.CourierId)?.Name;
+
+                string? address = null;
+                if (!string.IsNullOrWhiteSpace(orderDetails.ShippingAddressStreet))
+                {
+                    address = $"{orderDetails.ShippingAddressStreet}, {orderDetails.ShippingAddressCity}, {orderDetails.ShippingAddressDistrict}";
+                }
+
+                var dialog = new ShippingConfirmationDialog(courierName, address)
+                {
+                    XamlRoot = App.MainWindow.Content.XamlRoot
+                };
+                var result = await dialog.ShowAsync();
+
+                if (result == ContentDialogResult.Primary && orderDetails.CourierId.HasValue)
+                {
+                    var command = new ShipOrderCommand(orderDetails.CourierId.Value, dialog.TrackingNumber);
+                    await _ordersApi.ShipOrder(orderDetails.Id, command);
+                    await LoadCountsAsync();
+                    await LoadDataCommand.ExecuteAsync(null);
+                    _toastService.ShowSuccess("Success", $"Order: {order.OrderNumber} has been marked as shipped.");
+                }
+            }
+            catch
+            {
+                _logger.LogError("Marking as shipped failed for order ID: {OrderId}", order.Id);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+        private async void DeliverOrder(OrderGridItem? order) 
+        {
+            if (order == null)
+                return;
+            try
+            {
+                IsBusy = true;
+                var orderDetails = await _ordersApi.GetOrderById(order.Id);
+                if (orderDetails == null)
+                {
+                    _toastService.ShowError("Error", "Order details could not be loaded.");
+                    return;
+                }
+                if (!orderDetails.Items.Any())
+                {
+                    _toastService.ShowError("Cannot deliver order", "This order has no items.");
+                    return;
+                }
+
+                bool hasPendingItems = orderDetails.Items.Any(item => item.PendingQuantity > 0);
+                if (hasPendingItems)
+                {
+                    _toastService.ShowError("Cannot deliver order", "Some items have not been allocated yet.");
+                    return;
+                }
+
+                if (!orderDetails.CourierId.HasValue)
+                {
+                    _toastService.ShowError("Courier Required", "Order cannot be delivered without a courier.");
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(orderDetails.ShippingAddressStreet))
+                {
+                    _toastService.ShowError("Shipping Address Required", "Order cannot be delivered without a shipping address.");
+                    return;
+                }
+
+                string title = "Deliver Order";
+                string message = "Are you sure you want to mark this order as Delivered?";
+
+                bool isConfirmed = await _dialogService.ShowConfirmationAsync(title, message, "Mark as Delivered", "Cancel");
+                if (!isConfirmed)
+                {
+                    return;
+                }
+
+                await _ordersApi.DeliverOrder(orderDetails.Id);
+                await LoadCountsAsync();
+                await LoadDataCommand.ExecuteAsync(null);
+                _toastService.ShowSuccess("Success", $"Order: {order.OrderNumber} has been marked as delivered.");
+            }
+            catch
+            {
+                _logger.LogError("Marking as delivered failed for order ID: {OrderId}", order.Id);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
         private void CompleteOrder(OrderGridItem? order) { if (order != null) _toastService.ShowSuccess("Success", "Complete Order placeholder"); }
         private void FailDelivery(OrderGridItem? order) { if (order != null) _toastService.ShowSuccess("Success", "Fail Delivery placeholder"); }
     }
