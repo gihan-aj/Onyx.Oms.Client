@@ -98,6 +98,9 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         [Get("/api/v1/customers/{id}")]
         Task<CustomerDto> GetCustomerById(Guid id);
 
+        [Get("/api/v1/customers/{id}/orders")]
+        Task<CustomerOrderHistoryResponse> GetCustomerOrderHistory(Guid id, int top = 20);
+
         [Get("/api/v1/products/search")]
         Task<PagedResult<ProductDto>> GetProductsPaged(
             int page,

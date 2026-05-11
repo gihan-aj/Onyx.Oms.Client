@@ -187,6 +187,9 @@
 
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                             <TextBlock Text="{x:Bind ViewModel.CustomerDetails.Name, Mode=OneWay, TargetNullValue='', FallbackValue=''}" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                            <HyperlinkButton Content="View Order History" 
+                                                             Command="{x:Bind ViewModel.ShowCustomerOrderHistoryCommand, Mode=OneWay}" 
+                                                             Margin="0,2,0,0" Padding="0"/>
                                             <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,4,0,0">
                                                 <StackPanel Orientation="Horizontal" Spacing="4">
                                                     <FontIcon Glyph="&#xE717;" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
@@ -340,7 +343,7 @@
                                                                    Style="{StaticResource CaptionTextBlockStyle}" 
                                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}" 
                                                                    Margin="0,0,0,4"
-                                                                   Visibility="{x:Bind RequiresFulfillment, Mode=OneWay}" />
+                                                                   Visibility="{x:Bind ShowFulfillmentDetails, Mode=OneWay}" />
 
                                                         <!--<DropDownButton Content="Fulfill Options" 
                                                                         Visibility="{x:Bind RequiresFulfillment, Mode=OneWay}">

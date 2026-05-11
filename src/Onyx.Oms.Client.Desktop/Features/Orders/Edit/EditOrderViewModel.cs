@@ -24,6 +24,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
         private readonly IDialogService _dialogService;
 
         private Guid? _orderId;
+        private Guid? _customerId;
 
         private bool _isLoading;
         public bool IsLoading
@@ -176,6 +177,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
         public IAsyncRelayCommand ShipOrderCommand { get; }
         public IAsyncRelayCommand DeliverOrderCommand { get; }
         public IAsyncRelayCommand CompleteOrderCommand { get; }
+        public IAsyncRelayCommand ShowCustomerOrderHistoryCommand { get; }
 
         public EditOrderViewModel(IOrdersApi ordersApi, ILogger<EditOrderViewModel> logger, INavigationService navigationService, IToastService toastService, IFileService fileService, IDialogService dialogService)
         {
@@ -196,6 +198,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             ShipOrderCommand = new AsyncRelayCommand(ShipOrderAsync);
             DeliverOrderCommand = new AsyncRelayCommand(DeliverOrderAsync);
             CompleteOrderCommand = new AsyncRelayCommand(CompleteOrderAsync);
+            ShowCustomerOrderHistoryCommand = new AsyncRelayCommand(ShowCustomerOrderHistoryAsync);
         }
 
         public void OnNavigatedFrom()
@@ -235,6 +238,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                     Payments.PropertyChanged -= OnOrderPaymentsPropertyChanged;
 
                 _orderId = orderDetails.Id;
+                _customerId = orderDetails.Customer.Id;
                 PageTitle = orderDetails.OrderNumber;
                 Status = orderDetails.Status;
                 CustomerDetails = new CustomerDetailsViewModel(orderDetails.Customer);
@@ -387,6 +391,29 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to load couriers at order edit page.");
+            }
+        }
+
+        private async Task ShowCustomerOrderHistoryAsync()
+        {
+            if (!_customerId.HasValue)
+                return;
+
+            try
+            {
+                IsBusy = true;
+                var orderHistory = await _ordersApi.GetCustomerOrderHistory(_customerId.Value);
+                var dialog = new CustomerOrderHistoryDialog(orderHistory)
+                {
+                    XamlRoot = App.MainWindow.Content.XamlRoot
+                };
+                IsBusy = false;
+
+                await dialog.ShowAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to show customer order history at order edit page.");
             }
         }
 

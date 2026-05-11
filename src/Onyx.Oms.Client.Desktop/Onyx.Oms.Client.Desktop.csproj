@@ -29,6 +29,7 @@
     <None Remove="Features\Orders\CancelDeliveryDialog.xaml" />
     <None Remove="Features\Orders\Create\CreateNewCustomerDialog.xaml" />
     <None Remove="Features\Orders\Create\CreateOrderPage.xaml" />
+    <None Remove="Features\Orders\CustomerOrderHistoryDialog.xaml" />
     <None Remove="Features\Orders\CustomerPicker.xaml" />
     <None Remove="Features\Orders\Edit\AddPaymentDialog.xaml" />
     <None Remove="Features\Orders\Edit\AllocateStockDialog.xaml" />
@@ -208,6 +209,12 @@
 	<Content Include="BackendServices\**\*.*">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Features\Orders\CustomerOrderHistoryDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <ItemGroup>

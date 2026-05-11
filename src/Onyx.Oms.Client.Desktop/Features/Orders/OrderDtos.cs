@@ -230,7 +230,23 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         public string? Notes { get; set; }
     }
 
+    public class CustomerOrderHistoryResponse
+    {
+        public int TotalOrdersCount { get; set; }
+        public List<CustomerOrderSummaryDto> RecentOrders { get; set; } = new();
+    }
 
+    public class CustomerOrderSummaryDto
+    {
+        public Guid Id { get; set; }
+        public string OrderNumber { get; set; } = string.Empty;
+        public DateTimeOffset? OrderDate { get; set; }
+        public OrderStatus Status { get; set; }
+        public PaymentStatus PaymentStatus { get; set; }
+        public decimal GrandTotalAmount { get; set; }
+        public string GrandTotalCurrency { get; set; } = string.Empty;
+        public decimal BalanceAmount { get; set; }
+    }
 
     public record VariantAttributeDto(
         string Name,
