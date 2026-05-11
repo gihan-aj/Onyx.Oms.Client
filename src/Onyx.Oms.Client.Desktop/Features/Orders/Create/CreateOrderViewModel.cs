@@ -51,6 +51,20 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
 
         private CreateCustomerCommand? _draftCustomer = null;
 
+        // Order Date & Time
+        private DateTimeOffset _orderDate = DateTimeOffset.Now;
+        public DateTimeOffset OrderDate
+        {
+            get => _orderDate;
+            set => SetProperty(ref _orderDate, value);
+        }
+        private TimeSpan _orderTime = DateTime.Now.TimeOfDay;
+        public TimeSpan OrderTime
+        {
+            get => _orderTime;
+            set => SetProperty(ref _orderTime, value);
+        }
+
         // Order items
         public ObservableCollection<CreateOrderLineItem> OrderItems { get; } = new();
 
@@ -480,7 +494,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
                 var command = new CreateOrderCommand(
                     CustomerId: SelectedCustomer.Id,
                     IsCashOnDelivery: IsCashOnDelivery,
-                    OrderDate: DateTimeOffset.Now,
+                    OrderDate: OrderDate.Date + OrderTime,
                     Items: items,
                     CourierId: SelectedCourier?.Id,
                     ShippingAddress: shippingAddress,

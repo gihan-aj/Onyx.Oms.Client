@@ -206,7 +206,7 @@
                                                 </Grid.ColumnDefinitions>
 
                                                 <!-- Image -->
-                                                <Grid Grid.Column="0" Width="56" Height="56" CornerRadius="4" 
+                                                <Grid Grid.Column="0" Width="90" Height="90" CornerRadius="4" 
                                                       Background="{ThemeResource LayerFillColorAltBrush}" BorderThickness="1" BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
                                                       VerticalAlignment="Center">
                                                     <FontIcon Glyph="&#xE8B9;" FontSize="16" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
@@ -308,6 +308,24 @@
 
                         <!-- Right Column -->
                         <StackPanel Grid.Column="1" Orientation="Vertical" Spacing="16">
+
+                            <!-- Order Details Section -->
+                            <StackPanel Style="{StaticResource CardStackStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="Order Details" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                    <TextBlock Text="Set the date and time for this order." 
+                                               Style="{StaticResource CaptionTextBlockStyle}" 
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+                                <StackPanel Spacing="16" Margin="0,16,0,0">
+                                    <DatePicker Header="Order Date" 
+                                                Date="{x:Bind ViewModel.OrderDate, Mode=TwoWay}" 
+                                                HorizontalAlignment="Stretch" />
+                                    <TimePicker Header="Order Time" 
+                                                Time="{x:Bind ViewModel.OrderTime, Mode=TwoWay}" 
+                                                HorizontalAlignment="Stretch" />
+                                </StackPanel>
+                            </StackPanel>
 
                             <!-- Financial Summary Card -->
                             <StackPanel Style="{StaticResource CardStackStyle}" Background="{ThemeResource LayerFillColorAltBrush}">
