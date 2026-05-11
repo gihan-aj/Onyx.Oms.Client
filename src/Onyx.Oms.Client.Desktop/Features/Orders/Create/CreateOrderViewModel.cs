@@ -45,9 +45,18 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
                     {
                         AutoFillAddress();
                     }
+                    OnPropertyChanged(nameof(HasSecondaryPhone));
+                    OnPropertyChanged(nameof(HasEmail));
+                    OnPropertyChanged(nameof(HasNotes));
+                    OnPropertyChanged(nameof(HasAddress));
                 }
             }
         }
+
+        public bool HasSecondaryPhone => string.IsNullOrWhiteSpace(SelectedCustomer?.SecondaryPhone) ? false : true;
+        public bool HasEmail => string.IsNullOrWhiteSpace(SelectedCustomer?.Email) ? false : true;
+        public bool HasNotes => string.IsNullOrWhiteSpace(SelectedCustomer?.Notes) ? false : true;
+        public bool HasAddress => SelectedCustomer?.Address != null && (!string.IsNullOrWhiteSpace(SelectedCustomer.Address.Street));
 
         private CreateCustomerCommand? _draftCustomer = null;
 
@@ -340,6 +349,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
         public IAsyncRelayCommand ShowApplyDiscountDialogCommand { get; }
         public IRelayCommand ClearDiscountCommand { get; }
         public IRelayCommand PayInFullCommand { get; }
+        public IAsyncRelayCommand ShowCustomerOrderHistoryCommand { get; }
 
         public CreateOrderViewModel(
             IOrdersApi ordersApi,
@@ -367,6 +377,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
             ShowApplyDiscountDialogCommand = new AsyncRelayCommand(OnShowApplyDiscountDialogAsync);
             ClearDiscountCommand = new RelayCommand(() => AppliedDiscount = null);
             PayInFullCommand = new RelayCommand(() => PaymentAmount = GrandTotal);
+            ShowCustomerOrderHistoryCommand = new AsyncRelayCommand(ShowCustomerOrderHistoryAsync);
 
             OrderItems.CollectionChanged += OrderItems_CollectionChanged;
         }
@@ -439,6 +450,29 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
             if (item != null && OrderItems.Contains(item))
             {
                 OrderItems.Remove(item);
+            }
+        }
+
+        private async Task ShowCustomerOrderHistoryAsync()
+        {
+            if (SelectedCustomer == null)
+                return;
+
+            try
+            {
+                IsBusy = true;
+                var orderHistory = await _ordersApi.GetCustomerOrderHistory(SelectedCustomer.Id);
+                var dialog = new CustomerOrderHistoryDialog(orderHistory)
+                {
+                    XamlRoot = App.MainWindow.Content.XamlRoot
+                };
+                IsBusy = false;
+
+                await dialog.ShowAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to show customer order history at order edit page.");
             }
         }
 

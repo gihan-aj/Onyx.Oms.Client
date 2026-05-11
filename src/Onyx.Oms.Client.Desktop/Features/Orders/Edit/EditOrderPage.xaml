@@ -183,7 +183,7 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <FontIcon Glyph="&#xE77B;" FontSize="32" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                                        <FontIcon Glyph="&#xE77B;" FontSize="32" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" VerticalAlignment="Top" Margin="0,0,16,0"/>
 
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                             <TextBlock Text="{x:Bind ViewModel.CustomerDetails.Name, Mode=OneWay, TargetNullValue='', FallbackValue=''}" Style="{StaticResource BodyStrongTextBlockStyle}"/>
@@ -209,7 +209,7 @@
 
                                             <!-- Address -->
                                             <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,4,0,0" Visibility="{x:Bind ViewModel.CustomerDetails.HasAddress, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                                                <FontIcon Glyph="&#xE70F;" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                <FontIcon Glyph="&#xE707;" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                 <TextBlock Text="{x:Bind ViewModel.CustomerDetails.Address.Street, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                 <TextBlock Text=", " FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                 <TextBlock Text="{x:Bind ViewModel.CustomerDetails.Address.City, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
@@ -305,7 +305,7 @@
                                                     <!-- Image (Same as Edit Mode) -->
                                                     <Grid Grid.Column="0" Width="90" Height="90" CornerRadius="4" 
                                                           Background="{ThemeResource LayerFillColorAltBrush}" BorderThickness="1" BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}">
-                                                        <Image Source="{x:Bind ImageSource, Mode=OneWay}" Stretch="UniformToFill" />
+                                                        <Image Source="{x:Bind ImageSource, Mode=OneWay}" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Grid>
 
                                                     <!-- Product Details -->

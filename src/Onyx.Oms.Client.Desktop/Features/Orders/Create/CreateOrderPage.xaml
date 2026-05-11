@@ -129,10 +129,10 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         
-                                        <FontIcon Glyph="&#xE77B;" FontSize="32" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                                        <FontIcon Glyph="&#xE77B;" FontSize="32" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" VerticalAlignment="Top" Margin="0,0,16,0"/>
                                         
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                            <TextBlock Text="{x:Bind ViewModel.SelectedCustomer.Name, Mode=OneWay, TargetNullValue='', FallbackValue=''}" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                            <!--<TextBlock Text="{x:Bind ViewModel.SelectedCustomer.Name, Mode=OneWay, TargetNullValue='', FallbackValue=''}" Style="{StaticResource BodyStrongTextBlockStyle}"/>
                                             <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,4,0,0">
                                                 <StackPanel Orientation="Horizontal" Spacing="4" Visibility="{x:Bind ViewModel.SelectedCustomer.PrimaryPhone, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}, FallbackValue='Collapsed'}">
                                                     <FontIcon Glyph="&#xE717;" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
@@ -143,7 +143,47 @@
                                                     <FontIcon Glyph="&#xE715;" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                     <TextBlock Text="{x:Bind ViewModel.SelectedCustomer.Email, Mode=OneWay, TargetNullValue='', FallbackValue=''}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                                 </StackPanel>
+                                            </StackPanel>-->
+
+                                            <TextBlock Text="{x:Bind ViewModel.SelectedCustomer.Name, Mode=OneWay, TargetNullValue='', FallbackValue=''}" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                            <HyperlinkButton Content="View Order History" 
+                                                             Command="{x:Bind ViewModel.ShowCustomerOrderHistoryCommand, Mode=OneWay}" 
+                                                             Margin="0,2,0,0" Padding="0"/>
+                                            <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,4,0,0">
+                                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                                    <FontIcon Glyph="&#xE717;" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                    <TextBlock Text="{x:Bind ViewModel.SelectedCustomer.PrimaryPhone, Mode=OneWay, TargetNullValue='', FallbackValue=''}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                </StackPanel>
+
+                                                <StackPanel Orientation="Horizontal" Spacing="4" Visibility="{x:Bind ViewModel.HasSecondaryPhone, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <FontIcon Glyph="&#xE717;" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                    <TextBlock Text="{x:Bind ViewModel.SelectedCustomer.SecondaryPhone, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                </StackPanel>
+
+                                                <StackPanel Orientation="Horizontal" Spacing="4" Visibility="{x:Bind ViewModel.HasEmail, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <FontIcon Glyph="&#xE715;" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                    <TextBlock Text="{x:Bind ViewModel.SelectedCustomer.Email, Mode=OneWay, TargetNullValue='', FallbackValue=''}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                </StackPanel>
                                             </StackPanel>
+
+                                            <!-- Address -->
+                                            <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,4,0,0" Visibility="{x:Bind ViewModel.HasAddress, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                <FontIcon Glyph="&#xE707;" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                <TextBlock Text="{x:Bind ViewModel.SelectedCustomer.Address.Street, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                <TextBlock Text=", " FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                <TextBlock Text="{x:Bind ViewModel.SelectedCustomer.Address.City, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                            </StackPanel>
+
+                                            <!-- Notes -->
+                                            <Border Background="{ThemeResource LayerFillColorDefaultBrush}" 
+                                                    BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" 
+                                                    BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,8,0,0" 
+                                                    Visibility="{x:Bind ViewModel.HasNotes, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                <StackPanel>
+                                                    <TextBlock Text="Notes" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                    <TextBlock Text="{x:Bind ViewModel.SelectedCustomer.Notes, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                </StackPanel>
+                                            </Border>
                                         </StackPanel>
                                     </Grid>
                                 </StackPanel>
@@ -181,7 +221,9 @@
                                 <ListView ItemsSource="{x:Bind ViewModel.OrderItems, Mode=OneWay}"
                                           SelectionMode="None"
                                           HorizontalAlignment="Stretch"
-                                          ScrollViewer.VerticalScrollMode="Disabled">
+                                          ScrollViewer.VerticalScrollMode="Disabled"
+                                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                          ScrollViewer.HorizontalScrollMode="Enabled">
                                     <ListView.ItemContainerStyle>
                                         <Style TargetType="ListViewItem">
                                             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -206,11 +248,11 @@
                                                 </Grid.ColumnDefinitions>
 
                                                 <!-- Image -->
-                                                <Grid Grid.Column="0" Width="90" Height="90" CornerRadius="4" 
+                                                <Grid Grid.Column="0" Width="56" Height="56" CornerRadius="4" 
                                                       Background="{ThemeResource LayerFillColorAltBrush}" BorderThickness="1" BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
                                                       VerticalAlignment="Center">
                                                     <FontIcon Glyph="&#xE8B9;" FontSize="16" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
-                                                    <Image Source="{x:Bind ImageSource, Mode=OneWay}" Stretch="UniformToFill" />
+                                                    <Image Source="{x:Bind ImageSource, Mode=OneWay}" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Grid>
 
                                                 <!-- Product Details -->
