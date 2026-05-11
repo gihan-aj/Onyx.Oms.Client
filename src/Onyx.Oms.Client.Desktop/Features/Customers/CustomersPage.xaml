@@ -89,7 +89,7 @@
                 
                 <toolkit:DataGrid x:Name="CustomersDataGrid"
                                   Width="{Binding ActualWidth, ElementName=TableContainer}"
-                                  MinWidth="960"
+                                  MinWidth="1080"
                                   ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}"
                                   AutoGenerateColumns="False"
                                   IsReadOnly="True"
@@ -157,7 +157,14 @@
 
                         <toolkit:DataGridTextColumn Header="Location" 
                                                     Binding="{Binding Address}" 
-                                                    Width="200"
+                                                    MinWidth="200"
+                                                    Width="*"
+                                                    HeaderStyle="{StaticResource LeftAlignedHeaderStyle}"
+                                                    ElementStyle="{StaticResource LeftAlignedCellStyle}" />
+                        
+                        <toolkit:DataGridTextColumn Header="Last Order" 
+                                                    Binding="{Binding LastOrderNumber}" 
+                                                    Width="120"
                                                     HeaderStyle="{StaticResource LeftAlignedHeaderStyle}"
                                                     ElementStyle="{StaticResource LeftAlignedCellStyle}" />
 

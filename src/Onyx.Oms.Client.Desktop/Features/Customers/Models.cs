@@ -13,18 +13,57 @@ public class AddressDto
     
     public override string ToString()
     {
-        return $"{City}, {Country}";
+        if(!string.IsNullOrWhiteSpace(Street) && !string.IsNullOrWhiteSpace(City) && !string.IsNullOrWhiteSpace(District))
+        {
+            return $"{Street}, {City}, {District}";
+        }
+        else if(!string.IsNullOrWhiteSpace(City) && !string.IsNullOrWhiteSpace(District))
+        {
+            return $"{City}, {District}";
+        }
+        else if(!string.IsNullOrWhiteSpace(Street) && !string.IsNullOrWhiteSpace(City))
+        {
+            return $"{Street}, {City}";
+        }
+        else if(!string.IsNullOrWhiteSpace(Street) && !string.IsNullOrWhiteSpace(District))
+        {
+            return $"{Street}, {District}";
+        }
+        else if(!string.IsNullOrWhiteSpace(Street))
+        {
+            return Street;
+        }
+        else if(!string.IsNullOrWhiteSpace(City))
+        {
+            return City;
+        }
+        else if(!string.IsNullOrWhiteSpace(District))
+        {
+            return District;
+        }
+        else if(!string.IsNullOrWhiteSpace(State))
+        {
+            return State;
+        }
+
+        return "-";
     }
 }
 
 public class CustomerDto
 {
+    private string _lastOrderNumber = "-";
+
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string PrimaryPhone { get; set; } = string.Empty;
     public string? SecondaryPhone { get; set; }
     public AddressDto? Address { get; set; }
+    public string? LastOrderNumber { 
+        get => string.IsNullOrWhiteSpace(_lastOrderNumber) ? "-" : _lastOrderNumber;
+        set => _lastOrderNumber = string.IsNullOrWhiteSpace(value) ? "-" : value;
+    }
     public string? Notes { get; set; }
     public bool IsActive { get; set; }
     public DateTimeOffset CreatedDate { get; set; }

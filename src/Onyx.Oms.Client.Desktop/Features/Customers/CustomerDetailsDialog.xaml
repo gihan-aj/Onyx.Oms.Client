@@ -57,6 +57,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
                 <StackPanel>
@@ -67,6 +68,11 @@
                 <StackPanel Grid.Column="1">
                     <TextBlock Text="Primary Phone" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                     <TextBlock Text="{x:Bind Customer.PrimaryPhone, Mode=OneTime}" Style="{StaticResource BodyTextBlockStyle}" FontFamily="Consolas" IsTextSelectionEnabled="True" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="1">
+                    <TextBlock Text="Last Order" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Text="{x:Bind Customer.LastOrderNumber, Mode=OneTime}" Style="{StaticResource BodyTextBlockStyle}" IsTextSelectionEnabled="True" />
                 </StackPanel>
 
                 <StackPanel Grid.Row="1" Grid.Column="1" Visibility="{x:Bind Customer.SecondaryPhone, Mode=OneTime, Converter={StaticResource StringToVisibilityConverter}}">
