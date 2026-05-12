@@ -1,11 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
-using Onyx.Oms.Client.Desktop.Features.Settings.Models;
-using Onyx.Oms.Client.Desktop.Features.Settings.Services;
-using Onyx.Oms.Client.Desktop.Shared.Models;
 using Onyx.Oms.Client.Desktop.Shared.Services;
-using Onyx.Oms.Client.Desktop.Shared.Services.Http;
 using System;
 using System.Collections.ObjectModel;
 using System.Text.Json;
@@ -17,10 +14,10 @@ namespace Onyx.Oms.Client.Desktop.Features.Settings;
 public partial class SettingsViewModel : ObservableObject, INavigationAware
 {
     private readonly IThemeSelectorService _themeSelectorService;
-    private readonly ITenantProfileApi _tenantProfileApi;
-    private readonly IAppSequenceApi _sequenceApi;
+    private readonly ISettingsApi _settingsApi;
     private readonly IToastService _toastService;
     private readonly IPermissionService _permissionService;
+    private readonly ILogger<SettingsViewModel> _logger;
 
     private string _originalStoreInfoJson = string.Empty;
     private string _originalStoreAddressJson = string.Empty;
@@ -98,27 +95,27 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         set => SetProperty(ref _isLoading, value);
     }
 
-    private TenantProfileDto _profile = new TenantProfileDto { StoreAddress = new AddressDto() };
-    public TenantProfileDto Profile
+    private TenantProfileResponse _profile = new TenantProfileResponse { StoreAddress = new AddressDto() };
+    public TenantProfileResponse Profile
     {
         get => _profile;
         set => SetProperty(ref _profile, value);
     }
 
-    public ObservableCollection<AppSequenceItem> Sequences { get; } = new();
+    public ObservableCollection<AppSequenceViewModel> Sequences { get; } = new();
 
     public SettingsViewModel(
         IThemeSelectorService themeSelectorService,
-        ITenantProfileApi tenantProfileApi,
-        IAppSequenceApi sequenceApi,
+        ISettingsApi settingsApi,
         IToastService toastService,
-        IPermissionService permissionService)
+        IPermissionService permissionService,
+        ILogger<SettingsViewModel> logger)
     {
         _themeSelectorService = themeSelectorService;
-        _tenantProfileApi = tenantProfileApi;
-        _sequenceApi = sequenceApi;
+        _settingsApi = settingsApi;
         _toastService = toastService;
         _permissionService = permissionService;
+        _logger = logger;
 
         _currentTheme = _themeSelectorService.Theme;
         _versionDescription = GetVersionDescription();
@@ -139,7 +136,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         try
         {
             IsLoading = true;
-            Profile = await _tenantProfileApi.GetTenantProfile();
+            Profile = await _settingsApi.GetTenantProfile();
             
             if (Profile.StoreAddress == null)
             {
@@ -150,26 +147,24 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
             IsEditingStoreAddress = false;
             IsEditingRegionalSettings = false;
 
-            _originalStoreInfoJson = JsonSerializer.Serialize(new UpdateStoreInfoDto
-            {
-                StoreName = Profile.StoreName,
-                LegalName = Profile.LegalName,
-                TaxRegistrationNumber = Profile.TaxRegistrationNumber,
-                ContactEmail = Profile.ContactEmail,
-                ContactPhone = Profile.ContactPhone
-            });
+            _originalStoreInfoJson = JsonSerializer.Serialize(new UpdateStoreInfoCommand(
+                Profile.StoreName, 
+                Profile.LegalName, 
+                Profile.TaxRegistrationNumber,
+                Profile.ContactEmail, 
+                Profile.ContactPhone, 
+                Profile.InvoiceFooterText));
 
             _originalStoreAddressJson = JsonSerializer.Serialize(Profile.StoreAddress);
 
-            _originalRegionalSettingsJson = JsonSerializer.Serialize(new UpdateRegionalSettingsDto
-            {
-                BaseCurrency = Profile.BaseCurrency,
-                WeightUnit = Profile.WeightUnit
-            });
+            _originalRegionalSettingsJson = JsonSerializer.Serialize(new UpdateRegionalSettingsCommand(
+                Profile.DefaultCurrency, 
+                Profile.TimeZone, 
+                Profile.WeightUnit));
 
             Sequences.Clear();
-            var ordValue = await _sequenceApi.GetSequenceValue("ORD");
-            Sequences.Add(new AppSequenceItem 
+            var ordValue = await _settingsApi.GetSequenceValue("ORD");
+            Sequences.Add(new AppSequenceViewModel 
             { 
                 Id = "ORD", 
                 DisplayName = "Order Number (ORD)", 
@@ -178,8 +173,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
                 OnCancelEdit = () => { } // Remove LoadDataAsync here since it's locally restored
             });
 
-            var prodValue = await _sequenceApi.GetSequenceValue("PROD");
-            Sequences.Add(new AppSequenceItem 
+            var prodValue = await _settingsApi.GetSequenceValue("PROD");
+            Sequences.Add(new AppSequenceViewModel
             { 
                 Id = "PROD", 
                 DisplayName = "Product SKU (PROD)", 
@@ -188,9 +183,9 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
                 OnCancelEdit = () => { } // Remove LoadDataAsync here since it's locally restored
             });
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // Error handling via ProblemDetailsHandler, just reset state
+            _logger.LogError(ex, "Failed to load tenant profile or sequences.");
         }
         finally
         {
@@ -202,14 +197,13 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     private void EditStoreInfo()
     {
         // Store original before edit in case we need to re-initialize
-        _originalStoreInfoJson = JsonSerializer.Serialize(new UpdateStoreInfoDto
-        {
-            StoreName = Profile.StoreName,
-            LegalName = Profile.LegalName,
-            TaxRegistrationNumber = Profile.TaxRegistrationNumber,
-            ContactEmail = Profile.ContactEmail,
-            ContactPhone = Profile.ContactPhone
-        });
+        _originalStoreInfoJson = JsonSerializer.Serialize(new UpdateStoreInfoCommand(
+                Profile.StoreName,
+                Profile.LegalName,
+                Profile.TaxRegistrationNumber,
+                Profile.ContactEmail,
+                Profile.ContactPhone,
+                Profile.InvoiceFooterText));
         IsEditingStoreInfo = true;
     }
 
@@ -218,7 +212,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     {
         if (!string.IsNullOrEmpty(_originalStoreInfoJson))
         {
-            var backup = JsonSerializer.Deserialize<UpdateStoreInfoDto>(_originalStoreInfoJson);
+            var backup = JsonSerializer.Deserialize<UpdateStoreInfoCommand>(_originalStoreInfoJson);
             if (backup != null)
             {
                 Profile.StoreName = backup.StoreName;
@@ -238,23 +232,24 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         try
         {
             IsLoading = true;
-            var updateDto = new UpdateStoreInfoDto
-            {
-                StoreName = Profile.StoreName,
-                LegalName = Profile.LegalName,
-                TaxRegistrationNumber = Profile.TaxRegistrationNumber,
-                ContactEmail = Profile.ContactEmail,
-                ContactPhone = Profile.ContactPhone
-            };
-            await _tenantProfileApi.UpdateStoreInfo(updateDto);
+            var updateDto = new UpdateStoreInfoCommand(
+                Profile.StoreName,
+                Profile.LegalName,
+                Profile.TaxRegistrationNumber,
+                Profile.ContactEmail,
+                Profile.ContactPhone,
+                Profile.InvoiceFooterText);
+            await _settingsApi.UpdateStoreInfo(updateDto);
             _toastService.ShowSuccess("Success", "Store info updated successfully.");
             
             // Update the baseline JSON
             _originalStoreInfoJson = JsonSerializer.Serialize(updateDto);
             IsEditingStoreInfo = false;
         }
-        catch (Exception)
-        { }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to update tenant store info.");
+        }
         finally
         {
             IsLoading = false;
@@ -289,16 +284,18 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         try
         {
             IsLoading = true;
-            var updateDto = new UpdateStoreAddressDto { StoreAddress = Profile.StoreAddress };
-            await _tenantProfileApi.UpdateStoreAddress(updateDto);
+            var updateDto = new UpdateStoreAddressCommand(Profile.StoreAddress);
+            await _settingsApi.UpdateStoreAddress(updateDto);
             _toastService.ShowSuccess("Success", "Store address updated successfully.");
             
             // Update local baseline
             _originalStoreAddressJson = JsonSerializer.Serialize(Profile.StoreAddress);
             IsEditingStoreAddress = false;
         }
-        catch (Exception)
-        { }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to update tenant store address.");
+        }
         finally
         {
             IsLoading = false;
@@ -308,11 +305,10 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     [RelayCommand]
     private void EditRegionalSettings()
     {
-        _originalRegionalSettingsJson = JsonSerializer.Serialize(new UpdateRegionalSettingsDto
-        {
-            BaseCurrency = Profile.BaseCurrency,
-            WeightUnit = Profile.WeightUnit
-        });
+        _originalRegionalSettingsJson = JsonSerializer.Serialize(new UpdateRegionalSettingsCommand(
+                Profile.DefaultCurrency,
+                Profile.TimeZone,
+                Profile.WeightUnit));
         IsEditingRegionalSettings = true;
     }
 
@@ -321,10 +317,11 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     {
         if (!string.IsNullOrEmpty(_originalRegionalSettingsJson))
         {
-            var backup = JsonSerializer.Deserialize<UpdateRegionalSettingsDto>(_originalRegionalSettingsJson);
+            var backup = JsonSerializer.Deserialize<UpdateRegionalSettingsCommand>(_originalRegionalSettingsJson);
             if (backup != null)
             {
-                Profile.BaseCurrency = backup.BaseCurrency;
+                Profile.DefaultCurrency = backup.DefaultCurrency;
+                Profile.TimeZone = backup.TimeZone;
                 Profile.WeightUnit = backup.WeightUnit;
             }
         }
@@ -338,20 +335,21 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         try
         {
             IsLoading = true;
-            var updateDto = new UpdateRegionalSettingsDto
-            {
-                BaseCurrency = Profile.BaseCurrency,
-                WeightUnit = Profile.WeightUnit
-            };
-            await _tenantProfileApi.UpdateRegionalSettings(updateDto);
+            var updateDto = new UpdateRegionalSettingsCommand(
+                Profile.DefaultCurrency,
+                Profile.TimeZone,
+                Profile.WeightUnit);
+            await _settingsApi.UpdateRegionalSettings(updateDto);
             _toastService.ShowSuccess("Success", "Regional settings updated successfully.");
             
             // update baseline json
             _originalRegionalSettingsJson = JsonSerializer.Serialize(updateDto);
             IsEditingRegionalSettings = false;
         }
-        catch (Exception)
-        { }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to update tenant regional settings.");
+        }
         finally
         {
             IsLoading = false;
@@ -359,21 +357,23 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     }
 
     [RelayCommand]
-    private async Task SaveSequenceAsync(AppSequenceItem item)
+    private async Task SaveSequenceAsync(AppSequenceViewModel item)
     {
         if (item == null) return;
         try
         {
             item.IsSaving = true;
             item.IsEditing = false;
-            await _sequenceApi.UpdateSequenceValue(item.Id, (int)item.CurrentValue);
+            await _settingsApi.UpdateSequenceValue(item.Id, (int)item.CurrentValue);
             _toastService.ShowSuccess("Success", $"{item.DisplayName} updated successfully.");
             
             // Original values will be reset implicitly if we wanted to refetch, 
             // but the AppSequenceItem handles its own backup logic automatically upon re-Edit.
         }
-        catch (Exception)
-        { }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to update app sequence values.");
+        }
         finally
         {
             item.IsSaving = false;

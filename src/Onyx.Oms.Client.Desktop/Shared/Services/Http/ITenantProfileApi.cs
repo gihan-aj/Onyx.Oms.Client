@@ -1,4 +1,3 @@
-using Onyx.Oms.Client.Desktop.Features.Settings.Models;
 using Onyx.Oms.Client.Desktop.Shared.Models;
 using Refit;
 using System.Threading.Tasks;

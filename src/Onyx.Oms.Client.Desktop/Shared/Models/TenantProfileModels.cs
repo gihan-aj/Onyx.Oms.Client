@@ -51,6 +51,9 @@ public partial class AddressDto : ObservableObject
     
     private string? _state;
     public string? State { get => _state; set => SetProperty(ref _state, value); }
+
+    private string? _district;
+    public string? District { get => _district; set => SetProperty(ref _district, value); }
     
     private string? _postalCode;
     public string? PostalCode { get => _postalCode; set => SetProperty(ref _postalCode, value); }
