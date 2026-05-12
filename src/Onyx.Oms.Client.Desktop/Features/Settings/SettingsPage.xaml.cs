@@ -17,6 +17,14 @@ public sealed partial class SettingsPage : Page
         this.InitializeComponent();
     }
 
+    private void OnStateSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (e.AddedItems.Count > 0 && e.AddedItems[0] is string selectedState)
+        {
+            ViewModel.UpdateDistricts(selectedState);
+        }
+    }
+
     protected override void OnNavigatedTo(Microsoft.UI.Xaml.Navigation.NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -41,6 +42,51 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     }
     public Visibility StoreInfoEditButtonVisible => (CanEditTenantSettings && !IsEditingStoreInfo) ? Visibility.Visible : Visibility.Collapsed;
     public Visibility StoreInfoSaveCancelVisible => IsEditingStoreInfo ? Visibility.Visible : Visibility.Collapsed;
+
+    //private string _district = string.Empty;
+    //public string District { get => _district; set => SetProperty(ref _district, value); }
+
+    private string[] _districts = Array.Empty<string>();
+    public string[] Districts
+    {
+        get => _districts;
+        private set => SetProperty(ref _districts, value);
+    }
+
+    public IReadOnlyList<string> Provinces { get; } = new[]
+    {
+        "Central", "Eastern", "North Central", "Northern", "North Western", "Sabaragamuwa", "Southern", "Uva", "Western"
+    };
+
+    private readonly Dictionary<string, string[]> _districtsByProvince = new(StringComparer.OrdinalIgnoreCase)
+    {
+        { "Central", new[] { "Kandy", "Matale", "Nuwara Eliya" } },
+        { "Eastern", new[] { "Ampara", "Batticaloa", "Trincomalee" } },
+        { "North Central", new[] { "Anuradhapura", "Polonnaruwa" } },
+        { "Northern", new[] { "Jaffna", "Kilinochchi", "Mannar", "Mullaitivu", "Vavuniya" } },
+        { "North Western", new[] { "Kurunegala", "Puttalam" } },
+        { "Sabaragamuwa", new[] { "Kegalle", "Ratnapura" } },
+        { "Southern", new[] { "Galle", "Hambantota", "Matara" } },
+        { "Uva", new[] { "Badulla", "Monaragala" } },
+        { "Western", new[] { "Colombo", "Gampaha", "Kalutara" } }
+    };
+
+    public void UpdateDistricts(string province)
+    {
+        if (string.IsNullOrWhiteSpace(province) || !_districtsByProvince.TryGetValue(province, out var districts))
+        {
+            Districts = Array.Empty<string>();
+        }
+        else
+        {
+            Districts = districts;
+        }
+
+        if (!string.IsNullOrWhiteSpace(Profile?.StoreAddress?.District) && Array.IndexOf(Districts, Profile.StoreAddress.District) == -1)
+        {
+            Profile.StoreAddress.District = string.Empty;
+        }
+    }
 
     private bool _isEditingStoreAddress;
     public bool IsEditingStoreAddress
