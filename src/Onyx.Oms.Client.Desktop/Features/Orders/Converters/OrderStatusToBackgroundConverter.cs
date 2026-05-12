@@ -10,8 +10,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Converters
         private SolidColorBrush SuccessBrush = (SolidColorBrush)Application.Current.Resources["SystemFillColorSuccessBackgroundBrush"];
         private SolidColorBrush WarningBrush = (SolidColorBrush)Application.Current.Resources["SystemFillColorCautionBackgroundBrush"];
         private SolidColorBrush CriticalBrush = (SolidColorBrush)Application.Current.Resources["SystemFillColorCriticalBackgroundBrush"];
-        private SolidColorBrush NeutralBrush = (SolidColorBrush)Application.Current.Resources["SystemFillColorNeutralBackgroundBrush"];
-        private SolidColorBrush AccentBrush = (SolidColorBrush)Application.Current.Resources["SystemFillColorAttentionBackgroundBrush"]; // Often Blue
+        private SolidColorBrush NeutralBrush = (SolidColorBrush)Application.Current.Resources["ControlStrokeColorOnAccentSecondaryBrush"];
+        private SolidColorBrush AccentBrush = (SolidColorBrush)Application.Current.Resources["SystemFillColorSolidNeutralBackgroundBrush"];
         public object Convert(object value, Type targetType, object parameter, string language)
         {
             if (value is OrderStatus status)

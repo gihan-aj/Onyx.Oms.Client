@@ -13,7 +13,7 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
                 return status switch
                 {
                     FulfillmentTaskStatus.Pending => Application.Current.Resources["SystemFillColorNeutralBackgroundBrush"],
-                    FulfillmentTaskStatus.InProgress => Application.Current.Resources["SystemFillColorAttentionBackgroundBrush"],
+                    FulfillmentTaskStatus.InProgress => Application.Current.Resources["SystemFillColorSolidNeutralBackgroundBrush"],
                     FulfillmentTaskStatus.Ready => Application.Current.Resources["SystemFillColorSuccessBackgroundBrush"],
                     FulfillmentTaskStatus.Cancelled => Application.Current.Resources["SystemFillColorCriticalBackgroundBrush"],
                     _ => Application.Current.Resources["SystemFillColorNeutralBackgroundBrush"]

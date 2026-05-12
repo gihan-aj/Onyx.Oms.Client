@@ -10,7 +10,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Converters
         private SolidColorBrush SuccessBrush = (SolidColorBrush)Application.Current.Resources["SystemFillColorSuccessBrush"];
         private SolidColorBrush WarningBrush = (SolidColorBrush)Application.Current.Resources["SystemFillColorCautionBrush"];
         private SolidColorBrush CriticalBrush = (SolidColorBrush)Application.Current.Resources["SystemFillColorCriticalBrush"];
-        private SolidColorBrush NeutralBrush = (SolidColorBrush)Application.Current.Resources["TextFillColorSecondaryBrush"];
+        private SolidColorBrush NeutralBrush = (SolidColorBrush)Application.Current.Resources["TextFillColorPrimaryBrush"];
         private SolidColorBrush AccentBrush = (SolidColorBrush)Application.Current.Resources["AccentTextFillColorPrimaryBrush"];
         public object Convert(object value, Type targetType, object parameter, string language)
         {
