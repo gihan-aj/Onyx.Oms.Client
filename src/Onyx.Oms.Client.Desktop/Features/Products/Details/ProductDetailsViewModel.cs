@@ -83,6 +83,18 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Details
             set => SetProperty(ref _options, value);
         }
 
+        private ProductDetailsVariantDto? _selectedVariant;
+
+        public decimal DisplayPriceAmount => _selectedVariant?.PriceAmount ?? Product?.BasePriceAmount ?? 0;
+        public string DisplayPriceCurrency => _selectedVariant?.PriceCurrency ?? Product?.BasePriceCurrency ?? string.Empty;
+        public int DisplayStockOnHand => _selectedVariant?.StockOnHand ?? Product?.StockOnHand ?? 0;
+        public int DisplayReservedQuantity => _selectedVariant?.ReservedQuantity ?? Product?.ReservedQuantity ?? 0;
+        public string? DisplaySku => _selectedVariant?.Sku ?? Product?.BaseSku;
+
+        public decimal? DisplayWeightAmount => _selectedVariant?.WeightAmount ?? Product?.BaseWeightAmount;
+        public string? DisplayWeightUnit => _selectedVariant?.WeightUnit ?? Product?.BaseWeightUnit;
+
+
         public IRelayCommand GoBackCommand { get; }
         public IRelayCommand<ProductOptionValueViewItem> OptionSelectedCommand { get; }
         public IRelayCommand<ProductImageViewItem> ImageSelectedCommand { get; }
@@ -153,6 +165,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Details
             {
                 _isSelectingOption = false;
             }
+            EvaluateSelectedVariant();
         }
 
         private void OnImageSelected(ProductImageViewItem? selectedImage)
@@ -176,7 +189,56 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Details
                 }
             }
         }
-        
+
+        private void EvaluateSelectedVariant()
+        {
+            if (Product == null || !HasVariants || Product.Variants == null)
+            {
+                SetSelectedVariant(null);
+                return;
+            }
+
+            var selectedAttributes = new List<KeyValuePair<string, string>>();
+
+            foreach (var optionGroup in Options)
+            {
+                var selectedVal = optionGroup.Values.FirstOrDefault(v => v.IsSelected);
+                if (selectedVal == null)
+                {
+                    // Not all options have a selection yet. Fall back to base product values.
+                    SetSelectedVariant(null);
+                    return;
+                }
+                selectedAttributes.Add(new KeyValuePair<string, string>(optionGroup.Name, selectedVal.Value));
+            }
+
+            // Find the exact variant that matches ALL selected attributes
+            var matchingVariant = Product.Variants.FirstOrDefault(v =>
+                selectedAttributes.All(sa =>
+                    v.Attributes.Any(va => va.Name == sa.Key && va.Value == sa.Value)
+                )
+            );
+
+            SetSelectedVariant(matchingVariant);
+        }
+
+        private void SetSelectedVariant(ProductDetailsVariantDto? variant)
+        {
+            if (_selectedVariant != variant)
+            {
+                _selectedVariant = variant;
+            }
+            // Notify XAML that these values have updated!
+            OnPropertyChanged(nameof(DisplayPriceAmount));
+            OnPropertyChanged(nameof(DisplayPriceCurrency));
+            OnPropertyChanged(nameof(DisplayStockOnHand));
+            OnPropertyChanged(nameof(DisplayReservedQuantity));
+            OnPropertyChanged(nameof(DisplaySku));
+            OnPropertyChanged(nameof(DisplayWeightAmount));
+            OnPropertyChanged(nameof(DisplayWeightUnit));
+        }
+
+
         private void GoBack()
         {
             if (_navigationService.CanGoBack)
@@ -197,6 +259,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Details
                 Product = await _productsApi.GetProductById(id);
                 LoadOptions();
                 await LoadImageSourcesAsync();
+                EvaluateSelectedVariant();
             }
             catch (Exception ex)
             {

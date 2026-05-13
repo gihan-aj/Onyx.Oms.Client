@@ -43,7 +43,8 @@
              Canvas.ZIndex="100" />
 
         <!-- Scrollable Body -->
-        <ScrollViewer Grid.Row="1" Padding="16" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="1" Padding="16" VerticalScrollBarVisibility="Auto" 
+                      Visibility="{x:Bind ViewModel.IsLoading, Converter={StaticResource InvertedBoolToVisibilityConverter}, Mode=OneWay}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -91,7 +92,7 @@
                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                 <TextBlock Text="{x:Bind ViewModel.Product.Name, Mode=OneWay}" 
                                            Style="{StaticResource TitleTextBlockStyle}" FontWeight="Bold" TextWrapping="Wrap" />
-                                <TextBlock Text="{x:Bind ViewModel.Product.BaseSku, Mode=OneWay}" 
+                                <TextBlock Text="{x:Bind ViewModel.DisplaySku, Mode=OneWay}" 
                                            Style="{StaticResource BodyTextBlockStyle}" FontFamily="Consolas" 
                                            Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
                             </StackPanel>
@@ -107,10 +108,10 @@
                                     <TextBlock Text="Price" Style="{StaticResource CaptionTextBlockStyle}" 
                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
                                     <StackPanel Orientation="Horizontal" Spacing="4">
-                                        <TextBlock Text="{x:Bind ViewModel.Product.BasePriceCurrency, Mode=OneWay}" 
+                                        <TextBlock Text="{x:Bind ViewModel.DisplayPriceCurrency, Mode=OneWay}" 
                                                    Style="{StaticResource BodyTextBlockStyle}" 
                                                    VerticalAlignment="Bottom" Margin="0,0,5,5"/>
-                                        <TextBlock Text="{x:Bind ViewModel.Product.BasePriceAmount, Mode=OneWay}" 
+                                        <TextBlock Text="{x:Bind ViewModel.DisplayPriceAmount, Mode=OneWay}" 
                                                    Style="{StaticResource TitleLargeTextBlockStyle}" 
                                                    FontWeight="SemiBold" 
                                                    Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
@@ -123,15 +124,15 @@
                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
 
                                     <Border Style="{StaticResource StatusBadgeStyle}" 
-                                            Background="{x:Bind ViewModel.Product.StockOnHand, Mode=OneWay, Converter={StaticResource StockBackgroundConverter}}" 
+                                            Background="{x:Bind ViewModel.DisplayStockOnHand, Mode=OneWay, Converter={StaticResource StockBackgroundConverter}}" 
                                             VerticalAlignment="Center">
                                         <StackPanel Orientation="Horizontal" Spacing="6" Padding="4,2">
-                                            <FontIcon Glyph="{x:Bind ViewModel.Product.StockOnHand, Mode=OneWay, Converter={StaticResource StockIconConverter}}" 
+                                            <FontIcon Glyph="{x:Bind ViewModel.DisplayStockOnHand, Mode=OneWay, Converter={StaticResource StockIconConverter}}" 
                                                       FontSize="12" 
-                                                      Foreground="{x:Bind ViewModel.Product.StockOnHand, Mode=OneWay, Converter={StaticResource StockForegroundConverter}}"/>
+                                                      Foreground="{x:Bind ViewModel.DisplayStockOnHand, Mode=OneWay, Converter={StaticResource StockForegroundConverter}}"/>
                                             <TextBlock Style="{StaticResource StatusBadgeTextStyle}" 
-                                                       Foreground="{x:Bind ViewModel.Product.StockOnHand, Mode=OneWay, Converter={StaticResource StockForegroundConverter}}">
-                                                  <Run Text="{x:Bind ViewModel.Product.StockOnHand, Mode=OneWay}" />
+                                                       Foreground="{x:Bind ViewModel.DisplayStockOnHand, Mode=OneWay, Converter={StaticResource StockForegroundConverter}}">
+                                                  <Run Text="{x:Bind ViewModel.DisplayStockOnHand, Mode=OneWay}" />
                                                   <Run Text=" In Stock" />
                                             </TextBlock>
                                         </StackPanel>
@@ -234,14 +235,14 @@
                                     <StackPanel Grid.Column="0" Spacing="4">
                                         <TextBlock Text="Base Weight" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                                         <TextBlock Style="{StaticResource BodyTextBlockStyle}">
-                                            <Run Text="{x:Bind ViewModel.Product.BaseWeightAmount, Mode=OneWay}" />
-                                            <Run Text="{x:Bind ViewModel.Product.BaseWeightUnit, Mode=OneWay}" />
+                                            <Run Text="{x:Bind ViewModel.DisplayWeightAmount, Mode=OneWay}" />
+                                            <Run Text="{x:Bind ViewModel.DisplayWeightUnit, Mode=OneWay}" />
                                         </TextBlock>
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="1" Spacing="4">
                                         <TextBlock Text="Reserved Quantity" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                                        <TextBlock Text="{x:Bind ViewModel.Product.ReservedQuantity, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" />
+                                        <TextBlock Text="{x:Bind ViewModel.DisplayReservedQuantity, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" />
                                     </StackPanel>
                                 </Grid>
                             </StackPanel>
