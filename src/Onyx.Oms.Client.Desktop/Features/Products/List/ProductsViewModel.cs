@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
 using Onyx.Oms.Client.Desktop.Features.Products.Create;
 using Onyx.Oms.Client.Desktop.Features.Products.Details;
 using Onyx.Oms.Client.Desktop.Features.Products.Edit;
@@ -9,9 +10,11 @@ using Onyx.Oms.Client.Desktop.Shared.Services;
 using Onyx.Oms.Client.Desktop.Shared.ViewModels;
 using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Storage;
 using static Onyx.Oms.Client.Desktop.Shared.Constants.Permissions;
 
 namespace Onyx.Oms.Client.Desktop.Features.Products.List;
@@ -25,6 +28,14 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
     private readonly IDialogService _dialogService;
     private readonly IToastService _toastService;
     private readonly INavigationService _navigationService;
+    private readonly ILogger<ProductsViewModel> _logger;
+
+    private bool _isBusy;
+    public bool IsBusy
+    {
+        get => _isBusy;
+        set => SetProperty(ref _isBusy, value);
+    }
 
     // -- Filtering --
     private string _searchTerm = string.Empty;
@@ -103,6 +114,7 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
     public IAsyncRelayCommand ClearFiltersCommand { get; }
     public IRelayCommand NewProductCommand { get; }
     public IRelayCommand<ProductGridItem> ViewDetailsCommand { get; }
+    public IRelayCommand<ProductGridItem> DownloadAndOpenProductSheetCommand { get; }
     public IRelayCommand<ProductGridItem> EditDetailsCommand { get; }
 
     public ProductsViewModel(
@@ -112,7 +124,8 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
         IFileService fileService,
         IDialogService dialogService,
         IToastService toastService,
-        INavigationService navigationService)
+        INavigationService navigationService,
+        ILogger<ProductsViewModel> logger)
     {
         _productsApi = productsApi;
         _permissionService = permissionService;
@@ -121,6 +134,7 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
         _dialogService = dialogService;
         _toastService = toastService;
         _navigationService = navigationService;
+        _logger = logger;
 
         _selectedStockStatus = StockStatusOptions[0];
 
@@ -128,6 +142,7 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
         NewProductCommand = new RelayCommand(NavigateToNewProduct);
         ViewDetailsCommand = new RelayCommand<ProductGridItem>(ViewProductDetails);
         EditDetailsCommand = new RelayCommand<ProductGridItem>(EditProductDetails);
+        DownloadAndOpenProductSheetCommand = new AsyncRelayCommand<ProductGridItem>(DownloadAndOpenSheetAsync);
     }
 
 
@@ -260,6 +275,50 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
         if (product != null)
         {
             _navigationService.NavigateTo(typeof(EditProductViewModel).FullName!, product.Id);
+        }
+    }
+
+    private async Task DownloadAndOpenSheetAsync(ProductGridItem? product)
+    {
+        if (product == null) return;
+
+        try
+        {
+            IsBusy = true;
+
+            var imageFilePath = ApplicationData.Current.LocalFolder.Path + "\\ProductImages";
+            var response = await _productsApi.GetProductSheetById(product.Id, imageFilePath);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Read the raw PDF stream into a byte array
+                var pdfBytes = await response.Content.ReadAsByteArrayAsync();
+
+                if (pdfBytes != null && pdfBytes.Length > 0)
+                {
+                    // Save and launch the file just like before
+                    string safeFileName = $"ProductSheet_{product.BaseSku ?? product.Id.ToString().Substring(0, 8)}.pdf";
+                    string tempFilePath = Path.Combine(Path.GetTempPath(), safeFileName);
+
+                    await File.WriteAllBytesAsync(tempFilePath, pdfBytes);
+
+                    var storageFile = await Windows.Storage.StorageFile.GetFileFromPathAsync(tempFilePath);
+                    await Windows.System.Launcher.LaunchFileAsync(storageFile);
+                }
+            }
+            else
+            {
+                _logger.LogWarning("API returned {StatusCode} when downloading product sheet.", response.StatusCode);
+                _toastService.ShowError("Download Failed", "Failed to download product sheet. Please check logs for information.");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to download product sheet for {ProductId}", product.Id);
+        }
+        finally
+        {
+            IsBusy = false;
         }
     }
 

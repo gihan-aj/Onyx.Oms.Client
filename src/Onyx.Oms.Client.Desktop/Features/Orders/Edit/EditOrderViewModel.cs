@@ -3,14 +3,9 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using static Onyx.Oms.Client.Desktop.Shared.Constants.Permissions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
 {

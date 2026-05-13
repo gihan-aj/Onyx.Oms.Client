@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.Storage;
 
 namespace Onyx.Oms.Client.Desktop.Features.Products.Details
 {
@@ -18,6 +19,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Details
         private readonly IFileService _fileService;
         private readonly INavigationService _navigationService;
         private readonly ILogger<ProductDetailsViewModel> _logger;
+        private readonly IToastService _toastService;
 
         private ProductDetailsDto? _product;
         public ProductDetailsDto? Product
@@ -49,6 +51,13 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Details
         {
             get => _isLoading;
             set => SetProperty(ref _isLoading, value);
+        }
+
+        private bool _isBusy;
+        public bool IsBusy
+        {
+            get => _isBusy;
+            set => SetProperty(ref _isBusy, value);
         }
 
         private ObservableCollection<ProductImageViewItem> _displayImages = new();
@@ -98,21 +107,25 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Details
         public IRelayCommand GoBackCommand { get; }
         public IRelayCommand<ProductOptionValueViewItem> OptionSelectedCommand { get; }
         public IRelayCommand<ProductImageViewItem> ImageSelectedCommand { get; }
+        public IAsyncRelayCommand DownloadSheetCommand { get; }
 
         public ProductDetailsViewModel(
             IProductsApi productsApi,
             IFileService fileService,
             INavigationService navigationService,
-            ILogger<ProductDetailsViewModel> logger)
+            ILogger<ProductDetailsViewModel> logger,
+            IToastService toastService)
         {
             _productsApi = productsApi;
             _fileService = fileService;
             _navigationService = navigationService;
             _logger = logger;
+            _toastService = toastService;
 
             GoBackCommand = new RelayCommand(GoBack);
             OptionSelectedCommand = new RelayCommand<ProductOptionValueViewItem>(OnOptionSelected);
             ImageSelectedCommand = new RelayCommand<ProductImageViewItem>(OnImageSelected);
+            DownloadSheetCommand = new AsyncRelayCommand(DownloadAndOpenSheetAsync);
         }
 
         public void OnNavigatedFrom()
@@ -151,8 +164,10 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Details
                     selectedValue.IsSelected = true;
                 }
 
-                var matchingImage = DisplayImages.FirstOrDefault(i => i.Dto?.OptionValue == selectedValue.Value);
-                if(matchingImage != null)
+                var matchingImage = DisplayImages.FirstOrDefault(i =>
+                    i.Dto?.OptionName == selectedValue.OptionName &&
+                    i.Dto?.OptionValue == selectedValue.Value);
+                if (matchingImage != null)
                 {
                     SelectedImageIndex = DisplayImages.IndexOf(matchingImage);
                 }
@@ -188,6 +203,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Details
                     }
                 }
             }
+
+            EvaluateSelectedVariant();
         }
 
         private void EvaluateSelectedVariant()
@@ -238,6 +255,51 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Details
             OnPropertyChanged(nameof(DisplayWeightUnit));
         }
 
+        private async Task DownloadAndOpenSheetAsync()
+        {
+            if (Product == null) return;
+
+            try
+            {
+                IsBusy = true;
+
+                // Pass the storage path your backend expects for images
+                // Have to send full path to the "ProductImages" folder because the API needs to know where to find it for embedding in the PDF
+                var imageFilePath = ApplicationData.Current.LocalFolder.Path + "\\ProductImages";
+                var response = await _productsApi.GetProductSheetById(Product.Id, imageFilePath);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    // Read the raw PDF stream into a byte array
+                    var pdfBytes = await response.Content.ReadAsByteArrayAsync();
+
+                    if (pdfBytes != null && pdfBytes.Length > 0)
+                    {
+                        // Save and launch the file just like before
+                        string safeFileName = $"ProductSheet_{Product.BaseSku ?? Product.Id.ToString().Substring(0, 8)}.pdf";
+                        string tempFilePath = Path.Combine(Path.GetTempPath(), safeFileName);
+
+                        await File.WriteAllBytesAsync(tempFilePath, pdfBytes);
+
+                        var storageFile = await Windows.Storage.StorageFile.GetFileFromPathAsync(tempFilePath);
+                        await Windows.System.Launcher.LaunchFileAsync(storageFile);
+                    }
+                }
+                else
+                {
+                    _logger.LogWarning("API returned {StatusCode} when downloading product sheet.", response.StatusCode);
+                    _toastService.ShowError("Download Failed","Failed to download product sheet. Please check logs for information.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to download product sheet for {ProductId}", Product.Id);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
 
         private void GoBack()
         {
@@ -338,13 +400,14 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Details
             }
 
             // 2. Now that all awaits are done, update the UI properties synchronously
-            SelectedImageIndex = tempSelectedIndex;
             DisplayImages.Clear();
 
             foreach (var img in tempImages)
             {
                 DisplayImages.Add(img);
             }
+
+            SelectedImageIndex = tempSelectedIndex;
         }
     }
 }

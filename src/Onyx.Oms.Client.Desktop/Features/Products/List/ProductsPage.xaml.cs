@@ -75,6 +75,15 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.List
                 ViewModel.ViewDetailsCommand.Execute(selectedProduct);
         }
 
+        private void DownloadMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is FrameworkElement { DataContext: ProductGridItem product })
+                ViewModel.DownloadAndOpenProductSheetCommand.Execute(product);
+
+            else if (sender is MenuFlyoutItem item && item.DataContext is ProductGridItem selectedProduct)
+                ViewModel.DownloadAndOpenProductSheetCommand.Execute(selectedProduct);
+        }
+
         private void EditMenuItem_Click(object sender, RoutedEventArgs e)
         {
             if (sender is FrameworkElement { DataContext: ProductGridItem product })

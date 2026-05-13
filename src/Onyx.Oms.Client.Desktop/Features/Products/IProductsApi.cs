@@ -2,6 +2,7 @@ using Onyx.Oms.Client.Desktop.Shared.Models;
 using Refit;
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Onyx.Oms.Client.Desktop.Features.Products;
@@ -25,6 +26,9 @@ public interface IProductsApi
 
     [Get("/api/v1/products/{id}")]
     Task<ProductDetailsDto> GetProductById(Guid id);
+
+    [Get("/api/v1/products/{id}/sheet")]
+    Task<HttpResponseMessage> GetProductSheetById(Guid id, [Query] string imageStoragePath);
 
     [Put("/api/v1/products/{id}/basic-info")]
     Task UpdateProductBasicInfo(Guid id, [Body] UpdateProductBasicInfoDto dto);

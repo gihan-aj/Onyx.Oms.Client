@@ -127,6 +127,7 @@
                                 <Setter.Value>
                                     <MenuFlyout>
                                         <MenuFlyoutItem Text="View Details" Icon="View" Click="ViewMenuItem_Click" />
+                                        <MenuFlyoutItem Text="Download Product Sheet" Icon="Download" Click="DownloadMenuItem_Click" />
                                         
                                         <MenuFlyoutSeparator />
 
@@ -274,6 +275,8 @@
                                     <Button.Flyout>
                                         <MenuFlyout>
                                             <MenuFlyoutItem x:Name="ViewMenuItem" Text="View Details" Icon="View" Click="ViewMenuItem_Click" />
+
+                                            <MenuFlyoutItem x:Name="DownloadMenuItem" Text="Download Product Sheet" Icon="Download" Click="DownloadMenuItem_Click" />
 
                                             <MenuFlyoutSeparator />
 

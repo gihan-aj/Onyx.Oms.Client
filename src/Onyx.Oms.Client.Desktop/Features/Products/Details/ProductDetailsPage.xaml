@@ -27,6 +27,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
             <Button Grid.Column="0" Command="{x:Bind ViewModel.GoBackCommand}" Style="{StaticResource SubtleButtonStyle}" Margin="0,0,16,0">
@@ -35,11 +36,21 @@
 
             <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.Product.Name, Mode=OneWay}" 
                        Style="{StaticResource SubtitleTextBlockStyle}" FontWeight="SemiBold" VerticalAlignment="Center" />
+
+            <Button Grid.Column="2" 
+                    Command="{x:Bind ViewModel.DownloadSheetCommand}"
+                    Style="{StaticResource AccentButtonStyle}"
+                    VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE896;" FontSize="14" />
+                    <TextBlock Text="Product Sheet" />
+                </StackPanel>
+            </Button>
         </Grid>
 
         <ProgressBar Grid.Row="0" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" 
              IsIndeterminate="True" 
-             Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" 
+             Visibility="{x:Bind ViewModel.IsBusy, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" 
              Canvas.ZIndex="100" />
 
         <!-- Scrollable Body -->
