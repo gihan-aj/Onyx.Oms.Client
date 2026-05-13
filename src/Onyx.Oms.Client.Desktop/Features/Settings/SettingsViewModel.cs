@@ -2,10 +2,12 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -18,6 +20,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     private readonly ISettingsApi _settingsApi;
     private readonly IToastService _toastService;
     private readonly IPermissionService _permissionService;
+    private readonly IFileService _fileService;
     private readonly ILogger<SettingsViewModel> _logger;
 
     private string _originalStoreInfoJson = string.Empty;
@@ -104,6 +107,20 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     public Visibility StoreAddressEditButtonVisible => (CanEditTenantSettings && !IsEditingStoreAddress) ? Visibility.Visible : Visibility.Collapsed;
     public Visibility StoreAddressSaveCancelVisible => IsEditingStoreAddress ? Visibility.Visible : Visibility.Collapsed;
 
+    private BitmapImage? _logoImageSource;
+    public BitmapImage? LogoImageSource
+    {
+        get => _logoImageSource;
+        set
+        {
+            if (SetProperty(ref _logoImageSource, value))
+            {
+                OnPropertyChanged(nameof(HasLogo));
+            }
+        }
+    }
+    public bool HasLogo => LogoImageSource != null;
+
     private bool _isEditingRegionalSettings;
     public bool IsEditingRegionalSettings
     {
@@ -141,6 +158,13 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         set => SetProperty(ref _isLoading, value);
     }
 
+    private bool _isBusy;
+    public bool IsBusy
+    {
+        get => _isBusy;
+        set => SetProperty(ref _isBusy, value);
+    }
+
     private TenantProfileResponse _profile = new TenantProfileResponse { StoreAddress = new AddressDto() };
     public TenantProfileResponse Profile
     {
@@ -150,21 +174,29 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
 
     public ObservableCollection<AppSequenceViewModel> Sequences { get; } = new();
 
+    public IAsyncRelayCommand UploadLogoCommand { get; }
+    public IAsyncRelayCommand DeleteLogoCommand { get; }
+
     public SettingsViewModel(
         IThemeSelectorService themeSelectorService,
         ISettingsApi settingsApi,
         IToastService toastService,
         IPermissionService permissionService,
-        ILogger<SettingsViewModel> logger)
+        ILogger<SettingsViewModel> logger,
+        IFileService fileService)
     {
         _themeSelectorService = themeSelectorService;
         _settingsApi = settingsApi;
         _toastService = toastService;
         _permissionService = permissionService;
+        _fileService = fileService;
         _logger = logger;
 
         _currentTheme = _themeSelectorService.Theme;
         _versionDescription = GetVersionDescription();
+
+        UploadLogoCommand = new AsyncRelayCommand(UploadLogoAsync);
+        DeleteLogoCommand = new AsyncRelayCommand(DeleteLogoAsync);
     }
 
     public void OnNavigatedTo(object parameter)
@@ -228,6 +260,19 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
                 CanEdit = CanEditAppSequences,
                 OnCancelEdit = () => { } // Remove LoadDataAsync here since it's locally restored
             });
+
+            if (!string.IsNullOrWhiteSpace(Profile.LogoUrl))
+            {
+                var imageBytes = await _fileService.ReadFileAsync("StoreAssets", Profile.LogoUrl);
+                if (imageBytes != null)
+                {
+                    using var memStream = new MemoryStream(imageBytes);
+                    using var randomAccessStream = memStream.AsRandomAccessStream();
+                    var bitmapImage = new BitmapImage();
+                    await bitmapImage.SetSourceAsync(randomAccessStream);
+                    LogoImageSource = bitmapImage;
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -277,7 +322,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         if (Profile == null) return;
         try
         {
-            IsLoading = true;
+            IsBusy = true;
             var updateDto = new UpdateStoreInfoCommand(
                 Profile.StoreName,
                 Profile.LegalName,
@@ -298,7 +343,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         }
         finally
         {
-            IsLoading = false;
+            IsBusy = false;
         }
     }
 
@@ -329,7 +374,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         if (Profile == null || Profile.StoreAddress == null) return;
         try
         {
-            IsLoading = true;
+            IsBusy = true;
             var updateDto = new UpdateStoreAddressCommand(Profile.StoreAddress);
             await _settingsApi.UpdateStoreAddress(updateDto);
             _toastService.ShowSuccess("Success", "Store address updated successfully.");
@@ -344,9 +389,90 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         }
         finally
         {
-            IsLoading = false;
+            IsBusy = false;
         }
     }
+
+    private async Task UploadLogoAsync()
+    {
+        try
+        {
+            var picker = new Windows.Storage.Pickers.FileOpenPicker
+            {
+                ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail,
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.PicturesLibrary
+            };
+            picker.FileTypeFilter.Add(".jpg");
+            picker.FileTypeFilter.Add(".jpeg");
+            picker.FileTypeFilter.Add(".png");
+            // WinUI 3 Window Handle Hook
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+            var file = await picker.PickSingleFileAsync();
+            if (file == null) return;
+            IsBusy = true;
+            string extension = Path.GetExtension(file.Path);
+            string newFileName = $"logo_{Guid.NewGuid()}{extension}";
+            // Save file locally using your service
+            using var stream = await file.OpenStreamForReadAsync();
+            await _fileService.SaveImageAsync("StoreAssets", newFileName, stream);
+            // Load preview into UI
+            var imageBytes = await _fileService.ReadFileAsync("StoreAssets", newFileName);
+            if (imageBytes != null)
+            {
+                using var memStream = new MemoryStream(imageBytes);
+                using var randomAccessStream = memStream.AsRandomAccessStream();
+                var bitmapImage = new BitmapImage();
+                await bitmapImage.SetSourceAsync(randomAccessStream);
+
+                LogoImageSource = bitmapImage;
+            }
+            // Sync with API
+            await _settingsApi.UpdateLogoImage(new UpdateTenantLogoCommand(newFileName));
+            Profile.LogoUrl = newFileName;
+
+            _toastService.ShowSuccess("Success", "Logo updated successfully.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to upload logo.");
+            //_toastService.ShowError("Error", "Failed to upload logo.");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task DeleteLogoAsync()
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(Profile.LogoUrl)) return;
+            IsBusy = true;
+
+            // Clear in Backend
+            await _settingsApi.UpdateLogoImage(new UpdateTenantLogoCommand(string.Empty));
+
+            // Remove locally
+            await _fileService.DeleteFileAsync("StoreAssets", Profile.LogoUrl);
+
+            Profile.LogoUrl = string.Empty;
+            LogoImageSource = null;
+
+            _toastService.ShowSuccess("Success", "Logo removed.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to remove logo.");
+            //_toastService.ShowError("Error", "Failed to remove logo.");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
 
     [RelayCommand]
     private void EditRegionalSettings()
@@ -380,7 +506,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         if (Profile == null) return;
         try
         {
-            IsLoading = true;
+            IsBusy = true;
             var updateDto = new UpdateRegionalSettingsCommand(
                 Profile.DefaultCurrency,
                 Profile.TimeZone,
@@ -398,7 +524,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         }
         finally
         {
-            IsLoading = false;
+            IsBusy = false;
         }
     }
 
@@ -410,6 +536,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         {
             item.IsSaving = true;
             item.IsEditing = false;
+            IsBusy = true;
             await _settingsApi.UpdateSequenceValue(item.Id, (int)item.CurrentValue);
             _toastService.ShowSuccess("Success", $"{item.DisplayName} updated successfully.");
             
@@ -423,6 +550,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         finally
         {
             item.IsSaving = false;
+            IsBusy = false;
         }
     }
 

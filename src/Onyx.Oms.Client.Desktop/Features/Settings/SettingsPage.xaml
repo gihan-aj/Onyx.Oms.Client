@@ -38,7 +38,7 @@
 
         <ProgressBar Grid.Row="0" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" 
                      IsIndeterminate="True" 
-                     Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" 
+                     Visibility="{x:Bind ViewModel.IsBusy, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" 
                      Canvas.ZIndex="100" />
 
         <SelectorBar x:Name="SettingsSelectorBar" Grid.Row="1" 
@@ -136,6 +136,7 @@
                                 <labs:SettingsCard Header="Invoice Footer Text">
                                     <TextBox Text="{x:Bind ViewModel.Profile.InvoiceFooterText, Mode=TwoWay}" Width="300" Height="50"
                                              IsReadOnly="{x:Bind ViewModel.IsEditingStoreInfo, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"
+                                             PlaceholderText="e.g. Thank you for your business! Returns accepted within 14 days."
                                              AcceptsReturn="True" 
                                              TextWrapping="Wrap"
                                              MinHeight="100" 
@@ -233,6 +234,44 @@
                             </StackPanel>
 
                         </StackPanel>
+
+                        <StackPanel Style="{StaticResource CardStackStyle}" Margin="0,0,0,16">
+                            <TextBlock Text="Branding &amp; Assets" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <TextBlock Text="Upload your store logo to display on receipts and the public storefront." 
+                                       Style="{StaticResource CaptionTextBlockStyle}" 
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" 
+                                       Margin="0,0,0,16"/>
+
+                            <Grid ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Image Preview Box -->
+                                <Border Grid.Column="0" Width="120" Height="120" CornerRadius="8" 
+                                        Background="{ThemeResource LayerFillColorAltBrush}" 
+                                        BorderThickness="1" BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}">
+                                    <Grid>
+                                        <!-- Placeholder Icon -->
+                                        <FontIcon Glyph="&#xE8B9;" FontSize="32" Foreground="{ThemeResource TextFillColorTertiaryBrush}" 
+                                                  Visibility="{x:Bind ViewModel.HasLogo, Converter={StaticResource InvertedBoolToVisibilityConverter}, Mode=OneWay}" />
+                                        <!-- Actual Image -->
+                                        <Image Source="{x:Bind ViewModel.LogoImageSource, Mode=OneWay}" Stretch="Uniform" Margin="8" />
+                                    </Grid>
+                                </Border>
+
+                                <!-- Actions -->
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="8">
+                                    <Button Content="Upload Logo" Command="{x:Bind ViewModel.UploadLogoCommand}" />
+                                    <Button Content="Remove Logo" Command="{x:Bind ViewModel.DeleteLogoCommand}" 
+                                            Style="{StaticResource SubtleButtonStyle}" 
+                                            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                            Visibility="{x:Bind ViewModel.HasLogo, Mode=OneWay}"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+
 
                     </StackPanel>
 
