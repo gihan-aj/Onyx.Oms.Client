@@ -300,16 +300,13 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Details
             if (Product == null || !Product.Images.Any())
                 return;
 
-            // 1. CRITICAL: Reset index to -1 BEFORE clearing the list to prevent PipsPager crash!
-            SelectedImageIndex = -1;
-            DisplayImages.Clear();
+            // Build a temporary list so the UI doesn't update mid-loop!
+            var tempImages = new List<ProductImageViewItem>();
+            int tempSelectedIndex = -1;
+
             foreach (var imageDto in Product.Images.OrderBy(i => i.DisplayOrder))
             {
-                var displayItem = new ProductImageViewItem
-                {
-                    Dto = imageDto,
-                };
-
+                var displayItem = new ProductImageViewItem { Dto = imageDto };
                 if (!string.IsNullOrWhiteSpace(imageDto.Url))
                 {
                     try
@@ -329,18 +326,24 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Details
                         _logger.LogError(ex, "Error loading image for product {ProductId}: {Url}", Product.Id, imageDto.Url);
                     }
                 }
-
-                DisplayImages.Add(displayItem);
+                tempImages.Add(displayItem);
                 if (imageDto.IsMain)
                 {
-                    SelectedImageIndex = DisplayImages.Count - 1;
+                    tempSelectedIndex = tempImages.Count - 1;
                 }
             }
-
-            // 2. CRITICAL: If no image was explicitly marked as main, default to the first image (0).
-            if (SelectedImageIndex == -1 && DisplayImages.Count > 0)
+            if (tempSelectedIndex == -1 && tempImages.Count > 0)
             {
-                SelectedImageIndex = 0;
+                tempSelectedIndex = 0;
+            }
+
+            // 2. Now that all awaits are done, update the UI properties synchronously
+            SelectedImageIndex = tempSelectedIndex;
+            DisplayImages.Clear();
+
+            foreach (var img in tempImages)
+            {
+                DisplayImages.Add(img);
             }
         }
     }

@@ -79,7 +79,7 @@
                             </Border>
 
                             <PipsPager NumberOfPages="{x:Bind ViewModel.DisplayImages.Count, Mode=OneWay}"
-                                       SelectedPageIndex="{x:Bind ViewModel.SelectedImageIndex, Mode=TwoWay}"
+                                       SelectedPageIndex="{Binding ElementName=ImageGallary, Path=SelectedIndex, Mode=TwoWay}"
                                        HorizontalAlignment="Center"/>
                         </StackPanel>
 
