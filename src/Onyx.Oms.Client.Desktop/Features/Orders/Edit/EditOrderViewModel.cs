@@ -1,11 +1,14 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
+using Onyx.Oms.Client.Desktop.Features.Orders.List;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using System;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.Storage;
 
 namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
 {
@@ -162,6 +165,20 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             set => SetProperty(ref _canComplete, value);
         }
 
+        private bool _canDownloadInvoice = false;
+        public bool CanDownloadInvoice
+        {
+            get => _canDownloadInvoice;
+            set => SetProperty(ref _canDownloadInvoice, value);
+        }
+
+        private string _downloadButtonText = "Invoice";
+        public string DownloadButtonText
+        {
+            get => _downloadButtonText;
+            set => SetProperty(ref _downloadButtonText, value);
+        }
+
         public IRelayCommand GoBackCommand { get; }
         public IAsyncRelayCommand UpdateOrderLogisticsCommand { get; }
         public IAsyncRelayCommand UpdateOrderItemsCommand { get; }
@@ -173,6 +190,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
         public IAsyncRelayCommand DeliverOrderCommand { get; }
         public IAsyncRelayCommand CompleteOrderCommand { get; }
         public IAsyncRelayCommand ShowCustomerOrderHistoryCommand { get; }
+        public IAsyncRelayCommand DownloadInvoiceCommand { get; }
 
         public EditOrderViewModel(IOrdersApi ordersApi, ILogger<EditOrderViewModel> logger, INavigationService navigationService, IToastService toastService, IFileService fileService, IDialogService dialogService)
         {
@@ -194,6 +212,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             DeliverOrderCommand = new AsyncRelayCommand(DeliverOrderAsync);
             CompleteOrderCommand = new AsyncRelayCommand(CompleteOrderAsync);
             ShowCustomerOrderHistoryCommand = new AsyncRelayCommand(ShowCustomerOrderHistoryAsync);
+            DownloadInvoiceCommand = new AsyncRelayCommand(DownloadInvoiceAsync);
         }
 
         public void OnNavigatedFrom()
@@ -251,6 +270,12 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                 CanShip = orderDetails.Status == OrderStatus.Packed;
                 CanDeliver = orderDetails.Status == OrderStatus.Shipped;
                 CanComplete = orderDetails.Status == OrderStatus.Delivered;
+                CanDownloadInvoice = orderDetails.Status != OrderStatus.Pending 
+                    || orderDetails.Status != OrderStatus.Cancelled 
+                    || orderDetails.Status != OrderStatus.DeliveryFailed
+                    || orderDetails.Status != OrderStatus.ReturnedToSender;
+                if (orderDetails.PaymentStatus == PaymentStatus.FullyPaid)
+                    DownloadButtonText = "Receipt";
 
                 RecalculateTotals();
 
@@ -760,6 +785,49 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             catch
             {
                 _logger.LogError("Failed to mark as Completed order ID: {OrderId}", _orderId);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+        public async Task DownloadInvoiceAsync()
+        {
+            if (_orderId == null) return;
+
+            try
+            {
+                IsBusy = true;
+
+                var logoStoragePath = ApplicationData.Current.LocalFolder.Path + "\\StoreAssets";
+                var response = await _ordersApi.GetOrderInvoiceById(_orderId.Value, logoStoragePath);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var pdfBytes = await response.Content.ReadAsByteArrayAsync();
+                    if (pdfBytes != null && pdfBytes.Length > 0)
+                    {
+                        // Name the file cleanly with the Order Number
+                        string safeFileName = $"Invoice_{PageTitle}.pdf";
+                        string tempFilePath = Path.Combine(Path.GetTempPath(), safeFileName);
+
+                        await File.WriteAllBytesAsync(tempFilePath, pdfBytes);
+
+                        var storageFile = await Windows.Storage.StorageFile.GetFileFromPathAsync(tempFilePath);
+                        await Windows.System.Launcher.LaunchFileAsync(storageFile);
+                    }
+                }
+                else
+                {
+                    _logger.LogWarning("API returned {StatusCode} when downloading invoice.", response.StatusCode);
+                    //_toastService.ShowError("Download Failed", "Could not generate the invoice.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to download invoice");
+                //_toastService.ShowError("Error", "An unexpected error occurred.");
             }
             finally
             {

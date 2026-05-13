@@ -84,6 +84,13 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
         }
 
         private void ManageMenuItem_Click(object sender, RoutedEventArgs e) => ViewModel.ManageOrderCommand.Execute(GetOrderFromSender(sender));
+        private async void DownloadInvoiceMenuItem_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            if (sender is MenuFlyoutItem item && item.DataContext is OrderGridItem order)
+            {
+                await ViewModel.DownloadInvoiceAsync(order);
+            }
+        }
         private void ConfirmMenuItem_Click(object sender, RoutedEventArgs e) => ViewModel.ConfirmOrderCommand.Execute(GetOrderFromSender(sender));
         private void CancelMenuItem_Click(object sender, RoutedEventArgs e) => ViewModel.CancelOrderCommand.Execute(GetOrderFromSender(sender));
         private void PackMenuItem_Click(object sender, RoutedEventArgs e) => ViewModel.PackOrderCommand.Execute(GetOrderFromSender(sender));

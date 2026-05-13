@@ -11,10 +11,12 @@ using Onyx.Oms.Client.Desktop.Shared.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Storage;
 
 namespace Onyx.Oms.Client.Desktop.Features.Orders.List
 {
@@ -475,6 +477,50 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
                  _navigationService.NavigateTo(typeof(EditOrderViewModel).FullName!, order.Id);
             }
         }
+
+        public async Task DownloadInvoiceAsync(OrderGridItem? order)
+        {
+            if (order == null) return;
+
+            try
+            {
+                IsBusy = true;
+
+                var logoStoragePath = ApplicationData.Current.LocalFolder.Path + "\\StoreAssets";
+                var response = await _ordersApi.GetOrderInvoiceById(order.Id, logoStoragePath);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var pdfBytes = await response.Content.ReadAsByteArrayAsync();
+                    if (pdfBytes != null && pdfBytes.Length > 0)
+                    {
+                        // Name the file cleanly with the Order Number
+                        string safeFileName = $"Invoice_{order.OrderNumber}.pdf";
+                        string tempFilePath = Path.Combine(Path.GetTempPath(), safeFileName);
+
+                        await File.WriteAllBytesAsync(tempFilePath, pdfBytes);
+
+                        var storageFile = await Windows.Storage.StorageFile.GetFileFromPathAsync(tempFilePath);
+                        await Windows.System.Launcher.LaunchFileAsync(storageFile);
+                    }
+                }
+                else
+                {
+                    _logger.LogWarning("API returned {StatusCode} when downloading invoice.", response.StatusCode);
+                    //_toastService.ShowError("Download Failed", "Could not generate the invoice.");
+                }
+            }
+            catch (Exception ex)
+            {
+                 _logger.LogError(ex, "Failed to download invoice");
+                //_toastService.ShowError("Error", "An unexpected error occurred.");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
 
         private async void ConfirmOrder(OrderGridItem? order) 
         {

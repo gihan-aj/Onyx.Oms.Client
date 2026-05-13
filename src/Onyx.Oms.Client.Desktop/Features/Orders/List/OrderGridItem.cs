@@ -17,6 +17,10 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
         public bool CanConfirm => Status == OrderStatus.Pending;
         public bool CanCancel => Status == OrderStatus.Pending || Status == OrderStatus.Confirmed || Status == OrderStatus.Processing || Status == OrderStatus.ReadyToPack || Status == OrderStatus.Packed;
         public bool CanProgress => Status != OrderStatus.Pending && Status != OrderStatus.Cancelled && Status != OrderStatus.Completed && Status != OrderStatus.Delivered && Status != OrderStatus.PaymentFailed;
+        public bool CanPack => CanProgress && Status < OrderStatus.Packed;
+        public bool CanShip => CanProgress && Status < OrderStatus.Shipped;
+        public bool CanDeliver => CanProgress && Status < OrderStatus.Delivered;
+        public bool CanComplete => CanProgress && Status < OrderStatus.Completed;
     }
 
     public static class OrderMappingExtensions

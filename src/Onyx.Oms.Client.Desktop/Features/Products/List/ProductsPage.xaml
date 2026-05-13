@@ -95,7 +95,13 @@
                 <Button Content="Clear Filters" Style="{StaticResource SubtleButtonStyle}"
                         Command="{x:Bind ViewModel.ClearFiltersCommand}"/>
             </StackPanel>
+
         </Grid>
+        
+        <ProgressBar Grid.Row="0" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" 
+                        IsIndeterminate="True" 
+                        Visibility="{x:Bind ViewModel.IsBusy, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" 
+                        Canvas.ZIndex="100" />
 
         <!-- DataGrid Constraints Wrapper -->
         <Grid Grid.Row="1" x:Name="TableContainer">

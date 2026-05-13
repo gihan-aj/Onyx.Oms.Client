@@ -3,6 +3,7 @@ using Onyx.Oms.Client.Desktop.Shared.Models;
 using Refit;
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Onyx.Oms.Client.Desktop.Features.Orders
@@ -37,6 +38,9 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
 
         [Get("/api/v1/orders/{id}")]
         Task<OrderDetailsDto> GetOrderById(Guid id);
+
+        [Get("/api/v1/orders/{id}/invoice")]
+        Task<HttpResponseMessage> GetOrderInvoiceById(Guid id, [Query] string logoStoragePath);
 
         [Post("/api/v1/orders")]
         Task<Guid> CreateOrder([Body] CreateOrderCommand task);

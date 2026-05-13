@@ -309,7 +309,7 @@ public partial class ProductsViewModel : PagedDataGridViewModelBase<ProductGridI
             else
             {
                 _logger.LogWarning("API returned {StatusCode} when downloading product sheet.", response.StatusCode);
-                _toastService.ShowError("Download Failed", "Failed to download product sheet. Please check logs for information.");
+                //_toastService.ShowError("Download Failed", "Failed to download product sheet. Please check logs for information.");
             }
         }
         catch (Exception ex)

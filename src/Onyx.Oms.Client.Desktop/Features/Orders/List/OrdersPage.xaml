@@ -189,8 +189,15 @@
                                         <MenuFlyoutItem Text="Manage Order" Click="ManageMenuItem_Click" IsEnabled="{Binding CanEdit}">
                                             <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE70F;"/></MenuFlyoutItem.Icon>
                                         </MenuFlyoutItem>
-                                        
+
+                                        <MenuFlyoutItem Text="Download" Click="DownloadInvoiceMenuItem_Click">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon Glyph="&#xE896;"/>
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+
                                         <MenuFlyoutSeparator Visibility="{Binding CanConfirm, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                        
                                         <MenuFlyoutItem Text="Confirm" Click="ConfirmMenuItem_Click" Visibility="{Binding CanConfirm, Converter={StaticResource BoolToVisibilityConverter}}">
                                             <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE8FB;"/></MenuFlyoutItem.Icon>
                                         </MenuFlyoutItem>
@@ -201,19 +208,19 @@
 
                                         <MenuFlyoutSeparator Visibility="{Binding CanProgress, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                         
-                                        <MenuFlyoutItem Text="Pack" Click="PackMenuItem_Click" Visibility="{Binding CanProgress, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <MenuFlyoutItem Text="Pack" Click="PackMenuItem_Click" Visibility="{Binding CanPack, Converter={StaticResource BoolToVisibilityConverter}}">
                                             <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE7B8;"/></MenuFlyoutItem.Icon>
                                         </MenuFlyoutItem>
 
-                                        <MenuFlyoutItem Text="Ship" Click="ShipMenuItem_Click" Visibility="{Binding CanProgress, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <MenuFlyoutItem Text="Ship" Click="ShipMenuItem_Click" Visibility="{Binding CanShip, Converter={StaticResource BoolToVisibilityConverter}}">
                                             <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE724;"/></MenuFlyoutItem.Icon>
                                         </MenuFlyoutItem>
 
-                                        <MenuFlyoutItem Text="Deliver" Click="DeliverMenuItem_Click" Visibility="{Binding CanProgress, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <MenuFlyoutItem Text="Deliver" Click="DeliverMenuItem_Click" Visibility="{Binding CanDeliver, Converter={StaticResource BoolToVisibilityConverter}}">
                                             <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE707;"/></MenuFlyoutItem.Icon>
                                         </MenuFlyoutItem>
 
-                                        <MenuFlyoutItem Text="Complete" Click="CompleteMenuItem_Click" Visibility="{Binding CanProgress, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <MenuFlyoutItem Text="Complete" Click="CompleteMenuItem_Click" Visibility="{Binding CanComplete, Converter={StaticResource BoolToVisibilityConverter}}">
                                             <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE930;"/></MenuFlyoutItem.Icon>
                                         </MenuFlyoutItem>
 
@@ -312,7 +319,13 @@
                                                 <MenuFlyoutItem Text="Manage Order" Click="ManageMenuItem_Click" IsEnabled="{x:Bind CanEdit}">
                                                     <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE70F;"/></MenuFlyoutItem.Icon>
                                                 </MenuFlyoutItem>
-                                                
+
+                                                <MenuFlyoutItem Text="Download" Click="DownloadInvoiceMenuItem_Click">
+                                                    <MenuFlyoutItem.Icon>
+                                                        <FontIcon Glyph="&#xE896;"/>
+                                                    </MenuFlyoutItem.Icon>
+                                                </MenuFlyoutItem>
+
                                                 <MenuFlyoutSeparator Visibility="{x:Bind CanConfirm, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                                 <MenuFlyoutItem Text="Confirm" Click="ConfirmMenuItem_Click" Visibility="{x:Bind CanConfirm, Converter={StaticResource BoolToVisibilityConverter}}">
                                                     <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE8FB;"/></MenuFlyoutItem.Icon>
@@ -324,19 +337,19 @@
 
                                                 <MenuFlyoutSeparator Visibility="{x:Bind CanProgress, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                                 
-                                                <MenuFlyoutItem Text="Pack" Click="PackMenuItem_Click" Visibility="{x:Bind CanProgress, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                <MenuFlyoutItem Text="Pack" Click="PackMenuItem_Click" Visibility="{x:Bind CanPack, Converter={StaticResource BoolToVisibilityConverter}}">
                                                     <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE7B8;"/></MenuFlyoutItem.Icon>
                                                 </MenuFlyoutItem>
 
-                                                <MenuFlyoutItem Text="Ship" Click="ShipMenuItem_Click" Visibility="{x:Bind CanProgress, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                <MenuFlyoutItem Text="Ship" Click="ShipMenuItem_Click" Visibility="{x:Bind CanShip, Converter={StaticResource BoolToVisibilityConverter}}">
                                                     <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE724;"/></MenuFlyoutItem.Icon>
                                                 </MenuFlyoutItem>
 
-                                                <MenuFlyoutItem Text="Deliver" Click="DeliverMenuItem_Click" Visibility="{x:Bind CanProgress, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                <MenuFlyoutItem Text="Deliver" Click="DeliverMenuItem_Click" Visibility="{x:Bind CanDeliver, Converter={StaticResource BoolToVisibilityConverter}}">
                                                     <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE707;"/></MenuFlyoutItem.Icon>
                                                 </MenuFlyoutItem>
 
-                                                <MenuFlyoutItem Text="Complete" Click="CompleteMenuItem_Click" Visibility="{x:Bind CanProgress, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                <MenuFlyoutItem Text="Complete" Click="CompleteMenuItem_Click" Visibility="{x:Bind CanComplete, Converter={StaticResource BoolToVisibilityConverter}}">
                                                     <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE930;"/></MenuFlyoutItem.Icon>
                                                 </MenuFlyoutItem>
 
