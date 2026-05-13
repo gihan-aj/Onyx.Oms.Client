@@ -60,7 +60,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Details
 
         private bool _isSelectingOption;
 
-        private int _selectedImageIndex = 0;
+        private int _selectedImageIndex = -1;
         public int SelectedImageIndex
         {
             get => _selectedImageIndex;
@@ -237,6 +237,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Details
             if (Product == null || !Product.Images.Any())
                 return;
 
+            // 1. CRITICAL: Reset index to -1 BEFORE clearing the list to prevent PipsPager crash!
+            SelectedImageIndex = -1;
             DisplayImages.Clear();
             foreach (var imageDto in Product.Images.OrderBy(i => i.DisplayOrder))
             {
@@ -270,6 +272,12 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Details
                 {
                     SelectedImageIndex = DisplayImages.Count - 1;
                 }
+            }
+
+            // 2. CRITICAL: If no image was explicitly marked as main, default to the first image (0).
+            if (SelectedImageIndex == -1 && DisplayImages.Count > 0)
+            {
+                SelectedImageIndex = 0;
             }
         }
     }
