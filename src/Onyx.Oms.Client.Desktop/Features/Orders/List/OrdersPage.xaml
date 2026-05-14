@@ -190,7 +190,7 @@
 
                 <toolkit:DataGrid x:Name="OrdersDataGrid"
                               Width="{Binding ActualWidth, ElementName=TableContainer}"
-                              MinWidth="1150"
+                              MinWidth="1180"
                               ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}"
                               AutoGenerateColumns="False"
                               IsReadOnly="True"
@@ -328,7 +328,7 @@
                         <!-- Total -->
                         <toolkit:DataGridTextColumn Header="Total" 
                                             Binding="{Binding GrandTotalDisplay}" Tag="grandTotalAmount" 
-                                            Width="Auto" MinWidth="120" 
+                                            Width="Auto" MinWidth="150" 
                                             HeaderStyle="{StaticResource RightAlignedHeaderStyle}" 
                                             ElementStyle="{StaticResource RightAlignedCellStyle}" />
 
