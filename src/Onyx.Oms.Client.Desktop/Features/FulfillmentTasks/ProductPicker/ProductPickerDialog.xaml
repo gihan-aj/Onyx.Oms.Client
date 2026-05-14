@@ -8,6 +8,7 @@
     xmlns:controls="using:Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.ProductCategoryPicker"
     xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:toolkit="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:labs="using:CommunityToolkit.WinUI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -24,7 +25,7 @@
         <converters:BoolToVisibilityConverter x:Key="InvertedBoolToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible" />
     </ContentDialog.Resources>
 
-    <Grid Width="500" Height="450" RowSpacing="12">
+    <Grid Width="500" Height="Auto" RowSpacing="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -59,8 +60,8 @@
         </Grid>
 
         <Grid Grid.Row="1" x:Name="TableContainer" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" CornerRadius="4">
-            <ScrollViewer HorizontalScrollBarVisibility="Auto"
-                          HorizontalScrollMode="Enabled"
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                          HorizontalScrollMode="Disabled"
                           VerticalScrollBarVisibility="Disabled"
                           VerticalScrollMode="Disabled">
 
@@ -111,8 +112,11 @@
                                         </Grid.ColumnDefinitions>
 
                                         <StackPanel Orientation="Vertical" Spacing="2">
-                                            <TextBlock Text="{x:Bind Name}" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                                            <TextBlock Text="{x:Bind CategoryPath}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+                                            <TextBlock Text="{x:Bind Name}" Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                       TextWrapping="Wrap"/>
+                                            <TextBlock Text="{x:Bind CategoryPath}" Style="{StaticResource CaptionTextBlockStyle}" 
+                                                       Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                                       TextWrapping="Wrap"/>
                                         </StackPanel>
 
                                         <StackPanel Grid.Column="1" HorizontalAlignment="Right">
@@ -136,7 +140,8 @@
                                                     <ItemsControl ItemsSource="{x:Bind Values}">
                                                         <ItemsControl.ItemsPanel>
                                                             <ItemsPanelTemplate>
-                                                                <VariableSizedWrapGrid Orientation="Horizontal" MaximumRowsOrColumns="5"/>
+                                                                <!--<VariableSizedWrapGrid Orientation="Horizontal" MaximumRowsOrColumns="5"/>-->
+                                                                <labs:WrapPanel Orientation="Horizontal"/>
                                                             </ItemsPanelTemplate>
                                                         </ItemsControl.ItemsPanel>
                                                         <ItemsControl.ItemTemplate>
