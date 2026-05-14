@@ -190,7 +190,15 @@
                                             <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE70F;"/></MenuFlyoutItem.Icon>
                                         </MenuFlyoutItem>
 
-                                        <MenuFlyoutItem Text="Download" Click="DownloadInvoiceMenuItem_Click">
+                                        <MenuFlyoutItem Text="{Binding DownloadInvoiceText}" Click="DownloadInvoiceMenuItem_Click"
+                                                        Visibility="{Binding CanDownloadInvoice, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon Glyph="&#xE896;"/>
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+
+                                        <MenuFlyoutItem Text="Shipping Label" Click="DownloadShippingLabelMenuItem_Click"
+                                                        Visibility="{Binding CanDownloadShippingLabel, Converter={StaticResource BoolToVisibilityConverter}}">
                                             <MenuFlyoutItem.Icon>
                                                 <FontIcon Glyph="&#xE896;"/>
                                             </MenuFlyoutItem.Icon>
@@ -320,7 +328,15 @@
                                                     <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE70F;"/></MenuFlyoutItem.Icon>
                                                 </MenuFlyoutItem>
 
-                                                <MenuFlyoutItem Text="Download" Click="DownloadInvoiceMenuItem_Click">
+                                                <MenuFlyoutItem Text="{x:Bind DownloadInvoiceText}" Click="DownloadInvoiceMenuItem_Click"
+                                                                Visibility="{x:Bind CanDownloadInvoice, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <MenuFlyoutItem.Icon>
+                                                        <FontIcon Glyph="&#xE896;"/>
+                                                    </MenuFlyoutItem.Icon>
+                                                </MenuFlyoutItem>
+                                                
+                                                <MenuFlyoutItem Text="Shipping Label" Click="DownloadShippingLabelMenuItem_Click"
+                                                                Visibility="{x:Bind CanDownloadShippingLabel, Converter={StaticResource BoolToVisibilityConverter}}">
                                                     <MenuFlyoutItem.Icon>
                                                         <FontIcon Glyph="&#xE896;"/>
                                                     </MenuFlyoutItem.Icon>

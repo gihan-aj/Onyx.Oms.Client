@@ -521,6 +521,48 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
             }
         }
 
+        public async Task DownloadShippingLabelAsync(OrderGridItem? order)
+        {
+            if (order == null) return;
+
+            try
+            {
+                IsBusy = true;
+
+                var response = await _ordersApi.GetShippingLabelById(order.Id);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var pdfBytes = await response.Content.ReadAsByteArrayAsync();
+                    if (pdfBytes != null && pdfBytes.Length > 0)
+                    {
+                        // Name the file cleanly with the Order Number
+                        string safeFileName = $"Shipping_Label_{order.OrderNumber}.pdf";
+                        string tempFilePath = Path.Combine(Path.GetTempPath(), safeFileName);
+
+                        await File.WriteAllBytesAsync(tempFilePath, pdfBytes);
+
+                        var storageFile = await Windows.Storage.StorageFile.GetFileFromPathAsync(tempFilePath);
+                        await Windows.System.Launcher.LaunchFileAsync(storageFile);
+                    }
+                }
+                else
+                {
+                    _logger.LogWarning("API returned {StatusCode} when downloading shipping label.", response.StatusCode);
+                    //_toastService.ShowError("Download Failed", "Could not generate the invoice.");
+                }
+            }
+            catch (Exception ex)
+            {
+                 _logger.LogError(ex, "Failed to download shipping label");
+                //_toastService.ShowError("Error", "An unexpected error occurred.");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
 
         private async void ConfirmOrder(OrderGridItem? order) 
         {

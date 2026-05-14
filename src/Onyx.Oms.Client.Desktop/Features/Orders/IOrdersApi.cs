@@ -42,6 +42,9 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         [Get("/api/v1/orders/{id}/invoice")]
         Task<HttpResponseMessage> GetOrderInvoiceById(Guid id, [Query] string logoStoragePath);
 
+        [Get("/api/v1/orders/{id}/shipping-label")]
+        Task<HttpResponseMessage> GetShippingLabelById(Guid id);
+
         [Post("/api/v1/orders")]
         Task<Guid> CreateOrder([Body] CreateOrderCommand task);
 

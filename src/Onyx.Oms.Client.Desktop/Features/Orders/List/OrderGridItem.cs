@@ -21,6 +21,11 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
         public bool CanShip => CanProgress && Status < OrderStatus.Shipped;
         public bool CanDeliver => CanProgress && Status < OrderStatus.Delivered;
         public bool CanComplete => CanProgress && Status < OrderStatus.Completed;
+
+        public bool CanDownloadInvoice => Status != OrderStatus.Pending && Status != OrderStatus.Cancelled && Status != OrderStatus.DeliveryFailed && Status != OrderStatus.ReturnedToSender;
+        public string DownloadInvoiceText => PaymentStatus == PaymentStatus.FullyPaid ? "Receipt" : "Invoice";
+
+        public bool CanDownloadShippingLabel => CanProgress;
     }
 
     public static class OrderMappingExtensions
