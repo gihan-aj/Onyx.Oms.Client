@@ -132,6 +132,9 @@ public partial class CustomerFormViewModel : ObservableObject, INavigationAware
     private string? _notes;
     public string? Notes { get => _notes; set => SetProperty(ref _notes, value); }
 
+    private string? _deliveryInstructions;
+    public string? DeliveryInstructions { get => _deliveryInstructions; set => SetProperty(ref _deliveryInstructions, value); }
+
     private bool _isLoading = true;
     public bool IsLoading 
     { 
@@ -187,6 +190,7 @@ public partial class CustomerFormViewModel : ObservableObject, INavigationAware
                 }
                 
                 Notes = customerToEdit.Notes;
+                DeliveryInstructions = customerToEdit.DeliveryInstructions;
                 Title = IsReadOnly ? $"Customer Details ({Name})" : $"Edit Customer ({Name})";
             }
         }
@@ -241,7 +245,8 @@ public partial class CustomerFormViewModel : ObservableObject, INavigationAware
                     District = District,
                     PostalCode = PostalCode,
                     Country = Country,
-                    Notes = Notes
+                    Notes = Notes,
+                    DeliveryInstructions = DeliveryInstructions,
                 };
                 await _customerApi.UpdateCustomer(updateDto.Id, updateDto);
                 _toastService.ShowSuccess("Success", "Customer updated successfully.");
@@ -260,7 +265,8 @@ public partial class CustomerFormViewModel : ObservableObject, INavigationAware
                     District = District,
                     PostalCode = PostalCode,
                     Country = Country,
-                    Notes = Notes
+                    Notes = Notes,
+                    DeliveryInstructions = DeliveryInstructions,
                 };
                 await _customerApi.CreateCustomer(createDto);
                 _toastService.ShowSuccess("Success", "Customer created successfully.");

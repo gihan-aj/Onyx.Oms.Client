@@ -87,6 +87,16 @@
                     <TextBlock Text="{x:Bind FullAddress, Mode=OneTime}" Style="{StaticResource BodyTextBlockStyle}" IsTextSelectionEnabled="True" TextWrapping="Wrap" />
                 </StackPanel>
 
+                <StackPanel Visibility="{x:Bind Customer.DeliveryInstructions, Mode=OneTime, Converter={StaticResource StringToVisibilityConverter}}">
+                    <TextBlock Text="Delivery Instructions" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <Grid Background="{ThemeResource LayerFillColorAltBrush}" CornerRadius="4" Padding="12" Margin="0,4,0,0">
+                        <TextBlock Text="{x:Bind Customer.DeliveryInstructions, Mode=OneTime}" 
+                                   Style="{StaticResource BodyTextBlockStyle}" 
+                                   FontStyle="Italic"
+                                   TextWrapping="Wrap" IsTextSelectionEnabled="True" />
+                    </Grid>
+                </StackPanel>
+                
                 <StackPanel Visibility="{x:Bind Customer.Notes, Mode=OneTime, Converter={StaticResource StringToVisibilityConverter}}">
                     <TextBlock Text="Internal Notes" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                     <Grid Background="{ThemeResource LayerFillColorAltBrush}" CornerRadius="4" Padding="12" Margin="0,4,0,0">

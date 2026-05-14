@@ -65,6 +65,7 @@ public class CustomerDto
         set => _lastOrderNumber = string.IsNullOrWhiteSpace(value) ? "-" : value;
     }
     public string? Notes { get; set; }
+    public string? DeliveryInstructions { get; set; }
     public bool IsActive { get; set; }
     public DateTimeOffset CreatedDate { get; set; }
 
@@ -88,6 +89,7 @@ public class CreateCustomerDto
     public string PostalCode { get; set; } = string.Empty;
     public string Country { get; set; } = string.Empty;
     public string? Notes { get; set; }
+    public string? DeliveryInstructions { get; set; }
 }
 
 public class UpdateCustomerDto
@@ -104,4 +106,5 @@ public class UpdateCustomerDto
     public string PostalCode { get; set; } = string.Empty;
     public string Country { get; set; } = string.Empty;
     public string? Notes { get; set; }
+    public string? DeliveryInstructions { get; set; }
 }

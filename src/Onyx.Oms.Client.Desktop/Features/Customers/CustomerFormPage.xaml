@@ -185,6 +185,15 @@
                             </StackPanel>
 
                             <StackPanel Style="{StaticResource CardStackStyle}">
+                                <TextBlock Text="Delivery Instructions" Style="{StaticResource BodyStrongTextBlockStyle}" />
+
+                                <TextBox Text="{x:Bind ViewModel.DeliveryInstructions, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                         PlaceholderText="Add any specific instructions for delivery personnel..."
+                                         AcceptsReturn="True" TextWrapping="Wrap" MinHeight="50" 
+                                         IsReadOnly="{x:Bind ViewModel.IsReadOnly, Mode=OneWay}"/>
+                            </StackPanel>
+                            
+                            <StackPanel Style="{StaticResource CardStackStyle}">
                                 <TextBlock Text="Internal Notes" Style="{StaticResource BodyStrongTextBlockStyle}" />
 
                                 <TextBox Text="{x:Bind ViewModel.Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
