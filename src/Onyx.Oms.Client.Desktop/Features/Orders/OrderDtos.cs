@@ -71,7 +71,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         MoneyDto? TaxAmount,
         OrderDiscountDto? Discount,
         InitialPaymentDto? Payment,
-        string? Notes);
+        string? Notes,
+        string? DeliveryInstructions);
 
     public record UpdateOrderFinancialsCommand(
         List<OrderItemDto> Items,
@@ -105,6 +106,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         OrderStatus Status,
         PaymentStatus PaymentStatus,
         bool IsCashOnDelivery,
+        string? DeliveryInstructions,
         string? Notes,
         decimal SubTotal,
         decimal DiscountAmount,
@@ -160,7 +162,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
 
     public record UpdateOrderLogisticsCommand(
         Guid? CourierId,
-        ShippingAddressDto? ShippingAddress);
+        ShippingAddressDto? ShippingAddress,
+        string? DeliveryInstructions);
 
     public record ShippingAddressDto(
         string? Street,
@@ -210,6 +213,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         public string PrimaryPhone { get; set; } = string.Empty;
         public string? SecondaryPhone { get; set; }
         public AddressDto? Address { get; set; }
+        public string? DeliveryInstructions { get; set; }
         public string? Notes { get; set; }
         public bool IsActive { get; set; }
         public DateTimeOffset CreatedDate { get; set; }
@@ -227,6 +231,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         public string District { get; set; } = string.Empty;
         public string PostalCode { get; set; } = string.Empty;
         public string Country { get; set; } = string.Empty;
+        public string? DeliveryInstructions { get; set; }
         public string? Notes { get; set; }
     }
 

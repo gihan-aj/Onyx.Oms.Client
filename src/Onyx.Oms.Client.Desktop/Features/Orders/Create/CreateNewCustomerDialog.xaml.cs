@@ -99,6 +99,7 @@ public sealed partial class CreateNewCustomerDialog : ContentDialog, INotifyProp
 
     public string PostalCode { get; set; } = string.Empty;
     public string Country { get; set; } = "Sri Lanka";
+    public string? DeliveryInstructions { get; set; }
     public string? Notes { get; set; }
 
     public CreateNewCustomerDialog(CreateCustomerCommand? customerDraft)

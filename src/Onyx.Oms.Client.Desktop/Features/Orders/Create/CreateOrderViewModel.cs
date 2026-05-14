@@ -49,6 +49,10 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
                     OnPropertyChanged(nameof(HasEmail));
                     OnPropertyChanged(nameof(HasNotes));
                     OnPropertyChanged(nameof(HasAddress));
+                    if(value != null && !string.IsNullOrWhiteSpace(value.DeliveryInstructions))
+                    {
+                        DeliveryInstructions = value.DeliveryInstructions;
+                    }
                 }
             }
         }
@@ -108,6 +112,13 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
                     }
                 }
             }
+        }
+
+        private string? _deliveryInstructions;
+        public string? DeliveryInstructions
+        {
+            get => _deliveryInstructions;
+            set => SetProperty(ref _deliveryInstructions, value);
         }
 
         // Shipping Address
@@ -536,7 +547,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
                     TaxAmount: TaxAmount > 0 ? new MoneyDto(TaxAmount, BaseCurrency) : null,
                     Discount: AppliedDiscount,
                     Payment: initialPayment,
-                    Notes: string.IsNullOrWhiteSpace(Notes) ? null : Notes
+                    Notes: string.IsNullOrWhiteSpace(Notes) ? null : Notes,
+                    DeliveryInstructions: string.IsNullOrWhiteSpace(DeliveryInstructions) ? null : DeliveryInstructions
                 );
 
                 var orderId = await _ordersApi.CreateOrder(command);
@@ -593,6 +605,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
                     District = dialog.District,
                     PostalCode = dialog.PostalCode,
                     Country = dialog.Country,
+                    DeliveryInstructions = string.IsNullOrWhiteSpace(dialog.DeliveryInstructions) ? null : dialog.DeliveryInstructions,
                     Notes = string.IsNullOrWhiteSpace(dialog.Notes) ? null : dialog.Notes
                 };
 

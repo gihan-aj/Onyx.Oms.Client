@@ -882,6 +882,14 @@
                                             <TextBlock Text="{x:Bind ViewModel.Logistics.ShippingAddressCountry, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" />
                                         </StackPanel>
                                     </StackPanel>
+
+                                    <StackPanel Spacing="4" Visibility="{x:Bind ViewModel.Logistics.HasDeliveryInstructions, Mode=OneWay}">
+                                        <TextBlock Text="Delivery Instructions" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Text="{x:Bind ViewModel.Logistics.DeliveryInstructions, Mode=OneWay}" 
+                                                   Style="{StaticResource BodyTextBlockStyle}" 
+                                                   TextWrapping="Wrap"/>
+                                    </StackPanel>
+
                                 </StackPanel>
 
                                 <!-- EDIT MODE -->
@@ -946,6 +954,28 @@
                                             </Grid>
 
                                             <TextBox Header="Country" Text="{x:Bind ViewModel.Logistics.ShippingAddressCountry, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                                            <Grid Margin="0,8,0,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0" 
+                                                           Text="Delivery Instructions" 
+                                                           Style="{StaticResource BodyStrongTextBlockStyle}" 
+                                                           VerticalAlignment="Center"/>
+                                                <!-- The autofill button -->
+                                                <HyperlinkButton Grid.Column="1" 
+                                                                 Content="Use Customer Default" 
+                                                                 Command="{x:Bind ViewModel.Logistics.UseCustomerDeliveryInstructionsCommand, Mode=OneWay}" 
+                                                                 Margin="12,0,0,0" 
+                                                                 VerticalAlignment="Center" />
+                                            </Grid>
+                                            <TextBox Text="{x:Bind ViewModel.Logistics.DeliveryInstructions, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                     PlaceholderText="e.g., Leave package at the back door..."
+                                                     AcceptsReturn="True"
+                                                     TextWrapping="Wrap"
+                                                     MinHeight="64" />
                                         </StackPanel>
                                     </StackPanel>
                                 </StackPanel>

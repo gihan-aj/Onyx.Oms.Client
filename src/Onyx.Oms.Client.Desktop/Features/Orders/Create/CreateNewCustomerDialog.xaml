@@ -66,6 +66,12 @@
 
             <!-- Notes -->
             <StackPanel Spacing="8">
+                <TextBlock Text="Delivery Instructions" FontWeight="SemiBold" />
+                <TextBox Text="{x:Bind DeliveryInstructions, Mode=TwoWay}" PlaceholderText="Add any specific instructions for delivery personnel..." AcceptsReturn="True" TextWrapping="Wrap" MinHeight="80" />
+            </StackPanel>
+            
+            <!-- Notes -->
+            <StackPanel Spacing="8">
                 <TextBlock Text="Internal Notes" FontWeight="SemiBold" />
                 <TextBox Text="{x:Bind Notes, Mode=TwoWay}" PlaceholderText="Add details..." AcceptsReturn="True" TextWrapping="Wrap" MinHeight="80" />
             </StackPanel>

@@ -497,6 +497,14 @@
                                         </Grid>
 
                                         <TextBox Header="Country" Text="{x:Bind ViewModel.ShippingCountry, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                                        <TextBox Header="Delivery Instructions (Optional)" 
+                                                 Text="{x:Bind ViewModel.DeliveryInstructions, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                 PlaceholderText="e.g., Leave package at the back door..."
+                                                 AcceptsReturn="True"
+                                                 TextWrapping="Wrap"
+                                                 MinHeight="64"
+                                                 Margin="0,8,0,0" />
                                     </StackPanel>
                                 </StackPanel>
                             

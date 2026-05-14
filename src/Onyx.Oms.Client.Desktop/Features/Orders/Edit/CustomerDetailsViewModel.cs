@@ -60,6 +60,13 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
         }
         public bool HasAddress => Address != null;
 
+        private string? _deliveryInstructions;
+        public string? DeliveryInstructions
+        {
+            get => _deliveryInstructions;
+            set => SetProperty(ref _deliveryInstructions, value);
+        }
+
         private string? _notes;
         public string? Notes
         {
@@ -93,6 +100,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             _email = string.IsNullOrWhiteSpace(dto.Email) ? null : dto.Email;
             _secondaryPhone = string.IsNullOrWhiteSpace(dto.SecondaryPhone) ? null : dto.SecondaryPhone;
             _address = dto.Address;
+            _deliveryInstructions = dto.DeliveryInstructions;
             _notes = string.IsNullOrWhiteSpace(dto.Notes) ? null : dto.Notes;
             _isActive = dto.IsActive;
             _createdDate = dto.CreatedDate;

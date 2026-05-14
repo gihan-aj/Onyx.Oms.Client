@@ -16,6 +16,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
         private UpdateOrderLogisticsCommand _originalLogistics;
         private readonly OrderStatus _orderStatus;
         private readonly AddressDto? _customerAddress;
+        private readonly string? _customerDeliveryInstructions;
 
         private bool _canEdit;
         public bool CanEdit
@@ -190,9 +191,23 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             }
         }
 
+        private string? _deliveryInstructions;
+        public string? DeliveryInstructions
+        {
+            get => _deliveryInstructions;
+            set
+            {
+                if (SetProperty(ref _deliveryInstructions, value))
+                    OnPropertyChanged(nameof(HasDeliveryInstructions));
+            }
+        }
+
+        public bool HasDeliveryInstructions => !string.IsNullOrWhiteSpace(DeliveryInstructions);
+
         public IRelayCommand BeginEditCommand { get; }
         public IRelayCommand CancelEditCommand { get; }
         public IRelayCommand UseCustomerAddressCommand { get; }
+        public IRelayCommand UseCustomerDeliveryInstructionsCommand { get; }
         public IRelayCommand CopyTrackingNumberCommand { get; }
 
         public OrderLogisticsViewModel(OrderDetailsDto order, IToastService toastService)
@@ -201,6 +216,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
 
             _orderStatus = order.Status;
             _customerAddress = order.Customer.Address;
+            _customerDeliveryInstructions = order.Customer.DeliveryInstructions;
             _originalLogistics = new UpdateOrderLogisticsCommand(
                 order.CourierId,
                 new ShippingAddressDto(
@@ -209,7 +225,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                     order.ShippingAddressDistrict,
                     order.ShippingAddressState,
                     order.ShippingAddressPostalCode,
-                    order.ShippingAddressCountry));
+                    order.ShippingAddressCountry),
+                order.DeliveryInstructions);
 
             CanEdit = order.Status < OrderStatus.Shipped && IsReadonly;
 
@@ -221,6 +238,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             ShippingAddressDistrict = order.ShippingAddressDistrict;
             ShippingAddressPostalCode = order.ShippingAddressPostalCode;
             ShippingAddressCountry = order.ShippingAddressCountry;
+            DeliveryInstructions = order.DeliveryInstructions;
             TrackingNumber = order.TrackingNumber;
 
             BeginEditCommand = new RelayCommand(BeginEdit);
@@ -228,6 +246,9 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             UseCustomerAddressCommand = new RelayCommand(
                 UseCustomerAddress,
                 () => _customerAddress != null);
+            UseCustomerDeliveryInstructionsCommand = new RelayCommand(
+                UseCustomerDeliveryInstructions,
+                () => !string.IsNullOrWhiteSpace(_customerDeliveryInstructions));
             CopyTrackingNumberCommand = new RelayCommand(CopyTrackingNumber);
         }
 
@@ -242,7 +263,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
 
         private void BeginEdit()
         {
-            RestoreOriginalValues();
+            //RestoreOriginalValues();
             IsEditing = true;
         }
 
@@ -263,6 +284,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             ShippingAddressDistrict = _originalLogistics.ShippingAddress?.District ?? string.Empty;
             ShippingAddressPostalCode = _originalLogistics.ShippingAddress?.PostalCode ?? string.Empty;
             ShippingAddressCountry = _originalLogistics.ShippingAddress?.Country ?? string.Empty;
+
+            DeliveryInstructions = _originalLogistics.DeliveryInstructions;
         }
 
         public UpdateOrderLogisticsCommand? GetUpdateDto()
@@ -281,7 +304,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                     ShippingAddressPostalCode,
                     ShippingAddressCountry);
 
-            return new UpdateOrderLogisticsCommand(CourierId, shippingAdress);
+            return new UpdateOrderLogisticsCommand(CourierId, shippingAdress, DeliveryInstructions);
         }
 
         public void CommitEdit()
@@ -294,7 +317,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                     ShippingAddressDistrict,
                     ShippingAddressState,
                     ShippingAddressPostalCode,
-                    ShippingAddressCountry));
+                    ShippingAddressCountry),
+                DeliveryInstructions);
             IsEditing = false;
         }
 
@@ -308,6 +332,12 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             ShippingAddressDistrict = _customerAddress.District ?? string.Empty;
             ShippingAddressPostalCode = _customerAddress.PostalCode ?? string.Empty;
             ShippingAddressCountry = _customerAddress.Country ?? string.Empty;
+        }
+
+        private void UseCustomerDeliveryInstructions()
+        {
+            if (_customerDeliveryInstructions == null) return;
+            DeliveryInstructions = _customerDeliveryInstructions ?? null;
         }
     }
 }
