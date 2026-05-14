@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Xaml.Media.Imaging;
 using System;
 using System.Collections.Generic;
@@ -114,8 +114,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Create
             set => SetProperty(ref _priceAmount, value);
         }
 
-        private double? _weightValue;
-        public double? WeightValue
+        private double _weightValue;
+        public double WeightValue
         {
             get => _weightValue;
             set => SetProperty(ref _weightValue, value);

@@ -79,7 +79,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
                     CostCurrency = v.CostCurrency,
                     PriceAmount = (double)v.PriceAmount,
                     PriceCurrency = v.CostCurrency,
-                    WeightAmount = v.WeightAmount.HasValue ? (double)v.WeightAmount : null,
+                    WeightAmount = v.WeightAmount.HasValue ? (double)v.WeightAmount : 0,
                     WeightUnit = v.WeightUnit,
                     StockOnHand = v.StockOnHand,
                     IsActive  = v.IsActive,
@@ -119,7 +119,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
                     CostCurrency= v.CostCurrency,
                     PriceAmount = (double)v.PriceAmount,
                     PriceCurrency= v.PriceCurrency,
-                    WeightAmount = v.WeightAmount.HasValue ? (double)v.WeightAmount : null,
+                    WeightAmount = v.WeightAmount.HasValue ? (double)v.WeightAmount : 0,
                     WeightUnit = v.WeightUnit,
                     StockOnHand = v.StockOnHand,
                     IsActive = v.IsActive,
@@ -144,7 +144,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
                 if (original != null &&
                    (original.CostAmount != (decimal)vm.CostAmount ||
                     original.PriceAmount != (decimal)vm.PriceAmount ||
-                    original.WeightAmount != (decimal)(vm.WeightAmount ?? 0) ||
+                    (original.WeightAmount ?? 0) != (decimal)vm.WeightAmount ||
                     original.Sku != vm.Sku ||
                     original.IsActive != vm.IsActive ||
                     original.StockOnHand != vm.StockOnHand))
@@ -156,7 +156,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
                         Sku = vm.Sku,
                         Cost = new MoneyDto { Amount = (decimal)vm.CostAmount, Currency = vm.CostCurrency },
                         Price = new MoneyDto { Amount = (decimal)vm.PriceAmount, Currency = vm.PriceCurrency },
-                        Weight = new WeightDto { Value = (decimal)(vm.WeightAmount ?? 0), Unit = vm.WeightUnit ?? "kg" },
+                        Weight = new WeightDto { Value = (decimal)vm.WeightAmount, Unit = vm.WeightUnit ?? "kg" },
                         StockOnHand = vm.StockOnHand,
                         IsActive = vm.IsActive
                     });

@@ -47,8 +47,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Edit
             set => SetProperty(ref _priceCurrency, value);
         }
 
-        private double? _weightAmount;
-        public double? WeightAmount
+        private double _weightAmount;
+        public double WeightAmount
         {
             get => _weightAmount;
             set => SetProperty(ref _weightAmount, value);

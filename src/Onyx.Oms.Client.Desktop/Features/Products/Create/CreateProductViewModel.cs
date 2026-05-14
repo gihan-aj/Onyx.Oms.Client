@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Onyx.Oms.Client.Desktop.Shared.Models;
 using Onyx.Oms.Client.Desktop.Shared.Services;
@@ -268,11 +268,11 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Create
             {
                 var display = string.Join(" / ", combination.Select(a => a.Value));
                 string? overrideSku = null;
-                if (!string.IsNullOrWhiteSpace(Draft.BaseSku))
-                {
-                    var suffix = string.Join("-", combination.Select(a => a.Value.ToUpper().Replace(" ", "")));
-                    overrideSku = $"{Draft.BaseSku}-{suffix}";
-                }
+                //if (!string.IsNullOrWhiteSpace(Draft.BaseSku))
+                //{
+                //    var suffix = string.Join("-", combination.Select(a => a.Value.ToUpper().Replace(" ", "")));
+                //    overrideSku = $"{Draft.BaseSku}-{suffix}";
+                //}
 
                 VariantDrafts.Add(new CreateProductVariantDraftModel
                 {
@@ -281,7 +281,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Create
                     Sku = overrideSku,
                     CostAmount = (double)Draft.BaseCostAmount,
                     PriceAmount = (double)Draft.BasePriceAmount,
-                    WeightValue = Draft.BaseWeightAmount != null ? (double)Draft.BaseWeightAmount : null,
+                    WeightValue = Draft.BaseWeightAmount != null ? (double)Draft.BaseWeightAmount : 0,
                     StockOnHand = 0
                 });
             }
@@ -524,7 +524,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Create
                     Attributes = v.Attributes,
                     Cost = new MoneyDto { Amount = (decimal)v.CostAmount, Currency = BaseCurrency },
                     Price = new MoneyDto { Amount = (decimal)v.PriceAmount, Currency = BaseCurrency },
-                    Weight = v.WeightValue != null ? new WeightDto { Value = (decimal)v.WeightValue, Unit = BaseWeightUnit } : null,
+                    Weight = new WeightDto { Value = (decimal)v.WeightValue, Unit = BaseWeightUnit },
                     StockOnHand = v.StockOnHand,
                 }).ToList()
                 : new List<CreateProductVariantDto>();

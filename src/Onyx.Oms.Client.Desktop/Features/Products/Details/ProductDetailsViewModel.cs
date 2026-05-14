@@ -98,6 +98,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Details
         public string DisplayPriceCurrency => _selectedVariant?.PriceCurrency ?? Product?.BasePriceCurrency ?? string.Empty;
         public int DisplayStockOnHand => _selectedVariant?.StockOnHand ?? Product?.StockOnHand ?? 0;
         public int DisplayReservedQuantity => _selectedVariant?.ReservedQuantity ?? Product?.ReservedQuantity ?? 0;
+        public int DisplayAvailabeQuantity => DisplayStockOnHand - DisplayReservedQuantity;
         public string? DisplaySku => _selectedVariant?.Sku ?? Product?.BaseSku;
 
         public decimal? DisplayWeightAmount => _selectedVariant?.WeightAmount ?? Product?.BaseWeightAmount;
@@ -250,6 +251,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Products.Details
             OnPropertyChanged(nameof(DisplayPriceCurrency));
             OnPropertyChanged(nameof(DisplayStockOnHand));
             OnPropertyChanged(nameof(DisplayReservedQuantity));
+            OnPropertyChanged(nameof(DisplayAvailabeQuantity));
             OnPropertyChanged(nameof(DisplaySku));
             OnPropertyChanged(nameof(DisplayWeightAmount));
             OnPropertyChanged(nameof(DisplayWeightUnit));
