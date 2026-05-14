@@ -36,6 +36,7 @@
     <None Remove="Features\Orders\Edit\CreateFulfillmentTaskDialog.xaml" />
     <None Remove="Features\Orders\Edit\EditOrderPage.xaml" />
     <None Remove="Features\Orders\FailDeliveryDialog.xaml" />
+    <None Remove="Features\Orders\List\BulkPrintShippingLabelsDialog.xaml" />
     <None Remove="Features\Orders\List\OrdersPage.xaml" />
     <None Remove="Features\Orders\ProductCategoryPicker\ProductCategoryPicker.xaml" />
     <None Remove="Features\Orders\ProductPicker\ProductPicker.xaml" />
@@ -209,6 +210,12 @@
 	<Content Include="BackendServices\**\*.*">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Features\Orders\List\BulkPrintShippingLabelsDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <ItemGroup>

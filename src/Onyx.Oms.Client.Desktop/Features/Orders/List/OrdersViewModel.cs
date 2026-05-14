@@ -184,6 +184,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
         public IRelayCommand<OrderGridItem> CompleteOrderCommand { get; }
         public IRelayCommand<OrderGridItem> FailDeliveryCommand { get; }
         public IRelayCommand StatusChipToggledCommand { get; }
+        public IAsyncRelayCommand BulkPrintShippingLabelsCommand { get; }
 
         public OrdersViewModel(
             IOrdersApi ordersApi,
@@ -225,6 +226,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
                     LoadDataCommand.ExecuteAsync(null);
                 }
             });
+            BulkPrintShippingLabelsCommand = new AsyncRelayCommand(BulkPrintShippingLabelsAsync);
         }
 
         private void InitializeFilterOptions()
@@ -563,7 +565,53 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
             }
         }
 
+        private async Task BulkPrintShippingLabelsAsync()
+        {
+            var dialog = new BulkPrintShippingLabelsDialog(_ordersApi)
+            {
+                XamlRoot = App.MainWindow.Content.XamlRoot
+            };
+            var result = await dialog.ShowAsync();
+            // If the user clicks Generate Labels and they actually have items in the list
+            if (result == ContentDialogResult.Primary && dialog.SelectedOrderIds.Any())
+            {
+                try
+                {
+                    IsBusy = true;
 
+                    // Adjust this class name to whatever you named your DTO
+                    var request = new BulkGenerateShippingLabelsCommand(dialog.SelectedOrderIds);
+
+                    var response = await _ordersApi.GetBulkShippingLabels(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var pdfBytes = await response.Content.ReadAsByteArrayAsync();
+                        if (pdfBytes != null && pdfBytes.Length > 0)
+                        {
+                            string safeFileName = $"Bulk_Shipping_Labels_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+                            string tempFilePath = Path.Combine(Path.GetTempPath(), safeFileName);
+                            await File.WriteAllBytesAsync(tempFilePath, pdfBytes);
+                            var storageFile = await Windows.Storage.StorageFile.GetFileFromPathAsync(tempFilePath);
+                            await Windows.System.Launcher.LaunchFileAsync(storageFile);
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogWarning("API returned {StatusCode} when bulk downloading shipping labels.", response.StatusCode);
+                        //_toastService.ShowError("Download Failed", "Could not generate bulk labels. Please check the backend logs.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to bulk generate shipping labels.");
+                    //_toastService.ShowError("Error", "An unexpected error occurred while generating bulk labels.");
+                }
+                finally
+                {
+                    IsBusy = false;
+                }
+            }
+        }
         private async void ConfirmOrder(OrderGridItem? order) 
         {
             if (order == null)

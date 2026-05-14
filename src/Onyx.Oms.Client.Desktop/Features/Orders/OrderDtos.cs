@@ -60,6 +60,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         public int TotalCount { get; set; }
     }
 
+    public record BulkGenerateShippingLabelsCommand(List<Guid> OrderIds);
+
     public record CreateOrderCommand(
         Guid CustomerId,
         bool IsCashOnDelivery,
