@@ -29,6 +29,7 @@ public sealed partial class CatalogPage : Page
         
         ViewModel = App.Current.Services.GetRequiredService<CatalogViewModel>();
         _navigationService = App.Current.Services.GetRequiredService<INavigationService>();
+        DataContext = ViewModel;
     }
 
     protected override void OnNavigatedTo(NavigationEventArgs e)

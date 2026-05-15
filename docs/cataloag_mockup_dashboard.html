@@ -1,0 +1,455 @@
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: var(--font-sans);
+    }
+
+    .dash {
+        padding: 1.5rem 0;
+    }
+
+    .section-label {
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        color: var(--color-text-tertiary);
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        padding-left: 2px;
+    }
+
+    .tile-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-bottom: 1.5rem;
+    }
+
+    .tile-grid-wide {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 1.5rem;
+    }
+
+    .tile {
+        background: var(--color-background-primary);
+        border: 0.5px solid var(--color-border-tertiary);
+        border-radius: 12px;
+        padding: 14px 16px 10px;
+        cursor: pointer;
+        transition: border-color 0.15s;
+        min-height: 110px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+    }
+
+    .tile:hover {
+        border-color: var(--color-border-secondary);
+    }
+
+    .tile-top {}
+
+    .tile-label {
+        font-size: 11px;
+        color: var(--color-text-tertiary);
+        margin-bottom: 6px;
+        font-weight: 400;
+    }
+
+    .tile-value {
+        font-size: 34px;
+        font-weight: 500;
+        color: var(--color-text-primary);
+        line-height: 1;
+    }
+
+    .tile-sub {
+        font-size: 11px;
+        color: var(--color-text-secondary);
+        margin-top: 4px;
+    }
+
+    .tile-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 10px;
+        font-weight: 500;
+        padding: 3px 8px;
+        border-radius: 20px;
+        margin-top: 10px;
+        width: fit-content;
+    }
+
+    .chip-blue {
+        background: #E6F1FB;
+        color: #185FA5;
+    }
+
+    .chip-amber {
+        background: #FAEEDA;
+        color: #854F0B;
+    }
+
+    .chip-red {
+        background: #FCEBEB;
+        color: #A32D2D;
+    }
+
+    .chip-green {
+        background: #EAF3DE;
+        color: #3B6D11;
+    }
+
+    .chip-teal {
+        background: #E1F5EE;
+        color: #0F6E56;
+    }
+
+    .chip-purple {
+        background: #EEEDFE;
+        color: #3C3489;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .chip-blue {
+            background: #0C447C;
+            color: #B5D4F4;
+        }
+
+        .chip-amber {
+            background: #633806;
+            color: #FAC775;
+        }
+
+        .chip-red {
+            background: #791F1F;
+            color: #F7C1C1;
+        }
+
+        .chip-green {
+            background: #27500A;
+            color: #C0DD97;
+        }
+
+        .chip-teal {
+            background: #085041;
+            color: #9FE1CB;
+        }
+
+        .chip-purple {
+            background: #3C3489;
+            color: #CECBF6;
+        }
+    }
+
+    .tile-wide {
+        min-height: 110px;
+        padding: 14px 18px 10px;
+    }
+
+    .tile-wide .tile-value {
+        font-size: 36px;
+    }
+
+    .wide-inner {
+        display: flex;
+        align-items: flex-end;
+        gap: 20px;
+    }
+
+    .wide-stat {
+        flex: 1;
+    }
+
+    .wide-stat .stat-label {
+        font-size: 11px;
+        color: var(--color-text-tertiary);
+        margin-bottom: 2px;
+    }
+
+    .wide-stat .stat-val {
+        font-size: 20px;
+        font-weight: 500;
+        color: var(--color-text-primary);
+    }
+
+    .divider {
+        width: 0.5px;
+        height: 40px;
+        background: var(--color-border-tertiary);
+        align-self: center;
+    }
+
+    .alert-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-tile {
+        background: var(--color-background-primary);
+        border: 0.5px solid var(--color-border-tertiary);
+        border-radius: 12px;
+        padding: 12px 16px;
+        cursor: pointer;
+    }
+
+    .alert-tile:hover {
+        border-color: var(--color-border-secondary);
+    }
+
+    .alert-header {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 8px;
+    }
+
+    .alert-icon {
+        font-size: 15px;
+    }
+
+    .alert-title {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--color-text-primary);
+    }
+
+    .alert-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 0;
+        border-top: 0.5px solid var(--color-border-tertiary);
+        font-size: 12px;
+    }
+
+    .alert-item-name {
+        color: var(--color-text-secondary);
+    }
+
+    .alert-item-val {
+        font-weight: 500;
+        color: var(--color-text-primary);
+    }
+
+    .badge {
+        font-size: 10px;
+        padding: 2px 7px;
+        border-radius: 20px;
+        font-weight: 500;
+    }
+
+    .badge-red {
+        background: #FCEBEB;
+        color: #A32D2D;
+    }
+
+    .badge-amber {
+        background: #FAEEDA;
+        color: #854F0B;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .badge-red {
+            background: #791F1F;
+            color: #F7C1C1;
+        }
+
+        .badge-amber {
+            background: #633806;
+            color: #FAC775;
+        }
+    }
+
+    .page-title {
+        font-size: 18px;
+        font-weight: 500;
+        color: var(--color-text-primary);
+        margin-bottom: 4px;
+    }
+
+    .page-sub {
+        font-size: 13px;
+        color: var(--color-text-secondary);
+        margin-bottom: 1.5rem;
+    }
+
+    .spark {
+        display: flex;
+        align-items: flex-end;
+        gap: 2px;
+        height: 28px;
+        margin-top: 6px;
+    }
+
+    .spark-bar {
+        flex: 1;
+        border-radius: 2px;
+        background: var(--color-border-secondary);
+        transition: background 0.15s;
+    }
+
+    .spark-bar.active {
+        background: #378ADD;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .spark-bar.active {
+            background: #85B7EB;
+        }
+    }
+</style>
+
+<div class="dash">
+    <p class="page-title">Catalog & inventory</p>
+    <p class="page-sub">Live snapshot · Last synced just now</p>
+
+    <p class="section-label">Overview</p>
+    <div class="tile-grid">
+
+        <div class="tile" onclick="sendPrompt('Show me all product variants in the catalog')">
+            <div class="tile-top">
+                <div class="tile-label">Total variants</div>
+                <div class="tile-value">248</div>
+                <div class="tile-sub">across 42 products</div>
+            </div>
+            <div class="tile-chip chip-blue"><i class="ti ti-arrow-right" aria-hidden="true"></i> View catalog</div>
+        </div>
+
+        <div class="tile" onclick="sendPrompt('Show me all variants with zero available stock')">
+            <div class="tile-top">
+                <div class="tile-label">Out of stock</div>
+                <div class="tile-value" style="color:#E24B4A;">14</div>
+                <div class="tile-sub">variants unavailable</div>
+            </div>
+            <div class="tile-chip chip-red"><i class="ti ti-arrow-right" aria-hidden="true"></i> View stockouts</div>
+        </div>
+
+        <div class="tile" onclick="sendPrompt('Show me all variants with low available stock')">
+            <div class="tile-top">
+                <div class="tile-label">Low stock</div>
+                <div class="tile-value" style="color:#BA7517;">31</div>
+                <div class="tile-sub">below threshold</div>
+            </div>
+            <div class="tile-chip chip-amber"><i class="ti ti-arrow-right" aria-hidden="true"></i> View alerts</div>
+        </div>
+
+        <div class="tile" onclick="sendPrompt('Show me all active fulfillment tasks with incoming inventory')">
+            <div class="tile-top">
+                <div class="tile-label">Incoming (inbound)</div>
+                <div class="tile-value" style="color:#1D9E75;">89</div>
+                <div class="tile-sub">units in production</div>
+            </div>
+            <div class="tile-chip chip-teal"><i class="ti ti-arrow-right" aria-hidden="true"></i> View tasks</div>
+        </div>
+
+    </div>
+
+    <p class="section-label">Stock breakdown</p>
+    <div class="tile-grid-wide" style="margin-bottom:1.5rem;">
+
+        <div class="tile tile-wide" onclick="sendPrompt('Break down stock on hand by category')">
+            <div class="tile-top">
+                <div class="tile-label">Stock on hand</div>
+                <div class="wide-inner">
+                    <div class="wide-stat">
+                        <div class="stat-label">Total units</div>
+                        <div class="stat-val">1,842</div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="wide-stat">
+                        <div class="stat-label">Reserved</div>
+                        <div class="stat-val">307</div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="wide-stat">
+                        <div class="stat-label">Available</div>
+                        <div class="stat-val" style="color:#1D9E75;">1,535</div>
+                    </div>
+                </div>
+            </div>
+            <div class="tile-chip chip-blue"><i class="ti ti-arrow-right" aria-hidden="true"></i> Full stock report
+            </div>
+        </div>
+
+        <div class="tile tile-wide"
+            onclick="sendPrompt('Show me active fulfillment tasks breakdown by production vs procurement')">
+            <div class="tile-top">
+                <div class="tile-label">Active fulfillment tasks</div>
+                <div class="wide-inner">
+                    <div class="wide-stat">
+                        <div class="stat-label">In production</div>
+                        <div class="stat-val">12</div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="wide-stat">
+                        <div class="stat-label">Procurement</div>
+                        <div class="stat-val">7</div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="wide-stat">
+                        <div class="stat-label">Orphaned</div>
+                        <div class="stat-val" style="color:#BA7517;">3</div>
+                    </div>
+                </div>
+            </div>
+            <div class="tile-chip chip-purple"><i class="ti ti-arrow-right" aria-hidden="true"></i> Task backlog</div>
+        </div>
+
+    </div>
+
+    <p class="section-label">Alerts</p>
+    <div class="alert-row">
+
+        <div class="alert-tile" onclick="sendPrompt('Navigate to the out of stock variants list')">
+            <div class="alert-header">
+                <i class="ti ti-alert-triangle alert-icon" style="color:#E24B4A;" aria-hidden="true"></i>
+                <span class="alert-title">Out of stock variants</span>
+            </div>
+            <div class="alert-item">
+                <span class="alert-item-name">Linen Shirt · XL · Navy</span>
+                <span class="badge badge-red">0 units</span>
+            </div>
+            <div class="alert-item">
+                <span class="alert-item-name">Chino Pants · 32 · Khaki</span>
+                <span class="badge badge-red">0 units</span>
+            </div>
+            <div class="alert-item">
+                <span class="alert-item-name">Polo Tee · M · White</span>
+                <span class="badge badge-red">0 units</span>
+            </div>
+        </div>
+
+        <div class="alert-tile" onclick="sendPrompt('Navigate to the low stock variants list')">
+            <div class="alert-header">
+                <i class="ti ti-alert-circle alert-icon" style="color:#BA7517;" aria-hidden="true"></i>
+                <span class="alert-title">Low stock variants</span>
+            </div>
+            <div class="alert-item">
+                <span class="alert-item-name">Cargo Shorts · L · Olive</span>
+                <span class="badge badge-amber">2 left</span>
+            </div>
+            <div class="alert-item">
+                <span class="alert-item-name">Casual Blazer · S · Black</span>
+                <span class="badge badge-amber">3 left</span>
+            </div>
+            <div class="alert-item">
+                <span class="alert-item-name">Denim Jacket · XS · Indigo</span>
+                <span class="badge badge-amber">4 left</span>
+            </div>
+        </div>
+
+    </div>
+
+</div>
