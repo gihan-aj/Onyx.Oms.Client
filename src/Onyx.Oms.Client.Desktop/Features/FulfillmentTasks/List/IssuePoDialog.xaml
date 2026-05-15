@@ -97,7 +97,7 @@
                            HorizontalAlignment="Stretch" />
 
                 <NumberBox Grid.Column="1" 
-                           Header="Estimated Cost (LKR)*" 
+                           Header="{x:Bind EstimatedCostHeader}" 
                            Value="{x:Bind CostAmount, Mode=TwoWay}"
                            Minimum="0" 
                            SpinButtonPlacementMode="Compact"

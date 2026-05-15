@@ -2,14 +2,18 @@ using CommunityToolkit.WinUI.Animations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Onyx.Oms.Client.Desktop.Features.Catalog;
 using Onyx.Oms.Client.Desktop.Features.Couriers;
-using Onyx.Oms.Client.Desktop.Features.Dashboard;
 using Onyx.Oms.Client.Desktop.Features.Customers;
+using Onyx.Oms.Client.Desktop.Features.Dashboard;
+using Onyx.Oms.Client.Desktop.Features.FulfillmentTasks;
+using Onyx.Oms.Client.Desktop.Features.Orders;
 using Onyx.Oms.Client.Desktop.Features.ProductCategories;
 using Onyx.Oms.Client.Desktop.Features.Products;
 using Onyx.Oms.Client.Desktop.Features.Roles;
+using Onyx.Oms.Client.Desktop.Features.Settings;
 using Onyx.Oms.Client.Desktop.Features.Users;
 using Onyx.Oms.Client.Desktop.Features.Users.UserOnboarding;
 using Onyx.Oms.Client.Desktop.Shared.Models.Configuration;
@@ -18,9 +22,6 @@ using Onyx.Oms.Client.Desktop.Shared.Services.Http;
 using Refit;
 using Serilog;
 using System;
-using Onyx.Oms.Client.Desktop.Features.FulfillmentTasks;
-using Onyx.Oms.Client.Desktop.Features.Orders;
-using Onyx.Oms.Client.Desktop.Features.Settings;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.

@@ -1,11 +1,12 @@
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using System;
 using Onyx.Oms.Client.Desktop.Shared.Services;
+using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage;
-using System.IO;
 
 namespace Onyx.Oms.Client.Desktop.Shared.Shell;
 
@@ -23,6 +24,7 @@ public sealed partial class MainWindow : Window
 
     private readonly BackgroundProcessService _backgroundServices;
 
+    private bool _appStartingUp = true;
     public MainWindow(
         INavigationService navigationService,
         INavigationViewService navigationViewService,
@@ -390,5 +392,19 @@ public sealed partial class MainWindow : Window
     private async void SignOutBtn_Click(object sender, RoutedEventArgs e)
     {
         await _authenticationService.LogoutAsync();
+    }
+
+    private void Window_SizeChanged(object sender, WindowSizeChangedEventArgs args)
+    {
+        if (_appStartingUp)
+        {
+            var appWindow = this.AppWindow;
+
+            if (appWindow.Presenter is OverlappedPresenter overlappedPresenter)
+            {
+                overlappedPresenter.Maximize();
+            }
+            _appStartingUp = false;
+        }
     }
 }

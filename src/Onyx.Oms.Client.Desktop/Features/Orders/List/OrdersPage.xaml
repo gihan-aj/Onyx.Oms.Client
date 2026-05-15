@@ -7,6 +7,7 @@
     xmlns:parent="using:Onyx.Oms.Client.Desktop.Features.Orders"
     xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:toolkit="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:labs="using:CommunityToolkit.WinUI.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
@@ -108,6 +109,23 @@
         <!-- Status Chips (Only visible for All Active) -->
         <Grid Grid.Row="2" Background="{ThemeResource LayerFillColorDefaultBrush}" Padding="16,0,16,12"
               Visibility="{x:Bind IsAllActiveTab(ViewModel.SelectedTab), Mode=OneWay}">
+            <ItemsControl ItemsSource="{x:Bind ViewModel.StatusChips, Mode=OneWay}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <labs:WrapPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="local:StatusChipViewModel">
+                        <ToggleButton Content="{x:Bind DisplayName}" 
+                                      IsChecked="{x:Bind IsChecked, Mode=TwoWay}"
+                                      CornerRadius="16" Margin="4"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
+        <!--<Grid Grid.Row="2" Background="{ThemeResource LayerFillColorDefaultBrush}" Padding="16,0,16,12"
+              Visibility="{x:Bind IsAllActiveTab(ViewModel.SelectedTab), Mode=OneWay}">
             <ItemsRepeater ItemsSource="{x:Bind ViewModel.StatusChips, Mode=OneWay}">
                 <ItemsRepeater.Layout>
                     <StackLayout Orientation="Horizontal" Spacing="8" />
@@ -120,7 +138,7 @@
                     </DataTemplate>
                 </ItemsRepeater.ItemTemplate>
             </ItemsRepeater>
-        </Grid>
+        </Grid>-->
 
         <!-- Filters -->
         <Grid Grid.Row="3" Padding="16,0,16,12" Background="{ThemeResource LayerFillColorDefaultBrush}">

@@ -30,6 +30,7 @@ namespace Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List
         public double IssueQuantity { get; set; }
         public string PoNumber { get; set; } = string.Empty;
         public double CostAmount { get; set; }
+        public string EstimatedCostHeader => $"Estimated Cost ({BaseCurrency})*";
         public IssuePoDialog(
             FulfillmentTaskGridItem task,
             int initialQuantity,
