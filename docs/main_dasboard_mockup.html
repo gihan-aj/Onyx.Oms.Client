@@ -1,0 +1,568 @@
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    .db {
+        font-family: var(--font-sans);
+        padding-bottom: 2rem;
+    }
+
+    .hero {
+        background: var(--color-background-secondary);
+        border-bottom: 0.5px solid var(--color-border-tertiary);
+        padding: 20px 36px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+    }
+
+    .hero-left {}
+
+    .hero-label {
+        font-size: 11px;
+        color: var(--color-text-tertiary);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-bottom: 2px;
+    }
+
+    .hero-name {
+        font-size: 22px;
+        font-weight: 500;
+        color: var(--color-text-primary);
+    }
+
+    .hero-sub {
+        font-size: 12px;
+        color: var(--color-text-secondary);
+        margin-top: 3px;
+    }
+
+    .hero-right {
+        display: flex;
+        gap: 10px;
+        flex-shrink: 0;
+    }
+
+    .qa-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        width: 90px;
+        height: 72px;
+        background: var(--color-background-primary);
+        border: 0.5px solid var(--color-border-tertiary);
+        border-radius: 10px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: border-color 0.12s;
+    }
+
+    .qa-btn:hover {
+        border-color: var(--color-border-secondary);
+    }
+
+    .qa-btn i {
+        font-size: 20px;
+        color: #185FA5;
+    }
+
+    .qa-btn span {
+        font-size: 11px;
+        color: var(--color-text-secondary);
+        text-align: center;
+        line-height: 1.2;
+    }
+
+    .section {
+        padding: 20px 36px 0;
+    }
+
+    .section-label {
+        font-size: 11px;
+        color: var(--color-text-tertiary);
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .stat-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .stat-card {
+        background: var(--color-background-primary);
+        border: 0.5px solid var(--color-border-tertiary);
+        border-radius: 12px;
+        padding: 13px 15px 10px;
+        cursor: pointer;
+        transition: border-color 0.12s;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 90px;
+    }
+
+    .stat-card:hover {
+        border-color: var(--color-border-secondary);
+    }
+
+    .stat-lbl {
+        font-size: 11px;
+        color: var(--color-text-tertiary);
+        margin-bottom: 4px;
+    }
+
+    .stat-val {
+        font-size: 28px;
+        font-weight: 500;
+        color: var(--color-text-primary);
+        line-height: 1;
+    }
+
+    .stat-sub {
+        font-size: 11px;
+        color: var(--color-text-secondary);
+        margin-top: 3px;
+    }
+
+    .stat-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        font-size: 10px;
+        font-weight: 500;
+        padding: 2px 7px;
+        border-radius: 20px;
+        margin-top: 8px;
+        width: fit-content;
+    }
+
+    .chip-blue {
+        background: #E6F1FB;
+        color: #185FA5;
+    }
+
+    .chip-amber {
+        background: #FAEEDA;
+        color: #854F0B;
+    }
+
+    .chip-red {
+        background: #FCEBEB;
+        color: #A32D2D;
+    }
+
+    .chip-teal {
+        background: #E1F5EE;
+        color: #0F6E56;
+    }
+
+    .content-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        margin-bottom: 20px;
+    }
+
+    .panel {
+        background: var(--color-background-primary);
+        border: 0.5px solid var(--color-border-tertiary);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .panel-head {
+        padding: 12px 16px 10px;
+        border-bottom: 0.5px solid var(--color-border-tertiary);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .panel-title {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--color-text-primary);
+    }
+
+    .panel-action {
+        font-size: 11px;
+        color: #185FA5;
+        cursor: pointer;
+    }
+
+    .order-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 16px;
+        border-bottom: 0.5px solid var(--color-border-tertiary);
+        cursor: pointer;
+    }
+
+    .order-item:last-child {
+        border-bottom: none;
+    }
+
+    .order-item:hover {
+        background: var(--color-background-secondary);
+    }
+
+    .order-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #E6F1FB;
+    }
+
+    .order-icon i {
+        font-size: 15px;
+        color: #185FA5;
+    }
+
+    .order-icon.amber {
+        background: #FAEEDA;
+    }
+
+    .order-icon.amber i {
+        color: #854F0B;
+    }
+
+    .order-icon.teal {
+        background: #E1F5EE;
+    }
+
+    .order-icon.teal i {
+        color: #0F6E56;
+    }
+
+    .order-icon.red {
+        background: #FCEBEB;
+    }
+
+    .order-icon.red i {
+        color: #A32D2D;
+    }
+
+    .order-body {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .order-name {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--color-text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .order-meta {
+        font-size: 11px;
+        color: var(--color-text-secondary);
+        margin-top: 1px;
+    }
+
+    .order-right {
+        text-align: right;
+        flex-shrink: 0;
+    }
+
+    .order-amt {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--color-text-primary);
+    }
+
+    .badge {
+        font-size: 10px;
+        padding: 2px 7px;
+        border-radius: 20px;
+        font-weight: 500;
+        white-space: nowrap;
+        display: inline-block;
+        margin-top: 2px;
+    }
+
+    .b-amber {
+        background: #FAEEDA;
+        color: #854F0B;
+    }
+
+    .b-blue {
+        background: #E6F1FB;
+        color: #185FA5;
+    }
+
+    .b-teal {
+        background: #E1F5EE;
+        color: #0F6E56;
+    }
+
+    .b-red {
+        background: #FCEBEB;
+        color: #A32D2D;
+    }
+
+    .b-gray {
+        background: var(--color-background-secondary);
+        color: var(--color-text-secondary);
+    }
+
+    .task-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 16px;
+        border-bottom: 0.5px solid var(--color-border-tertiary);
+        cursor: pointer;
+    }
+
+    .task-item:last-child {
+        border-bottom: none;
+    }
+
+    .task-item:hover {
+        background: var(--color-background-secondary);
+    }
+
+    .task-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .dot-teal {
+        background: #1D9E75;
+    }
+
+    .dot-blue {
+        background: #185FA5;
+    }
+
+    .dot-amber {
+        background: #BA7517;
+    }
+
+    .task-body {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .task-name {
+        font-size: 13px;
+        color: var(--color-text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .task-meta {
+        font-size: 11px;
+        color: var(--color-text-secondary);
+        margin-top: 1px;
+    }
+
+    .task-qty {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--color-text-secondary);
+    }
+
+    .divider-text {
+        font-size: 11px;
+        color: var(--color-text-tertiary);
+        text-align: center;
+        padding: 6px 0 0;
+        letter-spacing: 0.04em;
+    }
+</style>
+
+<div class="db">
+
+    <div class="hero">
+        <div class="hero-left">
+            <div class="hero-label">Onyx OMS</div>
+            <div class="hero-name">Good morning, Ashan</div>
+            <div class="hero-sub">Friday, 15 May 2026 · 3 items need your attention</div>
+        </div>
+        <div class="hero-right">
+            <div class="qa-btn">
+                <i class="ti ti-shopping-cart-plus" aria-hidden="true"></i>
+                <span>New order</span>
+            </div>
+            <div class="qa-btn">
+                <i class="ti ti-package" aria-hidden="true"></i>
+                <span>New product</span>
+            </div>
+            <div class="qa-btn">
+                <i class="ti ti-list-check" aria-hidden="true"></i>
+                <span>Task backlog</span>
+            </div>
+            <div class="qa-btn">
+                <i class="ti ti-truck-delivery" aria-hidden="true"></i>
+                <span>Ship orders</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-label">Today at a glance</div>
+        <div class="stat-row">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-lbl">Pending confirmation</div>
+                    <div class="stat-val" style="color:#BA7517;">5</div>
+                    <div class="stat-sub">awaiting payment</div>
+                </div>
+                <div class="stat-chip chip-amber"><i class="ti ti-arrow-right" style="font-size:10px"
+                        aria-hidden="true"></i> View orders</div>
+            </div>
+            <div class="stat-card">
+                <div>
+                    <div class="stat-lbl">Ready to pack</div>
+                    <div class="stat-val" style="color:#1D9E75;">8</div>
+                    <div class="stat-sub">all items fulfilled</div>
+                </div>
+                <div class="stat-chip chip-teal"><i class="ti ti-arrow-right" style="font-size:10px"
+                        aria-hidden="true"></i> Start packing</div>
+            </div>
+            <div class="stat-card">
+                <div>
+                    <div class="stat-lbl">Tasks completed</div>
+                    <div class="stat-val">3</div>
+                    <div class="stat-sub">ready to allocate</div>
+                </div>
+                <div class="stat-chip chip-blue"><i class="ti ti-arrow-right" style="font-size:10px"
+                        aria-hidden="true"></i> View tasks</div>
+            </div>
+            <div class="stat-card">
+                <div>
+                    <div class="stat-lbl">Shipped today</div>
+                    <div class="stat-val">12</div>
+                    <div class="stat-sub">with courier</div>
+                </div>
+                <div class="stat-chip chip-blue"><i class="ti ti-arrow-right" style="font-size:10px"
+                        aria-hidden="true"></i> Track</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-label">Needs attention · In motion</div>
+        <div class="content-row">
+
+            <div class="panel">
+                <div class="panel-head">
+                    <span class="panel-title"><i class="ti ti-alert-circle"
+                            style="font-size:13px;vertical-align:-1px;margin-right:5px;color:#BA7517"
+                            aria-hidden="true"></i>Action required</span>
+                    <span class="panel-action">View all</span>
+                </div>
+
+                <div class="order-item">
+                    <div class="order-icon amber"><i class="ti ti-clock" aria-hidden="true"></i></div>
+                    <div class="order-body">
+                        <div class="order-name">#1042 · Kamal Perera</div>
+                        <div class="order-meta">Confirmed · Waiting on 2 tasks</div>
+                    </div>
+                    <div class="order-right">
+                        <div class="order-amt">LKR 4,800</div>
+                        <div class="badge b-amber">Processing</div>
+                    </div>
+                </div>
+
+                <div class="order-item">
+                    <div class="order-icon red"><i class="ti ti-credit-card-off" aria-hidden="true"></i></div>
+                    <div class="order-body">
+                        <div class="order-name">#1038 · Nimal Silva</div>
+                        <div class="order-meta">Delivered · Balance unpaid</div>
+                    </div>
+                    <div class="order-right">
+                        <div class="order-amt">LKR 2,200</div>
+                        <div class="badge b-red">Partial payment</div>
+                    </div>
+                </div>
+
+                <div class="order-item">
+                    <div class="order-icon"><i class="ti ti-package" aria-hidden="true"></i></div>
+                    <div class="order-body">
+                        <div class="order-name">#1035 · Sanduni Dias</div>
+                        <div class="order-meta">Ready to pack · Since yesterday</div>
+                    </div>
+                    <div class="order-right">
+                        <div class="order-amt">LKR 6,100</div>
+                        <div class="badge b-blue">Ready to pack</div>
+                    </div>
+                </div>
+
+                <div class="divider-text">3 items need your action</div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-head">
+                    <span class="panel-title"><i class="ti ti-activity"
+                            style="font-size:13px;vertical-align:-1px;margin-right:5px;color:#1D9E75"
+                            aria-hidden="true"></i>In motion</span>
+                    <span class="panel-action">View all</span>
+                </div>
+
+                <div class="task-item">
+                    <div class="task-dot dot-teal"></div>
+                    <div class="task-body">
+                        <div class="task-name">Linen Shirt · XL · Navy — production</div>
+                        <div class="task-meta">Started 2 days ago · linked to #1042</div>
+                    </div>
+                    <div class="task-qty">12 units</div>
+                </div>
+
+                <div class="task-item">
+                    <div class="task-dot dot-blue"></div>
+                    <div class="task-body">
+                        <div class="task-name">Cargo Shorts · L · Olive — ordered</div>
+                        <div class="task-meta">Supplier order placed · #1042</div>
+                    </div>
+                    <div class="task-qty">6 units</div>
+                </div>
+
+                <div class="task-item">
+                    <div class="task-dot dot-amber"></div>
+                    <div class="task-body">
+                        <div class="task-name">Polo Tee · M · White — orphaned</div>
+                        <div class="task-meta">No linked order · completes to stock</div>
+                    </div>
+                    <div class="task-qty">8 units</div>
+                </div>
+
+                <div class="task-item">
+                    <div class="task-dot dot-teal"></div>
+                    <div class="task-body">
+                        <div class="task-name">#1044 · Fathima Nawaz — shipped</div>
+                        <div class="task-meta">With courier · tracking assigned</div>
+                    </div>
+                    <div class="badge b-teal" style="font-size:10px;">In transit</div>
+                </div>
+
+                <div class="divider-text">4 things moving right now</div>
+            </div>
+
+        </div>
+    </div>
+
+</div>

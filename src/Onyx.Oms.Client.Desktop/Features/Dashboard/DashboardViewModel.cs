@@ -3,23 +3,14 @@ using CommunityToolkit.Mvvm.Input;
 using Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List;
 using Onyx.Oms.Client.Desktop.Features.Orders;
 using Onyx.Oms.Client.Desktop.Features.Orders.Create;
+using Onyx.Oms.Client.Desktop.Features.Orders.List;
+using Onyx.Oms.Client.Desktop.Features.Products.Create;
 using Onyx.Oms.Client.Desktop.Shared.Services;
+using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 
 namespace Onyx.Oms.Client.Desktop.Features.Dashboard;
-
-public partial class DashboardItem : ObservableObject
-{
-    public string Title { get; init; } = string.Empty;
-    public string Subtitle { get; init; } = string.Empty;
-    public string Status { get; init; } = string.Empty;
-    public OrderStatus? OrderStatus { get; init; }
-    public string IconGlyph { get; init; } = string.Empty;
-    public string ItemType { get; init; } = string.Empty; // "Order" or "Task"
-
-    public string StatusDisplay => OrderStatus.HasValue ? OrderStatus.ToString() : Status;
-}
 
 public partial class DashboardViewModel : ObservableObject
 {
@@ -33,37 +24,64 @@ public partial class DashboardViewModel : ObservableObject
         get => _userName;
         set => SetProperty(ref _userName, value);
     }
-
-    private string _selectedFilter = "RecentOrders";
-    public string SelectedFilter
+    private string _heroSubLabel = string.Empty;
+    public string HeroSubLabel
     {
-        get => _selectedFilter;
-        set => SetProperty(ref _selectedFilter, value);
+        get => _heroSubLabel;
+        set => SetProperty(ref _heroSubLabel, value);
     }
 
-    public ObservableCollection<DashboardItem> DashboardItems { get; } = new();
+    private string _greeting = "Good morning,";
+    public string Greeting
+    {
+        get => _greeting;
+        set => SetProperty(ref _greeting, value);
+    }
 
-    public Microsoft.UI.Xaml.Visibility EmptyListMessageVisibility => DashboardItems.Count == 0 ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
+    private MainDashboardSummaryDto? _summary;
+    public MainDashboardSummaryDto? Summary
+    {
+        get => _summary;
+        set => SetProperty(ref _summary, value);
+    }
+    private bool _isLoading;
+    public bool IsLoading
+    {
+        get => _isLoading;
+        set => SetProperty(ref _isLoading, value);
+    }
+    // Wrappers to help XAML easily bind to semantic colors
+    public ObservableCollection<ActionRequiredUIItem> ActionRequiredItems { get; } = new();
+    public ObservableCollection<InMotionUIItem> InMotionItems { get; } = new();
 
-    public ObservableCollection<DashboardQuickAction> QuickActions { get; } = new();
-
+    // Quick Actions
     public IRelayCommand NavigateToCreateOrderCommand { get; }
-    public IRelayCommand NavigateToAddCustomerCommand { get; }
-    public IRelayCommand NavigateToCatalogCommand { get; }
-    public IRelayCommand NavigateToFulfillmentCommand { get; }
+    public IRelayCommand NavigateToShipOrdersCommand { get; }
+    public IRelayCommand NavigateToTasksCommand { get; }
     public IRelayCommand NavigateToCreateProductCommand { get; }
+    // Stat Tiles
+    public IRelayCommand NavigateToPendingOrdersCommand { get; }
+    public IRelayCommand NavigateToReadyToPackCommand { get; }
+    public IRelayCommand NavigateToTasksCompletedCommand { get; }
+    public IRelayCommand NavigateToShippedTodayCommand { get; }
+
+    // Refresh
+    public IRelayCommand RefreshCommand { get; }
 
     public DashboardViewModel(IAuthenticationService authService, INavigationService navigationService, IDashboardApi dashboardApi)
     {
         _authService = authService;
         _navigationService = navigationService;
         _dashboardApi = dashboardApi;
-
-        NavigateToCreateOrderCommand = new RelayCommand(NavigateToCreateOrder);
-        NavigateToAddCustomerCommand = new RelayCommand(NavigateToAddCustomer);
-        NavigateToCatalogCommand = new RelayCommand(NavigateToCatalog);
-        NavigateToFulfillmentCommand = new RelayCommand(NavigateToFulfillment);
-        NavigateToCreateProductCommand = new RelayCommand(NavigateToCreateProduct);
+        NavigateToCreateOrderCommand = new RelayCommand(() => _navigationService.NavigateTo(typeof(CreateOrderViewModel).FullName!));
+        NavigateToShipOrdersCommand = new RelayCommand(() => _navigationService.NavigateTo(typeof(OrdersPage).FullName!, OrderStatus.ReadyToPack)); // Assuming OrderStatus filter
+        NavigateToTasksCommand = new RelayCommand(() => _navigationService.NavigateTo(typeof(FulfillmentTasksPage).FullName!));
+        NavigateToCreateProductCommand = new RelayCommand(() => _navigationService.NavigateTo(typeof(CreateProductViewModel).FullName!));
+        NavigateToPendingOrdersCommand = new RelayCommand(() => _navigationService.NavigateTo(typeof(OrdersPage).FullName!, OrderStatus.Pending));
+        NavigateToReadyToPackCommand = new RelayCommand(() => _navigationService.NavigateTo(typeof(OrdersPage).FullName!, OrderStatus.ReadyToPack));
+        NavigateToTasksCompletedCommand = new RelayCommand(() => _navigationService.NavigateTo(typeof(FulfillmentTasksPage).FullName! /* Add status filter if applicable */));
+        NavigateToShippedTodayCommand = new RelayCommand(() => _navigationService.NavigateTo(typeof(OrdersPage).FullName!, OrderStatus.Shipped));
+        RefreshCommand = new RelayCommand(async () => await LoadDashboardItemsAsync());
     }
 
     public void Subscribe()
@@ -85,7 +103,9 @@ public partial class DashboardViewModel : ObservableObject
             {
                 // Ensure UI updates can safely happen, standard data binding usually marshals this or handles it transparently
                 UserName = currentUser.FirstName ?? currentUser.Email ?? "User";
+                await InitializeAsync();
             }
+
         }
         else
         {
@@ -102,77 +122,108 @@ public partial class DashboardViewModel : ObservableObject
             UserName = currentUser.FirstName ?? currentUser.Email ?? "User";
         }
 
-        await LoadDashboardItemsAsync();
-        LoadQuickActions();
-    }
-
-    public void LoadQuickActions()
-    {
-        QuickActions.Clear();
-        QuickActions.Add(new DashboardQuickAction("New Order", "Create a new customer order", "\uE710", NavigateToCreateOrderCommand, true, true));
-        QuickActions.Add(new DashboardQuickAction("Add Customer", "Register a new buyer profile", "\uE8FA", NavigateToAddCustomerCommand, true, true));
-        QuickActions.Add(new DashboardQuickAction("View Catalog", "Manage latest products/variants", "\uE81E", NavigateToCatalogCommand, true, true));
-        QuickActions.Add(new DashboardQuickAction("Fulfillment", "View pending task assignments", "\uE9D5", NavigateToFulfillmentCommand, true, true));
-        QuickActions.Add(new DashboardQuickAction("Create Product", "Add a new item to catalog", "\uE719", NavigateToCreateProductCommand, true, true));
-    }
-
-    private void NavigateToCreateOrder()
-    {
-        _navigationService.NavigateTo(typeof(CreateOrderViewModel).FullName!);
-    }
-
-    private void NavigateToAddCustomer()
-    {
-        _navigationService.NavigateTo(typeof(Customers.CustomerFormPage).FullName!);
-    }
-
-    private void NavigateToCatalog()
-    {
-        _navigationService.NavigateTo(typeof(Catalog.CatalogPage).FullName!);
-    }
-
-    private void NavigateToFulfillment()
-    {
-        _navigationService.NavigateTo(typeof(FulfillmentTasksPage).FullName!);
-    }
-
-    private void NavigateToCreateProduct()
-    {
-        _navigationService.NavigateTo(typeof(Products.Create.CreateProductViewModel).FullName!);
+        if(_authService.IsAuthenticated)
+            await LoadDashboardItemsAsync();
     }
 
     public async Task LoadDashboardItemsAsync()
     {
-        DashboardItems.Clear();
-
-        try 
+        IsLoading = true;
+        try
         {
-            if (SelectedFilter == "RecentOrders")
+            var summaryTask = _dashboardApi.GetDashboardSummaryAsync();
+            var actionTask = _dashboardApi.GetActionRequiredAsync(5);
+            var inMotionTask = _dashboardApi.GetInMotionAsync(5);
+            await Task.WhenAll(summaryTask, actionTask, inMotionTask);
+            Summary = summaryTask.Result;
+
+            var hour = DateTime.Now.Hour;
+            if (hour < 12) Greeting = "Good morning,";
+            else if (hour < 17) Greeting = "Good afternoon,";
+            else Greeting = "Good evening,";
+
+            // Build the date/time string with the action count
+            HeroSubLabel = $"{DateTime.Now:dddd, d MMM yyyy} · {Summary.ActionRequiredCount} items need your attention";
+            // Map action items for UI
+            ActionRequiredItems.Clear();
+            foreach (var item in actionTask.Result.Items)
             {
-                // Placeholder - Waiting for backend API implementation
-                // var orders = await _dashboardApi.GetRecentOrdersAsync();
-                // foreach (var order in orders)
-                // {
-                //     DashboardItems.Add(order);
-                // }
+                ActionRequiredItems.Add(new ActionRequiredUIItem(item));
             }
-            else if (SelectedFilter == "PendingTasks")
+            // Map in motion items for UI
+            InMotionItems.Clear();
+            foreach (var item in inMotionTask.Result.Items)
             {
-                // Placeholder - Waiting for backend API implementation
-                // var tasks = await _dashboardApi.GetPendingTasksAsync();
-                // foreach (var task in tasks)
-                // {
-                //     DashboardItems.Add(task);
-                // }
+                InMotionItems.Add(new InMotionUIItem(item));
             }
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Failed to load dashboard items: {ex.Message}");
         }
         finally
         {
-            OnPropertyChanged(nameof(EmptyListMessageVisibility));
+            IsLoading = false;
+        }
+    }
+
+}
+public class ActionRequiredUIItem
+{
+    public ActionRequiredItemDto Data { get; }
+
+    // Default semantic colors/icons
+    public string IconGlyph { get; } = "\uE711"; // Default Info icon
+    public string SemanticBrushName { get; } = "SystemFillColorNeutralBrush";
+    public string SemanticBackgroundName { get; } = "SystemFillColorNeutralBackgroundBrush";
+    public ActionRequiredUIItem(ActionRequiredItemDto data)
+    {
+        Data = data;
+
+        switch (data.Reason)
+        {
+            case "returned_to_sender":
+            case "unpaid_balance":
+                IconGlyph = "\uE8C5"; // Credit card off / warning
+                SemanticBrushName = "SystemFillColorCriticalBrush";
+                SemanticBackgroundName = "SystemFillColorCriticalBackgroundBrush";
+                break;
+            case "pending_confirmation":
+            case "stalled_processing":
+                IconGlyph = "\uE916"; // Clock / Pending
+                SemanticBrushName = "SystemFillColorCautionBrush";
+                SemanticBackgroundName = "SystemFillColorCautionBackgroundBrush";
+                break;
+            case "idle_ready_to_pack":
+                IconGlyph = "\uE7B8"; // Package
+                SemanticBrushName = "SystemFillColorSuccessBrush";
+                SemanticBackgroundName = "SystemFillColorSuccessBackgroundBrush";
+                break;
+        }
+    }
+}
+
+public class InMotionUIItem
+{
+    public InMotionItemDto Data { get; }
+
+    public string DotBrushName { get; } = "SystemFillColorNeutralBrush";
+    public InMotionUIItem(InMotionItemDto data)
+    {
+        Data = data;
+
+        if (data.Type == "task")
+        {
+            if (data.IsOrphaned == true)
+                DotBrushName = "SystemFillColorCautionBrush"; // Amber
+            else if (data.TaskType == "Production")
+                DotBrushName = "SystemFillColorSuccessBrush"; // Teal
+            else if (data.TaskType == "Procurement")
+                DotBrushName = "AccentTextFillColorPrimaryBrush"; // Blue
+        }
+        else if (data.Type == "order" && data.OrderStatus == "Shipped")
+        {
+            DotBrushName = "SystemFillColorSuccessBrush"; // Teal
         }
     }
 }

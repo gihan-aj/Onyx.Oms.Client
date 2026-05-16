@@ -179,7 +179,7 @@
             </Grid>-->
 
             <!-- No Data Message -->
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="16"
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="16" Margin="8"
                         Visibility="{x:Bind ViewModel.HasNoData, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                 <FontIcon Glyph="&#xE719;" FontSize="48" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
                 <TextBlock HorizontalAlignment="Center" Text="No products found." 

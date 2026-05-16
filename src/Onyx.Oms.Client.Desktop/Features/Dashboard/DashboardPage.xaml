@@ -5,46 +5,25 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Onyx.Oms.Client.Desktop.Features.Dashboard"
     xmlns:controls="using:Onyx.Oms.Client.Desktop.Shared.Controls"
+    xmlns:sharedConerters="using:Onyx.Oms.Client.Desktop.Shared.Converters"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
     <Page.Resources>
-        <!-- Custom GridView Item Container Style mirroring the Catalog cards -->
-        <Style x:Key="DashboardGridViewItemStyle" TargetType="GridViewItem">
-            <Setter Property="Margin" Value="0,0,16,16" />
-            <Setter Property="Padding" Value="0" />
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="UseSystemFocusVisuals" Value="True" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="GridViewItem">
-                        <ListViewItemPresenter
-                            ContentMargin="0"
-                            Padding="0"
-                            HorizontalContentAlignment="Stretch"
-                            VerticalContentAlignment="Stretch"
-                            CornerRadius="8"
-                            PointerOverBackground="{ThemeResource ControlFillColorSecondaryBrush}" />
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <AcrylicBrush x:Key="GlassCardAcrylicBrush"
-                  TintColor="{ThemeResource SystemAltHighColor}"
-                  TintOpacity="0.4"
-                  FallbackColor="{ThemeResource SolidBackgroundFillColorBase}" />
-
+        <sharedConerters:ThemeResourceConverter x:Key="ThemeResourceConverter"/>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:BoolToVisibilityConverter x:Key="InvertedBoolToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible" />
+        <AcrylicBrush x:Key="GlassCardAcrylicBrush" TintColor="{ThemeResource SystemAltHighColor}" TintOpacity="0.4" FallbackColor="{ThemeResource SolidBackgroundFillColorBase}" />
         <Style x:Key="GlassQuickActionButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="{StaticResource GlassCardAcrylicBrush}" />
             <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="CornerRadius" Value="10" />
             <Setter Property="Padding" Value="0" />
-            <Setter Property="HorizontalAlignment" Value="Stretch" />
-            <Setter Property="VerticalAlignment" Value="Stretch" />
-            <Setter Property="UseSystemFocusVisuals" Value="True" />
+            <Setter Property="Width" Value="110" />
+            <Setter Property="Height" Value="90" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -114,205 +93,355 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style x:Key="DashboardTileButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{ThemeResource LayerFillColorDefaultBrush}"/>
+            <Setter Property="BorderBrush" Value="{ThemeResource SurfaceStrokeColorDefaultBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="16,14,16,16"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+            <Setter Property="MinHeight" Value="120"/>
+        </Style>
+        <Style x:Key="ChipBorderStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Margin" Value="0,12,0,0"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Bottom"/>
+        </Style>
     </Page.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/> <!-- Hero Header -->
-                <RowDefinition Height="Auto"/> <!-- Quick Actions -->
-                <RowDefinition Height="Auto"/> <!-- SelectorBar -->
-                <RowDefinition Height="Auto"/>    <!-- Content Grid -->
-                <RowDefinition Height="*"/>    <!-- Content Grid -->
-            </Grid.RowDefinitions>
+    <Grid x:Name="RootGrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-            <!-- 1. Hero Header -->
-            <Grid Grid.Row="0" Height="280">
-                <controls:OpacityMaskView Height="280" VerticalAlignment="Stretch">
-                    <controls:OpacityMaskView.OpacityMask>
-                        <Rectangle>
-                            <Rectangle.Fill>
-                                <LinearGradientBrush StartPoint="0,1" EndPoint="0,0">
-                                    <GradientStop Color="#00000000" Offset="0.0" />
-                                    <GradientStop Color="{ThemeResource SolidBackgroundFillColorBase}" Offset="0.1" />
-                                </LinearGradientBrush>
-                            </Rectangle.Fill>
-                        </Rectangle>
-                    </controls:OpacityMaskView.OpacityMask>
-                    
-                    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-                        <Image Source="ms-appx:///Assets/hero_bg.jpg" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    </Grid>
-                </controls:OpacityMaskView>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-                <!-- Greeting Content -->
-                <StackPanel VerticalAlignment="Bottom" Margin="40,0,0,100">
-                    <TextBlock Text="Welcome," Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" />
-                    <TextBlock Text="{x:Bind ViewModel.UserName, Mode=OneWay}" Style="{StaticResource TitleTextBlockStyle}" Foreground="{ThemeResource AccentTextFillColorTertiaryBrush}" FontWeight="Bold" Margin="0,4,0,0" />
+        <ProgressBar Grid.Row="0" 
+                     VerticalAlignment="Bottom" 
+                     HorizontalAlignment="Stretch" 
+                     IsIndeterminate="True" 
+                     Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" 
+                     Canvas.ZIndex="100" />
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+
+            <Grid>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <!-- Hero Header -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Quick Actions -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Today at a glance -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Action Required & In Motion Panels -->
+                </Grid.RowDefinitions>
+
+                <!-- 1. Hero Header -->
+                <Grid Grid.Row="0" Height="160">
+
+                    <controls:OpacityMaskView Height="160" VerticalAlignment="Stretch">
+                        <controls:OpacityMaskView.OpacityMask>
+                            <Rectangle>
+                                <Rectangle.Fill>
+                                    <LinearGradientBrush StartPoint="0,1" EndPoint="0,0">
+                                        <GradientStop Color="#00000000" Offset="0.0" />
+                                        <GradientStop Color="#80FFFFFF" Offset="0.25" />
+                                        <GradientStop Color="{ThemeResource SolidBackgroundFillColorBase}" Offset="0.5" />
+                                    </LinearGradientBrush>
+                                </Rectangle.Fill>
+                            </Rectangle>
+                        </controls:OpacityMaskView.OpacityMask>
+                        <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+                            <Image Source="ms-appx:///Assets/hero_bg.jpg" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Grid>
+                    </controls:OpacityMaskView>
+
+                    <!-- Greeting Content -->
+                    <StackPanel VerticalAlignment="Bottom" Margin="40,0,0,50">
+                        <TextBlock Text="{x:Bind ViewModel.Greeting, Mode=OneWay}" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" />
+                        <TextBlock Text="{x:Bind ViewModel.UserName, Mode=OneWay}" Style="{StaticResource TitleTextBlockStyle}" Foreground="{ThemeResource AccentTextFillColorTertiaryBrush}" FontWeight="Bold" Margin="0,2,0,0" />
+                        <TextBlock Text="{x:Bind ViewModel.HeroSubLabel, Mode=OneWay}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,4,0,0" />
+                    </StackPanel>
+
+                    <!-- Refresh Button -->
+                    <Button Command="{x:Bind ViewModel.RefreshCommand}" 
+                            HorizontalAlignment="Right" 
+                            VerticalAlignment="Top" 
+                            Margin="24,24" Background="Transparent" BorderThickness="0" Padding="8" ToolTipService.ToolTip="Refresh Dashboard">
+                        <FontIcon Glyph="&#xE72C;" FontSize="14" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    </Button>
+
+                </Grid>
+
+                <!-- 2. Quick Actions -->
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" Margin="40,-48,40,24" HorizontalAlignment="Right" VerticalAlignment="Top">
+
+                    <Button Style="{StaticResource GlassQuickActionButtonStyle}" Command="{x:Bind ViewModel.NavigateToCreateOrderCommand}">
+                        <StackPanel VerticalAlignment="Center" Spacing="6">
+                            <FontIcon Glyph="&#xE710;" Foreground="{ThemeResource AccentFillColorDefaultBrush}" FontSize="24" />
+                            <TextBlock Text="New order" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Style="{StaticResource GlassQuickActionButtonStyle}" Command="{x:Bind ViewModel.NavigateToShipOrdersCommand}">
+                        <StackPanel VerticalAlignment="Center" Spacing="6">
+                            <FontIcon Glyph="&#xE701;" Foreground="{ThemeResource AccentFillColorDefaultBrush}" FontSize="24" />
+                            <TextBlock Text="Ship orders" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Style="{StaticResource GlassQuickActionButtonStyle}" Command="{x:Bind ViewModel.NavigateToTasksCommand}">
+                        <StackPanel VerticalAlignment="Center" Spacing="6">
+                            <FontIcon Glyph="&#xE9D5;" Foreground="{ThemeResource AccentFillColorDefaultBrush}" FontSize="24" />
+                            <TextBlock Text="Task backlog" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Style="{StaticResource GlassQuickActionButtonStyle}" Command="{x:Bind ViewModel.NavigateToCreateProductCommand}">
+                        <StackPanel VerticalAlignment="Center" Spacing="6">
+                            <FontIcon Glyph="&#xECCD;" Foreground="{ThemeResource AccentFillColorDefaultBrush}" FontSize="24" />
+                            <TextBlock Text="Add product" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
                 </StackPanel>
+
+                <!-- 3. Today at a glance -->
+                <StackPanel Grid.Row="2" Padding="40,0" Spacing="10" Margin="0,0,0,24">
+
+                    <TextBlock Text="TODAY AT A GLANCE" 
+                               FontSize="11" FontWeight="SemiBold" CharacterSpacing="80" Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+
+                    <Grid ColumnSpacing="10">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Pending Orders -->
+                        <Button Grid.Column="0" Command="{x:Bind ViewModel.NavigateToPendingOrdersCommand}" Style="{StaticResource DashboardTileButtonStyle}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0">
+                                    <TextBlock Text="Pending confirmation" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
+                                    <TextBlock Text="{x:Bind ViewModel.Summary.Stats.PendingOrders, Mode=OneWay, TargetNullValue='--'}" FontSize="28" FontWeight="Medium" Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
+                                    <TextBlock Text="awaiting payment" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" Margin="0,4,0,0"/>
+                                </StackPanel>
+                                <Border Grid.Row="1" Style="{StaticResource ChipBorderStyle}" Background="{ThemeResource SystemFillColorCautionBackgroundBrush}">
+                                    <TextBlock Text="View orders" FontSize="11" FontWeight="Medium" Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
+                                </Border>
+                            </Grid>
+                        </Button>
+
+                        <!-- Ready to Pack -->
+                        <Button Grid.Column="1" Command="{x:Bind ViewModel.NavigateToReadyToPackCommand}" Style="{StaticResource DashboardTileButtonStyle}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0">
+                                    <TextBlock Text="Ready to pack" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
+                                    <TextBlock Text="{x:Bind ViewModel.Summary.Stats.ReadyToPack, Mode=OneWay, TargetNullValue='--'}" FontSize="28" FontWeight="Medium" Foreground="{ThemeResource SystemFillColorSuccessBrush}"/>
+                                    <TextBlock Text="all items fulfilled" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" Margin="0,4,0,0"/>
+                                </StackPanel>
+                                <Border Grid.Row="1" Style="{StaticResource ChipBorderStyle}" Background="{ThemeResource SystemFillColorSuccessBackgroundBrush}">
+                                    <TextBlock Text="Start packing" FontSize="11" FontWeight="Medium" Foreground="{ThemeResource SystemFillColorSuccessBrush}"/>
+                                </Border>
+                            </Grid>
+                        </Button>
+
+                        <!-- Tasks Completed -->
+                        <Button Grid.Column="2" Command="{x:Bind ViewModel.NavigateToTasksCompletedCommand}" Style="{StaticResource DashboardTileButtonStyle}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0">
+                                    <TextBlock Text="Tasks completed" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
+                                    <TextBlock Text="{x:Bind ViewModel.Summary.Stats.TasksCompletedUnallocated, Mode=OneWay, TargetNullValue='--'}" FontSize="28" FontWeight="Medium"/>
+                                    <TextBlock Text="ready to allocate" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" Margin="0,4,0,0"/>
+                                </StackPanel>
+                                <Border Grid.Row="1" Style="{StaticResource ChipBorderStyle}" Background="{ThemeResource SystemFillColorNeutralBackgroundBrush}">
+                                    <TextBlock Text="View tasks" FontSize="11" FontWeight="Medium" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                </Border>
+                            </Grid>
+                        </Button>
+
+                        <!-- Shipped Today -->
+                        <Button Grid.Column="3" Command="{x:Bind ViewModel.NavigateToShippedTodayCommand}" Style="{StaticResource DashboardTileButtonStyle}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0">
+                                    <TextBlock Text="Shipped today" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
+                                    <TextBlock Text="{x:Bind ViewModel.Summary.Stats.ShippedToday, Mode=OneWay, TargetNullValue='--'}" FontSize="28" FontWeight="Medium"/>
+                                    <TextBlock Text="with courier" FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}" Margin="0,4,0,0"/>
+                                </StackPanel>
+                                <Border Grid.Row="1" Style="{StaticResource ChipBorderStyle}" Background="{ThemeResource SystemFillColorNeutralBackgroundBrush}">
+                                    <TextBlock Text="Track" FontSize="11" FontWeight="Medium" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                </Border>
+                            </Grid>
+                        </Button>
+
+                    </Grid>
+
+                </StackPanel>
+
+                <!-- 4. Action Required & In Motion -->
+                <StackPanel Grid.Row="3" Padding="40,0" Spacing="10" Margin="0,0,0,40">
+
+                    <TextBlock Text="NEEDS ATTENTION · IN MOTION" 
+                               FontSize="11" FontWeight="SemiBold" CharacterSpacing="80" Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+
+                    <Grid ColumnSpacing="16">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Action Required Panel -->
+                        <Border Grid.Column="0" 
+                                Background="{ThemeResource LayerFillColorDefaultBrush}" 
+                                BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" 
+                                BorderThickness="0" CornerRadius="12">
+
+                            <StackPanel>
+
+                                <Grid Padding="16,12" BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE783;" FontSize="14" Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
+                                        <TextBlock Text="Action required" FontWeight="Medium" FontSize="13"/>
+                                    </StackPanel>
+                                    <TextBlock Text="View all" FontSize="11" 
+                                               Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" 
+                                               HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                </Grid>
+
+                                <ItemsControl ItemsSource="{x:Bind ViewModel.ActionRequiredItems, Mode=OneWay}">
+
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="local:ActionRequiredUIItem">
+                                            <!-- To navigate, bind Command on this Button -->
+                                            <Button Background="Transparent" 
+                                                    BorderThickness="0" Padding="16,12" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border Grid.Column="0" Width="36" Height="36" CornerRadius="8" 
+                                                            Background="{Binding SemanticBackgroundName, Converter={StaticResource ThemeResourceConverter}}" 
+                                                            Margin="0,0,12,0">
+                                                        <FontIcon Glyph="{x:Bind IconGlyph}" FontSize="16" Foreground="{Binding SemanticBrushName, Converter={StaticResource ThemeResourceConverter}}"/>
+                                                    </Border>
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,0">
+                                                        <TextBlock Text="{x:Bind Data.OrderNumber}" FontWeight="Medium" FontSize="13" TextTrimming="CharacterEllipsis">
+                                                            <Run Text=" · "/>
+                                                            <Run Text="{x:Bind Data.CustomerName}"/>
+                                                        </TextBlock>
+                                                        <TextBlock Text="{x:Bind Data.ReasonLabel}" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,2,0,0"/>
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                                        <TextBlock Text="{x:Bind Data.TotalAmount}" FontWeight="Medium" FontSize="13" HorizontalAlignment="Right">
+                                                            <Run Text=" "/>
+                                                            <Run Text="{x:Bind Data.Currency}" FontSize="11"/>
+                                                        </TextBlock>
+                                                        <Border Background="{Binding SemanticBackgroundName, Converter={StaticResource ThemeResourceConverter}}" CornerRadius="12" Padding="8,2" Margin="0,4,0,0" HorizontalAlignment="Right">
+                                                            <TextBlock Text="{x:Bind Data.Status}" FontSize="10" FontWeight="Medium" Foreground="{Binding SemanticBrushName, Converter={StaticResource ThemeResourceConverter}}"/>
+                                                        </Border>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+
+                                </ItemsControl>
+
+                            </StackPanel>
+                            
+                        </Border>
+
+                        <!-- In Motion Panel -->
+                        <Border Grid.Column="1" 
+                                Background="{ThemeResource LayerFillColorDefaultBrush}" 
+                                BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" BorderThickness="0" CornerRadius="12">
+
+                            <StackPanel>
+
+                                <Grid Padding="16,12" BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE9D5;" FontSize="14" Foreground="{ThemeResource SystemFillColorSuccessBrush}"/>
+                                        <TextBlock Text="In motion" FontWeight="Medium" FontSize="13"/>
+                                    </StackPanel>
+                                    <TextBlock Text="View all" FontSize="11" 
+                                               Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" 
+                                               HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                </Grid>
+
+                                <ItemsControl ItemsSource="{x:Bind ViewModel.InMotionItems, Mode=OneWay}">
+
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="local:InMotionUIItem">
+                                            <!-- To navigate, bind Command on this Button -->
+                                            <Button Background="Transparent" BorderThickness="0" Padding="16,12" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <!-- Colored dot -->
+                                                    <Ellipse Grid.Column="0" Width="8" Height="8" Margin="0,0,12,0" VerticalAlignment="Center"
+                                                             Fill="{Binding DotBrushName, Converter={StaticResource ThemeResourceConverter}}" />
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,0">
+                                                        <TextBlock FontWeight="Medium" FontSize="13" TextTrimming="CharacterEllipsis">
+                                                            <Run Text="{x:Bind Data.VariantLabel}"/>
+                                                            <Run Text=" · "/>
+                                                            <Run Text="{x:Bind Data.TaskType}"/>
+                                                        </TextBlock>
+                                                        <TextBlock Text="{x:Bind Data.ContextLabel}" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,2,0,0"/>
+                                                    </StackPanel>
+                                                    <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="12" FontWeight="Medium" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                        <Run Text="{x:Bind Data.Quantity}"/>
+                                                        <Run Text=" units"/>
+                                                    </TextBlock>
+                                                </Grid>
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+
+                                </ItemsControl>
+
+                            </StackPanel>
+                            
+                        </Border>
+
+                    </Grid>
+
+                </StackPanel>
+
             </Grid>
+            
+        </ScrollViewer>
 
-            <!-- 2. Quick Actions -->
-            <Grid Grid.Row="1" Margin="40,-60,40,24">
-                <ScrollViewer x:Name="QuickActionsScrollViewer" 
-                              HorizontalScrollBarVisibility="Hidden" 
-                              VerticalScrollBarVisibility="Disabled" 
-                              ViewChanged="QuickActionsScrollViewer_ViewChanged"
-                              PointerWheelChanged="ScrollViewer_PointerWheelChanged">
-                    <ItemsControl ItemsSource="{x:Bind ViewModel.QuickActions, Mode=OneWay}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal" Spacing="16" Padding="0,0,40,0" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate x:DataType="local:DashboardQuickAction">
-                                <Button Style="{StaticResource GlassQuickActionButtonStyle}" 
-                                        Command="{x:Bind Command}"
-                                        IsEnabled="{x:Bind IsEnabled}" 
-                                        Visibility="{x:Bind IsVisible}">
-
-                                    <Grid Width="240" Height="120" Padding="16">
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="*" />
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="Auto" />
-                                        </Grid.RowDefinitions>
-
-                                        <FontIcon Grid.Row="0" 
-                                                  FontFamily="Segoe Fluent Icons" 
-                                                  Glyph="{x:Bind IconGlyph}" 
-                                                  Foreground="{ThemeResource AccentFillColorDefaultBrush}" 
-                                                  FontSize="32" 
-                                                  HorizontalAlignment="Left" 
-                                                  VerticalAlignment="Top"/>
-
-                                        <TextBlock Grid.Row="1" 
-                                                   Text="{x:Bind Title}" 
-                                                   Style="{StaticResource BodyStrongTextBlockStyle}" 
-                                                   Margin="0,12,0,4"/>
-
-                                        <TextBlock Grid.Row="2" 
-                                                   Text="{x:Bind Description}" 
-                                                   Style="{StaticResource CaptionTextBlockStyle}" 
-                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                    </Grid>
-                                </Button>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-
-                <!-- Scroll Buttons -->
-                <Button x:Name="ScrollLeftButton" 
-                        Click="ScrollLeft_Click"
-                        Visibility="Collapsed"
-                        HorizontalAlignment="Left" VerticalAlignment="Center" 
-                        Width="40" Height="40" CornerRadius="20"
-                        Background="{ThemeResource LayerFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                        Margin="-20,0,0,0" Padding="0">
-                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE76B;" FontSize="14"/>
-                </Button>
-                
-                <Button x:Name="ScrollRightButton" 
-                        Click="ScrollRight_Click"
-                        HorizontalAlignment="Right" VerticalAlignment="Center" 
-                        Width="40" Height="40" CornerRadius="20"
-                        Background="{ThemeResource LayerFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                        Margin="0,0,-20,0" Padding="0">
-                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE76C;" FontSize="14"/>
-                </Button>
-            </Grid>
-
-            <!-- 3. Filter / Selector Bar -->
-            <SelectorBar Grid.Row="2" Margin="40,0,40,16" SelectionChanged="SelectorBar_SelectionChanged">
-                <SelectorBarItem Text="Recent Orders" Tag="RecentOrders" IsSelected="True" />
-                <SelectorBarItem Text="Pending Tasks" Tag="PendingTasks" />
-            </SelectorBar>
-
-            <!-- 4. Content Cards Grid -->
-            <Grid Grid.Row="3" Margin="40,0,40,40">
-                
-                <TextBlock Text="No items to display at this time." 
-                           Visibility="{x:Bind ViewModel.EmptyListMessageVisibility, Mode=OneWay}"
-                           Style="{StaticResource BodyTextBlockStyle}" 
-                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" 
-                           HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,48,0,0" />
-
-                <ScrollViewer x:Name="DashboardItemsScrollViewer" 
-                              HorizontalScrollBarVisibility="Hidden" 
-                              VerticalScrollBarVisibility="Disabled" 
-                              ViewChanged="DashboardItemsScrollViewer_ViewChanged"
-                              PointerWheelChanged="ScrollViewer_PointerWheelChanged">
-                    <ItemsControl ItemsSource="{x:Bind ViewModel.DashboardItems, Mode=OneWay}" Margin="0,0,40,0">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal" Spacing="16" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate x:DataType="local:DashboardItem">
-                                <Button Padding="0" BorderThickness="0" CornerRadius="8" Background="{ThemeResource ControlFillColorDefaultBrush}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
-                                    <Grid Width="300" MinHeight="96" Padding="16"
-                                          Background="Transparent"
-                                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                          BorderThickness="1"
-                                          CornerRadius="8">
-                                        
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-
-                                        <!-- Left: Icon representing Item Type -->
-                                        <FontIcon Grid.Column="0" 
-                                                  FontFamily="ms-appx:///Assets/Fonts/fa-solid-900.ttf#Font Awesome 6 Free" 
-                                                  Glyph="{x:Bind IconGlyph}" 
-                                                  Foreground="{ThemeResource SystemAccentColor}"
-                                                  FontSize="28"
-                                                  VerticalAlignment="Center" 
-                                                  Margin="0,0,16,0" />
-
-                                        <!-- Right: Text Stack -->
-                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
-                                            <TextBlock Text="{x:Bind Title}" Style="{StaticResource BodyStrongTextBlockStyle}" TextTrimming="CharacterEllipsis" HorizontalAlignment="Left" />
-                                            <TextBlock Text="{x:Bind Subtitle}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextTrimming="WordEllipsis" HorizontalAlignment="Left"/>
-                                            
-                                            <Border Background="{ThemeResource SystemControlBackgroundBaseLowBrush}" CornerRadius="4" Padding="4,2" HorizontalAlignment="Left" Margin="0,4,0,0">
-                                                <TextBlock Text="{x:Bind StatusDisplay}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="11" />
-                                            </Border>
-                                        </StackPanel>
-                                    </Grid>
-                                </Button>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-
-                <!-- Scroll Buttons for Content Cards -->
-                <Button x:Name="DashboardItemsScrollLeftButton" 
-                        Click="DashboardItemsScrollLeft_Click"
-                        Visibility="Collapsed"
-                        HorizontalAlignment="Left" VerticalAlignment="Center" 
-                        Width="40" Height="40" CornerRadius="20"
-                        Background="{ThemeResource LayerFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                        Margin="-20,0,0,0" Padding="0">
-                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE76B;" FontSize="14"/>
-                </Button>
-                
-                <Button x:Name="DashboardItemsScrollRightButton" 
-                        Click="DashboardItemsScrollRight_Click"
-                        HorizontalAlignment="Right" VerticalAlignment="Center" 
-                        Width="40" Height="40" CornerRadius="20"
-                        Background="{ThemeResource LayerFillColorDefaultBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                        Margin="0,0,-20,0" Padding="0">
-                    <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE76C;" FontSize="14"/>
-                </Button>
-            </Grid>
-        </Grid>
-    </ScrollViewer>
+    </Grid>
 </Page>
