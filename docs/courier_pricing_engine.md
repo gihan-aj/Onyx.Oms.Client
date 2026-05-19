@@ -28,9 +28,9 @@ public class CourierZoneRate : Entity<Guid>
     public string ZoneName { get; private set; } // e.g., "Colombo 1-15", "Outstation"
     
     // Financials
-    public decimal BaseFee { get; private set; } 
+    public Money BaseFee { get; private set; } 
     public decimal BaseWeightKg { get; private set; } 
-    public decimal ExcessFeePerKg { get; private set; } 
+    public Money ExcessFeePerKg { get; private set; } 
     public decimal CodPercentage { get; private set; } 
 
     // Dynamic Mapping
