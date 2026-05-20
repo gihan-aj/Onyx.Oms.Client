@@ -105,5 +105,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
         private void DeliverMenuItem_Click(object sender, RoutedEventArgs e) => ViewModel.DeliverOrderCommand.Execute(GetOrderFromSender(sender));
         private void CompleteMenuItem_Click(object sender, RoutedEventArgs e) => ViewModel.CompleteOrderCommand.Execute(GetOrderFromSender(sender));
         private void FailDeliveryMenuItem_Click(object sender, RoutedEventArgs e) => ViewModel.FailDeliveryCommand.Execute(GetOrderFromSender(sender));
+        private void ReceiveReturnMenuItem_Click(object sender, RoutedEventArgs e) => ViewModel.ReceiveReturnCommand.Execute(GetOrderFromSender(sender));
+        private void ProcessReturnMenuItem_Click(object sender, RoutedEventArgs e) => ViewModel.ProcessReturnCommand.Execute(GetOrderFromSender(sender));
     }
 }

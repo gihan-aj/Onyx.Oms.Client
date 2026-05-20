@@ -34,7 +34,9 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Converters
                     // Error/Cancelled states (Red)
                     OrderStatus.PaymentFailed => CriticalBrush,
                     OrderStatus.Cancelled => CriticalBrush,
+                    OrderStatus.ReturnInTransit => WarningBrush,
                     OrderStatus.ReturnedToSender => CriticalBrush,
+                    OrderStatus.LostInTransit => CriticalBrush,
                     OrderStatus.DeliveryFailed => CriticalBrush,
 
                     _ => NeutralBrush

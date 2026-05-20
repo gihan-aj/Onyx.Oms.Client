@@ -12,8 +12,11 @@ public enum OrderStatus
     Completed = 7,
     PaymentFailed = 8,
     Cancelled = 9,
-    ReturnedToSender = 10,
-    DeliveryFailed = 11
+    ReturnInTransit = 10,
+    ReturnedToSender = 11,
+    ReturnProcessed = 12,
+    LostInTransit = 13,
+    DeliveryFailed = 14
 }
 
 public enum OrderItemStatus
@@ -35,7 +38,9 @@ public enum PaymentMethod
 {
     CashOnDelivery = 0,
     BankTransfer = 1,
-    Card = 2
+    Cash = 2,
+    PayHere = 3,
+    Koko = 4
 }
 
 public enum PaymentStatus

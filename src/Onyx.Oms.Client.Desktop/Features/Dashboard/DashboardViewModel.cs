@@ -184,7 +184,7 @@ public class ActionRequiredUIItem
         {
             case "returned_to_sender":
             case "unpaid_balance":
-                IconGlyph = "\uE8C5"; // Credit card off / warning
+                IconGlyph = "\uE7BA"; // Credit card off / warning
                 SemanticBrushName = "SystemFillColorCriticalBrush";
                 SemanticBackgroundName = "SystemFillColorCriticalBackgroundBrush";
                 break;

@@ -37,7 +37,7 @@
         </Style>
     </Page.Resources>
 
-    <Grid x:Name="RootGrid">
+    <Grid x:Name="RootGrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -82,7 +82,7 @@
                       VerticalScrollBarVisibility="Auto" 
                       Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}">
 
-            <StackPanel Padding="32" Spacing="24" MaxWidth="1200" HorizontalAlignment="Center">
+            <StackPanel Padding="32" Spacing="24" HorizontalAlignment="Stretch">
 
                 <!-- ROW 1: Overview -->
                 <StackPanel Spacing="10">

@@ -320,7 +320,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Create
         public List<PaymentMethod> PaymentMethods { get; } = new() 
         { 
             PaymentMethod.BankTransfer, 
-            PaymentMethod.Card
+            PaymentMethod.Cash
         };
 
         private string _paymentReference = string.Empty;

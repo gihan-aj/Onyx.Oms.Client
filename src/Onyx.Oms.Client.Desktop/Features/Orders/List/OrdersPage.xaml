@@ -273,8 +273,20 @@
                                             <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE930;"/></MenuFlyoutItem.Icon>
                                         </MenuFlyoutItem>
 
-                                        <MenuFlyoutItem Text="Fail Delivery" Click="FailDeliveryMenuItem_Click" Visibility="{Binding CanProgress, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <MenuFlyoutItem Text="Fail Delivery" Click="FailDeliveryMenuItem_Click" Visibility="{Binding CanFailDelivery, Converter={StaticResource BoolToVisibilityConverter}}">
                                             <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE7BA;"/></MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+
+                                        <MenuFlyoutItem Text="Receive Return" Click="ReceiveReturnMenuItem_Click" Visibility="{Binding CanReceiveReturn, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon Glyph="&#xE8B5;"/>
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+                                        
+                                        <MenuFlyoutItem Text="Process Return" Click="ProcessReturnMenuItem_Click" Visibility="{Binding CanProcessReturn, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon Glyph="&#xE8D5;"/>
+                                            </MenuFlyoutItem.Icon>
                                         </MenuFlyoutItem>
                                     </MenuFlyout>
                                 </Setter.Value>
@@ -410,8 +422,20 @@
                                                     <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE930;"/></MenuFlyoutItem.Icon>
                                                 </MenuFlyoutItem>
 
-                                                <MenuFlyoutItem Text="Fail Delivery" Click="FailDeliveryMenuItem_Click" Visibility="{x:Bind CanProgress, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                <MenuFlyoutItem Text="Fail Delivery" Click="FailDeliveryMenuItem_Click" Visibility="{x:Bind CanFailDelivery, Converter={StaticResource BoolToVisibilityConverter}}">
                                                     <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE7BA;"/></MenuFlyoutItem.Icon>
+                                                </MenuFlyoutItem>
+
+                                                <MenuFlyoutItem Text="Receive Return" Click="ReceiveReturnMenuItem_Click" Visibility="{x:Bind CanReceiveReturn, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <MenuFlyoutItem.Icon>
+                                                        <FontIcon Glyph="&#xE8B5;"/>
+                                                    </MenuFlyoutItem.Icon>
+                                                </MenuFlyoutItem>
+
+                                                <MenuFlyoutItem Text="Process Return" Click="ProcessReturnMenuItem_Click" Visibility="{x:Bind CanProcessReturn, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <MenuFlyoutItem.Icon>
+                                                        <FontIcon Glyph="&#xE8D5;"/>
+                                                    </MenuFlyoutItem.Icon>
                                                 </MenuFlyoutItem>
                                             </MenuFlyout>
                                         </Button.Flyout>

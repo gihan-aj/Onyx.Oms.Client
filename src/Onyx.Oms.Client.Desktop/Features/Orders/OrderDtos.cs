@@ -354,9 +354,15 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         DateTimeOffset? ExpectedCompletionDate,
         TaskPriority Priority);
 
-    public record FailDeliveryCommand(bool IsReturnedToSender, string? Reason);
+    public record CancelOrderCommand(string? Reason);
+
+    public record FailDeliveryCommand(bool IsReturning, string? Reason);
 
     public record ShipOrderCommand(Guid CourierId, string? TrackingNumber);
 
-    public record CancelOrderCommand(string? Reason);
+    public record ReceiveReturnRequest(bool IsReceived, string? Reason);
+
+    public record ProcessReturnRequest(List<ReturnItemQuantity> ItemsToReturn, string? Reason);
+
+    public record ReturnItemQuantity(Guid OrderItemId, int Quantity);
 }

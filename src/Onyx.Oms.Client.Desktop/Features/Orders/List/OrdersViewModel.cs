@@ -185,6 +185,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
         public IRelayCommand<OrderGridItem> FailDeliveryCommand { get; }
         public IRelayCommand StatusChipToggledCommand { get; }
         public IAsyncRelayCommand BulkPrintShippingLabelsCommand { get; }
+        public IRelayCommand<OrderGridItem> ReceiveReturnCommand { get; }
+        public IRelayCommand<OrderGridItem> ProcessReturnCommand { get; }
 
         public OrdersViewModel(
             IOrdersApi ordersApi,
@@ -227,6 +229,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
                 }
             });
             BulkPrintShippingLabelsCommand = new AsyncRelayCommand(BulkPrintShippingLabelsAsync);
+            ReceiveReturnCommand = new RelayCommand<OrderGridItem>(ReceiveReturn);
+            ProcessReturnCommand = new RelayCommand<OrderGridItem>(ProcessReturn);
         }
 
         private void InitializeFilterOptions()
@@ -980,7 +984,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
                     return;
                 }
 
-                var command = new FailDeliveryCommand(dialog.IsReturnedToSender, dialog.Reason);
+                var command = new FailDeliveryCommand(dialog.IsReturning, dialog.Reason);
                 await _ordersApi.FailOrderDelivery(orderDetails.Id, command);
                 await LoadCountsAsync();
                 await LoadDataCommand.ExecuteAsync(null);
@@ -989,6 +993,66 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
             catch
             {
                 _logger.LogError("Marking delivery as failed failed for order ID: {OrderId}", order.Id);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+        private async void ReceiveReturn(OrderGridItem? order)
+        {
+            if (order == null) return;
+            try
+            {
+                IsBusy = true;
+                var dialog = new ReceiveReturnDialog
+                {
+                    XamlRoot = App.MainWindow.Content.XamlRoot
+                };
+                var result = await dialog.ShowAsync();
+                if (result != ContentDialogResult.Primary) return;
+                var command = new ReceiveReturnRequest(dialog.IsReceived, dialog.Reason);
+                await _ordersApi.ReceiveReturn(order.Id, command);
+
+                await ReloadDataAndCountsAsync();
+                _toastService.ShowSuccess("Success", $"Return received for Order {order.OrderNumber}.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to receive return for order ID: {OrderId}", order.Id);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+        private async void ProcessReturn(OrderGridItem? order)
+        {
+            if (order == null) return;
+            try
+            {
+                IsBusy = true;
+                var dialog = new ProcessReturnDialog(_ordersApi, order.Id)
+                {
+                    XamlRoot = App.MainWindow.Content.XamlRoot
+                };
+                var result = await dialog.ShowAsync();
+                if (result != ContentDialogResult.Primary) return;
+                // Select only items where user selected > 0 return quantity
+                var itemsToReturn = dialog.ItemsToReturn
+                    .Where(x => x.ReturnQuantity > 0)
+                    .Select(x => new ReturnItemQuantity(x.OrderItemId, x.ReturnQuantity))
+                    .ToList();
+                var command = new ProcessReturnRequest(itemsToReturn, dialog.Reason);
+                await _ordersApi.ProcessReturn(order.Id, command);
+
+                await ReloadDataAndCountsAsync();
+                _toastService.ShowSuccess("Success", $"Return processed for Order {order.OrderNumber}.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to process return for order ID: {OrderId}", order.Id);
             }
             finally
             {

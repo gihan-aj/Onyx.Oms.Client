@@ -93,6 +93,12 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         [Post("/api/v1/orders/{id}/ship")]
         Task ShipOrder(Guid id, [Body] ShipOrderCommand command);
 
+        [Post("/api/v1/orders/{id}/receive-return")]
+        Task ReceiveReturn(Guid id, [Body] ReceiveReturnRequest command);
+
+        [Post("/api/v1/orders/{id}/process-return")]
+        Task ProcessReturn(Guid id, [Body] ProcessReturnRequest command);
+
         [Get("/api/v1/customers/search")]
         Task<PagedResult<CustomerDto>> SearchCustomers(
             [AliasAs("Page")] int page,

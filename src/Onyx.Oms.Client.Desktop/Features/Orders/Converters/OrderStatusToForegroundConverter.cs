@@ -22,7 +22,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Converters
                     OrderStatus.Confirmed or OrderStatus.Processing or OrderStatus.ReadyToPack or
                     OrderStatus.Packed or OrderStatus.Shipped => AccentBrush,
                     OrderStatus.Delivered or OrderStatus.Completed => SuccessBrush,
-                    OrderStatus.PaymentFailed or OrderStatus.Cancelled or
+                    OrderStatus.ReturnInTransit => WarningBrush,
+                    OrderStatus.PaymentFailed or OrderStatus.Cancelled or OrderStatus.LostInTransit or
                     OrderStatus.ReturnedToSender or OrderStatus.DeliveryFailed => CriticalBrush,
                     _ => NeutralBrush
                 };

@@ -18,12 +18,11 @@ using Microsoft.UI.Xaml.Navigation;
 
 namespace Onyx.Oms.Client.Desktop.Features.Orders;
 
-public sealed partial class FailDeliveryDialog : ContentDialog
+public sealed partial class ReceiveReturnDialog : ContentDialog
 {
-    public bool IsReturning { get; set; } = true;
+    public bool IsReceived { get; set; } = true;
     public string Reason { get; set; } = string.Empty;
-
-    public FailDeliveryDialog()
+    public ReceiveReturnDialog()
     {
         InitializeComponent();
     }
