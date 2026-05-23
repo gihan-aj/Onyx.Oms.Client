@@ -12,49 +12,76 @@
     CloseButtonText="Close"
     DefaultButton="Close"
     CornerRadius="8"
-    CloseButtonStyle="{StaticResource AccentButtonStyle}">
+    CloseButtonStyle="{StaticResource AccentButtonStyle}"
+    Style="{StaticResource DefaultContentDialogStyle}">
 
     <ContentDialog.Resources>
         <converters:EmptyStringToObjectConverter x:Key="StringToVisibilityConverter" EmptyValue="Collapsed" NotEmptyValue="Visible" />
     </ContentDialog.Resources>
 
-    <StackPanel Spacing="16" MinWidth="300">
-        <!-- Status Badge -->
-        <Border Style="{StaticResource StatusBadgeStyle}" 
-                Background="{x:Bind Courier.IsActive, Mode=OneTime, Converter={StaticResource StatusBackgroundConverter}}"
-                HorizontalAlignment="Left">
-            <TextBlock Text="{x:Bind Courier.IsActive, Mode=OneTime, Converter={StaticResource StatusTextConverter}}"
-                       Style="{StaticResource StatusBadgeTextStyle}"
-                       Foreground="{x:Bind Courier.IsActive, Mode=OneTime, Converter={StaticResource StatusForegroundConverter}}" />
-        </Border>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel MinWidth="350" MaxWidth="500" Spacing="20" Padding="0,8,0,0">
+            <!-- Header Grid: Initials Circle + Name/Status -->
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
 
-        <Grid RowSpacing="12" ColumnSpacing="24">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+                <PersonPicture DisplayName="{x:Bind Courier.Name, Mode=OneTime}" Height="64" Width="64" />
 
-            <TextBlock Text="Name:" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Center" />
-            <TextBlock Grid.Column="1" Text="{x:Bind Courier.Name, Mode=OneTime}" TextWrapping="Wrap" />
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
+                    <TextBlock Text="{x:Bind Courier.Name, Mode=OneTime}" Style="{StaticResource SubtitleTextBlockStyle}" FontWeight="SemiBold" IsTextSelectionEnabled="True" />
 
-            <TextBlock Grid.Row="1" Text="Contact:" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Center" />
-            <TextBlock Grid.Row="1" Grid.Column="1" Text="{x:Bind Courier.ContactPerson, Mode=OneTime}" TextWrapping="Wrap" />
+                    <Border Style="{StaticResource StatusBadgeStyle}" 
+                            HorizontalAlignment="Left"
+                            Background="{x:Bind Courier.IsActive, Mode=OneTime, Converter={StaticResource StatusBackgroundConverter}}">
+                        <TextBlock Text="{x:Bind Courier.IsActive, Mode=OneTime, Converter={StaticResource StatusTextConverter}}"
+                                   Style="{StaticResource StatusBadgeTextStyle}"
+                                   Foreground="{x:Bind Courier.IsActive, Mode=OneTime, Converter={StaticResource StatusForegroundConverter}}" />
+                    </Border>
+                </StackPanel>
+            </Grid>
 
-            <TextBlock Grid.Row="2" Text="Primary Phone:" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Center" />
-            <TextBlock Grid.Row="2" Grid.Column="1" Text="{x:Bind Courier.PrimaryPhone, Mode=OneTime}" TextWrapping="Wrap" />
+            <MenuFlyoutSeparator />
 
-            <TextBlock Grid.Row="3" Text="Secondary Phone:" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Center" />
-            <TextBlock Grid.Row="3" Grid.Column="1" Text="{x:Bind Courier.SecondaryPhone, Mode=OneTime}" TextWrapping="Wrap" />
+            <!-- Details Grid -->
+            <Grid RowSpacing="16" ColumnSpacing="24">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-            <TextBlock Grid.Row="4" Text="Website:" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Center" />
-            <HyperlinkButton Grid.Row="4" Grid.Column="1" Content="{x:Bind Courier.WebsiteUrl, Mode=OneTime}" NavigateUri="{x:Bind Courier.WebsiteUrl, Mode=OneTime}" Visibility="{x:Bind Courier.WebsiteUrl, Mode=OneTime, Converter={StaticResource StringToVisibilityConverter}}" />
-        </Grid>
-    </StackPanel>
+                <!-- Contact Person -->
+                <StackPanel Visibility="{x:Bind Courier.ContactPerson, Mode=OneTime, Converter={StaticResource StringToVisibilityConverter}}">
+                    <TextBlock Text="Contact Person" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Text="{x:Bind Courier.ContactPerson, Mode=OneTime}" Style="{StaticResource BodyTextBlockStyle}" IsTextSelectionEnabled="True" />
+                </StackPanel>
+
+                <!-- Website -->
+                <StackPanel Grid.Column="1" Visibility="{x:Bind Courier.WebsiteUrl, Mode=OneTime, Converter={StaticResource StringToVisibilityConverter}}">
+                    <TextBlock Text="Website" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <HyperlinkButton Content="{x:Bind Courier.WebsiteUrl, Mode=OneTime}" 
+                                     NavigateUri="{x:Bind WebsiteUri, Mode=OneTime}" 
+                                     Padding="0" Margin="0" MinWidth="0" MinHeight="0" />
+                </StackPanel>
+
+                <!-- Primary Phone -->
+                <StackPanel Grid.Row="1" Visibility="{x:Bind Courier.PrimaryPhone, Mode=OneTime, Converter={StaticResource StringToVisibilityConverter}}">
+                    <TextBlock Text="Primary Phone" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Text="{x:Bind Courier.PrimaryPhone, Mode=OneTime}" Style="{StaticResource BodyTextBlockStyle}" FontFamily="Consolas" IsTextSelectionEnabled="True" />
+                </StackPanel>
+
+                <!-- Secondary Phone -->
+                <StackPanel Grid.Row="1" Grid.Column="1" Visibility="{x:Bind Courier.SecondaryPhone, Mode=OneTime, Converter={StaticResource StringToVisibilityConverter}}">
+                    <TextBlock Text="Secondary Phone" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Text="{x:Bind Courier.SecondaryPhone, Mode=OneTime}" Style="{StaticResource BodyTextBlockStyle}" FontFamily="Consolas" IsTextSelectionEnabled="True" />
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
 </ContentDialog>
