@@ -91,6 +91,13 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
                 await ViewModel.DownloadInvoiceAsync(order);
             }
         }
+        private async void SendOrderStatusMenuItem_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            if (sender is MenuFlyoutItem item && item.DataContext is OrderGridItem order)
+            {
+                await ViewModel.SendOrderStatusAsync(order);
+            }
+        }
         private async void DownloadShippingLabelMenuItem_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
             if (sender is MenuFlyoutItem item && item.DataContext is OrderGridItem order)

@@ -187,6 +187,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
         public IAsyncRelayCommand BulkPrintShippingLabelsCommand { get; }
         public IRelayCommand<OrderGridItem> ReceiveReturnCommand { get; }
         public IRelayCommand<OrderGridItem> ProcessReturnCommand { get; }
+        public IRelayCommand<OrderGridItem> SendorderStatusCommand { get; }
 
         public OrdersViewModel(
             IOrdersApi ordersApi,
@@ -230,7 +231,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
             });
             BulkPrintShippingLabelsCommand = new AsyncRelayCommand(BulkPrintShippingLabelsAsync);
             ReceiveReturnCommand = new RelayCommand<OrderGridItem>(ReceiveReturn);
-            ProcessReturnCommand = new RelayCommand<OrderGridItem>(ProcessReturn);
+            ProcessReturnCommand = new RelayCommand<OrderGridItem>(ProcessReturnAsync);
+            SendorderStatusCommand = new AsyncRelayCommand<OrderGridItem>(SendOrderStatusAsync);
         }
 
         private void InitializeFilterOptions()
@@ -1027,7 +1029,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
                 IsBusy = false;
             }
         }
-        private async void ProcessReturn(OrderGridItem? order)
+        private async void ProcessReturnAsync(OrderGridItem? order)
         {
             if (order == null) return;
             try
@@ -1053,6 +1055,27 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to process return for order ID: {OrderId}", order.Id);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+        public async Task SendOrderStatusAsync(OrderGridItem? order)
+        {
+            if (order == null) return;
+            try
+            {
+                IsBusy = true;
+                var logoStoragePath = ApplicationData.Current.LocalFolder.Path + "\\StoreAssets";
+                await _ordersApi.SendOrderStatus(order.Id, logoStoragePath);
+
+                _toastService.ShowSuccess("Success", $"Status message for Order {order.OrderNumber} is sent to {SelectedCustomer?.Name ?? "customer"}.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send order status message for order ID: {OrderId}", order.Id);
             }
             finally
             {

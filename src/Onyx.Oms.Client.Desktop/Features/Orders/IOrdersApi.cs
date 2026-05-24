@@ -42,6 +42,9 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         [Get("/api/v1/orders/{id}/invoice")]
         Task<HttpResponseMessage> GetOrderInvoiceById(Guid id, [Query] string logoStoragePath);
 
+        [Post("/api/v1/orders/{id}/send-update")]
+        Task SendOrderStatus(Guid id, [Query] string logoStoragePath);
+
         [Get("/api/v1/orders/{id}/shipping-label")]
         Task<HttpResponseMessage> GetShippingLabelById(Guid id);
 
