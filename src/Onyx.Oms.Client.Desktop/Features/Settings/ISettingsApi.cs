@@ -32,6 +32,15 @@ namespace Onyx.Oms.Client.Desktop.Features.Settings
 
         [Put("/api/v1/settings/sequences/{id}")]
         Task UpdateSequenceValue(string id, [Body] int value);
+
+        [Get("/api/v1/settings/whatsapp")]
+        Task<WhatsAppSettingsDto> GetWhatsAppSettings();
+
+        [Put("/api/v1/settings/whatsapp")]
+        Task UpdateWhatsAppSettings([Body] UpdateWhatsAppSettingsCommand dto);
+
+        [Post("/api/v1/settings/whatsapp/test")]
+        Task TestWhatsAppConnection([Body] TestWhatsAppConnectionCommand dto);
     }
 
     public record TenantProfileResponse
@@ -126,4 +135,10 @@ namespace Onyx.Oms.Client.Desktop.Features.Settings
     public record UpdateTenantHeroImageCommand(string HeroImageUrl);
 
     public record UpdateTenantLogoCommand(string LogoUrl);
+
+    public record WhatsAppSettingsDto(string? PhoneNumberId, bool IsConfigured);
+
+    public record UpdateWhatsAppSettingsCommand(string PhoneNumberId, string? AccessToken);
+
+    public record TestWhatsAppConnectionCommand(string DestinationPhone);
 }

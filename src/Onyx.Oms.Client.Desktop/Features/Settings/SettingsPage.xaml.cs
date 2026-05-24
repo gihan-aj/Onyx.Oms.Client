@@ -69,12 +69,14 @@ public sealed partial class SettingsPage : Page
     {
         var selectedItem = sender.SelectedItem;
         if (selectedItem == null) return;
-        
-        GeneralSettingsGrid.Visibility = selectedItem.Tag.ToString() == "General" ? Visibility.Visible : Visibility.Collapsed;
-        RegionalSettingsGrid.Visibility = selectedItem.Tag.ToString() == "Regional" ? Visibility.Visible : Visibility.Collapsed;
-        SequencesGrid.Visibility = selectedItem.Tag.ToString() == "Sequences" ? Visibility.Visible : Visibility.Collapsed;
-        AppearanceGrid.Visibility = selectedItem.Tag.ToString() == "Appearance" ? Visibility.Visible : Visibility.Collapsed;
-        AboutGrid.Visibility = selectedItem.Tag.ToString() == "About" ? Visibility.Visible : Visibility.Collapsed;
+
+        string? tag = selectedItem.Tag.ToString();
+        GeneralSettingsGrid.Visibility = tag == "General" ? Visibility.Visible : Visibility.Collapsed;
+        RegionalSettingsGrid.Visibility = tag == "Regional" ? Visibility.Visible : Visibility.Collapsed;
+        SequencesGrid.Visibility = tag == "Sequences" ? Visibility.Visible : Visibility.Collapsed;
+        AppearanceGrid.Visibility = tag == "Appearance" ? Visibility.Visible : Visibility.Collapsed;
+        AboutGrid.Visibility = tag == "About" ? Visibility.Visible : Visibility.Collapsed;
+        WhatsAppSettingsGrid.Visibility = tag == "WhatsApp" ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void OnThemeSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -85,6 +87,14 @@ public sealed partial class SettingsPage : Page
             {
                 ViewModel.SwitchThemeCommand.Execute(theme);
             }
+        }
+    }
+
+    private void OnWhatsAppAccessTokenChanged(object sender, RoutedEventArgs e)
+    {
+        if (sender is PasswordBox passwordBox)
+        {
+            ViewModel.WhatsApp.AccessToken = passwordBox.Password;
         }
     }
 }

@@ -174,6 +174,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
 
     public ObservableCollection<AppSequenceViewModel> Sequences { get; } = new();
 
+    public WhatsAppSettingsViewModel WhatsApp { get; }
+
     public IAsyncRelayCommand UploadLogoCommand { get; }
     public IAsyncRelayCommand DeleteLogoCommand { get; }
 
@@ -194,6 +196,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
 
         _currentTheme = _themeSelectorService.Theme;
         _versionDescription = GetVersionDescription();
+
+        WhatsApp = new WhatsAppSettingsViewModel(settingsApi, toastService);
 
         UploadLogoCommand = new AsyncRelayCommand(UploadLogoAsync);
         DeleteLogoCommand = new AsyncRelayCommand(DeleteLogoAsync);
@@ -273,6 +277,9 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
                     LogoImageSource = bitmapImage;
                 }
             }
+
+            await WhatsApp.LoadSettingsAsync();
+            WhatsApp.CanEdit = CanEditTenantSettings;
         }
         catch (Exception ex)
         {
