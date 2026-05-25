@@ -77,6 +77,7 @@ public sealed partial class SettingsPage : Page
         AppearanceGrid.Visibility = tag == "Appearance" ? Visibility.Visible : Visibility.Collapsed;
         AboutGrid.Visibility = tag == "About" ? Visibility.Visible : Visibility.Collapsed;
         WhatsAppSettingsGrid.Visibility = tag == "WhatsApp" ? Visibility.Visible : Visibility.Collapsed;
+        PaymentMethodsGrid.Visibility = tag == "PaymentMethods" ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void OnThemeSelectionChanged(object sender, SelectionChangedEventArgs e)

@@ -48,6 +48,7 @@
             <SelectorBarItem Text="General" Tag="General" />
             <SelectorBarItem Text="Regional Settings" Tag="Regional" />
             <SelectorBarItem Text="Sequences" Tag="Sequences" />
+            <SelectorBarItem Text="Payment Methods" Tag="PaymentMethods" />
             <SelectorBarItem Text="WhatsApp" Tag="WhatsApp" />
             <SelectorBarItem Text="Appearance" Tag="Appearance" />
             <SelectorBarItem Text="About" Tag="About" />
@@ -371,6 +372,27 @@
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
+                            </StackPanel>
+
+                        </StackPanel>
+
+                    </StackPanel>
+                    
+                    <!-- 4. Payment Methods -->
+                    <StackPanel x:Name="PaymentMethodsGrid" Visibility="Collapsed">
+
+                        <StackPanel Style="{StaticResource CardStackStyle}">
+
+                            <StackPanel>
+                                <TextBlock Text="Payment Methods" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                <TextBlock Text="Configure payment method gateway fees" 
+                                           Style="{StaticResource CaptionTextBlockStyle}" 
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" 
+                                           Margin="0,0,0,12" />
+                            </StackPanel>
+
+                            <StackPanel Spacing="8">
+                                <local:PaymentMethodsSettingsView ViewModel="{x:Bind ViewModel.PaymentMethods, Mode=OneWay}" />
                             </StackPanel>
 
                         </StackPanel>
