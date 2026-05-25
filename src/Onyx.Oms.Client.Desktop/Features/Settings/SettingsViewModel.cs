@@ -176,6 +176,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
 
     public WhatsAppSettingsViewModel WhatsApp { get; }
 
+    public PaymentMethodsViewModel PaymentMethods { get; }
+
     public IAsyncRelayCommand UploadLogoCommand { get; }
     public IAsyncRelayCommand DeleteLogoCommand { get; }
 
@@ -198,6 +200,7 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         _versionDescription = GetVersionDescription();
 
         WhatsApp = new WhatsAppSettingsViewModel(settingsApi, toastService);
+        PaymentMethods = new PaymentMethodsViewModel(settingsApi, permissionService);
 
         UploadLogoCommand = new AsyncRelayCommand(UploadLogoAsync);
         DeleteLogoCommand = new AsyncRelayCommand(DeleteLogoAsync);
@@ -280,6 +283,8 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
 
             await WhatsApp.LoadSettingsAsync();
             WhatsApp.CanEdit = CanEditTenantSettings;
+
+            await PaymentMethods.LoadDataCommand.ExecuteAsync(null);
         }
         catch (Exception ex)
         {

@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="Onyx.Oms.Client.Desktop.Features.Settings.PaymentMethodsSettingsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Onyx.Oms.Client.Desktop.Features.Settings"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:BoolToVisibilityConverter x:Key="InvertedBoolToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible" />
+    </UserControl.Resources>
+
+    <Grid Background="Transparent">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Filters & Toolbar -->
+        <Grid Grid.Row="0" Margin="0,0,0,12">
+
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <ComboBox ItemsSource="{x:Bind ViewModel.StatusOptions}"
+                          SelectedItem="{x:Bind ViewModel.SelectedStatus, Mode=TwoWay}"
+                          PlaceholderText="Status"
+                          Width="120" />
+            </StackPanel>
+
+        </Grid>
+
+        <!-- DataGrid Wrapper -->
+        <Grid Grid.Row="1" x:Name="TableContainer" MinHeight="300">
+
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" 
+                          HorizontalScrollMode="Enabled" 
+                          VerticalScrollBarVisibility="Disabled" 
+                          VerticalScrollMode="Disabled">
+
+                <toolkit:DataGrid x:Name="PaymentMethodsDataGrid"
+                                  Width="{Binding ActualWidth, ElementName=TableContainer}"
+                                  ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  SelectionMode="Single"
+                                  HeadersVisibility="Column"
+                                  CanUserSortColumns="True"
+                                  Sorting="PaymentMethodsDataGrid_Sorting"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Hidden"
+                                  BorderThickness="1"
+                                  BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
+                                  RowBackground="Transparent"
+                                  AlternatingRowBackground="{ThemeResource LayerFillColorDefaultBrush}">
+
+                    <!-- Row Flyout for Actions -->
+                    <toolkit:DataGrid.RowStyle>
+                        <Style TargetType="toolkit:DataGridRow">
+                            <Setter Property="ContextFlyout">
+                                <Setter.Value>
+                                    <MenuFlyout>
+                                        <MenuFlyoutItem Text="Edit" Icon="Edit" Click="EditMenuItem_Click" IsEnabled="{Binding CanEdit}" />
+                                        <MenuFlyoutSeparator />
+                                        <MenuFlyoutItem Text="Activate" Icon="Play" Click="ActivateMenuItem_Click" Visibility="{Binding IsActive, Converter={StaticResource InvertedBoolToVisibilityConverter}}" IsEnabled="{Binding CanActivate}" />
+                                        <MenuFlyoutItem Text="Deactivate" Icon="Pause" Click="DeactivateMenuItem_Click" Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}}" IsEnabled="{Binding CanDeactivate}" />
+                                    </MenuFlyout>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </toolkit:DataGrid.RowStyle>
+
+                    <toolkit:DataGrid.Columns>
+                        <!-- Payment Method Name -->
+                        <toolkit:DataGridTextColumn Header="Payment Method" Binding="{Binding DisplayName}" Tag="DisplayName" Width="*" MinWidth="200" FontWeight="SemiBold" />
+
+                        <!-- Type Badge -->
+                        <toolkit:DataGridTemplateColumn Header="Type" Tag="Type" Width="120" HeaderStyle="{StaticResource CenteredHeaderStyle}">
+                            <toolkit:DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="local:PaymentMethodGridItem">
+                                    <Border Style="{StaticResource StatusBadgeStyle}" 
+                                            HorizontalAlignment="Center"
+                                            Background="{ThemeResource LayerFillColorAltBrush}">
+                                        <TextBlock Text="{x:Bind Type}"
+                                                   Style="{StaticResource StatusBadgeTextStyle}"
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                    </Border>
+                                </DataTemplate>
+                            </toolkit:DataGridTemplateColumn.CellTemplate>
+                        </toolkit:DataGridTemplateColumn>
+                        
+                        <!-- Fee Rate -->
+                        <toolkit:DataGridTextColumn Header="Fee Rate (%)" 
+                                                    Binding="{Binding FeeRate}" Tag="FeeRate" Width="120"
+                                                    HeaderStyle="{StaticResource RightAlignedHeaderStyle}" 
+                                                    ElementStyle="{StaticResource RightAlignedCellStyle}"/>
+
+                        <!-- Status Badge -->
+                        <toolkit:DataGridTemplateColumn Header="Status" Tag="IsActive" Width="100" HeaderStyle="{StaticResource CenteredHeaderStyle}">
+                            <toolkit:DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="local:PaymentMethodGridItem">
+                                    <Border Style="{StaticResource StatusBadgeStyle}" 
+                                            HorizontalAlignment="Center"
+                                            Background="{x:Bind IsActive, Converter={StaticResource StatusBackgroundConverter}}">
+                                        <TextBlock Text="{x:Bind IsActive, Converter={StaticResource StatusTextConverter}}"
+                                                   Style="{StaticResource StatusBadgeTextStyle}"
+                                                   Foreground="{x:Bind IsActive, Converter={StaticResource StatusForegroundConverter}}" />
+                                    </Border>
+                                </DataTemplate>
+                            </toolkit:DataGridTemplateColumn.CellTemplate>
+                        </toolkit:DataGridTemplateColumn>
+                        
+                        <!-- Action Menu Button ("Meatballs") -->
+                        <toolkit:DataGridTemplateColumn Width="80" HeaderStyle="{StaticResource CenteredHeaderStyle}">
+                            <toolkit:DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="local:PaymentMethodGridItem">
+                                    <Button Style="{StaticResource SubtleButtonStyle}" 
+                                            Background="Transparent"
+                                            HorizontalAlignment="Stretch" 
+                                            VerticalAlignment="Stretch"
+                                            ToolTipService.ToolTip="Actions"
+                                            Tapped="OnActionButtonTapped">
+                                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE712;" />
+                                        <Button.Flyout>
+                                            <MenuFlyout>
+                                                <MenuFlyoutItem Text="Edit" Icon="Edit" Click="EditMenuItem_Click" IsEnabled="{x:Bind CanEdit}" />
+                                                <MenuFlyoutSeparator />
+                                                <MenuFlyoutItem Text="Activate" Icon="Play" Click="ActivateMenuItem_Click" Visibility="{x:Bind IsActive, Converter={StaticResource InvertedBoolToVisibilityConverter}}" IsEnabled="{x:Bind CanActivate}" />
+                                                <MenuFlyoutItem Text="Deactivate" Icon="Pause" Click="DeactivateMenuItem_Click" Visibility="{x:Bind IsActive, Converter={StaticResource BoolToVisibilityConverter}}" IsEnabled="{x:Bind CanDeactivate}" />
+                                            </MenuFlyout>
+                                        </Button.Flyout>
+                                    </Button>
+                                </DataTemplate>
+                            </toolkit:DataGridTemplateColumn.CellTemplate>
+                        </toolkit:DataGridTemplateColumn>
+                    </toolkit:DataGrid.Columns>
+
+                </toolkit:DataGrid>
+                
+            </ScrollViewer>
+
+            <!-- Loading Indicator -->
+            <Grid Opacity="0.8" Visibility="{x:Bind ViewModel.IsListLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ProgressRing IsActive="True" Width="48" Height="48" />
+            </Grid>
+
+        </Grid>
+
+        <!-- Pagination -->
+        <Grid Grid.Row="2" Padding="0,16,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                <TextBlock Text="Rows per page:" VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                <ComboBox ItemsSource="{x:Bind ViewModel.PageSizes}" SelectedItem="{x:Bind ViewModel.PageSize, Mode=TwoWay}" MinWidth="80" VerticalAlignment="Center"/>
+            </StackPanel>
+            <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.PageSummary, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
+                <Button Command="{x:Bind ViewModel.PreviousPageCommand}" IsEnabled="{x:Bind ViewModel.HasPreviousPage, Mode=OneWay}" ToolTipService.ToolTip="Previous Page">
+                    <FontIcon Glyph="&#xE76B;" FontSize="12" />
+                </Button>
+                <Button Command="{x:Bind ViewModel.NextPageCommand}" IsEnabled="{x:Bind ViewModel.HasNextPage, Mode=OneWay}" ToolTipService.ToolTip="Next Page">
+                    <FontIcon Glyph="&#xE76C;" FontSize="12" />
+                </Button>
+            </StackPanel>
+        </Grid>
+
+    </Grid>
+</UserControl>

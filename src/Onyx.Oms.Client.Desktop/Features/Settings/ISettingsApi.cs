@@ -1,4 +1,6 @@
-﻿using Refit;
+﻿using Onyx.Oms.Client.Desktop.Features.Orders;
+using Onyx.Oms.Client.Desktop.Shared.Models;
+using Refit;
 using System;
 using System.Threading.Tasks;
 
@@ -41,6 +43,24 @@ namespace Onyx.Oms.Client.Desktop.Features.Settings
 
         [Post("/api/v1/settings/whatsapp/test")]
         Task TestWhatsAppConnection([Body] TestWhatsAppConnectionCommand dto);
+
+        [Get("/api/v1/payment-methods")]
+        Task<PagedResult<PaymentMethodConfigDto>> GetPaymentMethods(
+            [AliasAs("Page")] int page,
+            [AliasAs("PageSize")] int pageSize,
+            [AliasAs("SearchTerm")] string? searchTerm = null,
+            [AliasAs("SortColumn")] string? sortColumn = null,
+            [AliasAs("SortOrder")] string? sortOrder = null,
+            [AliasAs("IsActive")] bool? isActive = null);
+
+        [Put("/api/v1/payment-methods/{id}")]
+        Task UpdatePaymentMethod(Guid Id, [Body] UpdatePaymentMethodRquest dto);
+
+        [Put("/api/v1/payment-methods/{id}/activate")]
+        Task ActivatePaymentMethod(Guid Id);
+
+        [Put("/api/v1/payment-methods/{id}/deactivate")]
+        Task DeactivatePaymentMethod(Guid Id);
     }
 
     public record TenantProfileResponse
@@ -141,4 +161,15 @@ namespace Onyx.Oms.Client.Desktop.Features.Settings
     public record UpdateWhatsAppSettingsCommand(string PhoneNumberId, string? AccessToken);
 
     public record TestWhatsAppConnectionCommand(string DestinationPhone);
+
+    public class PaymentMethodConfigDto
+    {
+        public Guid Id { get; set; }
+        public PaymentMethod Type { get; set; }
+        public string DisplayName { get; set; } = string.Empty;
+        public decimal FeeRate { get; set; }
+        public bool IsActive { get; set; }
+    }
+
+    public record UpdatePaymentMethodRquest(string DisplayName, decimal FeeRate);
 }
