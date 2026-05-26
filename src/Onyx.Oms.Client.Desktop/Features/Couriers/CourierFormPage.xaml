@@ -14,6 +14,9 @@
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converters:BoolToVisibilityConverter x:Key="InvertedBoolToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible"/>
         <converters:EmptyStringToObjectConverter x:Key="StringToVisibilityConverter" EmptyValue="Collapsed" NotEmptyValue="Visible" />
+
+        <!-- Zone rate row column widths -->
+        <x:Double x:Key="ZoneNameColumnWidth">180</x:Double>
     </Page.Resources>
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -144,6 +147,182 @@
                         </StackPanel>
                         
                     </Grid>
+
+                    <!-- ═══════════════════════════════════════════════════════════════ -->
+                    <!-- Zone Rates Card (full width below the two-column details grid) -->
+                    <!-- ═══════════════════════════════════════════════════════════════ -->
+                    <Grid Style="{StaticResource CardGridStyle}" RowSpacing="16">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Card Header -->
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Spacing="2">
+                                <TextBlock Text="Zone Rates" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                <TextBlock Text="Configure the pricing matrix for each delivery zone."
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            </StackPanel>
+
+                            <Button Grid.Column="1"
+                                    x:Name="AddZoneRateButton"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    Click="OnAddZoneRateClick">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE710;" FontSize="14" />
+                                    <TextBlock Text="Add Zone Rate" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+
+                        <!-- Column Header Row -->
+                        <Grid Grid.Row="1" ColumnSpacing="8"
+                              Visibility="{x:Bind ViewModel.HasZoneRates, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="160" />
+                                <ColumnDefinition Width="110" />
+                                <ColumnDefinition Width="110" />
+                                <ColumnDefinition Width="110" />
+                                <ColumnDefinition Width="90" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="76" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Zone" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <TextBlock Grid.Column="1" Text="Base Fee" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <TextBlock Grid.Column="2" Text="Base Wt (kg)" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <TextBlock Grid.Column="3" Text="Excess/kg" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <TextBlock Grid.Column="4" Text="COD %" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <TextBlock Grid.Column="5" Text="Districts" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        </Grid>
+
+                        <!-- Zone Rate Rows -->
+                        <ListView Grid.Row="2"
+                                  x:Name="ZoneRatesListView"
+                                  ItemsSource="{x:Bind ViewModel.ZoneRates, Mode=OneWay}"
+                                  SelectionMode="None"
+                                  IsItemClickEnabled="False"
+                                  Visibility="{x:Bind ViewModel.HasZoneRates, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="Padding" Value="0" />
+                                    <Setter Property="Margin" Value="0,2" />
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    <Setter Property="Background" Value="Transparent" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType="local:ZoneRateFormItem">
+                                    <Grid ColumnSpacing="8" Padding="0,6"
+                                          Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                          CornerRadius="6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="160" />
+                                            <ColumnDefinition Width="110" />
+                                            <ColumnDefinition Width="110" />
+                                            <ColumnDefinition Width="110" />
+                                            <ColumnDefinition Width="90" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="76" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Zone Name + Default badge -->
+                                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" Padding="8,0,0,0">
+                                            <TextBlock Text="{x:Bind ZoneName, Mode=OneWay}"
+                                                       Style="{StaticResource BodyTextBlockStyle}"
+                                                       FontWeight="SemiBold"
+                                                       VerticalAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis" />
+                                            <Border Background="{ThemeResource SystemFillColorSuccessBackgroundBrush}"
+                                                    BorderBrush="{ThemeResource SystemFillColorSuccessBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="4"
+                                                    Padding="5,2"
+                                                    VerticalAlignment="Center"
+                                                    Visibility="{x:Bind IsDefault, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                <TextBlock Text="Default"
+                                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                                           Foreground="{ThemeResource SystemFillColorSuccessBrush}" />
+                                            </Border>
+                                        </StackPanel>
+
+                                        <!-- Base Fee -->
+                                        <TextBlock Grid.Column="1" VerticalAlignment="Center"
+                                                   Text="{x:Bind BaseFee, Mode=OneWay}"
+                                                   Style="{StaticResource BodyTextBlockStyle}" />
+
+                                        <!-- Base Weight -->
+                                        <TextBlock Grid.Column="2" VerticalAlignment="Center"
+                                                   Text="{x:Bind BaseWeight, Mode=OneWay}"
+                                                   Style="{StaticResource BodyTextBlockStyle}" />
+
+                                        <!-- Excess Fee -->
+                                        <TextBlock Grid.Column="3" VerticalAlignment="Center"
+                                                   Text="{x:Bind ExcessFeePerWeightUnit, Mode=OneWay}"
+                                                   Style="{StaticResource BodyTextBlockStyle}" />
+
+                                        <!-- COD % -->
+                                        <TextBlock Grid.Column="4" VerticalAlignment="Center"
+                                                   Text="{x:Bind CodPercentage, Mode=OneWay}"
+                                                   Style="{StaticResource BodyTextBlockStyle}" />
+
+                                        <!-- Districts summary -->
+                                        <TextBlock Grid.Column="5" VerticalAlignment="Center"
+                                                   Text="{x:Bind DistrictsSummary, Mode=OneWay}"
+                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   TextWrapping="NoWrap"
+                                                   ToolTipService.ToolTip="{x:Bind DistrictsSummary, Mode=OneWay}" />
+
+                                        <!-- Action Buttons -->
+                                        <StackPanel Grid.Column="6" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center" HorizontalAlignment="Right" Padding="0,0,4,0">
+                                            <Button Style="{StaticResource SubtleButtonStyle}"
+                                                    ToolTipService.ToolTip="Edit Zone"
+                                                    Click="OnEditZoneRateClick"
+                                                    Tag="{x:Bind}">
+                                                <FontIcon Glyph="&#xE70F;" FontSize="13" />
+                                            </Button>
+                                            <Button Style="{StaticResource SubtleButtonStyle}"
+                                                    ToolTipService.ToolTip="Remove Zone"
+                                                    Click="OnRemoveZoneRateClick"
+                                                    Tag="{x:Bind}">
+                                                <FontIcon Glyph="&#xE74D;" FontSize="13"
+                                                          Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                                            </Button>
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+
+                        <!-- Empty State -->
+                        <StackPanel Grid.Row="2"
+                                    HorizontalAlignment="Center"
+                                    Spacing="8"
+                                    Padding="0,16"
+                                    Visibility="{x:Bind ViewModel.HasZoneRates, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}">
+                            <FontIcon Glyph="&#xE8B9;" FontSize="32" Foreground="{ThemeResource TextFillColorTertiaryBrush}" HorizontalAlignment="Center" />
+                            <TextBlock Text="No zone rates configured."
+                                       Style="{StaticResource BodyStrongTextBlockStyle}"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="Add at least one zone rate before saving."
+                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                       Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                       HorizontalAlignment="Center" />
+                        </StackPanel>
+
+                    </Grid>
+                    <!-- End Zone Rates Card -->
+
                 </StackPanel>
             </Grid>
         </ScrollViewer>

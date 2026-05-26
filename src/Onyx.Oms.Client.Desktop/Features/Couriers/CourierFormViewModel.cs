@@ -3,6 +3,8 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Onyx.Oms.Client.Desktop.Features.Couriers;
@@ -91,8 +93,19 @@ public partial class CourierFormViewModel : ObservableObject, INavigationAware
         set => SetProperty(ref _isBusy, value);
     }
 
+    /// <summary>The zone rates being configured. Bound to the Zone Rates ListView.</summary>
+    public ObservableCollection<ZoneRateFormItem> ZoneRates { get; } = new();
+
+    private bool _hasZoneRates;
+    public bool HasZoneRates
+    {
+        get => _hasZoneRates;
+        set => SetProperty(ref _hasZoneRates, value);
+    }
+
     public IAsyncRelayCommand SaveCommand { get; }
     public IRelayCommand CancelCommand { get; }
+    public IRelayCommand<ZoneRateFormItem> RemoveZoneRateCommand { get; }
 
     public CourierFormViewModel(
         ICourierApi courierApi,
@@ -107,6 +120,12 @@ public partial class CourierFormViewModel : ObservableObject, INavigationAware
 
         SaveCommand = new AsyncRelayCommand(OnSaveExecuteAsync);
         CancelCommand = new RelayCommand(OnCancelExecute);
+        RemoveZoneRateCommand = new RelayCommand<ZoneRateFormItem>(OnRemoveZoneRate);
+
+        ZoneRates.CollectionChanged += (s, e) =>
+        {
+            HasZoneRates = ZoneRates.Count > 0;
+        };
     }
 
     public async Task InitializeAsync(CourierDto? courierToEdit = null)
@@ -117,19 +136,63 @@ public partial class CourierFormViewModel : ObservableObject, INavigationAware
             if (courierToEdit != null)
             {
                 IsEditMode = true;
-                CourierId = courierToEdit.Id;
-                Name = courierToEdit.Name ?? string.Empty;
-                ContactPerson = courierToEdit.ContactPerson;
-                PrimaryPhone = courierToEdit.PrimaryPhone;
-                SecondaryPhone = courierToEdit.SecondaryPhone;
-                WebsiteUrl = courierToEdit.WebsiteUrl;
-                IsActive = courierToEdit.IsActive;
+                // Fetch full details (includes ZoneRates)
+                var courierDetails = await _courierApi.GetCourier(courierToEdit.Id);
+
+                CourierId = courierDetails.Id;
+                Name = courierDetails.Name ?? string.Empty;
+                ContactPerson = courierDetails.ContactPerson;
+                PrimaryPhone = courierDetails.PrimaryPhone;
+                SecondaryPhone = courierDetails.SecondaryPhone;
+                WebsiteUrl = courierDetails.WebsiteUrl;
+                IsActive = courierDetails.IsActive;
                 Title = $"Edit Courier ({Name})";
+
+                // Map zone rates from server
+                ZoneRates.Clear();
+                foreach (var zr in courierDetails.ZoneRates)
+                {
+                    ZoneRates.Add(new ZoneRateFormItem
+                    {
+                        Id = zr.Id,
+                        ZoneName = zr.ZoneName,
+                        BaseFee = zr.BaseFee,
+                        BaseWeight = zr.BaseWeight,
+                        ExcessFeePerWeightUnit = zr.ExcessFeePerWeightUnit,
+                        CodPercentage = zr.CodPercentage,
+                        Currency = zr.BaseFeeCurrency.Length > 0 ? zr.BaseFeeCurrency : "LKR",
+                        WeightUnit = zr.BaseWeightUnit.Length > 0 ? zr.BaseWeightUnit : "kg",
+                        IsDefault = zr.IsDefault,
+                        CoveredDistricts = new ObservableCollection<string>(zr.CoveredDistricts)
+                    });
+                }
             }
             else
             {
                 IsEditMode = false;
                 Title = "Create Courier";
+
+                // Seed two default zone rates as per spec (user can edit before saving)
+                ZoneRates.Clear();
+                ZoneRates.Add(new ZoneRateFormItem
+                {
+                    ZoneName = "Colombo",
+                    BaseFee = 0,
+                    BaseWeight = 1,
+                    Currency = "LKR",
+                    WeightUnit = "kg",
+                    IsDefault = false,
+                    CoveredDistricts = new ObservableCollection<string> { "Colombo" }
+                });
+                ZoneRates.Add(new ZoneRateFormItem
+                {
+                    ZoneName = "Outstation",
+                    BaseFee = 0,
+                    BaseWeight = 1,
+                    Currency = "LKR",
+                    WeightUnit = "kg",
+                    IsDefault = true
+                });
             }
         }
         catch (Exception ex)
@@ -179,7 +242,20 @@ public partial class CourierFormViewModel : ObservableObject, INavigationAware
                     PrimaryPhone = PrimaryPhone,
                     SecondaryPhone = SecondaryPhone,
                     WebsiteUrl = WebsiteUrl,
-                    IsActive = IsActive
+                    IsActive = IsActive,
+                    ZoneRates = ZoneRates.Select(zr => new UpdateCourierZoneRateDto
+                    {
+                        Id = zr.Id,              // null for newly added rows
+                        ZoneName = zr.ZoneName,
+                        BaseFee = zr.BaseFee,
+                        BaseWeight = zr.BaseWeight,
+                        ExcessFeePerWeightUnit = zr.ExcessFeePerWeightUnit,
+                        CodPercentage = zr.CodPercentage,
+                        Currency = zr.Currency,
+                        WeightUnit = zr.WeightUnit,
+                        IsDefault = zr.IsDefault,
+                        CoveredDistricts = zr.CoveredDistricts.ToList()
+                    }).ToList()
                 };
                 await _courierApi.UpdateCourier(updateDto.Id, updateDto);
                 _toastService.ShowSuccess("Success", "Courier updated successfully.");
@@ -193,7 +269,19 @@ public partial class CourierFormViewModel : ObservableObject, INavigationAware
                     PrimaryPhone = PrimaryPhone,
                     SecondaryPhone = SecondaryPhone,
                     WebsiteUrl = WebsiteUrl,
-                    IsActive = IsActive
+                    IsActive = IsActive,
+                    ZoneRates = ZoneRates.Select(zr => new CreateCourierZoneRateDto
+                    {
+                        ZoneName = zr.ZoneName,
+                        BaseFee = zr.BaseFee,
+                        BaseWeight = zr.BaseWeight,
+                        ExcessFeePerWeightUnit = zr.ExcessFeePerWeightUnit,
+                        CodPercentage = zr.CodPercentage,
+                        Currency = zr.Currency,
+                        WeightUnit = zr.WeightUnit,
+                        IsDefault = zr.IsDefault,
+                        CoveredDistricts = zr.CoveredDistricts.ToList()
+                    }).ToList()
                 };
                 await _courierApi.CreateCourier(createDto);
                 _toastService.ShowSuccess("Success", "Courier created successfully.");
@@ -244,5 +332,24 @@ public partial class CourierFormViewModel : ObservableObject, INavigationAware
 
     public void OnNavigatedFrom()
     {
+    }
+
+    // ── Zone Rate helpers (called from code-behind, which owns XamlRoot) ──
+
+    private void OnRemoveZoneRate(ZoneRateFormItem? item)
+    {
+        if (item != null && ZoneRates.Count > 1)
+            ZoneRates.Remove(item);
+    }
+
+    /// <summary>
+    /// Called after the Add/Edit dialog confirms a zone with IsDefault = true.
+    /// Clears the IsDefault flag on all other zones so only one default exists.
+    /// </summary>
+    public void EnsureSingleDefault(ZoneRateFormItem confirmed)
+    {
+        if (!confirmed.IsDefault) return;
+        foreach (var zr in ZoneRates.Where(zr => zr != confirmed))
+            zr.IsDefault = false;
     }
 }
