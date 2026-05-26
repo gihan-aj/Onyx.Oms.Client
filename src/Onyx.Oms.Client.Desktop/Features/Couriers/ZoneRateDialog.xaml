@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="Onyx.Oms.Client.Desktop.Features.Couriers.ZoneRateDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Onyx.Oms.Client.Desktop.Features.Couriers"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
+    xmlns:sharedConverters="using:Onyx.Oms.Client.Desktop.Shared.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    PrimaryButtonText="Save"
+    CloseButtonText="Cancel"
+    DefaultButton="Primary"
+    CornerRadius="8"
+    Style="{StaticResource DefaultContentDialogStyle}">
+
+    <ContentDialog.Resources>
+        <converters:BoolToObjectConverter x:Key="InvertedBoolConverter" TrueValue="False" FalseValue="True" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:BoolToVisibilityConverter x:Key="InvertedBoolToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible" />
+        <converters:EmptyStringToObjectConverter x:Key="StringToVisibilityConverter" EmptyValue="Collapsed" NotEmptyValue="Visible" />
+        <sharedConverters:DecimalToDoubleConverter x:Key="DecimalToDoubleConverter" />
+
+        <!-- Compact district CheckBox style -->
+        <Style x:Key="DistrictCheckBoxStyle" TargetType="CheckBox">
+            <Setter Property="MinWidth" Value="0" />
+            <Setter Property="Padding" Value="6,0,0,0" />
+            <Setter Property="Margin" Value="0,2" />
+        </Style>
+    </ContentDialog.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="600">
+        <StackPanel MinWidth="460" MaxWidth="540" Spacing="20" Padding="0,4,0,0">
+
+            <!-- Zone Name -->
+            <StackPanel Spacing="4">
+                <TextBox x:Name="ZoneNameBox"
+                         Header="Zone Name*"
+                         PlaceholderText="e.g. Colombo, Outstation"
+                         Text="{x:Bind Item.ZoneName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBlock x:Name="ZoneNameError"
+                           Text="Zone name is required."
+                           Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Visibility="Collapsed" />
+            </StackPanel>
+
+            <!-- Financials: 2-column grid -->
+            <Grid ColumnSpacing="12" RowSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <NumberBox Grid.Row="0" Grid.Column="0"
+                           Header="Base Fee (LKR)"
+                           Value="{x:Bind Item.BaseFee, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}"
+                           Minimum="0"
+                           SpinButtonPlacementMode="Compact"
+                           SmallChange="10"
+                           LargeChange="100" />
+
+                <NumberBox Grid.Row="0" Grid.Column="1"
+                           Header="Base Weight (kg)"
+                           Value="{x:Bind Item.BaseWeight, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}"
+                           Minimum="0"
+                           SpinButtonPlacementMode="Compact"
+                           SmallChange="0.5"
+                           LargeChange="1" />
+
+                <NumberBox Grid.Row="1" Grid.Column="0"
+                           Header="Excess Fee / kg (LKR)"
+                           Value="{x:Bind Item.ExcessFeePerWeightUnit, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}"
+                           Minimum="0"
+                           SpinButtonPlacementMode="Compact"
+                           SmallChange="5"
+                           LargeChange="50" />
+
+                <NumberBox Grid.Row="1" Grid.Column="1"
+                           Header="COD Surcharge %"
+                           Value="{x:Bind Item.CodPercentage, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}"
+                           Minimum="0"
+                           Maximum="100"
+                           SpinButtonPlacementMode="Compact"
+                           SmallChange="0.5"
+                           LargeChange="1" />
+            </Grid>
+
+            <!-- Is Default -->
+            <StackPanel Spacing="4">
+                <ToggleSwitch x:Name="IsDefaultToggle"
+                              Header="Fallback / Default Zone"
+                              IsOn="{x:Bind Item.IsDefault, Mode=TwoWay}"
+                              Toggled="OnIsDefaultToggled"
+                              OnContent="Yes — matches all unmatched districts"
+                              OffContent="No — matches specific districts only" />
+                <TextBlock Text="When enabled, this zone applies to any district not explicitly mapped to another zone."
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- District Selection — hidden when IsDefault -->
+            <StackPanel x:Name="DistrictSection"
+                        Spacing="8"
+                        Visibility="{x:Bind Item.IsDefault, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}">
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               Text="Covered Districts*"
+                               Style="{StaticResource BodyStrongTextBlockStyle}"
+                               VerticalAlignment="Center" />
+                    <Button Grid.Column="1"
+                            x:Name="ClearDistrictsButton"
+                            Content="Clear all"
+                            Style="{StaticResource SubtleButtonStyle}"
+                            FontSize="12"
+                            Click="OnClearDistrictsClick" />
+                </Grid>
+
+                <TextBlock x:Name="DistrictError"
+                           Text="Select at least one district."
+                           Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Visibility="Collapsed" />
+
+                <!-- 3-column GridView of district checkboxes -->
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="6"
+                        Padding="12">
+                    <ItemsControl x:Name="DistrictsItemsControl"
+                                  ItemsSource="{x:Bind DistrictItems}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <ItemsWrapGrid Orientation="Horizontal"
+                                              MaximumRowsOrColumns="3" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="local:DistrictCheckItem">
+                                <CheckBox Content="{x:Bind Name}"
+                                          IsChecked="{x:Bind IsSelected, Mode=TwoWay}"
+                                          Style="{StaticResource DistrictCheckBoxStyle}"
+                                          Width="160"
+                                          Checked="OnDistrictChecked"
+                                          Unchecked="OnDistrictUnchecked" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Border>
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</ContentDialog>
