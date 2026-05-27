@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
+using Onyx.Oms.Client.Desktop.Features.Couriers;
 using Onyx.Oms.Client.Desktop.Features.Orders.List;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using System;
@@ -23,6 +24,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
 
         private Guid? _orderId;
         private Guid? _customerId;
+        private bool _isCod;
 
         private bool _isLoading;
         public bool IsLoading
@@ -36,6 +38,13 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
         {
             get => _isBusy;
             set => SetProperty(ref _isBusy, value);
+        }
+
+        private bool _isCalculatingShipping;
+        public bool IsCalculatingShipping
+        {
+            get => _isCalculatingShipping;
+            set => SetProperty(ref _isCalculatingShipping, value);
         }
 
         private string _pageTitle = string.Empty;
@@ -191,6 +200,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
         public IAsyncRelayCommand CompleteOrderCommand { get; }
         public IAsyncRelayCommand ShowCustomerOrderHistoryCommand { get; }
         public IAsyncRelayCommand DownloadInvoiceCommand { get; }
+        public IAsyncRelayCommand CalculateShippingFeeCommand { get; }
 
         public EditOrderViewModel(IOrdersApi ordersApi, ILogger<EditOrderViewModel> logger, INavigationService navigationService, IToastService toastService, IFileService fileService, IDialogService dialogService)
         {
@@ -213,6 +223,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             CompleteOrderCommand = new AsyncRelayCommand(CompleteOrderAsync);
             ShowCustomerOrderHistoryCommand = new AsyncRelayCommand(ShowCustomerOrderHistoryAsync);
             DownloadInvoiceCommand = new AsyncRelayCommand(DownloadInvoiceAsync);
+            CalculateShippingFeeCommand = new AsyncRelayCommand(AutoCalculateShippingAsync);
         }
 
         public void OnNavigatedFrom()
@@ -252,6 +263,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                     Payments.PropertyChanged -= OnOrderPaymentsPropertyChanged;
 
                 _orderId = orderDetails.Id;
+                _isCod = orderDetails.IsCashOnDelivery;
                 _customerId = orderDetails.Customer.Id;
                 PageTitle = orderDetails.OrderNumber;
                 Status = orderDetails.Status;
@@ -434,6 +446,53 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to show customer order history at order edit page.");
+            }
+        }
+
+        private async Task AutoCalculateShippingAsync()
+        {
+            if (Logistics == null || Logistics.SelectedCourier == null || string.IsNullOrWhiteSpace(Logistics.ShippingAddressDistrict))
+            {
+                _toastService.ShowError("Missing Shipping Details", "The Courier and the Shipping Address are needed to calculate the Shipping Fee");
+                return;
+            }
+
+            if (Financials == null)
+                return;
+
+            if (OrderItems == null)
+                return;
+
+            if (Payments == null)
+                return;
+
+            try
+            {
+                IsCalculatingShipping = true;
+
+                decimal codAmount = 0;
+                if (_isCod)
+                {
+                    codAmount = OrderItems.SubTotal + Financials.TaxAmount - Financials.OriginalDiscountAmount - Payments.TotalPaid;
+                }
+
+                decimal totalWeight = OrderItems.CalculateTotalWeight();
+
+                decimal calculatedFee = await _ordersApi.CalculateShippingFee(
+                    Logistics.SelectedCourier.Id,
+                    Logistics.ShippingAddressDistrict,
+                    totalWeight,
+                    codAmount);
+
+                Financials.ShippingFee = calculatedFee;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to calculate shipping fee at order edit page.");   
+            }
+            finally
+            {
+                IsCalculatingShipping = false;
             }
         }
 

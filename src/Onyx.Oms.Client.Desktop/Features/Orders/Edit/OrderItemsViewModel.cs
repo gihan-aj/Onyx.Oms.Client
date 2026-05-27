@@ -100,6 +100,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                     Sku = item.Sku,
                     ImageUrl = item.ImageUrl,
                     Status = item.Status,
+                    WeightUnit = item.WeightUnit,
+                    UnitWeight = item.UnitWeight,
                     BaseCurrency = order.BaseCurrency,
                     UnitPrice = item.UnitPrice,
                     Quantity = item.Quantity,
@@ -151,6 +153,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                     Sku = item.Sku,
                     ImageUrl = item.ImageUrl,
                     Status = item.Status,
+                    WeightUnit = item.WeightUnit,
+                    UnitWeight = item.UnitWeight,
                     BaseCurrency = _baseCurrency,
                     UnitPrice = item.UnitPrice,
                     Quantity = item.Quantity,
@@ -198,6 +202,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                     ProductName = gridItem.DisplayName,
                     Sku = gridItem.DisplaySku,
                     ImageUrl = gridItem.ResolvedImageUrl,
+                    WeightUnit = gridItem.ResolvedVariant?.WeightUnit ?? "kg",
+                    UnitWeight = gridItem.ResolvedVariant?.WeightAmount ?? 0,
                     BaseCurrency = gridItem.BasePriceCurrency,
                     UnitPrice = price,
                     Quantity = qty,
@@ -241,6 +247,10 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             SubTotal = Items.Sum(i => i.LineTotal);
         }
 
+        public decimal CalculateTotalWeight()
+        {
+            return Items.Sum(i => i.UnitWeight * i.Quantity);
+        }
 
         private async Task AllocateStockAsync(EditOrderLineItem? item)
         {

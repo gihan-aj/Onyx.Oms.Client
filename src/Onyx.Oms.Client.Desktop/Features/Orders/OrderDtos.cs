@@ -144,6 +144,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         int AllocatedQuantity,
         int PendingQuantity,
         int IncomingStock,
+        decimal UnitWeight,
+        string WeightUnit,
         decimal UnitPrice,
         decimal DiscountAmount,
         string? DiscountReason,

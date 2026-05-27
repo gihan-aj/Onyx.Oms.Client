@@ -1072,6 +1072,7 @@
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Text="{x:Bind ViewModel.Financials.BaseCurrency, Mode=OneWay}"
                                                        VerticalAlignment="Center" Grid.Column="0"
@@ -1080,6 +1081,20 @@
                                                        SpinButtonPlacementMode="Inline" 
                                                        Minimum="0"
                                                        Grid.Column="1"/>
+
+                                            <Button Grid.Column="2" 
+                                                    Style="{StaticResource SubtleButtonStyle}" 
+                                                    Command="{x:Bind ViewModel.CalculateShippingFeeCommand}"
+                                                    ToolTipService.ToolTip="Recalculate official courier rate"
+                                                    Width="36" Height="36" Padding="0">
+                                                <Grid>
+                                                    <FontIcon Glyph="&#xE72C;" FontSize="14" 
+                                                                Visibility="{x:Bind ViewModel.IsCalculatingShipping, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}"/>
+
+                                                    <ProgressRing IsActive="True" Width="16" Height="16" 
+                                                                    Visibility="{x:Bind ViewModel.IsCalculatingShipping, Mode=OneWay}"/>
+                                                </Grid>
+                                            </Button>
                                         </Grid>
                                     </StackPanel>
 

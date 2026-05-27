@@ -149,5 +149,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
 
         [Get("/api/v1/couriers/{id}")]
         Task<CourierDto> GetCourier(Guid id);
+
+        [Get("/api/v1/couriers/{courierId}/calculate-shipping-fee")]
+        Task<decimal> CalculateShippingFee(Guid courierId, [Query] string district, [Query] decimal totalWeightKg, [Query] decimal codAmount);
     }
 }

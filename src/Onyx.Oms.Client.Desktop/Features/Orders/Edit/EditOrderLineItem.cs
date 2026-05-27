@@ -69,6 +69,15 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             set => SetProperty(ref _status, value);
         }
 
+        public string WeightUnit = "kg";
+
+        private decimal _unitWeight;
+        public decimal UnitWeight
+        {
+            get => _unitWeight;
+            set => SetProperty(ref _unitWeight, value);
+        }
+
         public string BaseCurrency = "LKR";
 
         private decimal _unitPrice;
