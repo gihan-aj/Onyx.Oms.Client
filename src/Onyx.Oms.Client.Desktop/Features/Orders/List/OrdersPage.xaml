@@ -96,7 +96,7 @@
 
         <!-- SelectorBar -->
         <Grid Grid.Row="1" Background="{ThemeResource LayerFillColorDefaultBrush}" Padding="16,0,16,12">
-            <SelectorBar SelectionChanged="SelectorBar_SelectionChanged" >
+            <SelectorBar x:Name="TabSelectorBar" SelectionChanged="SelectorBar_SelectionChanged" >
                 <SelectorBarItem Text="{x:Bind ViewModel.AllActiveTabText, Mode=OneWay}" Tag="All" IsSelected="True" FontWeight="Bold"/>
                 <SelectorBarItem Text="{x:Bind ViewModel.PendingTabText, Mode=OneWay}" Tag="Pending" FontWeight="Bold"/>
                 <SelectorBarItem Text="{x:Bind ViewModel.ProcessingTabText, Mode=OneWay}" Tag="Processing" FontWeight="Bold"/>

@@ -208,8 +208,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
             _fromDate = DateTimeOffset.Now.AddDays(-30);
             _toDate = DateTimeOffset.Now;
 
-            InitializeFilterOptions();
-            UpdateSortDefaultsForTab();
+            //InitializeFilterOptions();
+            //UpdateSortDefaultsForTab();
 
             ClearFiltersCommand = new AsyncRelayCommand(ClearFiltersAsync);
             NewOrderCommand = new RelayCommand(NavigateToNewOrder);
@@ -235,7 +235,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
             SendorderStatusCommand = new AsyncRelayCommand<OrderGridItem>(SendOrderStatusAsync);
         }
 
-        private void InitializeFilterOptions()
+        private void InitializeFilterOptions(OrderStatus? selectedStatus = null)
         {
             PaymentStatusOptions.Add(new PaymentStatusOption("All Payment Statuses", null));
             foreach (PaymentStatus status in Enum.GetValues(typeof(PaymentStatus)))
@@ -256,9 +256,16 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
                 OrderStatus.Confirmed, 
                 OrderStatus.Processing, 
                 OrderStatus.ReadyToPack, 
-                OrderStatus.Packed, 
-                OrderStatus.PaymentFailed 
+                OrderStatus.Packed
             };
+
+            if(selectedStatus != null && selectedStatus is OrderStatus)
+            {
+                activeStatuses = new []
+                {
+                    (OrderStatus)selectedStatus,
+                };
+            }
 
             foreach (OrderStatus status in Enum.GetValues(typeof(OrderStatus)))
             {
@@ -293,8 +300,44 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
 
         public async void OnNavigatedTo(object parameter)
         {
+            if (parameter is OrderStatus requestedStatus)
+            {
+                InitializeFilterOptions(requestedStatus);
+            }
+            else
+            {
+                InitializeFilterOptions();
+            }
+            UpdateSortDefaultsForTab();
             await LoadCouriersAsync();
             await ReloadDataAndCountsAsync();
+        }
+
+        private void ApplyStatusFilter(OrderStatus status)
+        {
+            var tab = status switch
+            {
+                OrderStatus.Pending => OrderCategoryTab.Pending,
+                OrderStatus.Processing => OrderCategoryTab.Processing,
+                OrderStatus.ReadyToPack => OrderCategoryTab.ReadyToPack,
+                OrderStatus.Packed => OrderCategoryTab.Packed,
+                OrderStatus.Shipped
+                or OrderStatus.Delivered
+                or OrderStatus.Completed
+                or OrderStatus.Cancelled => OrderCategoryTab.Historical,
+                _ => OrderCategoryTab.All
+            };
+
+            _selectedTab = tab;
+            OnPropertyChanged(nameof(SelectedTab));
+
+            if (tab == OrderCategoryTab.All)
+            {
+                foreach (var chip in StatusChips)
+                {
+                    chip.IsChecked = chip.Value == status;
+                }
+            }
         }
 
         private async Task LoadCouriersAsync()
