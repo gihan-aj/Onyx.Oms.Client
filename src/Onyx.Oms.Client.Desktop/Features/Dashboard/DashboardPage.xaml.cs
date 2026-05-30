@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 
@@ -26,6 +27,15 @@ public sealed partial class DashboardPage : Page
         base.OnNavigatedFrom(e);
         ViewModel.Unsubscribe();
     }
+
+    private ActionRequiredUIItem? GetActionItemFromSender(object sender)
+    {
+        if (sender is FrameworkElement { DataContext: ActionRequiredUIItem item }) return item;
+        return null;
+    }
+
+    private void ActionRequiredItem_Click(object sender, RoutedEventArgs e)
+        => ViewModel.NavigateToOrderCommand.Execute(GetActionItemFromSender(sender));
 
     private void ScrollViewer_PointerWheelChanged(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
     {

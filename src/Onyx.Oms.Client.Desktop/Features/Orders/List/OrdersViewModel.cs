@@ -806,7 +806,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
                     address = $"{orderDetails.ShippingAddressStreet}, {orderDetails.ShippingAddressCity}, {orderDetails.ShippingAddressDistrict}";
                 }
 
-                var dialog = new ShippingConfirmationDialog(courierName, address)
+                var dialog = new ShippingConfirmationDialog(courierName, order.TrackingNumber, address)
                 {
                     XamlRoot = App.MainWindow.Content.XamlRoot
                 };

@@ -269,6 +269,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                 Status = orderDetails.Status;
                 CustomerDetails = new CustomerDetailsViewModel(orderDetails.Customer);
                 Logistics = new OrderLogisticsViewModel(orderDetails, _toastService);
+                Logistics.OnCourierSelected = AutoCalculateShippingAsync;
                 await LoadCouriersAsync(Logistics);
                 OrderItems = new OrderItemsViewModel(orderDetails, _fileService, _toastService);
                 await OrderItems.LoadImagesAsync();
@@ -453,7 +454,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
         {
             if (Logistics == null || Logistics.SelectedCourier == null || string.IsNullOrWhiteSpace(Logistics.ShippingAddressDistrict))
             {
-                _toastService.ShowError("Missing Shipping Details", "The Courier and the Shipping Address are needed to calculate the Shipping Fee");
+                //_toastService.ShowError("Missing Shipping Details", "The Courier and the Shipping Address are needed to calculate the Shipping Fee");
                 return;
             }
 
@@ -718,7 +719,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                 address = $"{Logistics.ShippingAddressStreet}, {Logistics.ShippingAddressCity}, {Logistics.ShippingAddressDistrict}";
             }
 
-            var dialog = new ShippingConfirmationDialog(courierName, address)
+            var dialog = new ShippingConfirmationDialog(courierName, Logistics.TrackingNumber, address)
             {
                 XamlRoot = App.MainWindow.Content.XamlRoot
             };

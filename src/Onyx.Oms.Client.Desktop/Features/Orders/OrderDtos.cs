@@ -166,6 +166,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
 
     public record UpdateOrderLogisticsCommand(
         Guid? CourierId,
+        string? TrackingNumber,
         ShippingAddressDto? ShippingAddress,
         string? DeliveryInstructions);
 

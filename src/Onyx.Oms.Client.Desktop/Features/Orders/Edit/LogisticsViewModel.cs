@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
 {
@@ -69,9 +70,16 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                     if (value != null)
                         CourierId = value.Id;
                     else CourierId = null;
+
+                    if (!string.IsNullOrWhiteSpace(ShippingAddressDistrict))
+                    {
+                        OnCourierSelected?.Invoke();
+                    }
                 }
             }
         }
+
+        public Func<Task>? OnCourierSelected { get; set; }
 
         // Fields for the Shipping Address
         private string? _shippingAddressStreet;
@@ -103,7 +111,11 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             set
             {
                 if (!IsEditing && value == null) return;
-                SetProperty(ref _shippingAddressDistrict, value);
+                if (SetProperty(ref _shippingAddressDistrict, value))
+                {
+                    if (SelectedCourier != null)
+                        OnCourierSelected?.Invoke();
+                }
             }
         }
 
@@ -219,6 +231,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             _customerDeliveryInstructions = order.Customer.DeliveryInstructions;
             _originalLogistics = new UpdateOrderLogisticsCommand(
                 order.CourierId,
+                order.TrackingNumber,
                 new ShippingAddressDto(
                     order.ShippingAddressStreet,
                     order.ShippingAddressCity,
@@ -304,13 +317,14 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                     ShippingAddressPostalCode,
                     ShippingAddressCountry);
 
-            return new UpdateOrderLogisticsCommand(CourierId, shippingAdress, DeliveryInstructions);
+            return new UpdateOrderLogisticsCommand(CourierId, TrackingNumber, shippingAdress, DeliveryInstructions);
         }
 
         public void CommitEdit()
         {
             _originalLogistics = new UpdateOrderLogisticsCommand(
                 CourierId,
+                TrackingNumber,
                 new ShippingAddressDto(
                     ShippingAddressStreet,
                     ShippingAddressCity,

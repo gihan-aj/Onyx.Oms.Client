@@ -30,10 +30,11 @@ public sealed partial class ShippingConfirmationDialog : ContentDialog
 
     // Only allow clicking "Mark as Shipped" if both are present
     public bool CanShip => HasCourier && HasAddress;
-    public ShippingConfirmationDialog(string? courierName, string? shippingAddress)
+    public ShippingConfirmationDialog(string? courierName, string? trackingNumber, string? shippingAddress)
     {
         InitializeComponent();
         CourierName = courierName;
+        TrackingNumber = trackingNumber;
         ShippingAddress = shippingAddress;
     }
 }

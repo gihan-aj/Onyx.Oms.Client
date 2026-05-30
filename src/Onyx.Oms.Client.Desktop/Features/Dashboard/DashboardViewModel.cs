@@ -3,8 +3,10 @@ using CommunityToolkit.Mvvm.Input;
 using Onyx.Oms.Client.Desktop.Features.FulfillmentTasks.List;
 using Onyx.Oms.Client.Desktop.Features.Orders;
 using Onyx.Oms.Client.Desktop.Features.Orders.Create;
+using Onyx.Oms.Client.Desktop.Features.Orders.Edit;
 using Onyx.Oms.Client.Desktop.Features.Orders.List;
 using Onyx.Oms.Client.Desktop.Features.Products.Create;
+using Onyx.Oms.Client.Desktop.Shared.Constants;
 using Onyx.Oms.Client.Desktop.Shared.Services;
 using System;
 using System.Collections.ObjectModel;
@@ -17,8 +19,10 @@ public partial class DashboardViewModel : ObservableObject
     private readonly IAuthenticationService _authService;
     private readonly INavigationService _navigationService;
     private readonly IDashboardApi _dashboardApi;
+    private readonly IPermissionService _permissionService;
 
     private string _userName = "User";
+    private bool _canManageOrders = false;
     public string UserName
     {
         get => _userName;
@@ -65,14 +69,21 @@ public partial class DashboardViewModel : ObservableObject
     public IRelayCommand NavigateToTasksCompletedCommand { get; }
     public IRelayCommand NavigateToShippedTodayCommand { get; }
 
+    // Navigation
+    public IRelayCommand<ActionRequiredUIItem?> NavigateToOrderCommand { get; }
+
     // Refresh
     public IRelayCommand RefreshCommand { get; }
 
-    public DashboardViewModel(IAuthenticationService authService, INavigationService navigationService, IDashboardApi dashboardApi)
+    public DashboardViewModel(IAuthenticationService authService, INavigationService navigationService, IDashboardApi dashboardApi, IPermissionService permissionService)
     {
         _authService = authService;
         _navigationService = navigationService;
         _dashboardApi = dashboardApi;
+        _permissionService = permissionService;
+
+        _canManageOrders = _permissionService.CanExecute(Permissions.Orders.Edit);
+
         NavigateToCreateOrderCommand = new RelayCommand(() => _navigationService.NavigateTo(typeof(CreateOrderViewModel).FullName!));
         NavigateToShipOrdersCommand = new RelayCommand(() => _navigationService.NavigateTo(typeof(OrdersPage).FullName!, OrderStatus.ReadyToPack)); // Assuming OrderStatus filter
         NavigateToTasksCommand = new RelayCommand(() => _navigationService.NavigateTo(typeof(FulfillmentTasksPage).FullName!));
@@ -81,6 +92,11 @@ public partial class DashboardViewModel : ObservableObject
         NavigateToReadyToPackCommand = new RelayCommand(() => _navigationService.NavigateTo(typeof(OrdersPage).FullName!, OrderStatus.ReadyToPack));
         NavigateToTasksCompletedCommand = new RelayCommand(() => _navigationService.NavigateTo(typeof(FulfillmentTasksPage).FullName! /* Add status filter if applicable */));
         NavigateToShippedTodayCommand = new RelayCommand(() => _navigationService.NavigateTo(typeof(OrdersPage).FullName!, OrderStatus.Shipped));
+        NavigateToOrderCommand = new RelayCommand<ActionRequiredUIItem?>(item =>
+        {
+            if (item?.Data.OrderId is Guid orderId && item.CanManageOrder)
+                _navigationService.NavigateTo(typeof(EditOrderViewModel).FullName!, orderId);
+        });
         RefreshCommand = new RelayCommand(async () => await LoadDashboardItemsAsync());
     }
 
@@ -148,7 +164,7 @@ public partial class DashboardViewModel : ObservableObject
             ActionRequiredItems.Clear();
             foreach (var item in actionTask.Result.Items)
             {
-                ActionRequiredItems.Add(new ActionRequiredUIItem(item));
+                ActionRequiredItems.Add(new ActionRequiredUIItem(item, _canManageOrders));
             }
             // Map in motion items for UI
             InMotionItems.Clear();
@@ -173,31 +189,47 @@ public class ActionRequiredUIItem
     public ActionRequiredItemDto Data { get; }
 
     // Default semantic colors/icons
-    public string IconGlyph { get; } = "\uE711"; // Default Info icon
+    public string IconGlyph { get; } = "\uE946"; // Default Info icon
     public string SemanticBrushName { get; } = "SystemFillColorNeutralBrush";
     public string SemanticBackgroundName { get; } = "SystemFillColorNeutralBackgroundBrush";
-    public ActionRequiredUIItem(ActionRequiredItemDto data)
+    public string FormattedAmount { get; }
+    public bool CanManageOrder { get; } = false;
+    public ActionRequiredUIItem(ActionRequiredItemDto data, bool canManageOrders)
     {
         Data = data;
-
+        CanManageOrder = canManageOrders;
+        FormattedAmount = $"{data.Currency} {data.TotalAmount:N2}";
         switch (data.Reason)
         {
             case "returned_to_sender":
+                IconGlyph = "\uE72B";                                   // Return / Undo arrow
+                SemanticBrushName = "SystemFillColorCriticalBrush";
+                SemanticBackgroundName = "SystemFillColorCriticalBackgroundBrush";
+                break;
             case "unpaid_balance":
-                IconGlyph = "\uE7BA"; // Credit card off / warning
+                IconGlyph = "\uE7BA";                                   // Credit card / payment
                 SemanticBrushName = "SystemFillColorCriticalBrush";
                 SemanticBackgroundName = "SystemFillColorCriticalBackgroundBrush";
                 break;
             case "pending_confirmation":
-            case "stalled_processing":
-                IconGlyph = "\uE916"; // Clock / Pending
+                IconGlyph = "\uE916";                                   // Clock
+                SemanticBrushName = "SystemFillColorCautionBrush";
+                SemanticBackgroundName = "SystemFillColorCautionBackgroundBrush";
+                break;
+            case "missing_tasks":
+                IconGlyph = "\uE9F9";                                   // Task list / checklist
                 SemanticBrushName = "SystemFillColorCautionBrush";
                 SemanticBackgroundName = "SystemFillColorCautionBackgroundBrush";
                 break;
             case "idle_ready_to_pack":
-                IconGlyph = "\uE7B8"; // Package
+                IconGlyph = "\uE7B8";                                   // Package / box
                 SemanticBrushName = "SystemFillColorSuccessBrush";
                 SemanticBackgroundName = "SystemFillColorSuccessBackgroundBrush";
+                break;
+            case "stalled_processing":
+                IconGlyph = "\uE916";                                   // Clock (stalled)
+                SemanticBrushName = "SystemFillColorCriticalBrush";
+                SemanticBackgroundName = "SystemFillColorCriticalBackgroundBrush";
                 break;
         }
     }
@@ -208,12 +240,15 @@ public class InMotionUIItem
     public InMotionItemDto Data { get; }
 
     public string DotBrushName { get; } = "SystemFillColorNeutralBrush";
+    public bool IsTask { get; } = false;
+    public bool IsOrder { get; } = false;
     public InMotionUIItem(InMotionItemDto data)
     {
         Data = data;
 
         if (data.Type == "task")
         {
+            IsTask = true;
             if (data.IsOrphaned == true)
                 DotBrushName = "SystemFillColorCautionBrush"; // Amber
             else if (data.TaskType == "Production")
@@ -221,9 +256,12 @@ public class InMotionUIItem
             else if (data.TaskType == "Procurement")
                 DotBrushName = "AccentTextFillColorPrimaryBrush"; // Blue
         }
-        else if (data.Type == "order" && data.OrderStatus == "Shipped")
+        else if (data.Type == "order" && data.OrderStatus == OrderStatus.Shipped.ToString())
         {
+            IsOrder = true;
             DotBrushName = "SystemFillColorSuccessBrush"; // Teal
         }
     }
+
+
 }

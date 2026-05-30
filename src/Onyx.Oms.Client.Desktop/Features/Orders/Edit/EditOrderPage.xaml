@@ -907,6 +907,8 @@
                                                   PlaceholderText="Select a Courier" 
                                                   HorizontalAlignment="Stretch" />
 
+                                        <TextBox Header="Tracking Number" Text="{x:Bind ViewModel.Logistics.TrackingNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
                                         <StackPanel Spacing="8" Margin="0,8,0,0">
                                             <Grid Margin="0,8,0,0">
                                                 <Grid.ColumnDefinitions>

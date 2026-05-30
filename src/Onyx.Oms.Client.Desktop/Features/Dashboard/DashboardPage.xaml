@@ -339,9 +339,9 @@
 
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate x:DataType="local:ActionRequiredUIItem">
-                                            <!-- To navigate, bind Command on this Button -->
                                             <Button Background="Transparent" 
-                                                    BorderThickness="0" Padding="16,12" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                                                    BorderThickness="0" Padding="16,12" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                                                    Click="ActionRequiredItem_Click">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="Auto" />
@@ -361,10 +361,7 @@
                                                         <TextBlock Text="{x:Bind Data.ReasonLabel}" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,2,0,0"/>
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
-                                                        <TextBlock Text="{x:Bind Data.TotalAmount}" FontWeight="Medium" FontSize="13" HorizontalAlignment="Right">
-                                                            <Run Text=" "/>
-                                                            <Run Text="{x:Bind Data.Currency}" FontSize="11"/>
-                                                        </TextBlock>
+                                                        <TextBlock Text="{x:Bind FormattedAmount}" FontWeight="Medium" FontSize="13" HorizontalAlignment="Right"/>
                                                         <Border Background="{Binding SemanticBackgroundName, Converter={StaticResource ThemeResourceConverter}}" CornerRadius="12" Padding="8,2" Margin="0,4,0,0" HorizontalAlignment="Right">
                                                             <TextBlock Text="{x:Bind Data.Status}" FontSize="10" FontWeight="Medium" Foreground="{Binding SemanticBrushName, Converter={StaticResource ThemeResourceConverter}}"/>
                                                         </Border>
@@ -412,7 +409,7 @@
                                                     <!-- Colored dot -->
                                                     <Ellipse Grid.Column="0" Width="8" Height="8" Margin="0,0,12,0" VerticalAlignment="Center"
                                                              Fill="{Binding DotBrushName, Converter={StaticResource ThemeResourceConverter}}" />
-                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,0">
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,0" Visibility="{Binding IsTask, Converter={StaticResource BoolToVisibilityConverter}}">
                                                         <TextBlock FontWeight="Medium" FontSize="13" TextTrimming="CharacterEllipsis">
                                                             <Run Text="{x:Bind Data.VariantLabel}"/>
                                                             <Run Text=" · "/>
@@ -420,9 +417,30 @@
                                                         </TextBlock>
                                                         <TextBlock Text="{x:Bind Data.ContextLabel}" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,2,0,0"/>
                                                     </StackPanel>
-                                                    <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="12" FontWeight="Medium" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,0" Visibility="{Binding IsOrder, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                        <TextBlock FontWeight="Medium" FontSize="13" TextTrimming="CharacterEllipsis">
+                                                            <Run Text="{x:Bind Data.OrderNumber}"/>
+                                                            <Run Text=" · "/>
+                                                            <Run Text="{x:Bind Data.CustomerName}"/>
+                                                            <Run Text=" · "/>
+                                                            <Run Text="{x:Bind Data.OrderStatus}"/>
+                                                        </TextBlock>
+                                                        <TextBlock Text="{x:Bind Data.ContextLabel}" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,2,0,0"/>
+                                                    </StackPanel>
+                                                    <TextBlock Grid.Column="2" 
+                                                               VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="12" FontWeight="Medium" 
+                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                               Visibility="{Binding IsTask, Converter={StaticResource BoolToVisibilityConverter}}">
                                                         <Run Text="{x:Bind Data.Quantity}"/>
                                                         <Run Text=" units"/>
+                                                    </TextBlock>
+                                                    <TextBlock Grid.Column="2" 
+                                                               VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="12" FontWeight="Medium" 
+                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                               Visibility="{Binding IsOrder, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                               IsTextSelectionEnabled="True">
+                                                        <Run Text="Tracking: "/>
+                                                        <Run Text="{x:Bind Data.TrackingNumber}"/>
                                                     </TextBlock>
                                                 </Grid>
                                             </Button>
