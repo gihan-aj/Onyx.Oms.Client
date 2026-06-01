@@ -80,7 +80,10 @@
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
                 <NavigationViewItem Icon="Send" Content="Couriers" Tag="Onyx.Oms.Client.Desktop.Features.Couriers.CouriersPage" />
-                
+
+                <NavigationViewItemHeader Content="Finance" />
+                <NavigationViewItem Icon="Calculator" Content="Expenses" Tag="Onyx.Oms.Client.Desktop.Features.Expenses.List.ExpensesPage" />
+
                 <!--<NavigationViewItemHeader Content="Administration" />
                 <NavigationViewItem Icon="ContactInfo" Content="Users" Tag="Onyx.Oms.Client.Desktop.Features.Users.UsersPage" />
                 <NavigationViewItem Icon="People" Content="Roles" Tag="Onyx.Oms.Client.Desktop.Features.Roles.RolesPage" />-->

@@ -99,6 +99,14 @@ public static class Permissions
         public const string Delete = "tenant:orders:delete";
     }
 
+    public static class Expenses
+    {
+        public const string View = "tenant:expenses:view";
+        public const string Create = "tenant:expenses:create";
+        public const string Edit = "tenant:expenses:edit";
+        public const string Delete = "tenant:expenses:delete";
+    }
+
     public static class PaymentMethods
     {
         public const string View = "tenant:paymentmethods:view";

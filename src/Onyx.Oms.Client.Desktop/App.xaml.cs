@@ -8,6 +8,7 @@ using Onyx.Oms.Client.Desktop.Features.Catalog;
 using Onyx.Oms.Client.Desktop.Features.Couriers;
 using Onyx.Oms.Client.Desktop.Features.Customers;
 using Onyx.Oms.Client.Desktop.Features.Dashboard;
+using Onyx.Oms.Client.Desktop.Features.Expenses;
 using Onyx.Oms.Client.Desktop.Features.FulfillmentTasks;
 using Onyx.Oms.Client.Desktop.Features.Orders;
 using Onyx.Oms.Client.Desktop.Features.ProductCategories;
@@ -197,6 +198,16 @@ namespace Onyx.Oms.Client.Desktop
                     .AddHttpMessageHandler<AuthHeaderHandler>()
                     .AddHttpMessageHandler<ProblemDetailsHandler>();
 
+            services.AddRefitClient<IExpensesApi>()
+                    .ConfigureHttpClient((sp, c) =>
+                    {
+                        var options = sp.GetRequiredService<IOptions<OnyxOmsApiOptions>>().Value;
+                        c.BaseAddress = new Uri(options.BaseUrl);
+                    })
+                    .AddHttpMessageHandler<HttpLoggingHandler>()
+                    .AddHttpMessageHandler<AuthHeaderHandler>()
+                    .AddHttpMessageHandler<ProblemDetailsHandler>();
+
             services.AddRefitClient<IUsersApi>()
                     .ConfigureHttpClient((sp, c) =>
                     {
@@ -333,6 +344,8 @@ namespace Onyx.Oms.Client.Desktop
             services.AddTransient<Features.Couriers.CouriersPage>();
             services.AddTransient<Features.Couriers.CourierFormPage>();
             services.AddTransient<Features.Couriers.CourierFormViewModel>();
+            services.AddTransient<Features.Expenses.List.ExpensesPage>();
+            services.AddTransient<Features.Expenses.List.ExpensesViewModel>();
             services.AddTransient<Features.Users.UsersPage>();
             services.AddTransient<Features.Roles.RolesPage>();
             services.AddTransient<Features.Roles.RoleFormPage>();
@@ -367,6 +380,7 @@ namespace Onyx.Oms.Client.Desktop
             pageService.Configure(typeof(Features.ProductVariants.ProductVariantsPage).FullName!, typeof(Features.ProductVariants.ProductVariantsPage));
             pageService.Configure(typeof(Features.Couriers.CouriersPage).FullName!, typeof(Features.Couriers.CouriersPage));
             pageService.Configure(typeof(Features.Couriers.CourierFormViewModel).FullName!, typeof(Features.Couriers.CourierFormPage));
+            pageService.Configure(typeof(Features.Expenses.List.ExpensesPage).FullName!, typeof(Features.Expenses.List.ExpensesPage));
             pageService.Configure(typeof(Features.Users.UsersPage).FullName!, typeof(Features.Users.UsersPage));
             pageService.Configure(typeof(Features.Roles.RolesPage).FullName!, typeof(Features.Roles.RolesPage));
             pageService.Configure(typeof(Features.Roles.RoleFormPage).FullName!, typeof(Features.Roles.RoleFormPage));

@@ -18,13 +18,13 @@
     <None Remove="Assets\StoreLogo.png" />
     <None Remove="Features\Catalog\CatalogPage.xaml" />
     <None Remove="Features\Dashboard\DashboardPage.xaml" />
+    <None Remove="Features\Expenses\List\ExpensesPage.xaml" />
     <None Remove="Features\FulfillmentTasks\Create\CreateFulfillmentTaskPage.xaml" />
     <None Remove="Features\FulfillmentTasks\List\CompleteBatchDialog.xaml" />
     <None Remove="Features\FulfillmentTasks\List\FulfillmentTasksPage.xaml" />
     <None Remove="Features\FulfillmentTasks\List\IssuePoDialog.xaml" />
     <None Remove="Features\FulfillmentTasks\List\TaskQuantityActionDialog.xaml" />
     <None Remove="Features\FulfillmentTasks\ProductPicker\ProductPickerDialog.xaml" />
-    <None Remove="Features\Fulfillment\FulfillmentPage.xaml" />
     <None Remove="Features\Orders\ApplyDiscountDialog.xaml" />
     <None Remove="Features\Orders\CancelDeliveryDialog.xaml" />
     <None Remove="Features\Orders\Create\CreateNewCustomerDialog.xaml" />
@@ -175,11 +175,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="Features\Fulfillment\FulfillmentPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
     <Page Update="Features\Users\UsersPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -214,6 +209,12 @@
 	<Content Include="BackendServices\**\*.*">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Features\Expenses\List\ExpensesPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <ItemGroup>
