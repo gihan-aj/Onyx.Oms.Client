@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Onyx.Oms.Client.Desktop.Features.Expenses.Form.ExpenseFormPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Onyx.Oms.Client.Desktop.Features.Expenses.Form"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
+    xmlns:sharedConverters="using:Onyx.Oms.Client.Desktop.Shared.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:BoolToVisibilityConverter x:Key="InvertedBoolToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible"/>
+        <converters:BoolNegationConverter x:Key="InvertedBoolConverter" />
+        <converters:EmptyStringToObjectConverter x:Key="StringToVisibilityConverter" EmptyValue="Collapsed" NotEmptyValue="Visible" />
+        <sharedConverters:DecimalToDoubleConverter x:Key="DecimalToDoubleConverter" />
+    </Page.Resources>
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header / Toolbar -->
+        <Grid Grid.Row="0" Padding="16,12"
+              Background="{ThemeResource LayerFillColorDefaultBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0"
+                    Command="{x:Bind ViewModel.GoBackCommand}"
+                    Style="{StaticResource SubtleButtonStyle}" Margin="0,0,16,0">
+                <FontIcon Glyph="&#xE72B;" FontSize="14" />
+            </Button>
+
+            <TextBlock Grid.Column="1"
+                       Text="{x:Bind ViewModel.PageTitle, Mode=OneWay}"
+                       Style="{StaticResource SubtitleTextBlockStyle}"
+                       FontWeight="SemiBold"
+                       VerticalAlignment="Center" />
+
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+                <Button Command="{x:Bind ViewModel.SaveCommand}"
+                        Style="{StaticResource AccentButtonStyle}"
+                        IsEnabled="{x:Bind ViewModel.IsBusy, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE74E;" FontSize="14" />
+                            <TextBlock Text="Save Changes" />
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <!-- Progress Bar (Saving) -->
+        <ProgressBar Grid.Row="0"
+                     VerticalAlignment="Bottom"
+                     HorizontalAlignment="Stretch"
+                     IsIndeterminate="True"
+                     Visibility="{x:Bind ViewModel.IsBusy, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                     Canvas.ZIndex="100"/>
+
+        <!-- Form Scrolling Region (hidden while loading) -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="16"
+                      Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InvertedBoolToVisibilityConverter}}">
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="10000*" MaxWidth="1000" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="1" HorizontalAlignment="Stretch" Spacing="16">
+
+                    <!-- ═══════════════════════════════ -->
+                    <!-- Expense Details Card            -->
+                    <!-- Two-column layout               -->
+                    <!-- ═══════════════════════════════ -->
+                    <StackPanel Style="{StaticResource CardStackStyle}">
+                        <TextBlock Text="Expense Details" Style="{StaticResource BodyStrongTextBlockStyle}" />
+
+                        <Grid ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" MinWidth="200" />
+                                <ColumnDefinition Width="1*" MinWidth="200" />
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Left column: Category + Amount -->
+                            <StackPanel Grid.Column="0" Spacing="12">
+
+                                <!-- Category row: ComboBox + Add button -->
+                                <StackPanel>
+                                    <TextBlock Text="Category*"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               Margin="0,0,0,4" />
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <ComboBox Grid.Column="0"
+                                                  ItemsSource="{x:Bind ViewModel.Categories, Mode=OneWay}"
+                                                  SelectedItem="{x:Bind ViewModel.SelectedCategory, Mode=TwoWay}"
+                                                  PlaceholderText="Select a category"
+                                                  HorizontalAlignment="Stretch" />
+
+                                        <!-- Add custom category button -->
+                                        <Button Grid.Column="1"
+                                                x:Name="AddCategoryButton"
+                                                Style="{StaticResource SubtleButtonStyle}"
+                                                ToolTipService.ToolTip="Add custom category"
+                                                Click="OnAddCategoryClick">
+                                            <FontIcon Glyph="&#xE710;" FontSize="14" />
+                                            <Button.Flyout>
+                                                <Flyout x:Name="AddCategoryFlyout" Placement="Bottom">
+                                                    <StackPanel Spacing="8" Width="240">
+                                                        <TextBlock Text="New Category"
+                                                                   Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                                        <TextBox x:Name="NewCategoryTextBox"
+                                                                 PlaceholderText="e.g. Office Supplies"
+                                                                 KeyDown="OnNewCategoryKeyDown" />
+                                                        <Button Content="Add Category"
+                                                                Style="{StaticResource AccentButtonStyle}"
+                                                                HorizontalAlignment="Stretch"
+                                                                Click="OnConfirmAddCategoryClick" />
+                                                    </StackPanel>
+                                                </Flyout>
+                                            </Button.Flyout>
+                                        </Button>
+                                    </Grid>
+                                    <TextBlock Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                               Text="{x:Bind ViewModel.CategoryError, Mode=OneWay}"
+                                               Visibility="{x:Bind ViewModel.CategoryError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"
+                                               Style="{StaticResource CaptionTextBlockStyle}" Margin="0,4,0,0" />
+                                </StackPanel>
+
+                                <!-- Amount -->
+                                <StackPanel>
+                                    <NumberBox Header="{x:Bind ViewModel.AmountHeader, Mode=OneWay}"
+                                               Value="{x:Bind ViewModel.Amount, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}"
+                                               Minimum="0"
+                                               SmallChange="1"
+                                               LargeChange="100"
+                                               SpinButtonPlacementMode="Compact"
+                                               PlaceholderText="0.00"
+                                               HorizontalAlignment="Stretch" />
+                                    <TextBlock Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                               Text="{x:Bind ViewModel.AmountError, Mode=OneWay}"
+                                               Visibility="{x:Bind ViewModel.AmountError, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"
+                                               Style="{StaticResource CaptionTextBlockStyle}" Margin="0,4,0,0" />
+                                </StackPanel>
+
+                            </StackPanel>
+
+                            <!-- Right column: Date Incurred -->
+                            <StackPanel Grid.Column="1" Spacing="12">
+
+                                <DatePicker Header="Date Incurred*"
+                                            SelectedDate="{x:Bind ViewModel.DateIncurred, Mode=TwoWay}"
+                                            HorizontalAlignment="Stretch" />
+
+                            </StackPanel>
+                        </Grid>
+
+                    </StackPanel>
+
+                    <!-- ═══════════════════════════════ -->
+                    <!-- Additional Information Card     -->
+                    <!-- ═══════════════════════════════ -->
+                    <StackPanel Style="{StaticResource CardStackStyle}">
+                        <TextBlock Text="Additional Information" Style="{StaticResource BodyStrongTextBlockStyle}" />
+
+                        <TextBox Header="Reference"
+                                 Text="{x:Bind ViewModel.Reference, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 PlaceholderText="e.g. Invoice number, receipt number" />
+
+                        <TextBox Header="Notes"
+                                 Text="{x:Bind ViewModel.Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 PlaceholderText="Add any relevant notes…"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 MinHeight="100" />
+
+                    </StackPanel>
+
+                </StackPanel>
+            </Grid>
+
+        </ScrollViewer>
+
+        <!-- Initial Load Spinner -->
+        <Grid Grid.RowSpan="2" Background="{ThemeResource SolidBackgroundFillColorBaseBrush}" Opacity="0.8"
+              Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+              Canvas.ZIndex="101">
+            <ProgressRing IsActive="True" Width="64" Height="64" />
+        </Grid>
+
+    </Grid>
+</Page>

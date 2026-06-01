@@ -49,12 +49,14 @@ public sealed partial class ExpensesPage : Page
 
     private void EditMenuItem_Click(object sender, RoutedEventArgs e)
     {
-
+        if ((sender as MenuFlyoutItem)?.DataContext is ExpenseGridItem item)
+            ViewModel.EditExpenseCommand.Execute(item);
     }
 
     private void DeleteMenuItem_Click(object sender, RoutedEventArgs e)
     {
-
+        if ((sender as MenuFlyoutItem)?.DataContext is ExpenseGridItem item)
+            ViewModel.DeleteExpenseCommand.Execute(item);
     }
 
     private async void OrdersDataGrid_Sorting(object sender, DataGridColumnEventArgs e)

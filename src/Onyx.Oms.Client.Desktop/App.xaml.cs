@@ -346,6 +346,8 @@ namespace Onyx.Oms.Client.Desktop
             services.AddTransient<Features.Couriers.CourierFormViewModel>();
             services.AddTransient<Features.Expenses.List.ExpensesPage>();
             services.AddTransient<Features.Expenses.List.ExpensesViewModel>();
+            services.AddTransient<Features.Expenses.Form.ExpenseFormPage>();
+            services.AddTransient<Features.Expenses.Form.ExpenseFormViewModel>();
             services.AddTransient<Features.Users.UsersPage>();
             services.AddTransient<Features.Roles.RolesPage>();
             services.AddTransient<Features.Roles.RoleFormPage>();
@@ -381,6 +383,7 @@ namespace Onyx.Oms.Client.Desktop
             pageService.Configure(typeof(Features.Couriers.CouriersPage).FullName!, typeof(Features.Couriers.CouriersPage));
             pageService.Configure(typeof(Features.Couriers.CourierFormViewModel).FullName!, typeof(Features.Couriers.CourierFormPage));
             pageService.Configure(typeof(Features.Expenses.List.ExpensesPage).FullName!, typeof(Features.Expenses.List.ExpensesPage));
+            pageService.Configure(typeof(Features.Expenses.Form.ExpenseFormPage).FullName!, typeof(Features.Expenses.Form.ExpenseFormPage));
             pageService.Configure(typeof(Features.Users.UsersPage).FullName!, typeof(Features.Users.UsersPage));
             pageService.Configure(typeof(Features.Roles.RolesPage).FullName!, typeof(Features.Roles.RolesPage));
             pageService.Configure(typeof(Features.Roles.RoleFormPage).FullName!, typeof(Features.Roles.RoleFormPage));

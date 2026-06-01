@@ -14,7 +14,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Expenses.List
         public DateTimeOffset CreatedOnUtc { get; set; }
 
         public string FormattedAmount {  get; set; } = string.Empty;
-        public string DateIncurredDisplay => DateIncurred.ToLocalTime().ToString("d");
+        public string DateIncurredDisplay => DateIncurred.ToLocalTime().ToString("dd MMMM, yyyy");
 
         public bool CanEdit { get; set; } = false;
         public bool CanDelete { get; set; } = false;

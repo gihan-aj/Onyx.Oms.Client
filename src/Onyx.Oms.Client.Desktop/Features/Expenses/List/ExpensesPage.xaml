@@ -130,7 +130,7 @@
 
                 <toolkit:DataGrid x:Name="ExpensesDataGrid"
                                   Width="{Binding ActualWidth, ElementName=TableContainer}"
-                                  MinWidth="270"
+                                  MinWidth="640"
                                   ItemsSource="{x:Bind ViewModel.Items, Mode=OneWay}"
                                   AutoGenerateColumns="False"
                                   IsReadOnly="True"
@@ -150,7 +150,7 @@
                                 <Setter.Value>
                                     <MenuFlyout>
 
-                                        <MenuFlyoutItem Text="Edit" IsEnabled="{Binding CanEdit}">
+                                        <MenuFlyoutItem Text="Edit" IsEnabled="{Binding CanEdit}" Click="EditMenuItem_Click">
                                             <MenuFlyoutItem.Icon>
                                                 <FontIcon Glyph="&#xE70F;"/>
                                             </MenuFlyoutItem.Icon>
@@ -158,9 +158,11 @@
 
                                         <MenuFlyoutSeparator Visibility="{Binding CanDelete, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
-                                        <MenuFlyoutItem Text="Delete" Visibility="{Binding CanDelete, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <MenuFlyoutItem Text="Delete" 
+                                                        Visibility="{Binding CanDelete, Converter={StaticResource BoolToVisibilityConverter}}" 
+                                                        Click="DeleteMenuItem_Click" Foreground="{ThemeResource SystemFillColorCriticalBrush}">
                                             <MenuFlyoutItem.Icon>
-                                                <FontIcon Glyph="&#xE74D;"/>
+                                                <FontIcon Glyph="&#xE74D;" Foreground="{ThemeResource SystemFillColorCriticalBrush}"/>
                                             </MenuFlyoutItem.Icon>
                                         </MenuFlyoutItem>
 
@@ -172,18 +174,36 @@
 
                     <toolkit:DataGrid.Columns>
 
-                        <toolkit:DataGridTextColumn Header="Expense Category" 
+                        <toolkit:DataGridTextColumn Header="Category" 
                                                     Binding="{Binding Category}" Tag="category" 
-                                                    Width="Auto" MinWidth="120" 
+                                                    Width="160" MinWidth="120" 
                                                     FontWeight="SemiBold"
                                                     HeaderStyle="{StaticResource LeftAlignedHeaderStyle}" 
                                                     ElementStyle="{StaticResource LeftAlignedCellStyle}" CanUserSort="True" />
-                        
+
                         <toolkit:DataGridTextColumn Header="Date Incurred" 
-                                                    Binding="{Binding Category}" Tag="dateincurred" 
-                                                    Width="180" MinWidth="150" 
+                                                    Binding="{Binding DateIncurredDisplay}" Tag="dateincurred" 
+                                                    Width="140" MinWidth="120" 
                                                     HeaderStyle="{StaticResource LeftAlignedHeaderStyle}" 
                                                     ElementStyle="{StaticResource LeftAlignedCellStyle}" CanUserSort="True" />
+
+                        <toolkit:DataGridTextColumn Header="Amount" 
+                                                    Binding="{Binding FormattedAmount}" Tag="amount" 
+                                                    Width="140" MinWidth="100" 
+                                                    HeaderStyle="{StaticResource RightAlignedHeaderStyle}" 
+                                                    ElementStyle="{StaticResource RightAlignedCellStyle}" CanUserSort="True" />
+
+                        <toolkit:DataGridTextColumn Header="Reference" 
+                                                    Binding="{Binding Reference}" Tag="reference" 
+                                                    Width="140" MinWidth="100" 
+                                                    HeaderStyle="{StaticResource LeftAlignedHeaderStyle}" 
+                                                    ElementStyle="{StaticResource LeftAlignedCellStyle}" CanUserSort="False" />
+
+                        <toolkit:DataGridTextColumn Header="Notes" 
+                                                    Binding="{Binding Notes}" Tag="notes" 
+                                                    Width="*" MinWidth="120" 
+                                                    HeaderStyle="{StaticResource LeftAlignedHeaderStyle}" 
+                                                    ElementStyle="{StaticResource LeftAlignedCellStyle}" CanUserSort="False" />
 
                         <!-- Row Actions -->
                         <toolkit:DataGridTemplateColumn Width="80" HeaderStyle="{StaticResource CenteredHeaderStyle}">
@@ -202,7 +222,11 @@
                                         <Button.Flyout>
                                             <MenuFlyout>
 
-                                                <MenuFlyoutItem x:Name="EditMenuItem" Text="Edit" Click="EditMenuItem_Click" IsEnabled="{x:Bind CanEdit}">
+                                                <MenuFlyoutItem x:Name="EditMenuItem" 
+                                                                Text="Edit" 
+                                                                Click="EditMenuItem_Click" 
+                                                                IsEnabled="{x:Bind CanEdit}"
+                                                                Tag="{x:Bind}">
                                                     <MenuFlyoutItem.Icon>
                                                         <FontIcon Glyph="&#xE70F;"/>
                                                     </MenuFlyoutItem.Icon>
@@ -210,9 +234,11 @@
 
                                                 <MenuFlyoutSeparator Visibility="{x:Bind CanDelete, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
-                                                <MenuFlyoutItem x:Name="DeleteMenuItem" Text="Delete" Click="DeleteMenuItem_Click" Visibility="{x:Bind CanDelete, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                <MenuFlyoutItem x:Name="DeleteMenuItem" Text="Delete" Click="DeleteMenuItem_Click" 
+                                                                Visibility="{x:Bind CanDelete, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                                Foreground="{ThemeResource SystemFillColorCriticalBrush}">
                                                     <MenuFlyoutItem.Icon>
-                                                        <FontIcon Glyph="&#xE74D;"/>
+                                                        <FontIcon Glyph="&#xE74D;" Foreground="{ThemeResource SystemFillColorCriticalBrush}"/>
                                                     </MenuFlyoutItem.Icon>
                                                 </MenuFlyoutItem>
 
