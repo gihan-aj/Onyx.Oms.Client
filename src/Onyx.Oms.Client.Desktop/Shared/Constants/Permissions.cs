@@ -85,6 +85,11 @@ public static class Permissions
         public const string Delete = "tenant:customers:delete";
     }
 
+    public static class Reports
+    {
+        public const string MonthlyFinancialsView = "tenant:reports:monthlyfinancials";
+    }
+
     public static class AppSequences
     {
         public const string View = "tenant:appsequences:view";

@@ -51,6 +51,7 @@
     <None Remove="Features\Products\Edit\EditProductPage.xaml" />
     <None Remove="Features\Products\List\ProductsPage.xaml" />
     <None Remove="Features\ProductVariants\ProductVariantsPage.xaml" />
+    <None Remove="Features\Reports\FinancialReportPage.xaml" />
     <None Remove="Features\Roles\RoleFormPage.xaml" />
     <None Remove="Features\Settings\EditPaymentMethodDialog.xaml" />
     <None Remove="Features\Settings\PaymentMethodsSettingsView.xaml" />
@@ -210,6 +211,18 @@
 	<Content Include="BackendServices\**\*.*">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Features\Reports\LedgerRow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Features\Reports\FinancialReportPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <ItemGroup>

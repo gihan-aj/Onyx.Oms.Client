@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="Onyx.Oms.Client.Desktop.Features.Reports.LedgerRow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid Padding="0,6">
+        <TextBlock x:Name="LabelBlock"
+                   FontSize="12"
+                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+        <TextBlock x:Name="ValueBlock"
+                   FontSize="12" FontWeight="Medium"
+                   HorizontalAlignment="Right"/>
+    </Grid>
+</UserControl>

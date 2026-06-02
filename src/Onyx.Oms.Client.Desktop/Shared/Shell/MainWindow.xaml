@@ -83,6 +83,7 @@
 
                 <NavigationViewItemHeader Content="Finance" />
                 <NavigationViewItem Icon="Calculator" Content="Expenses" Tag="Onyx.Oms.Client.Desktop.Features.Expenses.List.ExpensesPage" />
+                <NavigationViewItem Icon="Document" Content="Financial Report" Tag="Onyx.Oms.Client.Desktop.Features.Reports.FinancialReportPage" />
 
                 <!--<NavigationViewItemHeader Content="Administration" />
                 <NavigationViewItem Icon="ContactInfo" Content="Users" Tag="Onyx.Oms.Client.Desktop.Features.Users.UsersPage" />

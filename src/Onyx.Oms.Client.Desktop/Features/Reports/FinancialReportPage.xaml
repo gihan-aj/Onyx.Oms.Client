@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Onyx.Oms.Client.Desktop.Features.Reports.FinancialReportPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Onyx.Oms.Client.Desktop.Features.Reports"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:BoolToVisibilityConverter x:Key="InvertedBoolToVisibilityConverter"
+            TrueValue="Collapsed" FalseValue="Visible" />
+        <!-- Reuse the same card style from Dashboard -->
+        <Style x:Key="ReportCardStyle" TargetType="Border">
+            <Setter Property="Background"   Value="{ThemeResource LayerFillColorDefaultBrush}"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding"      Value="20"/>
+        </Style>
+        <!-- Subtle divider between ledger rows -->
+        <Style x:Key="LedgerRowStyle" TargetType="Grid">
+            <Setter Property="Padding" Value="0,10"/>
+        </Style>
+    </Page.Resources>
+
+    <Grid x:Name="RootGrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- Progress bar -->
+            <RowDefinition Height="*"/>
+            <!-- Content -->
+        </Grid.RowDefinitions>
+
+        <!-- Loading indicator (same pattern as Dashboard) -->
+        <ProgressBar Grid.Row="0"
+                     VerticalAlignment="Bottom"
+                     IsIndeterminate="True"
+                     Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay,
+                                  Converter={StaticResource BoolToVisibilityConverter}}"
+                     Canvas.ZIndex="100"/>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Padding="40,32,40,48" Spacing="24">
+
+                <!-- ── PAGE HEADER ─────────────────────────────── -->
+                <Grid>
+                    <StackPanel>
+                        <TextBlock Text="FINANCIAL REPORT"
+                                   FontSize="11" FontWeight="SemiBold"
+                                   CharacterSpacing="80"
+                                   Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+                        <TextBlock Text="{x:Bind ViewModel.ReportTitle, Mode=OneWay}"
+                                   Style="{StaticResource TitleTextBlockStyle}"
+                                   Foreground="{ThemeResource AccentTextFillColorTertiaryBrush}"
+                                   FontWeight="Bold" Margin="0,4,0,0"/>
+                    </StackPanel>
+                    <!-- Year / Month Pickers (top-right) -->
+                    <StackPanel Orientation="Horizontal" Spacing="8"
+                                HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <ComboBox x:Name="YearCombo"
+                                  ItemsSource="{x:Bind ViewModel.AvailableYears}"
+                                  SelectedItem="{x:Bind ViewModel.SelectedYear, Mode=TwoWay}"
+                                  PlaceholderText="Year"
+                                  Width="100"/>
+                        <ComboBox x:Name="MonthCombo"
+                                  ItemsSource="{x:Bind ViewModel.AvailableMonths}"
+                                  SelectedItem="{x:Bind ViewModel.SelectedMonth, Mode=TwoWay}"
+                                  DisplayMemberPath="Label"
+                                  PlaceholderText="Month"
+                                  Width="130"/>
+                        <Button Content="Generate"
+                                Command="{x:Bind ViewModel.LoadReportCommand}"
+                                Style="{StaticResource AccentButtonStyle}"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- ── NO DATA / ERROR STATE ───────────────────── -->
+                <Border Visibility="{x:Bind ViewModel.HasReport, Mode=OneWay,
+                                     Converter={StaticResource InvertedBoolToVisibilityConverter}}"
+                        Background="{ThemeResource LayerFillColorDefaultBrush}"
+                        CornerRadius="12" Padding="40">
+                    <StackPanel HorizontalAlignment="Center" Spacing="8">
+                        <FontIcon Glyph="&#xE9F9;" FontSize="36"
+                                  Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                  HorizontalAlignment="Center"/>
+                        <TextBlock Text="Select a year and month, then tap Generate."
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ── REPORT CONTENT (only when HasReport = true) ── -->
+                <StackPanel Spacing="24"
+                            Visibility="{x:Bind ViewModel.HasReport, Mode=OneWay,
+                                         Converter={StaticResource BoolToVisibilityConverter}}">
+
+                    <!-- ── KPI TILES ─────────────────────────────── -->
+                    <TextBlock Text="REVENUE SUMMARY"
+                               FontSize="11" FontWeight="SemiBold"
+                               CharacterSpacing="80"
+                               Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+                    
+                    <Grid ColumnSpacing="10">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <!-- Gross Sales -->
+                        <Border Grid.Column="0" Style="{StaticResource ReportCardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="Gross Sales"
+                                           FontSize="12"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBlock Text="{x:Bind ViewModel.FormattedGrossSales, Mode=OneWay}"
+                                           FontSize="26" FontWeight="Medium" Margin="0,4,0,0"/>
+                                <TextBlock Text="{x:Bind ViewModel.OrderCountLabel, Mode=OneWay}"
+                                           FontSize="11"
+                                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                           Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <!-- Net Revenue -->
+                        <Border Grid.Column="1" Style="{StaticResource ReportCardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="Net Revenue"
+                                           FontSize="12"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBlock Text="{x:Bind ViewModel.FormattedNetRevenue, Mode=OneWay}"
+                                           FontSize="26" FontWeight="Medium" Margin="0,4,0,0"/>
+                                <TextBlock Text="{x:Bind ViewModel.DiscountLabel, Mode=OneWay}"
+                                           FontSize="11"
+                                           Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                                           Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <!-- Gross Profit -->
+                        <Border Grid.Column="2" Style="{StaticResource ReportCardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="Gross Profit"
+                                           FontSize="12"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBlock Text="{x:Bind ViewModel.FormattedGrossProfit, Mode=OneWay}"
+                                           FontSize="26" FontWeight="Medium" Margin="0,4,0,0"
+                                           Foreground="{ThemeResource SystemFillColorSuccessBrush}"/>
+                                <TextBlock Text="{x:Bind ViewModel.GrossMarginLabel, Mode=OneWay}"
+                                           FontSize="11"
+                                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                           Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <!-- Net Profit -->
+                        <Border Grid.Column="3" Style="{StaticResource ReportCardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="Net Profit"
+                                           FontSize="12"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBlock Text="{x:Bind ViewModel.FormattedNetProfit, Mode=OneWay}"
+                                           FontSize="26" FontWeight="Medium" Margin="0,4,0,0"
+                                           Foreground="{x:Bind ViewModel.NetProfitBrush, Mode=OneWay}"/>
+                                <TextBlock Text="{x:Bind ViewModel.NetMarginLabel, Mode=OneWay}"
+                                           FontSize="11"
+                                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                           Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                    </Grid>
+
+                    <!-- ── BOTTOM TWO-COLUMN ROW ──────────────────── -->
+                    <Grid ColumnSpacing="16">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <!-- ── P&L WATERFALL CARD ────────────────── -->
+                        <Border Grid.Column="0" Style="{StaticResource ReportCardStyle}">
+
+                            <StackPanel>
+                                <!-- Card Header -->
+                                <Grid Margin="0,0,0,16">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE9F9;" FontSize="14"
+                                                  Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                        <TextBlock Text="Profit &amp; Loss"
+                                                   FontWeight="Medium" FontSize="13"/>
+                                    </StackPanel>
+                                </Grid>
+                                <!-- Ledger rows with subtle separators -->
+                                <!-- Row: Gross Sales -->
+                                <local:LedgerRow Label="Gross Sales"
+                                                 Value="{x:Bind ViewModel.FormattedGrossSales, Mode=OneWay}"
+                                                 IsPositive="True"/>
+                                <local:LedgerRow Label="Shipping Revenue"
+                                                 Value="{x:Bind ViewModel.FormattedShippingRevenue, Mode=OneWay}"
+                                                 IsPositive="True"/>
+                                <local:LedgerRow Label="Discounts"
+                                                 Value="{x:Bind ViewModel.FormattedTotalDiscounts, Mode=OneWay}"
+                                                 IsPositive="False"/>
+                                <!-- Subtotal: Net Revenue -->
+                                <Border BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
+                                        BorderThickness="0,1,0,0" Margin="0,4,0,0" Padding="0,8,0,0">
+                                    <Grid>
+                                        <TextBlock Text="Net Revenue" FontWeight="SemiBold" FontSize="13"/>
+                                        <TextBlock Text="{x:Bind ViewModel.FormattedNetRevenue, Mode=OneWay}"
+                                                   FontWeight="SemiBold" FontSize="13"
+                                                   HorizontalAlignment="Right"/>
+                                    </Grid>
+                                </Border>
+                                <local:LedgerRow Label="Cost of Goods Sold"
+                                                 Value="{x:Bind ViewModel.FormattedCogs, Mode=OneWay}"
+                                                 IsPositive="False" Margin="0,8,0,0"/>
+                                <!-- Gross Profit -->
+                                <Border BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
+                                        BorderThickness="0,1,0,0" Margin="0,4,0,0" Padding="0,8,0,0">
+                                    <Grid>
+                                        <TextBlock Text="Gross Profit" FontWeight="SemiBold" FontSize="13"/>
+                                        <TextBlock Text="{x:Bind ViewModel.FormattedGrossProfit, Mode=OneWay}"
+                                                   FontWeight="SemiBold" FontSize="13"
+                                                   Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                                                   HorizontalAlignment="Right"/>
+                                    </Grid>
+                                </Border>
+                                <local:LedgerRow Label="Operating Expenses"
+                                                 Value="{x:Bind ViewModel.FormattedTotalExpenses, Mode=OneWay}"
+                                                 IsPositive="False" Margin="0,8,0,0"/>
+                                <!-- Net Profit -->
+                                <Border Background="{ThemeResource SystemFillColorSuccessBackgroundBrush}"
+                                        CornerRadius="8" Margin="0,8,0,0" Padding="12,10">
+                                    <Grid>
+                                        <TextBlock Text="Net Profit" FontWeight="Bold" FontSize="14"/>
+                                        <TextBlock Text="{x:Bind ViewModel.FormattedNetProfit, Mode=OneWay}"
+                                                   FontWeight="Bold" FontSize="14"
+                                                   Foreground="{x:Bind ViewModel.NetProfitBrush, Mode=OneWay}"
+                                                   HorizontalAlignment="Right"/>
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+
+                        </Border>
+
+                        <!-- ── EXPENSE BREAKDOWN CARD ─────────────── -->
+                        <Border Grid.Column="1" Style="{StaticResource ReportCardStyle}">
+                            <StackPanel>
+                                <!-- Card Header -->
+                                <Grid Margin="0,0,0,16">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE783;" FontSize="14"
+                                                  Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
+                                        <TextBlock Text="Expense Breakdown"
+                                                   FontWeight="Medium" FontSize="13"/>
+                                    </StackPanel>
+                                    <TextBlock Text="{x:Bind ViewModel.FormattedTotalExpenses, Mode=OneWay}"
+                                               FontSize="11" FontWeight="Medium"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                               HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                </Grid>
+                                <!-- ItemsControl with ProgressBar per category -->
+                                <ItemsControl ItemsSource="{x:Bind ViewModel.ExpenseItems, Mode=OneWay}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="local:ExpenseCategoryUIItem">
+                                            <Grid Margin="0,0,0,14">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+                                                <Grid Grid.Row="0" Margin="0,0,0,5">
+                                                    <TextBlock Text="{x:Bind Category}"
+                                                               FontSize="12"
+                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                                    <TextBlock FontSize="12" FontWeight="Medium" HorizontalAlignment="Right">
+                                                        <Run Text="{x:Bind FormattedAmount, Mode=OneTime}"/>
+                                                    </TextBlock>
+                                                </Grid>
+                                                <ProgressBar Grid.Row="1"
+                                                             Maximum="{x:Bind Maximum}"
+                                                             Value="{x:Bind Value}"
+                                                             HorizontalAlignment="Stretch"
+                                                             Height="6"
+                                                             CornerRadius="3"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+
+                    </Grid>
+                    
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+
+    </Grid>
+</Page>
