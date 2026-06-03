@@ -50,6 +50,7 @@
             <SelectorBarItem Text="Sequences" Tag="Sequences" />
             <SelectorBarItem Text="Payment Methods" Tag="PaymentMethods" />
             <SelectorBarItem Text="WhatsApp" Tag="WhatsApp" />
+            <SelectorBarItem Text="Database" Tag="Database" />
             <SelectorBarItem Text="Appearance" Tag="Appearance" />
             <SelectorBarItem Text="About" Tag="About" />
         </SelectorBar>
@@ -514,6 +515,133 @@
                             </labs:SettingsCard>
                         </StackPanel>
 
+                    </StackPanel>
+
+                    <!-- Database Backup Settings  -->
+                    <StackPanel x:Name="DatabaseSettingsGrid" Visibility="Collapsed" Spacing="12">
+
+                        <!-- ── Backup Configuration Card -->
+                        <StackPanel Style="{StaticResource CardStackStyle}">
+
+                            <Grid Margin="0,0,0,16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Backup Configuration"
+                                               Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                    <TextBlock Text="Automated database backups are written to a shared location that both the OMS and IdP services can access."
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                               Margin="0,0,0,12" />
+                                </StackPanel>
+                                <CommandBar Grid.Column="1"
+                                            Background="Transparent"
+                                            IsOpen="False"
+                                            DefaultLabelPosition="Right"
+                                            IsSticky="True">
+                                    <AppBarButton Icon="Edit" Label="Edit"
+                                                  Visibility="{x:Bind ViewModel.Backup.EditButtonVisible, Mode=OneWay}"
+                                                  Click="OnEditBackupSettingsClick" />
+                                    <AppBarButton Icon="Save" Label="Save"
+                                                  Visibility="{x:Bind ViewModel.Backup.SaveCancelVisible, Mode=OneWay}"
+                                                  Click="OnSaveBackupSettingsClick" />
+                                    <AppBarButton Icon="Cancel" Label="Cancel"
+                                                  Visibility="{x:Bind ViewModel.Backup.SaveCancelVisible, Mode=OneWay}"
+                                                  Click="OnCancelBackupSettingsClick" />
+                                </CommandBar>
+                            </Grid>
+
+                            <StackPanel Spacing="8">
+
+                                <!-- Enable toggle -->
+                                <labs:SettingsCard Header="Enable Automatic Backups"
+                                                   Description="When enabled, the backend services will create scheduled backups at the configured interval.">
+                                    <labs:SettingsCard.HeaderIcon>
+                                        <FontIcon Glyph="&#xE895;" />
+                                    </labs:SettingsCard.HeaderIcon>
+                                    <ToggleSwitch IsOn="{x:Bind ViewModel.Backup.IsEnabled, Mode=TwoWay}"
+                                                  IsEnabled="{x:Bind ViewModel.Backup.IsEditing, Mode=OneWay}"
+                                                  OnContent="Enabled" OffContent="Disabled" />
+                                </labs:SettingsCard>
+
+                                <!-- Backup path -->
+                                <labs:SettingsCard Header="Backup Location"
+                                                   Description="Shared folder path where backup files will be written. Both OMS and IdP must have write access to this path.">
+                                    <labs:SettingsCard.HeaderIcon>
+                                        <FontIcon Glyph="&#xE8B7;" />
+                                    </labs:SettingsCard.HeaderIcon>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBox x:Name="BackupPathBox"
+                                                 Text="{x:Bind ViewModel.Backup.BackupPath, Mode=TwoWay}"
+                                                 Width="320"
+                                                 PlaceholderText="e.g. D:\Google Drive\Onyx Backups"
+                                                 IsReadOnly="{x:Bind ViewModel.Backup.IsEditing,
+                                                      Converter={StaticResource InvertedBoolConverter},
+                                                      Mode=OneWay}" />
+                                        <Button x:Name="BrowseBackupPathButton"
+                                                Content="Browse…"
+                                                Click="OnBrowseBackupPathClick"
+                                                IsEnabled="{x:Bind ViewModel.Backup.IsEditing, Mode=OneWay}" />
+                                    </StackPanel>
+                                </labs:SettingsCard>
+
+                                <!-- Interval -->
+                                <labs:SettingsCard Header="Backup Interval (hours)"
+                                                   Description="How often a backup is created. Requires a service restart to take effect.">
+                                    <labs:SettingsCard.HeaderIcon>
+                                        <FontIcon Glyph="&#xE916;" />
+                                    </labs:SettingsCard.HeaderIcon>
+                                    <NumberBox Value="{x:Bind ViewModel.Backup.IntervalHours, Mode=TwoWay}"
+                                               Minimum="1" Maximum="168"
+                                               SpinButtonPlacementMode="Compact"
+                                               Width="120"
+                                               IsEnabled="{x:Bind ViewModel.Backup.IsEditing, Mode=OneWay}" />
+                                </labs:SettingsCard>
+
+                            </StackPanel>
+
+                        </StackPanel>
+
+                        <!-- ── Danger Zone — Restore Database ─-->
+                        <StackPanel Style="{StaticResource CardStackStyle}">
+
+                            <StackPanel Margin="0,0,0,16">
+                                <TextBlock Text="Danger Zone"
+                                           Style="{StaticResource BodyStrongTextBlockStyle}"
+                                           Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                                <TextBlock Text="The following actions are irreversible and can cause data loss. Proceed only if you know what you are doing."
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                           Margin="0,0,0,12" />
+                            </StackPanel>
+
+                            <!-- InfoBar warning -->
+                            <InfoBar IsOpen="True"
+                                     Severity="Error"
+                                     Title="This action will overwrite all current data."
+                                     Message="Restoring a backup replaces the entire database. Any changes made after the backup was taken will be permanently lost."
+                                     IsClosable="False"
+                                     Margin="0,0,0,12" />
+
+                            <!-- Restore action card -->
+                            <labs:SettingsCard Header="Restore Database from Backup"
+                                               Description="Select a backup file to restore. The service must be restarted after the restore completes.">
+                                <labs:SettingsCard.HeaderIcon>
+                                    <FontIcon Glyph="&#xE777;"
+                                              Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                                </labs:SettingsCard.HeaderIcon>
+                                <Button x:Name="RestoreDatabaseButton"
+                                        Content="Restore Database…"
+                                        Click="OnRestoreDatabaseClick"
+                                        Style="{StaticResource DefaultButtonStyle}"
+                                        Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                        BorderBrush="{ThemeResource SystemFillColorCriticalBrush}" />
+                            </labs:SettingsCard>
+
+                        </StackPanel>
+                        
                     </StackPanel>
 
 
