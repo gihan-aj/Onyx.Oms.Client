@@ -1,3 +1,4 @@
+using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -25,6 +26,8 @@ public sealed partial class MainWindow : Window
     private readonly BackgroundProcessService _backgroundServices;
 
     private bool _appStartingUp = true;
+    private bool _isShuttingDown = false;
+    private AppWindow _appWindow;
     public MainWindow(
         INavigationService navigationService,
         INavigationViewService navigationViewService,
@@ -93,11 +96,20 @@ public sealed partial class MainWindow : Window
             UserOnboardingView.ViewModel.OnboardingCanceled -= OnOnboardingCanceled;
             UserOnboardingView.ViewModel.RegistrationCompleted -= OnRegistrationCompleted;
 
-            _backgroundServices.StopBackendServices();
+            //_backgroundServices.StopBackendServicesAsync();
+
+            //if (_isShuttingDown)
+            //    _ = PerformGracefulShutdownAsync();
 
             // Make sure to dispose settings or services if needed
-            Microsoft.UI.Xaml.Application.Current.Exit();
+            //Microsoft.UI.Xaml.Application.Current.Exit();
         };
+
+        IntPtr hWind = WinRT.Interop.WindowNative.GetWindowHandle(this);
+        WindowId windowId = Win32Interop.GetWindowIdFromWindow(hWind);
+        _appWindow = AppWindow.GetFromWindowId(windowId);
+
+        _appWindow.Closing += AppWindow_Closing;
     }
 
     private void RootGrid_Loaded(object sender, RoutedEventArgs e)
@@ -405,6 +417,90 @@ public sealed partial class MainWindow : Window
                 overlappedPresenter.Maximize();
             }
             _appStartingUp = false;
+        }
+    }
+
+    private void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
+    {
+        // If we are already shutting down, let the window close naturally
+        if (_isShuttingDown) return;
+
+        // 1. Cancel the immediate close action!
+        args.Cancel = true;
+
+        // 2. Start our custom async shutdown process
+        _ = PerformGracefulShutdownAsync();
+    }
+
+    private async Task PerformGracefulShutdownAsync()
+    {
+        bool isBackupEnabled = CheckIfBackupsAreEnabled();
+
+        var dialog = new ContentDialog
+        {
+            Title = isBackupEnabled ? "Securing your data..." : "Shutting down...",
+            Content = new StackPanel
+            {
+                Spacing = 16,
+                Children =
+                    {
+                        new ProgressRing { IsActive = true, HorizontalAlignment = HorizontalAlignment.Center },
+                        new TextBlock
+                        {
+                            Text = isBackupEnabled
+                                ? "Please wait while we create a database backup. The application will close automatically."
+                                : "Closing background services safely...",
+                            TextWrapping = TextWrapping.Wrap,
+                            Foreground = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["TextFillColorSecondaryBrush"],
+                            TextAlignment = TextAlignment.Center
+                        }
+                    },
+                HorizontalAlignment = HorizontalAlignment.Center
+            },
+            XamlRoot = this.Content.XamlRoot,
+            IsPrimaryButtonEnabled = false, 
+            IsSecondaryButtonEnabled = false
+        };
+
+        _ = dialog.ShowAsync();
+
+        await _backgroundServices.StopBackendServicesAsync();
+
+        _isShuttingDown = true;
+
+        dialog.Hide();
+
+        Application.Current.Exit();
+    }
+
+    private bool CheckIfBackupsAreEnabled()
+    {
+        try
+        {
+            string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string configPath = System.IO.Path.Combine(appData, "OnyxOms", "system_config.json");
+
+            if (!System.IO.File.Exists(configPath)) return false;
+
+            var json = System.IO.File.ReadAllText(configPath);
+            using var doc = System.Text.Json.JsonDocument.Parse(json);
+            var root = doc.RootElement;
+
+            if (root.TryGetProperty("BackupSettings", out var backupSettings))
+            {
+                if (backupSettings.TryGetProperty("IsEnabled", out var isEnabled) && isEnabled.GetBoolean())
+                {
+                    if (backupSettings.TryGetProperty("BackupPath", out var path) && !string.IsNullOrWhiteSpace(path.GetString()))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        catch
+        {
+            return false;
         }
     }
 }

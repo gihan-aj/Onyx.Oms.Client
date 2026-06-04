@@ -1,10 +1,15 @@
+using CommunityToolkit.WinUI.Animations;
 using Microsoft.Extensions.Options;
+using Microsoft.UI.Xaml.Documents;
 using Onyx.Oms.Client.Desktop.Shared.Models.Configuration;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Onyx.Oms.Client.Desktop.Shared.Services
@@ -113,12 +118,59 @@ namespace Onyx.Oms.Client.Desktop.Shared.Services
             throw new Exception("The background services took too long to start.");
         }
 
-        public void StopBackendServices()
+        public async Task StopBackendServicesAsync()
         {
-            Log.Information("Shutting down background services...");
+            Log.Information("Politely asking background services to shut down and run backups...");
 
-            SafelyKillProcess(_idpProcess, "IdP");
-            SafelyKillProcess(_apiProcess, "API");
+            var shutdownTasks = new List<Task>
+            {
+                SendShutdownSignalAsync(_omsApiOptions.BaseUrl), 
+                SendShutdownSignalAsync(_authenticationOptions.Authority),
+            };
+
+            var timeoutTask = Task.Delay(2000);
+            //Task.WaitAll(shutdownTasks.ToArray(), 2000);
+            await Task.WhenAny(Task.WhenAll(shutdownTasks), timeoutTask); // Using Task.WhenAny prevents blocking if an API is unresponsive
+
+            var processWaitTasks = new List<Task>();
+            if (_idpProcess != null && !_idpProcess.HasExited)
+                processWaitTasks.Add(_idpProcess.WaitForExitAsync());
+            if(_apiProcess != null && !_apiProcess.HasExited)
+                processWaitTasks.Add(_apiProcess.WaitForExitAsync());
+
+            if (processWaitTasks.Any())
+            {
+                Log.Information("Waiting for background services to finish their tasks (like backups) and exit...");
+
+                // Give them up to 60 seconds to finish massive backups
+                var failSafeTimeout = Task.Delay(TimeSpan.FromSeconds(60));
+                var completedTask = await Task.WhenAny(Task.WhenAll(processWaitTasks), failSafeTimeout);
+
+                if (completedTask == failSafeTimeout)
+                {
+                    Log.Warning("Services took longer than 60 seconds to exit. Forcefully terminating.");
+                    SafelyKillProcess(_idpProcess, "IdP");
+                    SafelyKillProcess(_apiProcess, "API");
+                }
+                else
+                {
+                    Log.Information("Background services exited gracefully.");
+                }
+            }
+        }
+
+        private async Task SendShutdownSignalAsync(string baseUrl)
+        {
+            try
+            {
+                using var client = new HttpClient();
+                client.Timeout = TimeSpan.FromSeconds(2);
+                await client.PostAsync($"{baseUrl}/api/system/shutdown", null);
+            }
+            catch (Exception ex)
+            {
+                Log.Debug(ex, $"Failed to send graceful shutdown signal to {baseUrl}");
+            }
         }
 
         private void SafelyKillProcess(Process? process, string name)
