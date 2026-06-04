@@ -19,6 +19,7 @@ public sealed partial class MainWindow : Window
     private readonly IPermissionService _permissionService;
     private readonly ITenantProfileService _tenantProfileService;
     private readonly ILicenseManagerService _licenseManagerService;
+    private readonly DatabaseRestoreService _databaseRestoreService;
 
     private readonly IDialogService _dialogService;
     private readonly IToastService _toastService;
@@ -37,7 +38,8 @@ public sealed partial class MainWindow : Window
         IDialogService dialogService,
         IToastService toastService,
         BackgroundProcessService backgroundServices,
-        ILicenseManagerService licenseManagerService)
+        ILicenseManagerService licenseManagerService,
+        DatabaseRestoreService databaseRestoreService)
     {
         InitializeComponent();
 
@@ -50,6 +52,7 @@ public sealed partial class MainWindow : Window
         _toastService = toastService;
         _backgroundServices = backgroundServices;
         _licenseManagerService = licenseManagerService;
+        _databaseRestoreService = databaseRestoreService;
 
         // Setup Custom TitleBar
         ExtendsContentIntoTitleBar = true;
@@ -83,6 +86,24 @@ public sealed partial class MainWindow : Window
         LoginView.RegisterRequested += OnRegisterRequested;
         UserOnboardingView.ViewModel.OnboardingCanceled += OnOnboardingCanceled;
         UserOnboardingView.ViewModel.RegistrationCompleted += OnRegistrationCompleted;
+
+        RestoreView.ParentWindow = this;
+        RestoreView.BackgroundProcessService = _backgroundServices;
+        RestoreView.DatabaseRestoreService = databaseRestoreService;
+        RestoreView.RestoreCanceled += (s, e) =>
+        {
+            RestoreView.Visibility = Visibility.Collapsed;
+            LoginView.Visibility = Visibility.Visible;
+        };
+        RestoreView.RestoreCompleted += (s, e) =>
+        {
+            RestoreView.Visibility = Visibility.Collapsed;
+            LoginView.Visibility = Visibility.Visible;
+            LoginView.SetLoading(false);
+            // APIs are back up; user can now log in normally
+        };
+
+        LoginView.RestoreRequested += (s, e) => ShowRestoreView();
 
         // Ensure app shuts down when window is closed
         Closed += (s, e) =>
@@ -502,5 +523,11 @@ public sealed partial class MainWindow : Window
         {
             return false;
         }
+    }
+
+    public void ShowRestoreView()
+    {
+        LoginView.Visibility = Visibility.Collapsed;
+        RestoreView.Visibility = Visibility.Visible;
     }
 }

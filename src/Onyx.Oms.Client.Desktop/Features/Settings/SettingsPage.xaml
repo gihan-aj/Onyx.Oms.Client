@@ -600,12 +600,21 @@
                                                IsEnabled="{x:Bind ViewModel.Backup.IsEditing, Mode=OneWay}" />
                                 </labs:SettingsCard>
 
+                                <InfoBar IsOpen="True" 
+                                         Severity="Informational" 
+                                         Title="Pro Tip: Free Cloud Backups" 
+                                         IsClosable="False">
+                                    <InfoBar.Message>
+                                        To automatically secure your data in the cloud, simply select your local Google Drive, OneDrive, or Dropbox sync folder as the backup location. Whenever Onyx creates a backup, your sync app will automatically upload it!
+                                    </InfoBar.Message>
+                                </InfoBar>
+
                             </StackPanel>
 
                         </StackPanel>
 
                         <!-- ── Danger Zone — Restore Database ─-->
-                        <StackPanel Style="{StaticResource CardStackStyle}">
+                        <!--<StackPanel Style="{StaticResource CardStackStyle}">
 
                             <StackPanel Margin="0,0,0,16">
                                 <TextBlock Text="Danger Zone"
@@ -617,15 +626,13 @@
                                            Margin="0,0,0,12" />
                             </StackPanel>
 
-                            <!-- InfoBar warning -->
                             <InfoBar IsOpen="True"
                                      Severity="Error"
                                      Title="This action will overwrite all current data."
                                      Message="Restoring a backup replaces the entire database. Any changes made after the backup was taken will be permanently lost."
                                      IsClosable="False"
                                      Margin="0,0,0,12" />
-
-                            <!-- Restore action card -->
+                            
                             <labs:SettingsCard Header="Restore Database from Backup"
                                                Description="Select a backup file to restore. The service must be restarted after the restore completes.">
                                 <labs:SettingsCard.HeaderIcon>
@@ -640,7 +647,7 @@
                                         BorderBrush="{ThemeResource SystemFillColorCriticalBrush}" />
                             </labs:SettingsCard>
 
-                        </StackPanel>
+                        </StackPanel>-->
                         
                     </StackPanel>
 

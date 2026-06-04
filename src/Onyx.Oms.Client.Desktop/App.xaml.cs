@@ -118,6 +118,8 @@ namespace Onyx.Oms.Client.Desktop
             // Wireup Backend Services
             services.AddSingleton<BackgroundProcessService>();
 
+            services.AddSingleton<DatabaseRestoreService>();
+
             // API Clients
             services.AddRefitClient<ICourierApi>()
                     .ConfigureHttpClient((sp, c) => 

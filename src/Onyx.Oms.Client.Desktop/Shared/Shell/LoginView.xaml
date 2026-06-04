@@ -67,6 +67,12 @@
                     HorizontalAlignment="Center" 
                     Margin="0,8,0,0"
                     Click="RegisterButton_Click"/>
+
+            <HyperlinkButton x:Name="RestoreLink"
+                 Content="Lost your data? Restore from a backup"
+                 HorizontalAlignment="Center"
+                 Margin="0,4,0,0"
+                 Click="RestoreLink_Click" />
         </StackPanel>
     </Grid>
 </UserControl>

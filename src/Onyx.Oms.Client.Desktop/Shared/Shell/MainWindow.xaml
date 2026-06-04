@@ -107,6 +107,12 @@
                                      Visibility="Collapsed"
                                      Canvas.ZIndex="12" />
 
+        <local:RestoreView x:Name="RestoreView"
+                   Grid.Row="1"
+                   Grid.RowSpan="2"
+                   Visibility="Collapsed"
+                   Canvas.ZIndex="13" />
+
         <!-- User Onboarding Overlay -->
         <onboarding:UserOnboarding x:Name="UserOnboardingView"
                                    Grid.Row="1"

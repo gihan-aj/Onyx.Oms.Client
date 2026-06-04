@@ -57,6 +57,7 @@
     <None Remove="Features\Settings\PaymentMethodsSettingsView.xaml" />
     <None Remove="Features\Users\UserOnboarding\UserOnboarding.xaml" />
     <None Remove="Features\Users\UsersPage.xaml" />
+    <None Remove="Shared\Shell\RestoreView.xaml" />
     <None Remove="Shared\Styles\Grid.xaml" />
     <None Remove="Shared\Styles\GridViewItem.xaml" />
     <None Remove="Shared\Styles\TextBlock.xaml" />
@@ -104,6 +105,7 @@
     <PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.2.251219" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.DataGrid" Version="7.1.2" />
     <PackageReference Include="Duende.IdentityModel.OidcClient" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.3" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.3" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.3" />
@@ -211,6 +213,12 @@
 	<Content Include="BackendServices\**\*.*">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Shared\Shell\RestoreView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <ItemGroup>

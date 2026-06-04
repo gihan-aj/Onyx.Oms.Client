@@ -189,5 +189,7 @@ namespace Onyx.Oms.Client.Desktop.Shared.Services
                 }
             }
         }
+
+        public void ResetReadyState() => IsReady = false;
     }
 }

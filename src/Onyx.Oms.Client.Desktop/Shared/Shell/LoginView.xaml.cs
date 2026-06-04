@@ -34,6 +34,7 @@ public sealed partial class LoginView : UserControl
             LoginButton.Visibility = Visibility.Collapsed;
             RegisterButton.Visibility = Visibility.Collapsed;
             LoginText.Visibility = Visibility.Collapsed;
+            RestoreLink.Visibility = Visibility.Collapsed;
             LoadingText.Text = message;
             LoadingText.Visibility = Visibility.Visible;
             LoadingSpinner.Visibility = Visibility.Visible;
@@ -43,6 +44,7 @@ public sealed partial class LoginView : UserControl
         {
             LoadingText.Visibility = Visibility.Collapsed;
             LoadingSpinner.Visibility = Visibility.Collapsed;
+            //RestoreLink.Visibility = Visibility.Visible;
             LoadingSpinner.IsActive = false;
         }
     }
@@ -52,11 +54,18 @@ public sealed partial class LoginView : UserControl
         LoginText.Visibility = isAuthenticated ? Visibility.Collapsed : Visibility.Visible;
         LoginButton.Visibility = isAuthenticated ? Visibility.Collapsed : Visibility.Visible;
         RegisterButton.Visibility = isAuthenticated ? Visibility.Collapsed : Visibility.Visible;
+        RestoreLink.Visibility = isAuthenticated ? Visibility.Collapsed : Visibility.Visible;
     }
 
     public void ShowError(string message)
     {
         ErrorMessageText.Text = message;
         ErrorMessageText.Visibility = Visibility.Visible;
+    }
+
+    public event EventHandler? RestoreRequested;
+    private void RestoreLink_Click(object sender, RoutedEventArgs e)
+    {
+        RestoreRequested?.Invoke(this, EventArgs.Empty);
     }
 }
