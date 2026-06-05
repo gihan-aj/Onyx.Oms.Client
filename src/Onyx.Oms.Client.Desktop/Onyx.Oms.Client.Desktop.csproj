@@ -216,6 +216,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="Assets\AppIcon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <Page Update="Shared\Shell\RestoreView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

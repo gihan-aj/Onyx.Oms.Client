@@ -129,6 +129,7 @@ public sealed partial class MainWindow : Window
         IntPtr hWind = WinRT.Interop.WindowNative.GetWindowHandle(this);
         WindowId windowId = Win32Interop.GetWindowIdFromWindow(hWind);
         _appWindow = AppWindow.GetFromWindowId(windowId);
+        _appWindow.SetIcon("Assets\\AppIcon.ico");
 
         _appWindow.Closing += AppWindow_Closing;
     }
