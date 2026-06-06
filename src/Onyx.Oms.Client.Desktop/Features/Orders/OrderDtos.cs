@@ -121,6 +121,7 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         string BaseCurrency,
         DateTimeOffset? OrderDate,
         DateTimeOffset CreatedOnUtc,
+        string? RollbackReason,
         List<OrderItemDetailsDto> Items,
         List<OrderPaymentDetailsDto> Payments
     );
@@ -362,6 +363,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
     public record FailDeliveryCommand(bool IsReturning, string? Reason);
 
     public record ShipOrderCommand(Guid CourierId, string? TrackingNumber);
+
+    public record RollbackOrderToPackedRequest(string Reason);
 
     public record ReceiveReturnRequest(bool IsReceived, string? Reason);
 

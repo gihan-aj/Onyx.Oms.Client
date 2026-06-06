@@ -138,6 +138,15 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
             set => SetProperty(ref _notes, value);
         }
 
+        // Advanced Actions (Danger Zone)
+        private AdvancedActionsViewModel? _advancedActions;
+        public AdvancedActionsViewModel? AdvancedActions
+        {
+            get => _advancedActions;
+            set => SetProperty(ref _advancedActions, value);
+        }
+
+
         // Status
         private bool _canConfirm = false;
         public bool CanConfirm
@@ -277,6 +286,10 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.Edit
                 BaseCurrency = orderDetails.BaseCurrency;
                 Payments = new PaymentsViewModel(orderDetails, _toastService, _ordersApi);
                 Notes = new NotesViewModel(orderDetails);
+
+                AdvancedActions = new AdvancedActionsViewModel(_ordersApi, _toastService);
+                AdvancedActions.OnActionCompleted = () => InitializeAsync(_orderId!.Value);
+                AdvancedActions.Configure(orderDetails.Id, orderDetails.Status, orderDetails.RollbackReason);
 
                 CanConfirm = orderDetails.Status == OrderStatus.Pending;
                 CanPack = orderDetails.Status == OrderStatus.ReadyToPack;

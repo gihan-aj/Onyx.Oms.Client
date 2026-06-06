@@ -1193,7 +1193,83 @@
                         </StackPanel>
                         
                     </Grid>
-                    
+
+                    <StackPanel Visibility="{x:Bind ViewModel.AdvancedActions.ShouldShowAdvacedActions, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Border BorderBrush="{ThemeResource SystemFillColorCriticalBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="20"
+                                Background="{ThemeResource LayerFillColorDefaultBrush}">
+                            <StackPanel Spacing="16">
+                                <!-- Header -->
+                                <StackPanel Spacing="4">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE7BA;"
+                                                  FontSize="14"
+                                                  Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                                  VerticalAlignment="Center" />
+                                        <TextBlock Text="Advanced Actions"
+                                                   Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                   Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                                   VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <TextBlock Text="These actions make irreversible structural changes to the order. Proceed with caution."
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                               TextWrapping="Wrap" />
+                                </StackPanel>
+                                <!-- Separator -->
+                                <Border Height="1"
+                                        Background="{ThemeResource SystemFillColorCriticalBrush}"
+                                        Opacity="0.2" />
+                                <!-- Revert Shipment action row (Status == Shipped) -->
+                                <Grid Visibility="{x:Bind ViewModel.AdvancedActions.CanRevertShipment, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
+                                        <TextBlock Text="Revert Shipment"
+                                                   Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                        <TextBlock Text="Cancels the shipment and returns items to 'Packed' status. A reason is required."
+                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                   TextWrapping="Wrap" />
+                                    </StackPanel>
+                                    <Button Grid.Column="1"
+                                            Content="Revert Shipment..."
+                                            Command="{x:Bind ViewModel.AdvancedActions.RevertShipmentCommand, Mode=OneWay}"
+                                            IsEnabled="{x:Bind ViewModel.IsBusy, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"
+                                            VerticalAlignment="Center"
+                                            Margin="16,0,0,0" />
+                                </Grid>
+
+                                <StackPanel Spacing="8" 
+                                            Visibility="{x:Bind ViewModel.AdvancedActions.HasRollbackHistory, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                            Margin="0,12,0,0">
+                                    <TextBlock Text="Rollback History"
+                                               Style="{StaticResource BodyStrongTextBlockStyle}"
+                                               Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+
+                                    <Border Background="{ThemeResource LayerFillColorAltBrush}"
+                                            BorderBrush="{ThemeResource SystemFillColorCriticalBrush}"
+                                            BorderThickness="0"
+                                            CornerRadius="4"
+                                            Padding="12">
+                                        <TextBlock Text="{x:Bind ViewModel.AdvancedActions.RollbackReason, Mode=OneWay}"
+                                                   Style="{StaticResource BodyTextBlockStyle}"
+                                                   TextWrapping="Wrap"
+                                                   FontFamily="Consolas"
+                                                   FontSize="11"
+                                                   Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                                   LineHeight="18" />
+                                    </Border>
+                                </StackPanel>
+                                
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
                 </StackPanel>
                 
             </Grid>

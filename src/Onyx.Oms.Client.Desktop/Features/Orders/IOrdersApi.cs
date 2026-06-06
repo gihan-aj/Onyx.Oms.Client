@@ -96,6 +96,9 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         [Post("/api/v1/orders/{id}/ship")]
         Task ShipOrder(Guid id, [Body] ShipOrderCommand command);
 
+        [Post("/api/v1/orders/{id}/rollback-to-packed")]
+        Task RollbackOrderToPacked(Guid id, [Body] RollbackOrderToPackedRequest command);
+
         [Post("/api/v1/orders/{id}/receive-return")]
         Task ReceiveReturn(Guid id, [Body] ReceiveReturnRequest command);
 
