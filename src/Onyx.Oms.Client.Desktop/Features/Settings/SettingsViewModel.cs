@@ -261,11 +261,11 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
                 OnCancelEdit = () => { } // Remove LoadDataAsync here since it's locally restored
             });
 
-            var prodValue = await _settingsApi.GetSequenceValue("PROD");
+            var prodValue = await _settingsApi.GetSequenceValue("PRD");
             Sequences.Add(new AppSequenceViewModel
             { 
-                Id = "PROD", 
-                DisplayName = "Product SKU (PROD)", 
+                Id = "PRD", 
+                DisplayName = "Product SKU (PRD)", 
                 CurrentValue = prodValue,
                 CanEdit = CanEditAppSequences,
                 OnCancelEdit = () => { } // Remove LoadDataAsync here since it's locally restored
