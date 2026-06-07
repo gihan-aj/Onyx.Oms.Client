@@ -64,8 +64,8 @@ namespace Onyx.Oms.Client.Desktop.Shared.Services
                 FileName = executablePath,
                 Arguments = args,
                 WorkingDirectory = Path.GetDirectoryName(executablePath),
-                UseShellExecute = false,   // Must be false to hide the window
-                CreateNoWindow = true,     // Do not create a console window
+                UseShellExecute = true,   // Must be false to hide the window
+                CreateNoWindow = false,     // Do not create a console window
                 WindowStyle = ProcessWindowStyle.Normal
             };
 
