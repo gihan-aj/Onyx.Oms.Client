@@ -25,7 +25,9 @@ public enum OrderItemStatus
     Pending = 1,
     InProduction = 2,
     Ordered = 3, // Procurement
-    Ready = 4
+    Ready = 4,
+    ToBeProduced = 5,
+    ToBeProcured = 6
 }
 
 public enum DiscountType

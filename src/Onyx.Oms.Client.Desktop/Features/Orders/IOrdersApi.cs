@@ -99,6 +99,12 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
         [Post("/api/v1/orders/{id}/rollback-to-packed")]
         Task RollbackOrderToPacked(Guid id, [Body] RollbackOrderToPackedRequest command);
 
+        [Post("/api/v1/orders/{id}/unpack")]
+        Task Unpack(Guid id, [Body] UnpackRequest command);
+
+        [Post("/api/v1/orders/{id}/rollback-to-pending")]
+        Task RollbackOrderToPending(Guid id, [Body] RollbackOrderToPendingRequest command);
+
         [Post("/api/v1/orders/{id}/receive-return")]
         Task ReceiveReturn(Guid id, [Body] ReceiveReturnRequest command);
 

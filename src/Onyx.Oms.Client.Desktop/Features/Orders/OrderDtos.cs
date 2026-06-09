@@ -365,6 +365,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders
     public record ShipOrderCommand(Guid CourierId, string? TrackingNumber);
 
     public record RollbackOrderToPackedRequest(string Reason);
+    public record UnpackRequest(string Reason);
+    public record RollbackOrderToPendingRequest(string Reason);
 
     public record ReceiveReturnRequest(bool IsReceived, string? Reason);
 

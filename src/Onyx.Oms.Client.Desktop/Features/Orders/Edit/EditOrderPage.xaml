@@ -1243,6 +1243,48 @@
                                             VerticalAlignment="Center"
                                             Margin="16,0,0,0" />
                                 </Grid>
+                                
+                                <Grid Visibility="{x:Bind ViewModel.AdvancedActions.CanRevertPacking, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
+                                        <TextBlock Text="Unpack"
+                                                   Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                        <TextBlock Text="Returns items to 'Ready To Pack' status. A reason is required."
+                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                   TextWrapping="Wrap" />
+                                    </StackPanel>
+                                    <Button Grid.Column="1"
+                                            Content="Revert Packing..."
+                                            Command="{x:Bind ViewModel.AdvancedActions.UnpackCommand, Mode=OneWay}"
+                                            IsEnabled="{x:Bind ViewModel.IsBusy, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"
+                                            VerticalAlignment="Center"
+                                            Margin="16,0,0,0" />
+                                </Grid>
+                                
+                                <Grid Visibility="{x:Bind ViewModel.AdvancedActions.CanRevertToPending, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
+                                        <TextBlock Text="Revert To Pending"
+                                                   Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                        <TextBlock Text="Release items, unlink any tasks and returns items to 'Pending' status. A reason is required."
+                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                   TextWrapping="Wrap" />
+                                    </StackPanel>
+                                    <Button Grid.Column="1"
+                                            Content="Unconfirm..."
+                                            Command="{x:Bind ViewModel.AdvancedActions.RevertToPendingCommand, Mode=OneWay}"
+                                            IsEnabled="{x:Bind ViewModel.IsBusy, Converter={StaticResource InvertedBoolConverter}, Mode=OneWay}"
+                                            VerticalAlignment="Center"
+                                            Margin="16,0,0,0" />
+                                </Grid>
 
                                 <StackPanel Spacing="8" 
                                             Visibility="{x:Bind ViewModel.AdvancedActions.HasRollbackHistory, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
