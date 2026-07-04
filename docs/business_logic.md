@@ -35,9 +35,9 @@ Onyx.Oms is an Order Management System tailored for a clothing business that rec
 - **Shipped**: Handed over to the courier; a tracking number is assigned.
 - **Delivered**: Courier has successfully delivered the package.
 - **Completed**: Order is delivered AND fully paid.
-- **Cancelled** = Order is cancelled.
-- **Return In Transit** = Courier is returning,
-- **Returned To Sender** = Package is returned,
+- **Cancelled**: Order is cancelled.
+- **Return In Transit**: Courier is returning,
+- **Returned To Sender**: Package is returned,
 - **Return Processed**: Package is processed and added good items back to inventory,
 - **Lost In Transit**: Package is lost while returning,
 - **DeliveryFailed**: Could not deliver and items are lost,
