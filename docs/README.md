@@ -41,7 +41,7 @@ Since this runs on a single local machine for a business that can't afford to lo
 
 ## Related repositories
 
-- [`Onyx.Oms`](https://github.com/gihan-aj/Onyx.Oms) — the order management backend (Clean Architecture, CQRS, multi-tenant)
+- [`Onyx.Oms`](https://github.com/gihan-aj/Onyx.Oms) — the order management backend (vertical slice architecture, CQRS, multi-tenant)
 - [`Onyx.IdP`](https://github.com/gihan-aj/Onyx.IdP) — the OpenID Connect identity provider (OpenIddict, vertical slice architecture)
 
 ## Known limitations & roadmap
