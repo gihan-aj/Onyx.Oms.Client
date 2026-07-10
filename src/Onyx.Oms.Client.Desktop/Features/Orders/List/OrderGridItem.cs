@@ -6,8 +6,8 @@ namespace Onyx.Oms.Client.Desktop.Features.Orders.List
         public bool CanView { get; set; }
 
         public string CustomerDisplay => string.IsNullOrWhiteSpace(CustomerEmail)
-            ? CustomerName
-            : $"{CustomerName} ({CustomerEmail})";
+            ? PrimaryPhone
+            : $"{PrimaryPhone} | {CustomerEmail}";
 
         public string GrandTotalDisplay => $"{GrandTotalCurrency} {GrandTotalAmount:N2}";
         public string BalanceDisplay => $"{GrandTotalCurrency} {BalanceAmount:N2}";

@@ -324,7 +324,7 @@
                                 <DataTemplate x:DataType="local:OrderGridItem">
                                     <StackPanel VerticalAlignment="Center" Margin="12,4">
                                         <TextBlock Text="{x:Bind CustomerName}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                                        <TextBlock Text="{x:Bind CustomerEmail, TargetNullValue=''}" FontSize="12" 
+                                        <TextBlock Text="{x:Bind CustomerDisplay, TargetNullValue=''}" FontSize="12" IsTextSelectionEnabled="True" 
                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}" 
                                            TextTrimming="CharacterEllipsis" Margin="0,2,0,0"/>
                                     </StackPanel>
