@@ -6,7 +6,7 @@ This document outlines the business logic, domain entities, workflows, and rules
 **Target Audience:** Developers, Product Owners, QA, Stakeholders.
 
 ## 2. System Overview
-Onyx.Oms is an Order Management System tailored for a clothing business that receives orders primarily through social media channels (Facebook, WhatsApp). The system handles product catalog management, order processing, inventory tracking, basic production/procurement task management for out-of-stock items, manual payment tracking, and integration with local couriers for shipping.
+Onyx.Oms is an Order Management System tailored for a clothing business that receives orders primarily through social media channels (Facebook, WhatsApp). The system handles product catalog management, order processing, inventory tracking, basic production/procurement task management for out-of-stock items, manual payment tracking, shipping fee calculation with zone rates, and integration with local couriers for shipping.
 
 ## 3. Domain Entities
 
@@ -35,6 +35,12 @@ Onyx.Oms is an Order Management System tailored for a clothing business that rec
 - **Shipped**: Handed over to the courier; a tracking number is assigned.
 - **Delivered**: Courier has successfully delivered the package.
 - **Completed**: Order is delivered AND fully paid.
+- **Cancelled**: Order is cancelled.
+- **Return In Transit**: Courier is returning,
+- **Returned To Sender**: Package is returned,
+- **Return Processed**: Package is processed and added good items back to inventory,
+- **Lost In Transit**: Package is lost while returning,
+- **DeliveryFailed**: Could not deliver and items are lost,
 
 ### 4.2 Order Item Statuses
 *These statuses help handle the complexity of out-of-stock items by distinguishing how they will be fulfilled.*
@@ -76,10 +82,14 @@ Onyx.Oms is an Order Management System tailored for a clothing business that rec
 ### 5.3 Shipping & Delivery
 1. **Packing**: The user marks the order as **Packed** and assigns a Courier (can be edited from confirmation until shipping).
 2. **Waybill Generation**: From a list of "Ready to Ship" orders, the user generates a waybill (integrating with the Courier Portal) to get a barcode and tracking number. (Tracking numbers can also be manually entered).
-3. **Dispatch**: Order is handed to the courier; status changes to **Shipped**.
-4. **Delivery**: Order reaches the customer; status changes to **Delivered**.
+3. **Invoice/Receipt or Shipping bill**: An invoice or receipt can be generated with order status and a shipping bill without courier portal integration for orders and automatically sent with order status message to the customer's WhatsApp number with WhatsApp Business Account integration (Paid service by Meta) at any point.
+4. **Dispatch**: Order is handed to the courier; status changes to **Shipped**.
+5. **Delivery**: Order reaches the customer; status changes to **Delivered**.
 
-### 5.4 Post-Delivery Payment (COD)
+### 5.4 Payments
+1. **Payment Method Configuration**: Payment methods (Koko, Payhere) can be configured with fee rates for accurate financial reports
+
+### 5.5 Post-Delivery Payment (COD)
 1. For COD orders, the courier service remits the payment after delivery.
 2. The user manually adds the payment record to the order in the system.
 3. Once the payment status becomes **Fully Paid**, the delivered order automatically or manually transitions to **Completed**.
@@ -90,5 +100,9 @@ Onyx.Oms is an Order Management System tailored for a clothing business that rec
 - **Readiness Rule**: An order cannot transition to "Ready to Pack" unless all its Order Items have a status of "Ready" or "Allocated".
 - **Completion Rule**: An order only transitions from "Delivered" to "Completed" if its Payment Status is "Fully Paid".
 
-## 7. Integration Points
+## 7. Financial Reports
+- **Expenses**: Expenses can be added for default or user-defined categories.
+- **Financial Report**: A monthly report can be generated to track financial status.
+
+## 8. Integration Points
 - **Local Couriers**: Integration for generating waybills, fetching tracking numbers, and potentially updating shipping statuses.
